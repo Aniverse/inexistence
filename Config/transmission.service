@@ -1,10 +1,11 @@
-﻿[Unit]
+[Unit]
 Description=Transmission BitTorrent Daemon
 After=network.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/transmission-daemon -f --log-error
+LimitNOFILE=100000
+ExecStart=/usr/local/bin/transmission-daemon -f --log-error -g /root/.config/transmission
 
 [Install]
 WantedBy=multi-user.target
