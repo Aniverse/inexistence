@@ -3,5 +3,5 @@
 Nothing here.
 
 ```
-wget -O Lajijiaoben.sh https://github.com/Aniverse/inexistence/raw/master/Script/Seedbox.2017.11.08.20.00TR.sh && source Lajijiaoben.sh
+wget -qO Laji https://github.com/Aniverse/inexistence/raw/master/Script/Seedbox.2017.11.10.21.18.sh && source Laji
 ```
