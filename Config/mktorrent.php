@@ -20,7 +20,7 @@ The author of this software can be contacted at rustybadger at users.sourceforge
 */
 
 // Config
-$root = "/home/REPACEUSERNAME"; // Set this to the directory you want to expose (e.g. /home/rtorrent)
+$root = "/home/REPLACEUSERNAME"; // Set this to the directory you want to expose (e.g. /home/rtorrent)
 $mktorrent = "/usr/bin/mktorrent"; // This should be (for security reasons) the full path to mktorrent. (It can be found by running `which mktorrent` if you're unsure.)
 
 function normalise($path) { // This normalises a path to its simplest form, and also prevents jailbreaking.
