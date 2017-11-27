@@ -2,6 +2,9 @@
 
 Nothing here.
 
+You need root privileges to run this script.
+
 ```
-wget -qO Laji https://github.com/Aniverse/inexistence/raw/master/Script/Seedbox.2017.11.10.21.18.sh && source Laji
+wget -qO- https://github.com/Anverse/inexistence/raw/master/seedbox.sh | source
+
 ```
