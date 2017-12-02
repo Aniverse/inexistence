@@ -1,0 +1,63 @@
+templates:
+  freespace:
+    free_space:
+      path: /home/SCRIPTUSERNAME
+      space: 10240
+  qb:
+    qbittorrent:
+      path: /home/SCRIPTUSERNAME/qbittorrent/download/
+      host: localhost
+      port: 2017
+  tr:
+    transmission:
+      path: /home/SCRIPTUSERNAME/transmission/download/
+      host: localhost
+      port: 9099
+  de:
+    deluge:
+      path: /home/SCRIPTUSERNAME/deluge/download/
+      host: localhost
+      port: 58846
+      username: SCRIPTUSERNAME
+      password: SCRIPTPASSWORD
+  size:
+    content_size:
+      min: 6000
+      max: 666666
+      strict: no
+tasks:
+  HDChina:
+    rss: https://hdchina.org/torrentrss.php
+    verify_ssl_certificates: no
+    if:
+      - "'HDChina' in title and '1080p' in title": accept
+      - "'HDCTV' in title": accept
+    template:
+      - freespace
+      - size
+      - qb
+    qbittorrent:
+      label: HDChina
+  TTG:
+    rss: https://totheglory.im/putrss.php
+    verify_ssl_certificates: no
+    regexp:
+      accept:
+        - -TTG
+        - -WiKi
+      reject:
+        - DoA
+    template:
+      - freespace
+      - size
+      - qb
+    qbittorrent:
+      label: TTG
+  nCore:
+    rss: https://ncore.cc/rss/rssdd.xml
+    accept_all: yes
+    download: /home/SCRIPTUSERNAME/deluge/watch
+web_server:
+  port: 6566
+  web_ui: yes
+schedules: no
