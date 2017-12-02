@@ -1,0 +1,24 @@
+#------------------------------------------------------------------------------#
+#                            OFFICIAL UBUNTU REPOS                             #
+#------------------------------------------------------------------------------#
+
+
+###### Ubuntu Main Repos
+deb http://archive.ubuntu.com/ubuntu/ RELEASE main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ RELEASE main restricted universe multiverse
+
+###### Ubuntu Update Repos
+deb http://archive.ubuntu.com/ubuntu/ RELEASE-security main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ RELEASE-updates main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ RELEASE-backports main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ RELEASE-security main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ RELEASE-updates main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ RELEASE-backports main restricted universe multiverse
+
+###### Ubuntu Partner Repo
+deb http://archive.canonical.com/ubuntu RELEASE partner
+deb-src http://archive.canonical.com/ubuntu RELEASE partner
+
+###### Ubuntu Multimedia
+#deb http://www.deb-multimedia.org jessie main non-free
+#deb-src http://www.deb-multimedia.org jessie main non-free

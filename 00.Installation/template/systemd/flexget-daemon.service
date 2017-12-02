@@ -1,0 +1,11 @@
+[Unit]
+Description=flexget Daemon
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/flexget daemon start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
