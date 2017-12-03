@@ -1,0 +1,15 @@
+[Unit]
+Description=rTorrent
+After=network.target
+
+[Service]
+Type=forking
+KillMode=none
+User=%I
+ExecStartPre=-/bin/rm -f /home/%I/.sessions/rtorrent.lock
+ExecStart=/usr/bin/screen -d -m -S rtorrent /usr/bin/rtorrent
+ExecStop=/usr/bin/screen -S rtorrent -X quit
+WorkingDirectory=/home/%I/
+
+[Install]
+WantedBy=multi-user.target

@@ -1,2 +1,2 @@
 #!/bin/sh
-mono /etc/inexistence/002.Tools/bdinfo-cli.exe "$1" /etc/inexistence/004.BDinfo
+mono /etc/inexistence/02.Tools/bdinfocli.exe "$1" /etc/inexistence/08.BDinfo
