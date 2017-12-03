@@ -2,9 +2,10 @@
 yellow=$(tput setaf 3); cyan=$(tput setaf 6); normal=$(tput sgr0)
 red=$(tput setaf 1); green=$(tput setaf 2); bold=$(tput bold)
 
-${yellow}
-cat /etc/inexistence/004.BDinfo/*
-${normal}
+clear
+echo -ne "${yellow}"
+cat /etc/inexistence/08.BDinfo/*
+echo -e "${normal}"; echo
 
 echo "${cyan}Would you like to delete the output BDinfo report file?${normal} [${red}Y${normal}]es or [N]o: "; read responce
 case $responce in
