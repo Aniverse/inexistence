@@ -51,13 +51,13 @@ fi
 function _intro() {
 
 clear
-wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/upload.logo.1
+wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/bluray.logo.1
 echo -e "${bold}Automated Blu-ray Upload Toolkit${normal}"
 
 
 if [[ $EUID != 0 ]]; then
     echo; echo "${baihongse}You need to run this script with root privileges${normal}"
-    echo " Exiting..."
+    echo " Exiting..."; echo
     exit 1
 fi
 
@@ -73,6 +73,7 @@ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut; 
     app_name=$apps; _check_install
 done
 
+rm -rf tmpmissingapp
 
 if [[ $appmissing == "Yes" ]]; then
 
@@ -106,12 +107,10 @@ if [[ $appmissing == "Yes" ]]; then
     fi
 
     clear
-    wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/upload.logo.1
+    wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/bluray.logo.1
     echo -e "${bold}Automated Blu-ray Upload Toolkit${normal}"
 
 fi
-
-rm -rf tmpmissingapp
 
 }
 
@@ -123,7 +122,7 @@ rm -rf tmpmissingapp
 function _askpath() {
 
 echo; echo -e "Note that ${blue}Ultra Blu-ray${white} is not supported yet"
-echo -ne "${yellow}Input the path to your stuff ${normal}"; read pathtostuff
+echo -ne "${yellow}Input the path to your stuff: ${normal}"; read pathtostuff
 echo
 
 }
@@ -176,7 +175,7 @@ main_m2ts_path=$(echo "$tempvar" | head -n 1)
 duration1=$(ffmpeg -i "$main_m2ts_path"  /dev/null 2>&1 | egrep '(Duration:)' | cut -d ' ' -f4 | cut -c1-8)
 duration2=`date -u -d "1970-01-01 $duration" +%s`
 
-mkdir -p "/etc/inexistence/04.BluRay/$file_title_clean"
+mkdir -p "/etc/inexistence/04.Upload/$file_title_clean"
 outputpath="/etc/inexistence/04.Upload/$file_title_clean"
 
 echo

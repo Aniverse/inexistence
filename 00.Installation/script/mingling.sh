@@ -149,8 +149,9 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-INEXISTENCE=$(cat /etc/profile | grep INEXISTENCE | cut -c13-)
-
+inexistence=`cat /etc/profile | grep inexistence | cut -c13-`
+INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
+INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
 # --------------------------------------------------------------------------------
 
 
@@ -172,7 +173,7 @@ if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then
     echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${white} 系统，本脚本的大部分功能无法正常使用${normal}"
 fi
 
-if [[ ! "$INEXISTENCE" == 1 ]]; then
+if [[ ! "$inexistence" == "Yes" ]]; then
     echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}"
 fi
 
@@ -193,7 +194,7 @@ function _main_menu() {
   echo -e "${yellow}${bold}你想做些什么？ (默认选择退出)"
   echo -e ""
 
-  if [[ "$INEXISTENCE" == 1 ]]; then
+  if [[ "$inexistence" == "Yes" ]]; then
       echo -e "${green}(01) ${white}查看 SSH 命令"
 	  echo -e "${green}(02) ${white}查看客户端的网址"
   fi
@@ -274,7 +275,7 @@ function _usage() {
 
 clear;echo
 
-if [[ "$INEXISTENCE" == 1 ]] && [[ "$tweaks" == Yes ]]; then
+if [[ ! "$inexistence" == "Yes" ]] && [[ "$tweaks" == Yes ]]; then
 
     echo -e "${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
     echo
@@ -314,7 +315,7 @@ function _showurl() {
 
 clear;echo
 
-if [[ "$INEXISTENCE" == 1 ]]; then
+if [[ ! "$inexistence" == "Yes" ]]; then
 
     echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal} "
     echo
