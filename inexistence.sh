@@ -20,8 +20,7 @@
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
-### 色彩定义 ###
-function _colors() {
+### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
 on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
@@ -32,9 +31,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
 heibaise=${black}${on_white};
 shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
-}
 # --------------------------------------------------------------------------------
-### 硬盘大小计算 ###
+### 硬盘计算 ###
 calc_disk() {
     local total_size=0
     local array=$@
@@ -54,24 +52,10 @@ function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
-###   master/Config
 # --------------------------------------------------------------------------------
-# [a-z_][a-z0-9_-]*[$]?（官方）
-# ^[a-zA-Z][a-zA-Z0-9_]{4,15}$
-# [a-z][a-zA-Z0-9_-]{1,30}$（自己写的）
-# adduser --gecos "" a_a --disabled-password
-# echo "${ANUSER}:${ANPASS}" | sudo chpasswd
-
-# The username may only consist of characters and numbers and must start with a character
-# the username should consist only of letters, digits, underscores, periods, at signs and dashes, and not start with a dash (as defined by IEEE Std 1003.1-2001). For compatibility with Samba machine accounts $ is also supported at the end
-
-
-
 
 
 clear
-
-
 
 
 # --------------------- 系统检查 --------------------- #
@@ -105,7 +89,6 @@ function _intro() {
   freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   tram=$( free -m | awk '/Mem/ {print $2}' )
   uram=$( free -m | awk '/Mem/ {print $3}' )
-  wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet' |awk 'NR==1 {print $0}'`
 
   clear
 
@@ -215,12 +198,13 @@ tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs
 }
 
 
-# 询问用户名
+# 询问用户名。检查用户名是否有效的功能以后再做
 function _askusername(){
 
     clear
-    echo "${bold}${yellow}The script needs a username${normal}"
-    echo "${bold}This will be your primary user. It can be an existing user or a new user ${normal}"
+    echo "${bold}${yellow}The script needs a username${white}"
+    echo "The username may only consist of characters and numbers and must start with a character"
+    echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
     confirm_name=1
     while [ $confirm_name = 1 ]
@@ -238,10 +222,10 @@ function _askusername(){
 }
 
 
-# 检查用户名是否有效，这个功能以后再加上（其实是等 rtinst 作者更新……）
 
 
-# 询问密码
+
+# 询问密码。检查密码是否足够复杂的功能以后再做（需要满足 Flexget WebUI 密码复杂度的要求）
 function _askpassword() {
 local localpass
 local exitvalue=0
@@ -251,11 +235,12 @@ local password2
 exec 3>&1 >/dev/tty
 
 echo
-echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${normal} "
+echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
+echo "The password must consist of characters and numbers and at least 9 chars"
 
 while [ -z $localpass ]
 do
-  echo "${bold}Please enter the new password (6+ chars), or leave blank to generate a random one${normal}"
+  echo "${bold}Please enter the new password, or leave blank to generate a random one${normal}"
   stty -echo
   read password1
   stty echo
@@ -264,8 +249,8 @@ do
       echo "${bold}Random password generated${normal} "
       exitvalue=1
       localpass=$(genpasswd)
-  elif [ ${#password1} -lt 6 ]; then
-      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[6]${normal}${bold} chars long${normal}" && continue
+  elif [ ${#password1} -lt 9 ]; then
+      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
       echo "${bold}Enter the new password again${normal} "
       stty -echo
@@ -779,7 +764,7 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  echo "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ;read input
+  echo -ne "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ;read input
 }
 
 
@@ -813,7 +798,8 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
-sed -i '/^INEXISTENCE/'d /etc/profile
+sed -i '/^inexistence/'d /etc/profile
+sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
 sed -i '/^ANPASS/'d /etc/profile
 sed -i '/^QBVERSION/'d /etc/profile
@@ -826,12 +812,15 @@ sed -i '/^rclone/'d /etc/profile
 sed -i '/^tweaks/'d /etc/profile
 sed -i '/^bbr/'d /etc/profile
 sed -i '/^tools/'d /etc/profile
-sed -i '/^#####\ U/'d /etc/profile
+sed -i '/^aptsources/'d /etc/profile
+sed -i '/^#####\ U.*/'d /etc/profile
 
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
-INEXISTENCE=1
+inexistence=Yes
+INEXISTENCEVER=085
+INEXISTENCEDATE=20171208
 ANUSER=${ANUSER}
 ANPASS=${ANPASS}
 QBVERSION="${QBVERSION}"
@@ -1253,9 +1242,9 @@ function _installtools() {
 
 cd
 
-########## 安装 ffmpeg x265 x264 yasm imagemagick montage ##########
+########## 安装 ffmpeg x265 x264 yasm imagemagick ##########
 
-apt-get install -y imagemagick montage
+apt-get install -y imagemagick
 
 if [[ $DISTRO == Ubuntu ]]; then
     apt-get -y install x265
@@ -1286,7 +1275,7 @@ make -j${MAXCPUS}
 make install
 cp -f /usr/local/bin/ffmpeg /usr/bin
 cp -f /usr/local/bin/ffprobe /usr/bin
-rm -rf /root/tmp/ffmpeg >>"${OUTTO}" 2>&1
+rm -rf /root/tmp/ffmpeg
 
 ########## 安装 mkvtoolnix ##########
 
@@ -1338,7 +1327,7 @@ fi
 dpkg -i 1 2 3
 rm -rf 1 2 3
 
-########### 安装 mono wine vnc4server imagemagick ##########
+########### 安装 mono wine vnc4server ##########
 
 cd
 apt-get install -y mono-complete wine vnc4server
@@ -1401,7 +1390,7 @@ function _tweaks() {
 if [ ! $tweaks == "No" ]; then
 
     rm -rf /etc/localtime
-    cp -a /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     ntpdate time.windows.com
     hwclock -w
 
