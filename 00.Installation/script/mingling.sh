@@ -152,6 +152,7 @@ date=$( date +%Y-%m-%d" "%H:%M:%S )
 inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
 INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
+tweaks=`cat /etc/profile | grep tweaks | cut -c11-`
 # --------------------------------------------------------------------------------
 
 
@@ -902,14 +903,14 @@ if [[ "${scripts_action}" == "01" ]]; then
 
     echo; echo -e "准备开始安装辣鸡脚本 ..."
     wget --no-check-certificate -qO /tmp/mingling/inexistence.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh
-	bash /tmp/mingling/inexistence.sh
+    bash /tmp/mingling/inexistence.sh
     _xunwen1; _scripts_menu_response
 
 elif [[ "${scripts_action}" == "02" ]]; then
 
 #    echo; echo -e "准备开始安装BBR ..."
     echo "本功能还在施工中 ... 目前无法使用"
-#    wget --no-check-certificate -qO /tmp/mingling/bbrinstall.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/还没写好呢
+#    wget --no-check-certificate -qO /tmp/mingling/bbrinstall.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/bbrinstall.sh
 #    bash /tmp/mingling/bbrinstall.sh
     _xunwen1; _scripts_menu_response
 
@@ -917,7 +918,7 @@ elif [[ "${scripts_action}" == "03" ]]; then
 
 #    echo; echo -e "准备开始安装锐速 ..."
     echo "本功能还在施工中 ... 目前无法使用"
-#    wget --no-check-certificate -qO /tmp/mingling/ruisuinstall.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/还没写好呢
+#    wget --no-check-certificate -qO /tmp/mingling/ruisuinstall.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/ruisuinstall.sh
 #    bash /tmp/mingling/ruisuinstall.sh
     _xunwen1; _scripts_menu_response
 
@@ -932,7 +933,7 @@ elif [[ "${scripts_action}" == "05" ]]; then
 
 #    echo; echo -e "重装系统准备ing ..."
     echo "本功能还在施工中 ... 目前无法使用"
-#    wget --no-check-certificate -qO /tmp/mingling/systemreinsatll.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/还没写好呢
+#    wget --no-check-certificate -qO /tmp/mingling/systemreinsatll.sh https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh
 #    bash /tmp/mingling/systemreinsatll.sh
     _xunwen1; _scripts_menu_response
 
@@ -963,7 +964,7 @@ elif [[ "${scripts_action}" == "09" ]]; then
 
 elif [[ "${scripts_action}" == "10" ]]; then
 
-    echo; echo
+    echo
     _main_menu
 
 fi
@@ -981,13 +982,13 @@ function _doc() {
   clear;echo
   echo -e " ${black}${on_white}${bold}                                       08. 某辣鸡的脚本说明                                         ${normal} "
   echo -e "${bold}"
-  echo -e " ${red}注意${white} 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确                               "
-  echo -e " 很多代码是各处抄来的，具体抄了哪些此处就不写上了。感谢那些写脚本的大佬                "
+  echo -e " ${red}注意${white} 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确"
+  echo -e " 很多代码是各处抄来的，具体抄了哪些此处就不写上了。感谢那些写脚本的大佬"
 
-  echo -e " 如果你的 SSH 窗口宽度值较小，可能排版会比较糟糕，建议拉大一点看看                                             "
+  echo -e " 如果你的 SSH 窗口宽度值较小，可能排版会比较糟糕，建议拉大一点看看"
   echo -e " "
-  echo -e " 如果客户端操作菜单中，提示你未检测到 systemd 但你已经安装了对应的客户端，你可以选择手动配置 systemd           "
-  echo -e " 如果你发现客户端在运行但你就是打不开 WebUI，重启了也没用———别问我，我也不知道 ......                          "
+  echo -e " 如果客户端操作菜单中，提示你未检测到 systemd 但你已经安装了对应的客户端，你可以选择手动配置 systemd"
+  echo -e " 如果你发现客户端在运行但你就是打不开 WebUI，重启了也没用 ——— 别问我，我也不知道 ......"
   echo -e "${normal}"
 }
 
