@@ -1,12 +1,12 @@
-## Laji Scripts
+## Laji Scripts  
+  
 
+> 这只是一个不会 shell、不会 Linux 的刷子无聊写着玩的产物 ...
 
-> 这只是一个不会 shell、不会 Linux 的刷子无聊写着玩的产物 ……
-
-
+  
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
 本介绍的内容不会及时更新。目前最新的脚本在界面上和截图里有一点不一样  
-
+  
 -------------------
 # Inexistence
 
@@ -15,7 +15,6 @@
 ``` 
 wget -q https://github.com/Aniverse/inexistence/raw/master/inexistence.sh && bash inexistence.sh
 ```
--------------------
 #### 安装介绍
 
 `Checking your server's public IP address ...
@@ -31,25 +30,25 @@ If you stuck here for a while, please press Ctrl+C to stop the script`
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
 1. **账号密码**  
-根据你输入的账号会新建一个 UNIX 用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。
+根据你输入的账号会新建一个 UNIX 用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。  
 目前这个功能有一个问题，脚本不会检测输入的用户名和密码是否合法。所以如果你用了不合法的用户名（比如数字开头）或者不合法的密码（密码复杂度太低），脚本不会提示出错，但实际在软件的使用中你可能会碰到问题
 
 2. 是否更换**系统源**  
 大多数情况下无需换源。某些 VPS 默认的源有点问题我才加入了这个选项
 
 3. 编译时使用的**线程数量**（四个 BT 客户端默认都是编译安装的）  
-一般来说独服用默认的选项，也就是全部线程都用于编译就可以了…… 某些 VPS 可能限制下线程数量比较好，不然可能会翻车
+一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
+某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 
 4. **qBittorrent**  
 其实有安装 4.0.2 版本的选项，不过似乎编译不成功，因此我就没显示出来了。以后再测试这个的编译 
 
 5. **Deluge 与 libtorrent**  
-Deluge 会安装额外的插件 `LabelPlus` `AutoRemovePlus` `YaRSS2` `Stats` `TotalTraffic`  
+Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选默认的就可以了  
 `ltconfig` 是一个调整 libtorrent 参数的插件，在安装时就启用了 `High Performance Seed` 模式  
 `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，可以显示速度曲线和 Deluge 的总体传输流量  
-`YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理，可以针对特定 Tracker 的种子自动限速。这两个都需要 GtKUI  
+`YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理。这两个也需要 GtKUI  
 `AutoRemovePlus` 是自动删种插件，支持 WebUI  
-libtorrent 版本不知道选什么的话选默认的就可以了  
 
 6. **rTorrent + ruTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的（SSH端口22，不关闭 root 登陆，安装 webmin 和 h5ai）  
@@ -58,14 +57,14 @@ libtorrent 版本不知道选什么的话选默认的就可以了
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 目前这个脚本安装的 0.9.6 版本不支持 IPv6，我还不知道哪里出了问题  
-0.9.4 支持 IPv6 用的是打好补丁的版本。理论上来说这是一个修改版，所以是否要安装这个版本就由你自己来定夺了  
+0.9.4 支持 IPv6 用的是打好补丁的版本。理论上来说这是一个修改版，所以是否要用这个版本就由你自己来定夺了  
 此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
 
 7. **Transmission**  
 会自动安装修改版的 WebUI。Debian 9下的编译安装我失败了，目前还没解决这个问题；因此针对 Debian 9 就强制采用从 repo 安装的办法
 
 8. **PPA**  
-实际上针对 tr/de/qb 我加入了不编绎，从 PPA 或者 repo 里安装的选项，不过默认是不显示这些选项的  
+实际上对于 tr/de/qb 我加入了不编绎，从 PPA 或者 repo 里安装的选项，不过默认是不显示这些选项的  
 输入 30 是从 repo 安装，输入 40 是添加 ppa 后安装（ppa 仅对 Ubuntu 有效 ）  
 
 9. **Flexget**  
@@ -220,7 +219,7 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
 2. 你安装时的选项（在开始安装前那一步截图）  
 3. 你具体碰到了什么问题  
 
-需要注意的是有一些问题可能不是本脚本造成的。  
+需要注意的是有些问题可能不是本脚本造成的  
 
   -------------------
 ### Some references
