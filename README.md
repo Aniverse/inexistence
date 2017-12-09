@@ -32,13 +32,14 @@ If you stuck here for a while, please press Ctrl+C to stop the script`
 
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
-1. 询问**账号密码**  
+1. **账号密码**  
 根据你输入的账号会新建一个 UNIX 用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。
 目前这个功能有一个问题，脚本不会检测输入的用户名和密码是否合法。所以如果你用了不合法的用户名（比如数字开头）或者不合法的密码（密码复杂度太低），脚本不会提示出错，但实际在软件的使用中你可能会碰到问题……
 2. 是否更换**系统源**  
 大多数情况下无需换源。某些 VPS 默认的源有点问题我才加入了这个选项
-3. 问你编译时使用的**线程数量**
-（四个 BT 客户端默认都是编译安装的） 一般来说独服用默认的选项，也就是全部线程都用于编译就可以了…… 某些 VPS 可能限制下线程数量比较好，不然可能会翻车
+3. 编译时使用的**线程数量**  
+（四个 BT 客户端默认都是编译安装的）  
+一般来说独服用默认的选项，也就是全部线程都用于编译就可以了…… 某些 VPS 可能限制下线程数量比较好，不然可能会翻车
 4. **qBittorrent**  
 其实有安装 4.0.2 版本的选项，不过似乎编译不成功，因此我就没显示出来了。以后再测试这个的编译 
 5. **Deluge libtorrent**  
@@ -148,55 +149,46 @@ mingling
  -------------------
 ## bdjietu
 
-#### 运行
-```
-bdjietu
-```
 
- #### 介绍
-
-这个是单独抽出来的，用于给BD截图的脚本。输入BDMV的路径后会自动从中找出最大的 m2ts 文件，截图10张到指定的目录。
+这个是单独抽出来的，用于给 BD 截图的脚本。输入 BDMV 的路径后会自动从中找出最大的 m2ts 文件，截图 10 张到指定的目录。
 其实就是用 ffmepg 来截图，不过指定了分辨率和输出的路径
  
  ![bdjietu输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdjietu.01.png)
  
   -------------------
- ## bdjietu
+ ## bdinfo
 
-####  运行
-```
-bdinfo
-```
 
-#### 介绍
-
-这个是单独抽出来的，用于给 BDMV 扫描 BDino 的脚本。
+这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本。
 运行完以后会问你是否在 SSH 上输出 BDinfo Quick Summary. （个人认为直接输出到 SSH 上复制下来就行了，没必要下回本地）
 
   ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
  
- BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的……
+BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的……
  
  
   -------------------
 
+还有一些脚本，先不介绍了……
+
+  -------------------
 ### Some references
 
 
-https://github.com/arakasi72/rtinst
-https://github.com/QuickBox/QB
-https://github.com/qbittorrent/qBittorrent/wiki
-https://flexget.com
-https://rclone.org/install
-http://dev.deluge-torrent.org/wiki/UserGuide
-https://mkvtoolnix.download/downloads.html
-http://outlyer.net/etiq/projects/vcs
-http://wilywx.com
-https://www.dwhd.org
-https://moeclub.org
-https://github.com/teddysun/across
-https://github.com/oooldking/script
-https://github.com/outime/ipv6-dhclient-script
-https://github.com/GalaxyXL/qBittorrent-autoremove
-https://xxxxxx.org/forums/viewtopic?topicid=61434
+https://github.com/arakasi72/rtinst  
+https://github.com/QuickBox/QB  
+https://github.com/qbittorrent/qBittorrent/wiki  
+https://flexget.com  
+https://rclone.org/install  
+http://dev.deluge-torrent.org/wiki/UserGuide  
+https://mkvtoolnix.download/downloads.html  
+http://outlyer.net/etiq/projects/vcs  
+http://wilywx.com  
+https://www.dwhd.org  
+https://moeclub.org  
+https://github.com/teddysun/across  
+https://github.com/oooldking/script  
+https://github.com/outime/ipv6-dhclient-script  
+https://github.com/GalaxyXL/qBittorrent-autoremove  
+https://xxxxxx.org/forums/viewtopic?topicid=61434  
 
