@@ -253,9 +253,9 @@ elif [ "${thingstodo}" == "6" ]; then
     _show_client_menu ; _client_menu_response
 
 elif [ "${thingstodo}" == "7" ]; then
-   _show_scripts_menu ; _scripts_menu_response
-#    echo "这个功能还没做好"; echo
-#    _main_menu
+#  _show_scripts_menu ; _scripts_menu_response
+    echo "这个功能还没做好"; echo
+    _main_menu
 
 elif [ "${thingstodo}" == "8" ]; then
     _doc ; _main_menu

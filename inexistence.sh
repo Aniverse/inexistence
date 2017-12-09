@@ -278,7 +278,7 @@ return $exitvalue
 
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 function _askaptsource() {
-  echo -ne "${bold}${yellow}Would you like to change /etc/apt/sources.list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
   case $responce in
       [yY] | [yY][Ee][Ss]) aptsources=Yes ;;
       [nN] | [nN][Oo] | "" ) aptsources=No ;;
@@ -552,14 +552,16 @@ function _asktr() {
   if [ "${TRVERSION}" == "No" ]; then
       echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
   else
+
       if [ "$CODENAME" = "stretch" ]; then
-          ecgo "Now the make install "
+          ecgo "Sorry, now the compilation on Debian 9 doesn't work"
           echo "For ${green}${bold}Debian 9${normal}${bold}, Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
           TRVERSION='Install from repo'
       fi
 
       if [[ "${TRVERSION}" == "Install from repo" ]]; then 
           echo -ne "${bold}Transmission will be installed from repository, and "
+
           if [ "$CODENAME" = "stretch" ]; then
               echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92-2${normal}"
           elif [ "$CODENAME" = "jessie" ]; then
@@ -567,7 +569,9 @@ function _asktr() {
           elif [ "$CODENAME" = "xenial" ]; then
               echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84-3ubuntu3${normal}"
           fi
+
       elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
+
           if [[ $DISTRO == Debian ]]; then
               echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
               echo -e "Change install mode to ${cyan}Install from repo${white}"
@@ -575,7 +579,11 @@ function _asktr() {
           else
               echo "Transmission will be installed from Stable PPA, in most cases it will be the latest version"
           fi
+
       fi
+
+      echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
+
   fi
   echo
 }
@@ -761,6 +769,7 @@ function _askcontinue() {
   echo -e "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
   echo -e "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
   echo -e "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
+  echo -e "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}"${aptsources}"${normal}"
   echo
   echo '####################################################################'
   echo
@@ -1556,7 +1565,6 @@ echo
 
 # --------------------- 结构 --------------------- #
 
-_colors
 _intro
 _checkroot
 _warning
