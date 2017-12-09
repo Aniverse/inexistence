@@ -6,7 +6,7 @@
 
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。
 本介绍的内容不会及时更新。目前最新的脚本在界面上和截图里有一点不一样……
-有 bug 的话最好 QQ 私聊通知我 …… **不保证能解决**
+有 bug 的话最好 QQ 私聊通知我。 **不保证能解决**
 
 
 -------------------
@@ -35,15 +35,15 @@ If you stuck here for a while, please press Ctrl+C to stop the script`
 1. 询问**账号密码**  
 根据你输入的账号会新建一个 UNIX 用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。
 目前这个功能有一个问题，脚本不会检测输入的用户名和密码是否合法。所以如果你用了不合法的用户名（比如数字开头）或者不合法的密码（密码复杂度太低），脚本不会提示出错，但实际在软件的使用中你可能会碰到问题……
-2. 是否更换**系统源**
+2. 是否更换**系统源**  
 大多数情况下无需换源。某些 VPS 默认的源有点问题我才加入了这个选项
 3. 问你编译时使用的**线程数量**
 （四个 BT 客户端默认都是编译安装的） 一般来说独服用默认的选项，也就是全部线程都用于编译就可以了…… 某些 VPS 可能限制下线程数量比较好，不然可能会翻车
 4. **qBittorrent**  
 其实有安装 4.0.2 版本的选项，不过似乎编译不成功，因此我就没显示出来了。以后再测试这个的编译 
-5. **Deluge libtorrent** 
+5. **Deluge libtorrent**  
 libtorrent 版本不知道选什么的话选默认的就可以了
-6. **rTorrent + ruTorrent**   
+6. **rTorrent + ruTorrent**  
 这部分是调用我修改的 rtinst 来安装的（SSH端口22，不关闭 root 登陆，安装 webmin 和 h5ai）。目前这个脚本安装的 0.9.6 版本不支持 IPv6，我还不知道哪里出了问题； 0.9.4 支持 IPv6 用的是打好补丁的版本。理论上来说这是一个修改版，所以是否要安装这个版本就由你自己来定夺了…… 此外如果系统是 Debian 9的话，rTorrent 版本强制会指定成 0.9.6（其他版本不支持）
 7. **Transmission**  
 会自动安装修改版的 WebUI。Debian 9下的编译安装我失败了，不知道为什么。因此针对 Debian 9 就强制采用 从 repo 安装的办法
@@ -54,7 +54,7 @@ libtorrent 版本不知道选什么的话选默认的就可以了
 这个没什么可以说的……默认不安装。安装好后自己输入 rclone config 进行配置
 11. **BBR**  
 会检测你当前的内核版本，大于4.9是默认不安装，高于4.9是默认启用BBR（不更换内核）。BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核
-12. **系统设置** 
+12. **系统设置**  
 主要是修改时区为 UTC+8（似乎然并卵，我以后再修复）、`alias`、编码设置为 UTF-8、提高系统文件打开数。默认是不启用的……
 
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
@@ -85,11 +85,11 @@ bdupload
 
 转发 BD 原盘时可以使用的一个脚本。目前可以实现以下功能：
 
-- **判断是BDISO还是BDMV** 
+- **判断是BDISO还是BDMV**  
 输入一个路径，判断是不是文件夹；是文件夹的话认为是BDMV，不是文件夹的话认为是BDISO（所以如果你输的不是BD文件夹或者一个文件夹内包含多个BD的话是会出错的）
-- **自动挂载镜像**
+- **自动挂载镜像**  
 如果是BDISO，会挂载成BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候BDISO的标题就是DISC1之类的，重命名下可能更好）。操作完成后BDISO会自动解挂
-- **截图**
+- **截图**  
 截图时默认用1920×1080的分辨率，也可以手动填写分辨率
 - **扫描 BDinfo**  
 默认是自动扫描第一个最长的mpls。也可以手动选择扫描哪一个mpls
@@ -178,6 +178,25 @@ bdinfo
  BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的……
  
  
- 
- 
- 
+  -------------------
+
+### Some references
+
+
+https://github.com/arakasi72/rtinst
+https://github.com/QuickBox/QB
+https://github.com/qbittorrent/qBittorrent/wiki
+https://flexget.com
+https://rclone.org/install
+http://dev.deluge-torrent.org/wiki/UserGuide
+https://mkvtoolnix.download/downloads.html
+http://outlyer.net/etiq/projects/vcs
+http://wilywx.com
+https://www.dwhd.org
+https://moeclub.org
+https://github.com/teddysun/across
+https://github.com/oooldking/script
+https://github.com/outime/ipv6-dhclient-script
+https://github.com/GalaxyXL/qBittorrent-autoremove
+https://xxxxxx.org/forums/viewtopic?topicid=61434
+
