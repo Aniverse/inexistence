@@ -655,7 +655,7 @@ function check_bbr_status() {
 }
 
 
-# 检查系统内核版本是否大于4.9，自改
+# 检查系统内核版本是否大于4.9
 function check_kernel_version() {
   if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
       bbrkernel=Yes
@@ -772,6 +772,7 @@ function _askcontinue() {
 
 
 # --------------------- 创建用户、准备工作 --------------------- #
+# 密码明文存储的问题……假装不知道……
 
 function _setuser() {
 
@@ -1137,7 +1138,7 @@ if [ ! "${TRVERSION}" == "No" ]; then
     rm -rf tr-control-easy-install.sh
 
     rm -rf /root/.config/transmiss*
-    mkdir -p /root/.config/transmission
+    mkdir -p /root/.config/transmission-daemon
 
     cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
     cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
@@ -1226,8 +1227,8 @@ function _installbbr() {
   bash "${local_packages}"/script/dalao/bbr1.sh
   # 下边增加固件是为了解决 Online.net 服务器安装BBR后无法开机的问题
   mkdir -p /lib/firmware/bnx2
-  cp -f "${local_packages}"/file/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
-  cp -f "${local_packages}"/file/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
+  cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
+  cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
   echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 }
 
@@ -1390,7 +1391,7 @@ function _tweaks() {
 if [ ! $tweaks == "No" ]; then
 
     rm -rf /etc/localtime
-    cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
     ntpdate time.windows.com
     hwclock -w
 
@@ -1463,6 +1464,7 @@ alias cesujiedian="cesu --list | grep -v speedtest | head -10"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll='ls -hAlvZ --color --group-directories-first'
 alias tree='tree --dirsfirst'
+alias gclone='git clone --depth=1'
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
