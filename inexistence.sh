@@ -864,6 +864,7 @@ function _setsources() {
         if [[ $DISTRO == Debian ]]; then
             cp "${local_packages}"/template/debian.apt.sources /etc/apt/sources.list
             sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
+            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
             apt-get --yes --force-yes update
         elif [[ $DISTRO == Ubuntu ]]; then
             cp "${local_packages}"/template/ubuntu.apt.sources /etc/apt/sources.list
