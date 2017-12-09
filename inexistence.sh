@@ -1398,7 +1398,7 @@ echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;e
 
 # --------------------- 一些设置修改 --------------------- #
 function _tweaks() {
-if [ ! $tweaks == "No" ]; then
+if [ $tweaks == "Yes" ]; then
 
     rm -rf /etc/localtime
     ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
