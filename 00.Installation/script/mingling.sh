@@ -275,7 +275,7 @@ function _usage() {
 
 clear;echo
 
-if [[ ! "$inexistence" == "Yes" ]] && [[ "$tweaks" == Yes ]]; then
+if [[ "$inexistence" == "Yes" ]] && [[ "$tweaks" == Yes ]]; then
 
     echo -e "${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
     echo
@@ -315,7 +315,7 @@ function _showurl() {
 
 clear;echo
 
-if [[ ! "$inexistence" == "Yes" ]]; then
+if [[ "$inexistence" == "Yes" ]]; then
 
     echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal} "
     echo
