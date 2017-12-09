@@ -149,10 +149,13 @@ mingling
 
 #### 介绍
 
-方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的。  
-此外有些功能还没有做完……  
+方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
+此外有些功能还没有做完  
 不做具体的介绍了，自己看图吧  
 
+![mingling.00](https://github.com/Aniverse/filesss/raw/master/Images/mingling.03.png)
+![mingling.01](https://github.com/Aniverse/filesss/raw/master/Images/mingling.03.png)
+![mingling.02](https://github.com/Aniverse/filesss/raw/master/Images/mingling.03.png)
 ![mingling.03](https://github.com/Aniverse/filesss/raw/master/Images/mingling.03.png)
 ![mingling.04](https://github.com/Aniverse/filesss/raw/master/Images/mingling.04.png)
 ![mingling.05](https://github.com/Aniverse/filesss/raw/master/Images/mingling.05.png)
@@ -161,6 +164,8 @@ mingling
 ![mingling.08](https://github.com/Aniverse/filesss/raw/master/Images/mingling.08.png)
 
 #### To Do List
+- 补充 alias 中的命令说明
+- 完善说明文档
 - 添加 AutoDL-Irssi 的开关
 - 添加锐速的开关与状态检测
 - 完成脚本菜单的功能
