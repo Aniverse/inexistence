@@ -149,7 +149,7 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-inexistence=`cat /etc/profile | grep inexistence | cut -c13-`
+inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
 INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
 # --------------------------------------------------------------------------------
