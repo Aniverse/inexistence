@@ -76,6 +76,8 @@ function _intro() {
   kv4=$(uname -r | cut  -d- -f1)
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
+  echo "${bold}Checking your server's public IP address ...${normal}"
+  echo "${bold}If you stuck here for a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(wget --no-check-certificate -qO- http://v4.ipv6-test.com/api/myip.php) >> /dev/null 2>&1
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
   virtua=$(virt-what) 2>/dev/null
@@ -872,7 +874,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y wget --no-check-certificate python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip
+  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip
 }
 
 
