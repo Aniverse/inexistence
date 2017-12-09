@@ -170,7 +170,7 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo -ne "If you want to exit, you may press ${on_red}Ctrl+C${normal}  ";read input
+  echo -ne "If you want to exit, you may press ${on_red}Ctrl+C${normal}  ";read -s input
 }
 
 
@@ -817,13 +817,14 @@ sed -i '/^DEVERSION/'d /etc/profile
 sed -i '/^TRVERSION/'d /etc/profile
 sed -i '/^RTVERSION/'d /etc/profile
 sed -i '/^MAXCPUS/'d /etc/profile
-sed -i '/^flexget/'d /etc/profile
-sed -i '/^rclone/'d /etc/profile
-sed -i '/^tweaks/'d /etc/profile
-sed -i '/^bbr/'d /etc/profile
-sed -i '/^tools/'d /etc/profile
-sed -i '/^aptsources/'d /etc/profile
+sed -i '/^FLEXGETINSTALLED/'d /etc/profile
+sed -i '/^RCLONEINSTALLED/'d /etc/profile
+sed -i '/^USETWEAKS/'d /etc/profile
+sed -i '/^BBRINSTALLED/'d /etc/profile
+sed -i '/^UPLOADTOOLS/'d /etc/profile
+sed -i '/^APTSOURCES/'d /etc/profile
 sed -i '/^#####\ U.*/'d /etc/profile
+
 
 cat>>/etc/profile<<EOF
 
@@ -832,17 +833,17 @@ INEXISTENCEinstalled=Yes
 INEXISTENCEVER=085
 INEXISTENCEDATE=20171208
 ANUSER=${ANUSER}
-QBVERSION="${QBVERSION}"
-DEVERSION="${DEVERSION}"
-RTVERSION="${RTVERSION}"
-TRVERSION="${TRVERSION}"
-MAXCPUS="${MAXCPUS}"
-flexget="${flexget}"
-rclone="${rclone}"
-tweaks="${tweaks}"
-bbr="${bbr}"
-tools="${tools}"
-aptsources="${aptsources}"
+QBVERSION=${QBVERSION}
+DEVERSION=${DEVERSION}
+RTVERSION=${RTVERSION}
+TRVERSION=${TRVERSION}
+MAXCPUS=${MAXCPUS}
+FLEXGETINSTALLED=${flexget}
+RCLONEINSTALLED=${rclone}
+USETWEAKS=${tweaks}
+BBRINSTALLED=${bbr}
+UPLOADTOOLS=${tools}
+APTSOURCES=${aptsources}
 ##### U ########################################
 EOF
 
