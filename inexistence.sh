@@ -1,8 +1,8 @@
 ﻿#!/bin/bash
-#
-# 作者：弱鸡
-# 四处抄来的，部分参考资料在下边
-# 写得很烂，请大佬帮忙修正（修正后请告知本人，以提高本渣的知识水平）（包括英语表达有误的地方也请指出）
+# https://github.com/Aniverse/inexistence
+# Author: 弱鸡
+# 
+# 四处抄来的，部分参考资料如下
 #
 # https://github.com/qbittorrent/qBittorrent/wiki
 # https://github.com/arakasi72/rtinst
@@ -494,7 +494,7 @@ function _askrt() {
   echo -e "01) rTorrent ${cyan}0.9.3${normal}"
   echo -e "02) rTorrent ${cyan}0.9.4${normal} (default)"
   echo -e "03) rTorrent ${cyan}0.9.4${normal} (with ipv6 support)"
-  echo -e "04) rTorrent ${cyan}0.9.6${normal} (with ipv6 support)"
+  echo -e "04) rTorrent ${cyan}0.9.6${normal}"
   echo -e "99) Do not install rTorrent"
 
   echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read version
@@ -783,7 +783,6 @@ function _askcontinue() {
 
 
 # --------------------- 创建用户、准备工作 --------------------- #
-# 密码明文存储的问题……假装不知道……
 
 function _setuser() {
 
@@ -813,7 +812,7 @@ fi
 sed -i '/^inexistence/'d /etc/profile
 sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
-sed -i '/^ANPASS/'d /etc/profile
+#sed -i '/^ANPASS/'d /etc/profile
 sed -i '/^QBVERSION/'d /etc/profile
 sed -i '/^DEVERSION/'d /etc/profile
 sed -i '/^TRVERSION/'d /etc/profile
@@ -834,7 +833,6 @@ inexistence=Yes
 INEXISTENCEVER=085
 INEXISTENCEDATE=20171208
 ANUSER=${ANUSER}
-ANPASS=${ANPASS}
 QBVERSION="${QBVERSION}"
 DEVERSION="${DEVERSION}"
 RTVERSION="${RTVERSION}"
