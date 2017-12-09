@@ -809,7 +809,6 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
-sed -i '/^inexistence/'d /etc/profile
 sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
 #sed -i '/^ANPASS/'d /etc/profile
@@ -829,7 +828,7 @@ sed -i '/^#####\ U.*/'d /etc/profile
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
-inexistence=Yes
+INEXISTENCEinstalled=Yes
 INEXISTENCEVER=085
 INEXISTENCEDATE=20171208
 ANUSER=${ANUSER}
