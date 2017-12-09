@@ -152,7 +152,7 @@ date=$( date +%Y-%m-%d" "%H:%M:%S )
 inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
 INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
-tweaks=`cat /etc/profile | grep tweaks | cut -c11-`
+tweaks=`cat /etc/profile | grep USETWEAKS | cut -c11-`
 # --------------------------------------------------------------------------------
 
 
@@ -331,18 +331,18 @@ if [[ "$inexistence" == "Yes" ]]; then
     fi
 
     if [ ! "${tr_installed}" == "No" ]; then
-        echo -e " ${cyan}Transmission WebUI${white}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
+        echo -e " ${cyan}Transmission WebUI${white}   http://${serveripv4}:9099"
     fi
 
     if [ ! "${rt_installed}" == "No" ]; then
-        echo -e " ${cyan}RuTorrent${white}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
+        echo -e " ${cyan}RuTorrent${white}            https://${serveripv4}/rutorrent"
     fi
 
     if [ ! "${flex_installed}" == "No" ]; then
         echo -e " ${cyan}Flexget WebUI${white}        http://${serveripv4}:6566"
     fi
 
-#   echo -e " ${cyan}MkTorrent WebUI${white}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
+#   echo -e " ${cyan}MkTorrent WebUI${white}      https://${serveripv4}/mktorrent"
     echo
     echo "---------------------------------------------------------------------------------------------------${normal}"
 
