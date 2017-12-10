@@ -77,7 +77,7 @@ Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选�
 会检测你当前的内核版本，大于4.9是默认不安装，高于4.9是默认启用BBR（不更换内核）。BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核
 
 12. **系统设置**  
-主要是修改时区为 UTC+8（似乎然并卵，我以后再修复）、`alias`、编码设置为 UTF-8、提高系统文件打开数。默认是不启用的……
+主要是修改时区为 UTC+8、`alias`、编码设置为 UTF-8、提高系统文件打开数。默认是不启用的
 
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -238,6 +238,7 @@ https://moeclub.org
 https://github.com/teddysun/across  
 https://github.com/oooldking/script  
 https://github.com/outime/ipv6-dhclient-script  
+https://github.com/jxzy199306/ipv6-dhclient-script/  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
 https://xxxxxx.org/forums/viewtopic?topicid=61434  
 
