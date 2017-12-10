@@ -77,7 +77,7 @@ function _intro() {
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
   echo "${bold}Checking your server's public IP address ...${normal}"
-  echo "${bold}If you stuck here for a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
+  echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(wget --no-check-certificate -qO- http://v4.ipv6-test.com/api/myip.php) >> /dev/null 2>&1
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
   virtua=$(virt-what) 2>/dev/null
@@ -170,7 +170,8 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo -ne "If you want to exit, you may press ${on_red}Ctrl+C${normal}  ";read -s input
+  echo -ne "If you want to exit, you may press ${on_red}Ctrl+C${normal} ${wuguangbiao}";read input
+  echo -ne "${guangbiao}"
 }
 
 
@@ -212,7 +213,7 @@ function _askusername(){
     while [ $confirm_name = 1 ]
       do
         echo -ne "${bold}Enter user name: ${normal}${blue}${bold}"
-        read answerusername
+        read -e answerusername
         addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that user name is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
         if _confirmation; then
@@ -244,7 +245,7 @@ while [ -z $localpass ]
 do
   echo "${bold}Please enter the new password, or leave blank to generate a random one${normal}"
   stty -echo
-  read password1
+  read -e password1
   stty echo
 
   if [ -z $password1 ]; then
@@ -256,7 +257,7 @@ do
   else
       echo "${bold}Enter the new password again${normal} "
       stty -echo
-      read password2
+      read -e password2
       stty echo
 
       if [ $password1 != $password2 ]; then
@@ -280,7 +281,7 @@ return $exitvalue
 
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 function _askaptsource() {
-  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) aptsources=Yes ;;
       [nN] | [nN][Oo] | "" ) aptsources=No ;;
@@ -307,7 +308,7 @@ function _askmt() {
 # echo -e "05 Do not compile, install softwares from repo"
 
   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
-  echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): "; read version
+  echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): "; read -e version
   case $version in
       01 | 1 | "") MAXCPUS=$(nproc) ;;
       02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
@@ -346,7 +347,7 @@ function _askqbt() {
 # echo -e "40) qBittorrent from ${cyan}PPA${normal}"
   echo -e "99) Do not install qBittorrent"
 
-  echo -ne "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): "; read version
+  echo -ne "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
       02 | 2) QBVERSION=3.3.8 ;;
@@ -409,7 +410,7 @@ function _askdeluge() {
 # echo -e "40) Deluge from ${cyan}PPA${normal} (default)"
   echo -e "99) Do not install Deluge"
 
-  echo -ne "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): "; read version
+  echo -ne "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
       01 | 1) DEVERSION=1.3.11 ;;
       02 | 2) DEVERSION=1.3.12 ;;
@@ -460,7 +461,7 @@ function _askdelt() {
       echo -e "03) libtorrent ${cyan}RC_1_1${normal} (NOT recommended)"
       echo -e "04) libtorrent from ${cyan}repo${normal} (default)"
 
-      echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): "; read version
+      echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): "; read -e version
       case $version in
           01 | 1) DELTVERSION=RC_0_16 ;;
           02 | 2) DELTVERSION=RC_1_0 ;;
@@ -497,7 +498,7 @@ function _askrt() {
   echo -e "04) rTorrent ${cyan}0.9.6${normal}"
   echo -e "99) Do not install rTorrent"
 
-  echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read version
+  echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read -e version
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
     02 | 2 | "") RTVERSION=0.9.4 ;;
@@ -539,7 +540,7 @@ function _asktr() {
 # echo -e "40) Transmission from ${cyan}PPA${normal} (default)"
   echo -e "99) Do not install Transmission"
 
-  echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}04${normal}): "; read version
+  echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}04${normal}): "; read -e version
   case $version in
       01 | 1) TRVERSION=2.77 ;;
       02 | 2) TRVERSION=2.82 ;;
@@ -596,7 +597,7 @@ function _asktr() {
 
 # --------------------- 询问是否需要安装 Flexget --------------------- #
 function _askflex() {
-  echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
     [nN] | [nN][Oo] | "" ) flexget=No ;;
@@ -616,7 +617,7 @@ function _askflex() {
 
 # --------------------- 询问是否需要安装 rclone --------------------- #
 function _askrclone() {
-  echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) rclone=Yes ;;
       [nN] | [nN][Oo] | "" ) rclone=No ;;
@@ -635,7 +636,7 @@ function _askrclone() {
 
 # --------------------- 询问是否需要修改一些设置 --------------------- #
 function _asktweaks() {
-  echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) tweaks=Yes ;;
       [nN] | [nN][Oo] | "" ) tweaks=No ;;
@@ -686,7 +687,7 @@ function _askbbr() {
       check_kernel_version
       if [[ "${bbrkernel}" == "Yes" ]]; then
           echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
-          echo -ne "${bold}${yellow}Would you like to use BBR as default congestion control algorithm? ${normal} [${cyan}Y${normal}]es or [N]o: "; read responce
+          echo -ne "${bold}${yellow}Would you like to use BBR as default congestion control algorithm? ${normal} [${cyan}Y${normal}]es or [N]o: "; read -e responce
           case $responce in
               [yY] | [yY][Ee][Ss] | "" ) bbr=Yes ;;
               [nN] | [nN][Oo]) bbr=No ;;
@@ -696,7 +697,7 @@ function _askbbr() {
           echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
           echo -e "A new kernel will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
-          echo -ne "${bold}${yellow}Would you like to install latest kernel and enable BBR? ${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+          echo -ne "${bold}${yellow}Would you like to install latest kernel and enable BBR? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
           case $responce in
               [yY] | [yY][Ee][Ss]) bbr=Yes ;;
               [nN] | [nN][Oo] | "" ) bbr=No ;;
@@ -720,7 +721,7 @@ function _askbbr() {
 
 function _asktools() {
   echo -e "wine, mono, BDinfo, eac3to, MKVToolnix, VNC, mktorrent, ffmpeg, mediainfo ..."
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares related to uploading torrents? ${normal} [Y]es or [${cyan}N${normal}]o: "; read responce
+  echo -ne "${bold}${yellow}Would you like to install the above additional softwares related to uploading torrents? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) tools=Yes ;;
       [nN] | [nN][Oo] | "" ) tools=No ;;
@@ -739,7 +740,7 @@ function _asktools() {
 
 # --------------------- 装完后询问是否重启 --------------------- #
 function _askreboot() {
-  echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "; read is_reboot
+  echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "; read -e is_reboot
   if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
       reboot
   else
@@ -1361,18 +1362,9 @@ mkdir -p /var/www/mktorrent
 cp -f "${local_packages}"/script/template/mktorrent.php /var/www/mktorrent/index.php
 sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
 
-######################  一些脚本  ######################
+######################  其他  ######################
 
-mkdir -p /etc/inexistence/02.Tools/eac3to
-mkdir -p /etc/inexistence/04.Upload
-mkdir -p /etc/inexistence/05.Output
-mkdir -p /etc/inexistence/06.BluRay
-mkdir -p /etc/inexistence/07.Screenshots
-mkdir -p /etc/inexistence/08.BDinfo
-mkdir -p /etc/inexistence/09.Torrents
-mkdir -p /etc/inexistence/10.Demux
-mkdir -p /etc/inexistence/11.Remux
-mkdir -p /etc/inexistence/12.Output2
+
 
 cd /etc/inexistence/02.Tools/eac3to
 wget --no-check-certificate -q http://madshi.net/eac3to.zip
@@ -1380,8 +1372,6 @@ unzip -qq eac3to.zip
 rm -rf eac3to.zip
 cd
 
-# 跳过文件夹，只复制最外层的……
-cp -f "${local_packages}"/script/* /usr/local/bin
   
 # SSH欢迎
 # mkdir -p /etc/update-motd.d
@@ -1489,6 +1479,19 @@ fs.file-max = 1926817
 fs.nr_open = 1926817
 EOF
 
+mkdir -p /etc/inexistence/02.Tools/eac3to
+mkdir -p /etc/inexistence/04.Upload
+mkdir -p /etc/inexistence/05.Output
+mkdir -p /etc/inexistence/06.BluRay
+mkdir -p /etc/inexistence/07.Screenshots
+mkdir -p /etc/inexistence/08.BDinfo
+mkdir -p /etc/inexistence/09.Torrents
+mkdir -p /etc/inexistence/10.Demux
+mkdir -p /etc/inexistence/11.Remux
+mkdir -p /etc/inexistence/12.Output2
+
+# 跳过文件夹，只复制最外层的……
+cp -f "${local_packages}"/script/* /usr/local/bin
 
     echo "* - nofile 1926817">>/etc/security/limits.conf
     echo "* - nproc 1926817">>/etc/security/limits.conf
