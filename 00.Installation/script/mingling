@@ -117,10 +117,28 @@ shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 
 # 定义变量 --------------------------------------------------------------------------------
 
+### 是否为 IP 地址 ###
+function isValidIpAddress() {
+	echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$'
+}
+
+### 是否为内网 IP 地址 ###
+function isInternalIpAddress() {
+	echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
+}
+
 lbit=$( getconf LONG_BIT )
 opsy=$( get_opsy )
 kern=$( uname -r )
-serveripv4=$( wget --no-check-certificate -qO- http://v4.ipv6-test.com/api/myip.php) >> /dev/null 2>&1
+
+echo "${bold}Checking your server's public IP address ...${normal}"
+# echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
+serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate --timeout=10 -qO- http://v4.ipv6-test.com/api/myip.php)
+isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
+isValidIpAddress "$serveripv4" || echo "${bold}${red}ERROR${red} Failed to detect your public IPv4 address ...${normal}"
+
 serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
 
 disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
@@ -149,10 +167,14 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
+mingling=0.5.6
+
 inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
 INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
 tweaks=`cat /etc/profile | grep USETWEAKS | cut -c11-`
+
+#更多的检测
 # --------------------------------------------------------------------------------
 
 
@@ -163,7 +185,7 @@ tweaks=`cat /etc/profile | grep USETWEAKS | cut -c11-`
 function _logo() {
 
 clear
-wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/mingling.logo.1
+wget --no-check-certificate --timeout=10 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/mingling.logo.1
 
 if [[ $EUID != 0 ]]; then
     echo "${bold}你需要用 root 权限来运行本脚本${normal}"
@@ -410,7 +432,7 @@ disk_time=$(power_time)
   if [[ "${serveripv6}" ]]; then
     echo -e "$serveripv6${normal}"
   else
-    echo -e "No IPv6 Address${normal}"
+    echo -e "No IPv6 Address Found${normal}"
   fi
   echo -e "${bold}  服务器时间  : ${cyan}$date${normal}"
 
@@ -857,7 +879,6 @@ clear;echo
   echo -e " ${black}${on_white}${bold}                                       07. 运行其他一键脚本                                         ${normal} "
   echo -e "${bold}"
   stty -echo
-  echo -e ""
   echo -e "  ${green}(01) ${white}安装 inexistence"
   echo -e "  ${green}(02) ${white}安装 BBR"
   echo -e "  ${green}(03) ${white}安装 锐速"

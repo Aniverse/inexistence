@@ -96,7 +96,7 @@ BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### 下载与安装
 ```
-wget --no-check-certificate -qO /usr/local/bin/bdupload https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/bdupload.sh
+wget --no-check-certificate -qO /usr/local/bin/bdupload https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/bdupload
 chmod +x /usr/local/bin/bdupload
 ```
 #### 运行
@@ -150,7 +150,7 @@ BDinfo 会有三个文件，一个是原版的，很长；一个是 Main Summary
 
 #### 下载与安装
 ```
-wget --no-check-certificate -qO /usr/local/bin/mingling https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/mingling.sh
+wget --no-check-certificate -qO /usr/local/bin/mingling https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/mingling
 chmod +x /usr/local/bin/mingling
 ```
 
@@ -199,7 +199,7 @@ mingling
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
  
-BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的……
+BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
  
   -------------------
