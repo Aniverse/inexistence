@@ -1,22 +1,8 @@
 ﻿#!/bin/bash
 # https://github.com/Aniverse/inexistence
 # Author: 弱鸡
-# 
-# 四处抄来的，部分参考资料如下
 #
-# https://github.com/qbittorrent/qBittorrent/wiki
-# https://github.com/arakasi72/rtinst
-# https://github.com/QuickBox/QB
-# https://flexget.com
-# https://rclone.org/install
-# http://dev.deluge-torrent.org/wiki/UserGuide
-# https://mkvtoolnix.download/downloads.html
-# http://wilywx.com
-# https://www.dwhd.org
-# https://github.com/teddysun/across
-# https://github.com/oooldking/script
-# https://github.com/GalaxyXL/qBittorrent-autoremove
-# Google, Baidu, etc.
+# 四处抄来的，参考资料见 GitHub
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
@@ -48,6 +34,17 @@ calc_disk() {
     echo ${total_size}
 }
 # --------------------------------------------------------------------------------
+### 是否为 IP 地址 ###
+function isValidIpAddress() {
+	echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$'
+}
+
+### 是否为内网 IP 地址 ###
+function isInternalIpAddress() {
+	echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
+}
+
+### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
@@ -76,10 +73,15 @@ function _intro() {
   kv4=$(uname -r | cut  -d- -f1)
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
+
   echo "${bold}Checking your server's public IP address ...${normal}"
-  echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
-  serveripv4=$(wget --no-check-certificate -qO- http://v4.ipv6-test.com/api/myip.php) >> /dev/null 2>&1
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
+# echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
+  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate --timeout=10 -qO- http://v4.ipv6-test.com/api/myip.php)
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
+  isValidIpAddress "$serveripv4" || echo "${bold}${red}ERROR${red} Failed to detect your public IPv4 address ...${normal}"
+
   virtua=$(virt-what) 2>/dev/null
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
@@ -94,30 +96,34 @@ function _intro() {
 
   clear
 
-  wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/inexistence.logo.1
+  wget --no-check-certificate --timeout=5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/03.Files/inexistence.logo.1
 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
-  echo "  IPv4    : ${cyan}$serveripv4${normal}"
 
+  echo -ne "  IPv4    : "
+  if [[ "${serveripv6}" ]]; then
+      echo -e "${cyan}$serveripv4${normal}"
+  else
+      echo -e "${cyan}No Public IPv4 Address Found${normal}"
+  fi
 
   echo -ne "  IPv6    : "
   if [[ "${serveripv6}" ]]; then
       echo -e "${cyan}$serveripv6${normal}"
   else
-      echo -e "${cyan}No IPv6 Address${normal}"
+      echo -e "${cyan}No IPv6 Address Found${normal}"
   fi
 
   echo "  CPU     : ${cyan}$cname${normal}"
   echo "  Cores   : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
   echo "  Mem     : ${cyan}$tram MB ($uram MB Used)${normal}"
   echo "  Disk    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-  echo "  OS      : ${cyan}$DISTRO $RELEASE $CODENAME${normal}"
-  echo "  Arch    : ${cyan}$arch ($lbit Bit)${normal}"
+  echo "  OS      : ${cyan}$DISTRO $RELEASE $CODENAME ($arch) ${normal}"
   echo "  Kernel  : ${cyan}$kern${normal}"
 
   echo -ne "  Virt    : "
-  if [[ ${virtua} ]]; then
+  if [[ "${virtua}" ]]; then
       echo -e "${cyan}$virtua${normal}"
   else
       echo -e "${cyan}No Virt${normal}"
@@ -230,6 +236,7 @@ function _askusername(){
 
 # 询问密码。检查密码是否足够复杂的功能以后再做（需要满足 Flexget WebUI 密码复杂度的要求）
 function _askpassword() {
+
 local localpass
 local exitvalue=0
 local password1
@@ -259,7 +266,6 @@ do
       stty -echo
       read -e password2
       stty echo
-
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
       else
@@ -273,6 +279,7 @@ exec >&3-
 echo "${bold}Password sets to ${blue}$localpass${normal}"
 echo
 return $exitvalue
+
 }
 
 
@@ -560,7 +567,7 @@ function _asktr() {
           ecgo "Sorry, now the compilation on Debian 9 doesn't work"
           echo "For ${green}${bold}Debian 9${normal}${bold}, Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
           TRVERSION='Install from repo'
-      fi
+      else
 
       if [[ "${TRVERSION}" == "Install from repo" ]]; then 
           echo -ne "${bold}Transmission will be installed from repository, and "
@@ -582,6 +589,8 @@ function _asktr() {
           else
               echo "Transmission will be installed from Stable PPA, in most cases it will be the latest version"
           fi
+
+      fi
 
       fi
 
@@ -831,8 +840,8 @@ cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
-INEXISTENCEVER=085
-INEXISTENCEDATE=20171208
+INEXISTENCEVER=086
+INEXISTENCEDATE=20171210
 ANUSER=${ANUSER}
 QBVERSION=${QBVERSION}
 DEVERSION=${DEVERSION}
@@ -1050,7 +1059,7 @@ function _setde() {
 # --------------------- 使用修改版 rtinst 安装 rTorrent，h5ai --------------------- #
 function _installrt() {
 
-  wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup
+  wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
 
   if [ "${RTVERSION}" == "No" ]; then
       cd
@@ -1063,10 +1072,19 @@ function _installrt() {
       bash rtsetup h5ai-ipv6
   fi
 
+wget --no-check-certificate --timeout=10 -q https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rarlinux-x64-5.5.0.tar.gz
+tar zxf rarlinux-x64-5.5.0.tar.gz 2>/dev/null
+if [ -d rar ]; then
+    cp -f rar/rar /usr/bin/rar
+    cp -f rar/unrar /usr/bin/unrar
+    rm -rf rar
+fi
+
   apt-get install -y libncurses5-dev libncursesw5-dev
   sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+  openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
   rtwebmin
   cp -f /home/${ANUSER}/rtinst.log /etc/inexistence/01.Log/rtinst.log
   cp -f /root/rtinst.log /etc/inexistence/01.Log/rtinst.log
@@ -1362,9 +1380,7 @@ mkdir -p /var/www/mktorrent
 cp -f "${local_packages}"/script/template/mktorrent.php /var/www/mktorrent/index.php
 sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
 
-######################  其他  ######################
-
-
+######################  eac3to  ######################
 
 cd /etc/inexistence/02.Tools/eac3to
 wget --no-check-certificate -q http://madshi.net/eac3to.zip
@@ -1372,11 +1388,7 @@ unzip -qq eac3to.zip
 rm -rf eac3to.zip
 cd
 
-  
-# SSH欢迎
-# mkdir -p /etc/update-motd.d
-# /etc/motd
-# cd /etc/update-motd.d 有些没这个？
+
 
 echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 }
