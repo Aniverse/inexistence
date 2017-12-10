@@ -1,9 +1,9 @@
 ## Laji Scripts  
-  
-
+    
+    
 > 这只是一个不会 shell、不会 Linux 的刷子无聊写着玩的产物 ...
-
-  
+    
+    
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
 本介绍的内容不会及时更新。目前最新的脚本在界面上和截图里有一点不一样  
   
@@ -16,11 +16,6 @@
 wget -q https://github.com/Aniverse/inexistence/raw/master/inexistence.sh && bash inexistence.sh
 ```
 #### 安装介绍
-
-`Checking your server's public IP address ...
-If you stuck here for a while, please press Ctrl+C to stop the script` 
-
-如果你卡在这一步，应该是获取公网 IP 地址的时候卡了……除了去掉这个检测或者换个检测地址外我暂时不知道这个情况要怎么解决（ifconfig 出来在某些 VPS 上是内网 IP）
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
 
@@ -56,25 +51,29 @@ Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选�
 `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
-目前这个脚本安装的 0.9.6 版本不支持 IPv6，我还不知道哪里出了问题  
-0.9.4 支持 IPv6 用的是打好补丁的版本。理论上来说这是一个修改版，所以是否要用这个版本就由你自己来定夺了  
+目前这个脚本安装的 0.9.6 版本不支持 IPv6，这个问题之后再修复  
+0.9.4 支持 IPv6 用的是打好补丁的版本。理论上来说这是修改版客户端，所以是否要用这个版本就由你自己来决定了  
 此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
 
 7. **Transmission**  
-会自动安装修改版的 WebUI。Debian 9下的编译安装我失败了，目前还没解决这个问题；因此针对 Debian 9 就强制采用从 repo 安装的办法
+会自动安装修改版的 WebUI。Debian 9 可能会失败
 
 8. **PPA**  
 实际上对于 tr/de/qb 我加入了不编绎，从 PPA 或者 repo 里安装的选项，不过默认是不显示这些选项的  
 输入 30 是从 repo 安装，输入 40 是添加 ppa 后安装（ppa 仅对 Ubuntu 有效 ）  
 
 9. **Flexget**  
-默认不安装。我启用了 daemon 模式（关闭shedules）和 WebUI。还预设了一些模板，仅供参考（crontab我没改）
+默认不安装。我启用了 daemon 模式（关闭shedules）和 WebUI。还预设了一些模板，仅供参考  
+因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己打开  
 
 10. **rclone**  
 这个没什么可以说的……默认不安装。安装好后自己输入 rclone config 进行配置
 
 11. **BBR**  
-会检测你当前的内核版本，大于4.9是默认不安装，高于4.9是默认启用BBR（不更换内核）。BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核
+会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
+由于 BBR 需要 4.9 以上的内核，而在某些情况下换内核会导致重启失败，或者某些特殊的 VPS 无法用普通的办法换内核，因此是否需要用本脚本来安装 BBR 也需要考虑一下  
+不过针对常见的 Online.net 的独服我是准备了两个 firmware，应该没什么问题
+BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
 12. **系统设置**  
 主要是修改时区为 UTC+8、`alias`、编码设置为 UTF-8、提高系统文件打开数。默认是不启用的
