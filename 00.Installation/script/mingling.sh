@@ -167,7 +167,7 @@ wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/mas
 
 if [[ $EUID != 0 ]]; then
     echo "${bold}你需要用 root 权限来运行本脚本${normal}"
-	exit 1
+    exit 1
 fi
 
 if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then
@@ -197,14 +197,14 @@ function _main_menu() {
 
   if [[ "$inexistence" == "Yes" ]]; then
       echo -e "${green}(01) ${white}查看 SSH 命令"
-	  echo -e "${green}(02) ${white}查看客户端的网址"
+      echo -e "${green}(02) ${white}查看客户端的网址"
   fi
 
   echo -e "${green}(03) ${white}查看系统信息"
   echo -e "${green}(04) ${white}查看客户端版本"
   echo -e "${green}(05) ${white}查看客户端是否都在运行"
   echo -e "${green}(06) ${white}进入客户端操作菜单"
-  echo -e "${green}(07) ${white}运行其他脚本"
+#  echo -e "${green}(07) ${white}运行其他脚本"
   echo -e "${green}(08) ${white}查看本脚本的说明"
   echo -e "${green}(09) ${white}退出脚本"
   echo -e "${normal}"
@@ -255,7 +255,7 @@ elif [ "${thingstodo}" == "6" ]; then
 
 elif [ "${thingstodo}" == "7" ]; then
 #  _show_scripts_menu ; _scripts_menu_response
-    echo "这个功能还没做好"; echo
+    echo "${bold}抱歉，这个功能还没做好${normal}"; echo
     _main_menu
 
 elif [ "${thingstodo}" == "8" ]; then
@@ -592,15 +592,15 @@ function _show_client_menu() {
   clear;echo
   echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} "
   echo -e "${bold}"
-  echo -e "${green}(01) ${white}运行 qBittorrent          ${green}(10) ${white}运行 Deluge               ${green} ${white}"
-  echo -e "${green}(02) ${white}关闭 qBittorrent          ${green}(11) ${white}关闭 Deluge               ${green} ${white}"
-  echo -e "${green}(03) ${white}重启 qBittorrent          ${green}(12) ${white}重启 Deluge               ${green} ${white}"
-  echo -e "${green}(04) ${white}运行 Transmission         ${green}(13) ${white}运行 rTorrent             ${green} ${white}"
-  echo -e "${green}(05) ${white}关闭 Transmission         ${green}(14) ${white}关闭 rTorrent             ${green} ${white}"
-  echo -e "${green}(06) ${white}重启 Transmission         ${green}(15) ${white}重启 rTorrent             ${green} ${white}"
-  echo -e "${green}(07) ${white}运行 Flexget Daemon       ${green}(16) ${white}重启 seedbox              ${green} ${white}"
-  echo -e "${green}(08) ${white}关闭 Flexget Daemon       ${green}(17) ${white}返回 main menu            ${green} ${white}"
-  echo -e "${green}(09) ${white}重启 Flexget Daemon       ${green}(18) ${white}退出 Script               ${green} ${white}"
+  echo -e "  ${green}(01) ${white}运行 qBittorrent          ${green}(10) ${white}运行 Deluge               ${green} ${white}"
+  echo -e "  ${green}(02) ${white}关闭 qBittorrent          ${green}(11) ${white}关闭 Deluge               ${green} ${white}"
+  echo -e "  ${green}(03) ${white}重启 qBittorrent          ${green}(12) ${white}重启 Deluge               ${green} ${white}"
+  echo -e "  ${green}(04) ${white}运行 Transmission         ${green}(13) ${white}运行 rTorrent             ${green} ${white}"
+  echo -e "  ${green}(05) ${white}关闭 Transmission         ${green}(14) ${white}关闭 rTorrent             ${green} ${white}"
+  echo -e "  ${green}(06) ${white}重启 Transmission         ${green}(15) ${white}重启 rTorrent             ${green} ${white}"
+  echo -e "  ${green}(07) ${white}运行 Flexget Daemon       ${green}(16) ${white}重启 seedbox              ${green} ${white}"
+  echo -e "  ${green}(08) ${white}关闭 Flexget Daemon       ${green}(17) ${white}返回 main menu            ${green} ${white}"
+  echo -e "  ${green}(09) ${white}重启 Flexget Daemon       ${green}(18) ${white}退出 Script               ${green} ${white}"
   echo -e ""
   _systemd_check
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}"
@@ -643,6 +643,7 @@ _client_action
 
 function _xunwen1() {
 echo -ne "${yellow}${bold}你还想做什么吗？(默认返回主菜单) ${normal}"
+rm -rf /tmp/mingling/* >> /dev/null 2>&1
 }
 
 
@@ -857,22 +858,21 @@ clear;echo
   echo -e "${bold}"
   stty -echo
   echo -e ""
-  echo -e "${green}(01) ${white}安装 inexistence"
-  echo -e "${green}(02) ${white}安装 BBR"
-  echo -e "${green}(03) ${white}安装 锐速"
-  echo -e "${green}(04) ${white}安装 ShadowSocks"
-  echo -e "${green}(05) ${white}重装 系统 "
-  echo -e "${green}(06) ${white}运行 Bench.sh"
-  echo -e "${green}(07) ${white}运行 UnixBench"
-  echo -e "${green}(08) ${white}配置 ipv6"
-  echo -e "${green}(09) ${white}广告位招租"
-  echo -e "${green}(10) ${white}返回 main menu"
-  echo -e "${normal}"
+  echo -e "  ${green}(01) ${white}安装 inexistence"
+  echo -e "  ${green}(02) ${white}安装 BBR"
+  echo -e "  ${green}(03) ${white}安装 锐速"
+  echo -e "  ${green}(04) ${white}安装 ShadowSocks"
+  echo -e "  ${green}(05) ${white}重装 系统 "
+  echo -e "  ${green}(06) ${white}运行 Bench.sh"
+  echo -e "  ${green}(07) ${white}运行 UnixBench"
+  echo -e "  ${green}(08) ${white}配置 ipv6"
+  echo -e "  ${green}(09) ${white}广告位招租"
+  echo -e "  ${green}(10) ${white}返回 main menu"
+  echo -e "  ${normal}"
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}"
 
 stty echo
 
-rm -rf /tmp/mingling/*
 
 }
 
