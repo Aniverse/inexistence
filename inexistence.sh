@@ -81,6 +81,7 @@ function _intro() {
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
   isValidIpAddress "$serveripv4" || echo "${bold}${red}ERROR${red} Failed to detect your public IPv4 address ...${normal}"
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
 
   virtua=$(virt-what) 2>/dev/null
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
@@ -1254,7 +1255,7 @@ function _installrclone() {
 function _installbbr() {
   cd
   bash "${local_packages}"/script/dalao/bbr1.sh
-  # 下边增加固件是为了解决 Online.net 服务器安装BBR后无法开机的问题
+  # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
   mkdir -p /lib/firmware/bnx2
   cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
   cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
@@ -1503,7 +1504,7 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 
 # 跳过文件夹，只复制最外层的……
-cp -f "${local_packages}"/script/* /usr/local/bin
+cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
     echo "* - nofile 1926817">>/etc/security/limits.conf
     echo "* - nproc 1926817">>/etc/security/limits.conf
