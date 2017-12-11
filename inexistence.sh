@@ -565,37 +565,41 @@ function _asktr() {
   else
 
       if [ "$CODENAME" = "stretch" ]; then
+
           ecgo "Sorry, now the compilation on Debian 9 doesn't work"
           echo "For ${green}${bold}Debian 9${normal}${bold}, Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
           TRVERSION='Install from repo'
+
       else
 
-      if [[ "${TRVERSION}" == "Install from repo" ]]; then 
-          echo -ne "${bold}Transmission will be installed from repository, and "
+          if [[ "${TRVERSION}" == "Install from repo" ]]; then 
+              echo -ne "${bold}Transmission will be installed from repository, and "
 
-          if [ "$CODENAME" = "stretch" ]; then
-              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92-2${normal}"
-          elif [ "$CODENAME" = "jessie" ]; then
-              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84-0.2${normal}"
-          elif [ "$CODENAME" = "xenial" ]; then
-              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84-3ubuntu3${normal}"
+              if [ "$CODENAME" = "stretch" ]; then
+                  echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92-2${normal}"
+              elif [ "$CODENAME" = "jessie" ]; then
+                  echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84-0.2${normal}"
+              elif [ "$CODENAME" = "xenial" ]; then
+                  echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84-3ubuntu3${normal}"
+              fi
+
+          elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
+
+              if [[ $DISTRO == Debian ]]; then
+                  echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+                  echo -e "Change install mode to ${cyan}Install from repo${white}"
+                  TRVERSION='Install from repo'
+              else
+                  echo "Transmission will be installed from Stable PPA, in most cases it will be the latest version"
+              fi
+
           fi
 
-      elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
-
-          if [[ $DISTRO == Debian ]]; then
-              echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
-              echo -e "Change install mode to ${cyan}Install from repo${white}"
-              TRVERSION='Install from repo'
-          else
-              echo "Transmission will be installed from Stable PPA, in most cases it will be the latest version"
-          fi
+          echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
 
       fi
 
-      fi
-
-      echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
+      
 
   fi
   echo
@@ -888,7 +892,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip
+  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude smartmontools
 }
 
 
@@ -1176,6 +1180,7 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
     cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
+    [[ `command -v transmission-daemon` == /usr/bin/transmission-daemon ]] && sed -i "s/usr\/local/usr/g" /etc/systemd/system/transmission.service
     sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json
     sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
 
@@ -1187,6 +1192,7 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     systemctl daemon-reload
     systemctl enable transmission
+#   systemctl enable /etc/systemd/system/transmission.service
     systemctl start transmission
 
 fi
@@ -1271,7 +1277,7 @@ function _installbbr() {
 
 
 # --------------------- 安装 VNC／mkvtoolnix／wine／mktorrent／ffmpeg／mediainfo --------------------- #
-# 目前还不会投入使用；以后会增加一些安装选项，比如桌面？
+# 没写完，目前还不会投入使用；以后会增加一些安装选项，比如不同的桌面？
 
 function _installtools() {
 
@@ -1310,7 +1316,7 @@ make -j${MAXCPUS}
 make install
 cp -f /usr/local/bin/ffmpeg /usr/bin
 cp -f /usr/local/bin/ffprobe /usr/bin
-rm -rf /root/tmp/ffmpeg
+rm -rf /root/ffmpeg
 
 ########## 安装 mkvtoolnix ##########
 
@@ -1359,7 +1365,9 @@ else
     wget --no-check-certificate -qO 3 https://mediaarea.net/download/binary/mediainfo/17.10/mediainfo_17.10-1_amd64.xUbuntu_16.04.deb
 fi
 
-dpkg -i 1 2 3
+dpkg -i 1
+dpkg -i 2
+dpkg -i 3
 rm -rf 1 2 3
 
 ########### 安装 mono wine vnc4server ##########
@@ -1369,6 +1377,8 @@ apt-get install -y mono-complete wine vnc4server
 apt-get install -y mate-desktop-environment-extras
 mkdir -p .vnc
 cp -f "${local_packages}"/script/template/xstartup.1 ~/.vnc/xstartup
+
+#vncserver -geometry 1920x1080
 
 ########### 安装 mktorrent  ###########
 
