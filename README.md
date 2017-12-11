@@ -9,7 +9,8 @@
 
 #### 使用方法
 ``` 
-wget -q https://github.com/Aniverse/inexistence/raw/master/inexistence.sh && bash inexistence.sh
+wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
+bash inexistence.sh
 ```
 #### 安装介绍
 
@@ -63,7 +64,7 @@ Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选�
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己打开  
 
 10. **rclone**  
-这个没什么可以说的……默认不安装。安装好后自己输入 rclone config 进行配置
+这个没什么可以说的，默认不安装。安装好后自己输入 rclone config 进行配置
 
 11. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
@@ -77,7 +78,7 @@ BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
 由于安装时候没有提示二次确认和纠错的功能，所以如果你哪里写错了，只能先退出脚本重新再选择  
-没什么问题的话就敲回车继续……  
+没什么问题的话就敲回车继续  
 
 ![安装完成](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
 
@@ -86,6 +87,38 @@ BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 有一点需要注意的是，Flexget WebUI 的密码强制被指定为 Flexget，无法修改；密码是你之前预设的密码
 
 在我的10欧（i3 2100／4GB／2×1TB HW RAID0）上安装这些花了16分钟。感觉比自己手动编译安装还是更省时间的
+
+#### To Do List
+
+- **安装 VNC**  
+再加上 mono、wine、中文输入环境、Firefox 之类的  
+- **发种相关**  
+安装 ffmepg、x264、x265、mediainfo、mkvtoolnix  
+- **Flexget 模板**  
+补充更多的站点预设以及写法参考  
+不过作者自己水平很菜，因此写法上请不要抱什么期待  
+
+#### Under Consideration
+
+- **不使用 root 运行**  
+将 Tr/De/Qb 的运行用户换成普通用户  
+- **加入安装 uTorrent 的选项**  
+utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一定能做出来  
+- **加入 Flood WebUI for rTorrent**  
+（很可能不会做出来）感觉好像也不咋实用...
+- **不使用 rtinst 安装 rTorrent**  
+（很可能不会做出来）感觉自己写有点花时间  
+
+#### Known Issues
+
+- **Debian 9 下编译 Transmission 失败**  
+因为编译失败所以目前我强制指定成从repo安装了  
+- **编译 qBittorrent 4.0 失败**  
+因此选项里隐藏掉了  
+- **没有对于用户名和密码有效性的检查**  
+目前仅仅是在界面上提示用户该怎么设置，但不会进行真正的检查  
+- **rTorrent 0.9.6 不支持 IPv6**  
+我有点懵逼，我什么都没改突然就不行了...  
 
 -------------------
 ## BD Upload
@@ -134,8 +167,8 @@ BDinfo 会有三个文件，一个是原版的，很长；一个是 Main Summary
 
 ![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
 
-**不支持 UltraHD Blu-ray**  
-看着选项多，其实一般情况下，输入完路径后一路敲回车就可以了 ……  
+**注意： 不支持 UltraHD Blu-ray**  
+看着选项多，其实一般情况下，输入完路径后一路敲回车就可以了  
 
 ![输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.03.png)
 需要注意的是，我脚本里挂载、输出文件都是指定了一个固定的目录`/etc/inexistence`  
