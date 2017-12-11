@@ -103,7 +103,7 @@ function _intro() {
   echo
 
   echo -ne "  IPv4    : "
-  if [[ "${serveripv6}" ]]; then
+  if [[ "${serveripv4}" ]]; then
       echo -e "${cyan}$serveripv4${normal}"
   else
       echo -e "${cyan}No Public IPv4 Address Found${normal}"
@@ -177,8 +177,8 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo -ne "If you want to exit, you may press ${on_red}Ctrl+C${normal} ${wuguangbiao}";read input
-  echo -ne "${guangbiao}"
+  echo -e "If you want to exit, you may press ${on_red}Ctrl+C${normal} ";read input
+# echo -ne "${guangbiao}"
 }
 
 
@@ -786,7 +786,11 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  echo -ne "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ;read input
+  echo -e "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ;read input
+  echo ""
+  echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
+  echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
+  echo ""
 }
 
 
@@ -1610,10 +1614,6 @@ fi
 
 _asktweaks
 _askcontinue
-
-echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
-echo "${bold}${magenta}0 and 90 minutes depending on your systems specs and your selections${normal}"
-echo ""
 
 _setuser
 _setsources
