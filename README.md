@@ -91,12 +91,11 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 #### To Do List
 
 - **安装 VNC**  
-再加上 mono、wine、中文输入环境、Firefox 之类的  
+再加上 mono、wine、中文输入环境、Firefox, etc.  
 - **发种相关**  
 安装 ffmepg、x264、x265、mediainfo、mkvtoolnix  
 - **Flexget 模板**  
-补充更多的站点预设以及写法参考  
-不过作者自己水平很菜，因此写法上请不要抱什么期待  
+补充更多的站点预设  
 
 #### Under Consideration
 
@@ -104,10 +103,7 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 将 Tr/De/Qb 的运行用户换成普通用户  
 - **加入安装 uTorrent 的选项**  
 utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一定能做出来  
-- **加入 Flood WebUI for rTorrent**  
-（很可能不会做出来）感觉好像也不咋实用...
-- **不使用 rtinst 安装 rTorrent**  
-（很可能不会做出来）感觉自己写有点花时间  
+- ****  
 
 #### Known Issues
 
@@ -265,6 +261,7 @@ https://www.dwhd.org
 https://moeclub.org  
 https://github.com/teddysun/across  
 https://github.com/oooldking/script  
+https://github.com/gutenye/systemd-units  
 https://github.com/outime/ipv6-dhclient-script  
 https://github.com/jxzy199306/ipv6_dhclient_online_net  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
