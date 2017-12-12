@@ -1,7 +1,7 @@
 > 这只是一个不会 shell、不会 Linux 的刷子无聊写着玩的产物 ...
   
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
-本介绍的内容不会及时更新。目前最新的脚本在界面上和截图里有一点不一样  
+本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
   
 -------------------
 # Inexistence
@@ -22,18 +22,19 @@ bash inexistence.sh
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
 1. **账号密码**  
-根据你输入的账号会新建一个 UNIX 用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。  
-目前这个功能有一个问题，脚本不会检测输入的用户名和密码是否合法。所以如果你用了不合法的用户名（比如数字开头）或者不合法的密码（密码复杂度太低），脚本不会提示出错，但实际在软件的使用中你可能会碰到问题
+根据你输入的账号会新建一个用户，rTorrent 的运行也是用这个用户来运行（其他软件用 root 来运行），Deluge auth、qBittorrent 用的也都是这个账号；密码用于各类软件的 WebUI。  
+目前这个功能有一个问题，脚本不会检测输入的用户名和密码是否合法。  
+如果你用了无效的用户名（比如数字开头）或者不够复杂的密码，脚本不会立即提示出错，但实际在软件的使用中你可能会碰到问题  
 
 2. 是否更换**系统源**  
-大多数情况下无需换源。某些 VPS 默认的源有点问题我才加入了这个选项
+大多数情况下无需换源。某些 VPS 默认的源可能有点问题我才加入了这个选项
 
 3. 编译时使用的**线程数量**（四个 BT 客户端默认都是编译安装的）  
 一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 
 4. **qBittorrent**  
-其实有安装 4.0.2 版本的选项，不过似乎编译不成功，因此我就没显示出来了。以后再测试这个的编译 
+其实有安装 4.0.2 版本的选项，不过似乎编译不成功，因此我就没显示出来了。以后再测试这个的编译  
 
 5. **Deluge 与 libtorrent**  
 Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选默认的就可以了  
@@ -70,15 +71,14 @@ Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选�
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
 由于 BBR 需要 4.9 以上的内核，而在某些情况下换内核会导致重启失败，或者某些特殊的 VPS 无法用普通的办法换内核，因此是否需要用本脚本来安装 BBR 也需要考虑一下  
 不过针对常见的 Online.net 的独服我是准备了两个 firmware，应该没什么问题
-BBR的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
+BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
 12. **系统设置**  
 主要是修改时区为 UTC+8、`alias`、编码设置为 UTF-8、提高系统文件打开数。默认是不启用的
 
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
-由于安装时候没有提示二次确认和纠错的功能，所以如果你哪里写错了，只能先退出脚本重新再选择  
-没什么问题的话就敲回车继续  
+如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 
 ![安装完成](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
 
@@ -134,6 +134,7 @@ bdupload
 ```
 #### 介绍
 
+**注意： 不支持 UltraHD Blu-ray**  
 转发蓝光原盘时可以使用的一个脚本。目前可以实现以下功能：  
 
 - **判断是 BDISO 还是 BDMV**  
@@ -167,7 +168,6 @@ BDinfo 会有三个文件，一个是原版的，很长；一个是 Main Summary
 
 ![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
 
-**注意： 不支持 UltraHD Blu-ray**  
 看着选项多，其实一般情况下，输入完路径后一路敲回车就可以了  
 
 ![输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.03.png)
@@ -266,7 +266,7 @@ https://moeclub.org
 https://github.com/teddysun/across  
 https://github.com/oooldking/script  
 https://github.com/outime/ipv6-dhclient-script  
-https://github.com/jxzy199306/ipv6-dhclient-script/  
+https://github.com/jxzy199306/ipv6_dhclient_online_net  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
 https://xxxxxx.org/forums/viewtopic?topicid=61434  
 
