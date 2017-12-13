@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=root
-ExecStart=/usr/local/bin/transmission-daemon --log-error -f
+ExecStart=/usr/bin/transmission-daemon --log-error -f
 
 [Install]
 WantedBy=multi-user.target
