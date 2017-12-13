@@ -43,7 +43,36 @@ function isValidIpAddress() {
 function isInternalIpAddress() {
 	echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
 }
+# --------------------------------------------------------------------------------
+# 检查客户端安装情况
+function _check_install_1(){
+  client_location=$( command -v ${client_name} )
 
+  if [[ "${client_name}" == "qbittorrent-nox" ]]; then
+      client_name=qb
+  elif [[ "${client_name}" == "transmission-daemon" ]]; then
+      client_name=tr
+  elif [[ "${client_name}" == "deluged" ]]; then
+      client_name=de
+  elif [[ "${client_name}" == "rtorrent" ]]; then
+      client_name=rt
+  elif [[ "${client_name}" == "flexget" ]]; then
+      client_name=flex
+  fi
+
+  if [[ -a $client_location ]]; then
+      eval "${client_name}"_installed=Yes
+  else
+      eval "${client_name}"_installed=No
+  fi
+}
+
+function _check_install_2(){
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone virt-what lsb_release smartctl irssi ffmepg mediainfo; do
+    client_name=$apps; _check_install_1
+done
+}
+# --------------------------------------------------------------------------------
 ### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
@@ -52,8 +81,14 @@ function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15
 # --------------------------------------------------------------------------------
 
 
-clear
 
+
+
+
+
+
+
+clear
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
@@ -82,6 +117,8 @@ function _intro() {
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
   isValidIpAddress "$serveripv4" || echo "${bold}${red}ERROR${red} Failed to detect your public IPv4 address ...${normal}"
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
+
+  _check_install_2
 
   virtua=$(virt-what) 2>/dev/null
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
@@ -164,6 +201,7 @@ function _checkroot() {
 
 
 
+
 # --------------------- 询问是否继续 Type-A --------------------- #
 function _warning() {
   echo
@@ -180,6 +218,7 @@ function _warning() {
   echo -e "If you want to exit, you may press ${on_red}Ctrl+C${normal} ";read input
 # echo -ne "${guangbiao}"
 }
+
 
 
 
@@ -309,11 +348,11 @@ function _askaptsource() {
 
 # --------------------- 询问编译安装时需要使用的线程数量 --------------------- #
 function _askmt() {
-  echo -e "01) Use ${cyan}all${normal} avaliable threads (default)"
-  echo -e "02) Use ${cyan}half${normal} of avaliable threads"
-  echo -e "03) Use ${cyan}one${normal} thread"
-  echo -e "04) Use ${cyan}two${normal} threads"
-# echo -e "05 Do not compile, install softwares from repo"
+  echo -e "${green}01)${white} Use ${cyan}all${white} avaliable threads (default)"
+  echo -e "${green}02)${white} Use ${cyan}half${white} of avaliable threads"
+  echo -e "${green}03)${white} Use ${cyan}one${white} thread"
+  echo -e "${green}04)${white} Use ${cyan}two${white} threads"
+# echo -e   "${red}99)${white} Do not compile, install softwares from repo"
 
   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
   echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): "; read -e version
@@ -340,20 +379,20 @@ function _askmt() {
 
 # --------------------- 询问需要安装的 qBittorrent 的版本 --------------------- #
 function _askqbt() {
-  echo -e "01) qBittorrent ${cyan}3.3.7${normal}"
-# echo -e "02) qBittorrent ${cyan}3.3.8${normal}"
-# echo -e "03) qBittorrent ${cyan}3.3.9${normal}"
-# echo -e "04) qBittorrent ${cyan}3.3.10${normal}"
-  echo -e "05) qBittorrent ${cyan}3.3.11${normal} (default)"
-  echo -e "06) qBittorrent ${cyan}3.3.12${normal}"
-  echo -e "07) qBittorrent ${cyan}3.3.13${normal}"
-  echo -e "08) qBittorrent ${cyan}3.3.14${normal}"
-  echo -e "09) qBittorrent ${cyan}3.3.15${normal}"
-  echo -e "10) qBittorrent ${cyan}3.3.16${normal}"
-# echo -e "11) qBittorrent ${cyan}4.0.2${normal}"
-# echo -e "30) qBittorrent from ${cyan}repo${normal}"
-# echo -e "40) qBittorrent from ${cyan}PPA${normal}"
-  echo -e "99) Do not install qBittorrent"
+  echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
+# echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
+# echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
+# echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
+  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white} (default)"
+  echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
+  echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
+  echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
+  echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
+  echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
+  echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
+  echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
+  echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e   "${red}99)${white} Do not install qBittorrent"
 
   echo -ne "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
@@ -375,13 +414,27 @@ function _askqbt() {
   esac
 
   if [ "${QBVERSION}" == "No" ]; then
+
       echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
-  elif [ "${QBVERSION}" == "4.0.1" ]; then
-      echo "${bold}${red}WARNING${normal} ${bold}For now, qBittorrent4.X's compilation only works on ${green}Debian 9${normal}"
-      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.1.5${normal}"
-      QBVERSION4=Yes
-  elif [[ "${QBVERSION}" == "Install from repo" ]]; then 
+
+  elif [ "${QBVERSION}" == "4.0.2" ]; then
+
+      if [ $relno = 8 ]; then
+          echo "${bold}${red}WARNING${normal} ${bold}For now, qBittorrent4.X's compilation doesn't work on ${green}Debian 8${normal}"
+          QBVERSION=3.3.16
+          echo "${bold}The script will use qBittorrent 3.3.16 instead. If you do not want to use this version, press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
+      elif [ $relno = 16 ]; then
+          QBVERSION='Install from PPA'
+          echo "${bold}${baiqingse}qBittorrent 4.0.2${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.1.5${normal}"
+      else
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
+      fi
+
+  elif [[ "${QBVERSION}" == "Install from repo" ]]; then
+
       echo -ne "${bold}qBittorrent will be installed from repository, and "
+
       if [ $relno = 9 ]; then
           echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7-3${normal}"
       elif [ $relno = 8 ]; then
@@ -389,7 +442,9 @@ function _askqbt() {
       elif [ $relno = 16 ]; then
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1-1${normal}"
       fi
+
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
+
       if [[ $DISTRO == Debian ]]; then
           echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
           echo -e "Change install mode to ${cyan}Install from repo${white}"
@@ -397,8 +452,11 @@ function _askqbt() {
       else
           echo "qBittorrent will be installed from Stable PPA, in most cases it will be the latest version"
       fi
+
   else
+
       echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
+
   fi
 
   echo
@@ -409,14 +467,14 @@ function _askqbt() {
 
 # --------------------- 询问需要安装的 Deluge 版本 --------------------- #
 function _askdeluge() {
-  echo -e "01) Deluge ${cyan}1.3.11${normal}"
-  echo -e "02) Deluge ${cyan}1.3.12${normal}"
-  echo -e "03) Deluge ${cyan}1.3.13${normal}"
-  echo -e "04) Deluge ${cyan}1.3.14${normal}"
-  echo -e "05) Deluge ${cyan}1.3.15${normal} (default)"
-# echo -e "30) Deluge from ${cyan}repo${normal} (default)"
-# echo -e "40) Deluge from ${cyan}PPA${normal} (default)"
-  echo -e "99) Do not install Deluge"
+  echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
+  echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
+  echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
+  echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
+  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white} (default)"
+  echo -e "${green}30)${white} Deluge from ${cyan}repo${white} (default)"
+  echo -e "${green}40)${white} Deluge from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e   "${red}99)${white} Do not install Deluge"
 
   echo -ne "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
@@ -432,9 +490,13 @@ function _askdeluge() {
   esac
 
   if [ "${DEVERSION}" == "No" ]; then
+
       echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
+
   elif [[ "${DEVERSION}" == "Install from repo" ]]; then 
+
       echo -ne "${bold}Deluge will be installed from repository, and "
+
       if [ $relno = 9 ]; then
           echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13+git20161130.48cedf63-3${normal}"
       elif [ $relno = 8 ]; then
@@ -442,7 +504,9 @@ function _askdeluge() {
       elif [ $relno = 16 ]; then
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12-1ubuntu1${normal}"
       fi
+
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+
       if [[ $DISTRO == Debian ]]; then
           echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
           echo -e "Change install mode to ${cyan}Install from repo${white}"
@@ -450,8 +514,11 @@ function _askdeluge() {
       else
           echo "Deluge will be installed from Stable PPA, in most cases it will be the latest version"
       fi
+
   else
+
       echo "${bold}${baiqingse}Deluge "${DEVERSION}"${normal} ${bold}will be installed${normal}"
+
   fi
 }
 
@@ -464,10 +531,10 @@ function _askdelt() {
       echo
   else
       echo
-      echo -e "01) libtorrent ${cyan}RC_0_16${normal}"
-      echo -e "02) libtorrent ${cyan}RC_1_0${normal}"
-      echo -e "03) libtorrent ${cyan}RC_1_1${normal} (NOT recommended)"
-      echo -e "04) libtorrent from ${cyan}repo${normal} (default)"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
+      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (default)"
 
       echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): "; read -e version
       case $version in
@@ -479,6 +546,7 @@ function _askdelt() {
       esac
 
       if [ $DELTVERSION == "No" ]; then
+
           echo -ne "${bold}libtorrent-rasterbar will be installed from repo, and "
           if [ $relno = 9 ]; then
               echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
@@ -487,8 +555,11 @@ function _askdelt() {
           elif [ $relno = 16 ]; then
               echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
           fi
+
       else
+
           echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
+
       fi
 
   echo
@@ -500,11 +571,11 @@ function _askdelt() {
 
 # --------------------- 询问需要安装的 rTorrent 版本 --------------------- #
 function _askrt() {
-  echo -e "01) rTorrent ${cyan}0.9.3${normal}"
-  echo -e "02) rTorrent ${cyan}0.9.4${normal} (default)"
-  echo -e "03) rTorrent ${cyan}0.9.4${normal} (with ipv6 support)"
-  echo -e "04) rTorrent ${cyan}0.9.6${normal}"
-  echo -e "99) Do not install rTorrent"
+  echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
+  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white} (default)"
+  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with unoffical ipv6 support)"
+  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white}"
+  echo -e   "${red}99)${white} Do not install rTorrent"
 
   echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read -e version
   case $version in
@@ -517,8 +588,11 @@ function _askrt() {
   esac
 
   if [ "${RTVERSION}" == "No" ]; then
+
       echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
+
   else
+
       if [ $CODENAME == "stretch" ]; then
           RTVERSION=0.9.6
           echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
@@ -531,7 +605,9 @@ function _askrt() {
       else
           echo "${bold}${baiqingse}rTorrent "${RTVERSION}"${normal} ${bold}will be installed${normal}"
       fi
+
   fi
+
   echo
 }
 
@@ -540,13 +616,13 @@ function _askrt() {
 
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
 function _asktr() {
-  echo -e "01) Transmission ${cyan}2.77${normal}"
-  echo -e "02) Transmission ${cyan}2.82${normal}"
-  echo -e "03) Transmission ${cyan}2.84${normal}"
-  echo -e "04) Transmission ${cyan}2.92${normal} (default)"
-# echo -e "30) Transmission from ${cyan}repo${normal} (default)"
-# echo -e "40) Transmission from ${cyan}PPA${normal} (default)"
-  echo -e "99) Do not install Transmission"
+  echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
+  echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
+  echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
+  echo -e "${green}04)${white} Transmission ${cyan}2.92${white} (default)"
+  echo -e "${green}30)${white} Transmission from ${cyan}repo${white} (default)"
+  echo -e "${green}40)${white} Transmission from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e   "${red}99)${white} Do not install Transmission"
 
   echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}04${normal}): "; read -e version
   case $version in
@@ -566,7 +642,7 @@ function _asktr() {
 
       if [ "$CODENAME" = "stretch" ]; then
 
-          ecgo "Sorry, now the compilation on Debian 9 doesn't work"
+          ecgo "Sorry, for now the compilation on Debian 9 doesn't work"
           echo "For ${green}${bold}Debian 9${normal}${bold}, Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
           TRVERSION='Install from repo'
 
@@ -598,8 +674,6 @@ function _asktr() {
           echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
 
       fi
-
-      
 
   fi
   echo
@@ -648,6 +722,27 @@ function _askrclone() {
 
 
 
+
+# --------------------- 询问是否需要安装 VNC --------------------- #
+function _askvnc() {
+  echo -ne "${bold}${yellow}Would you like to install VNC? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  case $responce in
+      [yY] | [yY][Ee][Ss]) vnc=Yes ;;
+      [nN] | [nN][Oo] | "" ) vnc=No ;;
+      *) vnc=No ;;
+  esac
+  if [ $tweaks == "Yes" ]; then
+      echo "${bold}${baiqingse}VNC${normal} ${bold}will be installed${normal}"
+  else
+      echo "${baizise}VNC will ${baihongse}not${baizise} be installed${normal}"
+  fi
+  echo
+}
+
+
+
+
+
 # --------------------- 询问是否需要修改一些设置 --------------------- #
 function _asktweaks() {
   echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
@@ -659,7 +754,7 @@ function _asktweaks() {
   if [ $tweaks == "Yes" ]; then
       echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
   else
-      echo "${baizise}System tweaks will ${baihongse}not${baizise} be installed${normal}"
+      echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
   fi
   echo
 }
@@ -671,8 +766,8 @@ function _asktweaks() {
 
 # 检查是否已经启用BBR
 function check_bbr_status() {
-    export param=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
-    if [[ "${param}" == "bbr" ]]; then
+    export bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
+    if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
         bbrinuse=Yes
     else
         bbrinuse=No
@@ -842,26 +937,28 @@ sed -i '/^USETWEAKS/'d /etc/profile
 sed -i '/^BBRINSTALLED/'d /etc/profile
 sed -i '/^UPLOADTOOLS/'d /etc/profile
 sed -i '/^APTSOURCES/'d /etc/profile
+sed -i '/^VNCINSTALLED/'d /etc/profile
 sed -i '/^#####\ U.*/'d /etc/profile
 
+#UPLOADTOOLS=${tools}
+#VNCINSTALLED=${vnc}
 
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
-INEXISTENCEVER=086
-INEXISTENCEDATE=20171210
+INEXISTENCEVER=087
+INEXISTENCEDATE=20171213
 ANUSER=${ANUSER}
-QBVERSION=${QBVERSION}
-DEVERSION=${DEVERSION}
-RTVERSION=${RTVERSION}
-TRVERSION=${TRVERSION}
+QBVERSION="${QBVERSION}"
+DEVERSION="${DEVERSION}"
+RTVERSION="${RTVERSION}"
+TRVERSION="${TRVERSION}"
 MAXCPUS=${MAXCPUS}
 FLEXGETINSTALLED=${flexget}
 RCLONEINSTALLED=${rclone}
 USETWEAKS=${tweaks}
 BBRINSTALLED=${bbr}
-UPLOADTOOLS=${tools}
 APTSOURCES=${aptsources}
 ##### U ########################################
 EOF
@@ -913,13 +1010,9 @@ function _installqbt() {
       apt-get update
       apt-get install -y qbittorrent-nox
   else
-      apt-get install -y libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools python geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git psmisc
+      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git psmisc python python3
       cd
-      if [ "${QBVERSION4}" == "Yes" ]; then
-          git clone --depth=1 -b RC_1_1 --single-branch https://github.com/arvidn/libtorrent.git
-      else
-          git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
-      fi
+      git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
       cd libtorrent
       ./autotool.sh
       ./configure --disable-debug --enable-encryption --prefix=/usr --with-libgeoip=system
@@ -1155,7 +1248,7 @@ else
     git submodule update --init
     sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
     ./autogen.sh
-    ./configure
+    ./configure --prefix=/usr
     make -j${MAXCPUS}
     make install
     cd
@@ -1180,7 +1273,7 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
     cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
-    [[ `command -v transmission-daemon` == /usr/bin/transmission-daemon ]] && sed -i "s/usr\/local/usr/g" /etc/systemd/system/transmission.service
+    
     sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json
     sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
 
@@ -1263,21 +1356,50 @@ function _installrclone() {
 
 # --------------------- 安装 BBR --------------------- #
 function _installbbr() {
-  cd
-  bash "${local_packages}"/script/dalao/bbr1.sh
-  # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
-  mkdir -p /lib/firmware/bnx2
-  cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
-  cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
-  echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+cd
+bash "${local_packages}"/script/dalao/bbr1.sh
+# 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
+mkdir -p /lib/firmware/bnx2
+cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
+cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
+echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 }
 
 
 
 
 
-# --------------------- 安装 VNC／mkvtoolnix／wine／mktorrent／ffmpeg／mediainfo --------------------- #
-# 没写完，目前还不会投入使用；以后会增加一些安装选项，比如不同的桌面？
+# --------------------- 安装 VNC --------------------- #
+function _installvnc() {
+
+cd
+apt-get install -y vnc4server xfonts-intl-chinese-big fcitx locales xfonts-wqy
+apt-get install xfce4
+#apt-get install -y mate-desktop-environment-extras
+vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
+vncpasswd <<EOF
+$ANPASS
+$ANPASS
+EOF
+vncserver && vncserver -kill :1
+mkdir -p .vnc
+cp -f "${local_packages}"/script/template/xstartup.1 /root/.vnc/xstartup
+cp -f "${local_packages}"/script/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
+
+systemctl daemon-reload
+systemctl enable vncserver
+systemctl start vncserver
+
+#vncserver -geometry 1366x768
+
+}
+
+
+
+
+
+# --------------------- 安装 mkvtoolnix／wine／mktorrent／ffmpeg／mediainfo --------------------- #
+# 没写完，目前还不会投入使用
 
 function _installtools() {
 
@@ -1369,16 +1491,6 @@ dpkg -i 1
 dpkg -i 2
 dpkg -i 3
 rm -rf 1 2 3
-
-########### 安装 mono wine vnc4server ##########
-
-cd
-apt-get install -y mono-complete wine vnc4server
-apt-get install -y mate-desktop-environment-extras
-mkdir -p .vnc
-cp -f "${local_packages}"/script/template/xstartup.1 ~/.vnc/xstartup
-
-#vncserver -geometry 1920x1080
 
 ########### 安装 mktorrent  ###########
 
@@ -1539,6 +1651,7 @@ fi
 # --------------------- 结尾 --------------------- #
 function _end() {
 
+_check_install_2
 endtime=$(date +%s) 
 timeused=$(( $endtime - $starttime ))
 echo
@@ -1612,6 +1725,7 @@ _askrt
 _asktr
 _askflex
 _askrclone
+# _askvnc
 # _asktools
 
 if [[ -d "/proc/vz" ]]; then
