@@ -1079,9 +1079,7 @@ function _installde() {
       apt-get update
       apt-get install -y deluged deluge-web
   else
-      if [ $DELTVERSION == "No" ]; then
-          cd
-      else
+      if [ ! $DELTVERSION == "No" ]; then
           cd
           apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf psmisc
           git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
@@ -1273,6 +1271,7 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
     cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
+    [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
     
     sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json
     sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
