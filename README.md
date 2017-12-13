@@ -101,7 +101,6 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - **加入安装 uTorrent 的选项**  
 utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一定能做出来  
 
-
 #### Known Issues
 
 - **没有对于用户名和密码有效性的检查**  
@@ -127,41 +126,52 @@ bdupload
 转发蓝光原盘时可以使用的一个脚本。目前可以实现以下功能：  
 
 - **判断是 BDISO 还是 BDMV**  
-输入一个路径，判断是不是文件夹；是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO  
-（所以如果你输的不是 BD 或者一个文件夹内包含多个 BD 的话是会出错的）
+输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
+（所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）
 - **自动挂载镜像**  
 如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）。全部操作完成后 BDISO 会自动解除挂载
 - **截图**  
 自动寻找 BD 里体积最大的 m2ts 截 10 张 png 图。默认用 1920×1080 的分辨率，也可以手动填写分辨率  
-指定 1920×1080 分辨率是因为某些原盘用 ffmepg 自动检测分辨率截图的话截出来的图是 1440 ×1080 的，不符合某些站的要求  
+指定 1920×1080 分辨率是因为某些原盘用 ffmepg 直接截图的话截出来的图是 1440 ×1080 的，不符合某些站的要求  
 自定义分辨率主要是考虑到有些原盘的分辨率不是 1080 （有些蓝光原盘甚至是 480i ）  
 - **扫描 BDinfo**  
 默认是自动扫描第一个最长的 mpls；也可以手动选择扫描哪一个 mpls  
-BDinfo 会有三个文件，一个是原版的，很长；一个是 Main Summary，一个是 Quick Summary  
+BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个是 Quick Summary  
 一般而言发种写个 Quick Summary 就差不多了  
 - **生成缩略图**  
-这个功能默认不启用；其实也不是很有用  
+这个功能默认不启用；其实一般也用不上  
 - **制作种子**  
 针对 BDISO，默认选择重新做种子；针对 BDMV，默认选择不重新做种子  
 
-#### To Do List
-
-- **自动上传到 ptpimg**  
-调用 ptpimg_uploader 来完成，脚本跑完后会输出 ptpimg 的链接。运行之前你需要自己设置好 ptpimg_uploader  
-- **自动上传到 Google Drive**  
-调用 rclone 来完成，需要你自己设置好 rclone，且在脚本里设置 rclone remote path（我会把这个设置项放在脚本开头的注释里）  
-
 ![检查是否缺少软件](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.01.png)
 
-这一步脚本会检查是否存在缺少的软件，如缺少会提示你安装，如果选择不安装的话脚本会退出
+这一步脚本会检查是否存在缺少的软件，如缺少会提示你安装，如果选择不安装的话脚本会退出  
 
 ![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
 
 看着选项多，其实一般情况下，输入完路径后一路敲回车就可以了  
 
 ![输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.03.png)
-需要注意的是，我脚本里挂载、输出文件都是指定了一个固定的目录`/etc/inexistence`  
+需要注意的是，脚本里挂载、输出文件都是指定了一个固定的目录`/etc/inexistence`  
 一般情况下你需要 root 权限才能访问这个目录  
+
+#### To Do List
+
+- **判断操作是否成功**  
+目前操作中哪一步翻车了也不会有翻车了的提醒    
+- **自动上传到 Google Drive**  
+调用 rclone 来完成，需要你自己设置好 rclone，且在脚本里设置 rclone remote path  
+（我会把这个设置项放在脚本开头的注释里）  
+
+#### Under Consideration
+
+- **完善对于输入路径的判断**  
+对于文件夹，检查是不是里面包含着单个 BDISO，或者包不包含 BDMV 这个文件夹  
+对于非文件夹，检查文件后缀名是不是 ISO  
+- **自动检测分辨率**  
+自动使用AR后的分辨率  
+- **自动上传到 ptpimg**  
+调用 ptpimg_uploader 来完成，脚本跑完后会输出 ptpimg 的链接。运行之前你需要自己配置好 ptpimg_uploader  
 
 -------------------
 ## mingling
@@ -204,7 +214,7 @@ mingling
 ## bdjietu
 
 这个是单独抽出来的，用于给 BD 截图的脚本。  
-输入 BDMV 的路径后会自动从中找出最大的 m2ts 文件，截图 10 张到特定的目录。  
+输入 BDMV 的路径后会自动从中找出最大的 m2ts 文件，截图 10 张到特定的目录  
 其实就是用 ffmepg 来截图，不过指定了分辨率和输出的路径  
  
  ![bdjietu输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdjietu.01.png)
@@ -252,6 +262,7 @@ http://outlyer.net/etiq/projects/vcs
 http://wilywx.com  
 https://www.dwhd.org  
 https://moeclub.org  
+https://blog.gloriousdays.pw  
 https://github.com/teddysun/across  
 https://github.com/oooldking/script  
 https://github.com/gutenye/systemd-units  
