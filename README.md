@@ -122,9 +122,16 @@ bdupload
 ```
 #### 介绍
 
-**注意： 不支持 UltraHD Blu-ray**  
-转发蓝光原盘时可以使用的一个脚本。目前可以实现以下功能：  
 
+转发蓝光原盘时可以使用的一个脚本；目前不支持 UltraHD Blu-ray
+
+![检查是否缺少软件](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.01.png)
+
+一开始脚本会检查是否存在缺少的软件，如缺少会提示你安装，如果选择不安装的话脚本会退出  
+
+![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
+
+目前可以实现以下功能：  
 - **判断是 BDISO 还是 BDMV**  
 输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
 （所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）
@@ -141,15 +148,7 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 - **生成缩略图**  
 这个功能默认不启用；其实一般也用不上  
 - **制作种子**  
-针对 BDISO，默认选择重新做种子；针对 BDMV，默认选择不重新做种子  
-
-![检查是否缺少软件](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.01.png)
-
-这一步脚本会检查是否存在缺少的软件，如缺少会提示你安装，如果选择不安装的话脚本会退出  
-
-![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
-
-看着选项多，其实一般情况下，输入完路径后一路敲回车就可以了  
+针对 BDISO，默认选择重新做种子；针对 BDMV，默认选择不重新做种子 
 
 ![输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.03.png)
 需要注意的是，脚本里挂载、输出文件都是指定了一个固定的目录`/etc/inexistence`  
@@ -190,7 +189,7 @@ mingling
 #### 介绍
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
-此外有些功能还没有做完  
+此外有些功能还没做完  
 不做具体的介绍了，自己看图吧  
 
 ![mingling.00](https://github.com/Aniverse/filesss/raw/master/Images/mingling.00.png)
@@ -223,16 +222,45 @@ mingling
  ## bdinfo
 
 这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本。  
-运行完以后会问你是否在 SSH 上输出 BDinfo Quick Summary  
+运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
  
 BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
- 
+  -------------------
+ ## ipv6
+
+用于配置 IPv6 的脚本，在我的 Online.net 独服上测试通过。  
+
+``` 
+wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
+bash ipv6.sh  
+bash ipv6.sh [interface] [address] [subnet] [DUID]  
+```
+
+![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
+
+  -------------------
+ ## jietu
+
+用于截图和生成 mediainfo 的脚本，适合非原盘类的视频。  
+其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本。  
+``` 
+jietu [path/to/file] [resloution]
+```
+![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
+
+  -------------------
+ ## xiansu
+
+用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子。  
+
+![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
+
   -------------------
 
-还有一些脚本，比如 `jietu`、`guazai`、`zuozhong` 等等，在此不作介绍了，大多看名字都知道是干什么用的了  
+还有一些脚本，比如 ``guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 这些脚本在 `inexistence` 脚本里带上了但默认是不启用的  
 用拼音主要是照顾一些英语不好的人  
 
