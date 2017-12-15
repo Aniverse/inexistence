@@ -534,37 +534,23 @@ function _askdelt() {
       echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
       echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
-      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (default)"
+#     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (default)"
 
       echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): "; read -e version
       case $version in
           01 | 1) DELTVERSION=RC_0_16 ;;
           02 | 2) DELTVERSION=RC_1_0 ;;
           03 | 3) DELTVERSION=RC_1_1 ;;
-          04 | 4 | "") DELTVERSION=No ;;
+#         04 | 4 | "") DELTVERSION=No ;;
           *) DELTVERSION=RC_1_0 ;;
       esac
 
-      if [ $DELTVERSION == "No" ]; then
-
-          echo -ne "${bold}libtorrent-rasterbar will be installed from repo, and "
-          if [ $relno = 9 ]; then
-              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
-          elif [ $relno = 8 ]; then
-              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}libtorrent 0.16.18${normal}"
-          elif [ $relno = 16 ]; then
-              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
-          fi
-
-      else
-
-          echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
-
-      fi
+      echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
 
   echo
   fi
 }
+
 
 
 
@@ -878,6 +864,7 @@ function _askcontinue() {
   echo -e "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
   echo -e "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
 # echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
+# echo -e "                  ${cyan}${bold}VNC${normal}           ${bold}${yellow}"${vnc}"${normal}"
   echo -e "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
   echo -e "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
   echo -e "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
@@ -999,9 +986,7 @@ function _setsources() {
 # --------------------- 编译安装 qBittorrent --------------------- #
 function _installqbt() {
 
-  if [ "${QBVERSION}" == "No" ]; then
-      cd
-  elif [[ "${QBVERSION}" == "Install from repo" ]]; then
+  if [[ "${QBVERSION}" == "Install from repo" ]]; then
       apt-get install -y qbittorrent-nox
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
       apt-get install -y software-properties-common
@@ -1028,7 +1013,6 @@ function _installqbt() {
       cd
       rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
   fi
 }
 
@@ -1068,9 +1052,7 @@ function _setqbt() {
 # --------------------- 编译安装 Deluge --------------------- #
 function _installde() {
 
-  if [ "${DEVERSION}" == "No" ]; then
-      cd
-  elif [[ "${DEVERSION}" == "Install from repo" ]]; then
+  if [[ "${DEVERSION}" == "Install from repo" ]]; then
       apt-get install -y deluged deluge-web
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
       apt-get install -y software-properties-common
@@ -1079,19 +1061,16 @@ function _installde() {
       apt-get update
       apt-get install -y deluged deluge-web
   else
-      if [ ! $DELTVERSION == "No" ]; then
-          cd
-          apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf psmisc
-          git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
-          cd libtorrent
-          ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv
-          make -j${MAXCPUS}
-          checkinstall -y
-          ldconfig
-          cd
-      fi
-
+      cd
+      apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf psmisc
+      git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
+      cd libtorrent
+      ./autotool.sh
+      ./configure --enable-python-binding --with-libiconv
+      make -j${MAXCPUS}
+      checkinstall -y
+      ldconfig
+      cd
       apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako psmisc
       wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       tar zxf deluge-"${DEVERSION}".tar.gz
@@ -1185,7 +1164,6 @@ fi
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
   openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
-  rtwebmin
   cp -f /home/${ANUSER}/rtinst.log /etc/inexistence/01.Log/rtinst.log
   cp -f /root/rtinst.log /etc/inexistence/01.Log/rtinst.log
   cp -f /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/rtinst.info
@@ -1217,9 +1195,7 @@ fi
 # --------------------- 安装 Transmission --------------------- #
 function _installtr() {
 
-if [ "${TRVERSION}" == "No" ]; then
-    cd
-elif [[ "${TRVERSION}" == "Install from repo" ]]; then
+if [[ "${TRVERSION}" == "Install from repo" ]]; then
     apt-get install -y transmission-daemon
 elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
     apt-get install -y software-properties-common
@@ -1531,11 +1507,13 @@ echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;e
 function _tweaks() {
 if [ $tweaks == "Yes" ]; then
 
-    rm -rf /etc/localtime
-    ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
-    ntpdate time.windows.com
-    hwclock -w
+#修改时区
+rm -rf /etc/localtime
+ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+ntpdate time.windows.com
+hwclock -w
 
+#设置编码与alias
 cat>>/etc/profile<<EOF
 
 ################## Seedbox Script Mod Start ##################
@@ -1568,18 +1546,18 @@ alias irssia="systemctl start irssi@${ANUSER}"
 alias irssib="systemctl stop irssi@${ANUSER}"
 alias irssic="systemctl status irssi@${ANUSER}"
 alias irssir="systemctl restart irssi@${ANUSER}"
-alias flexa="systemctl start flexget"
-alias flexb="systemctl stop flexget"
-alias flexc="flexget daemon status"
-alias flexr="systemctl restart flexget"
+alias fla="systemctl start flexget"
+alias flb="systemctl stop flexget"
+alias flc="flexget daemon status"
+alias flr="systemctl restart flexget"
 alias cdde="cd /home/${ANUSER}/deluge/download && ll"
 alias cdqb="cd /home/${ANUSER}/qbittorrent/download && ll"
 alias cdrt="cd /home/${ANUSER}/rtorrent/download && ll"
 alias cdtr="cd /home/${ANUSER}/transmission/download && ll"
 alias shanchu="rm -rf"
-alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
+alias xiugai="nano /etc/profile && source /etc/profile
 alias quanxian="chmod -R 777"
-alias anzhuang="apt-get install -y"
+alias anzhuang="apt-get install"
 alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
 
 alias ssa="/etc/init.d/shadowsocks-r start"
@@ -1591,16 +1569,22 @@ alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
 
+alias delog="cat /etc/inexistence/01.Log/deluged.log | tail -n50"
+alias dewlog="cat /etc/inexistence/01.Log/delugeweb.log | tail -n50"
+alias qblog="cat /etc/inexistence/01.Log/qbittorrent.log | tail -n50"
+alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
+alias fllog="cat /root/.flexget/flexget.log | tail -n50"
+alias fls="nano /root/.flexget/config.yml"
+alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
+
 alias scrl="screen ls"
 alias scrgd="screen -U -R GoogleDrive"
-alias renwu="ps aux | grep"
+alias jincheng="ps aux | grep -v grep | grep"
 alias ${ANUSER}="su ${ANUSER}"
-alias flexs="nano /root/.flexget/config.yml"
 alias ios="iostat -d -x -k 1"
-alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
-alias qblog="cat /etc/inexistence/01.Log/qbittorrent.log"
 alias cdb="cd .."
 alias cesu="cesu --share"
+alias cesus="cesu --share --server"
 alias cesujiedian="cesu --list | grep -v speedtest | head -10"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll='ls -hAlvZ --color --group-directories-first'
@@ -1614,12 +1598,18 @@ alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr 
 
 EOF
 
-
+# 提高文件打开数
 cat >>/etc/sysctl.conf<<EOF
 fs.file-max = 1926817
 fs.nr_open = 1926817
 EOF
 
+echo "* - nofile 1926817">>/etc/security/limits.conf
+echo "* - nproc 1926817">>/etc/security/limits.conf
+echo "DefaultLimitNOFILE=123456">>/etc/systemd/system.conf
+echo "DefaultLimitNPROC=123456">>/etc/systemd/system.conf
+
+# 脚本的设置
 mkdir -p /etc/inexistence/02.Tools/eac3to
 mkdir -p /etc/inexistence/04.Upload
 mkdir -p /etc/inexistence/05.Output
@@ -1630,19 +1620,17 @@ mkdir -p /etc/inexistence/09.Torrents
 mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
-
-# 跳过文件夹，只复制最外层的……
 cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
-    echo "* - nofile 1926817">>/etc/security/limits.conf
-    echo "* - nproc 1926817">>/etc/security/limits.conf
-    echo "DefaultLimitNOFILE=123456">>/etc/systemd/system.conf
-    echo "DefaultLimitNPROC=123456">>/etc/systemd/system.conf
-    echo "precedence ::ffff:0:0/96 100">>/etc/gai.conf
+# IPv6 优先
+echo "precedence ::ffff:0:0/96 100">>/etc/gai.conf
 
-    source /etc/profile
-    locale
-    sysctl -p
+# 将最大的分区的保留空间设置为 0
+tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
+
+source /etc/profile
+locale
+sysctl -p
 
 fi
 }
@@ -1677,7 +1665,6 @@ fi
 if [ ! "${RTVERSION}" == "No" ]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
-    echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 fi
 
 if [ ! $flexget == "No" ]; then
