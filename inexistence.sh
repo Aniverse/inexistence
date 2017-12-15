@@ -44,7 +44,7 @@ function isInternalIpAddress() {
 	echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
 }
 # --------------------------------------------------------------------------------
-# 检查客户端安装情况
+# 检查客户端是否已安装、客户端版本
 function _check_install_1(){
   client_location=$( command -v ${client_name} )
 
@@ -58,6 +58,10 @@ function _check_install_1(){
       client_name=rt
   elif [[ "${client_name}" == "flexget" ]]; then
       client_name=flex
+  elif [[ "${client_name}" == "virt-what" ]]; then
+      client_name=virtwhat
+  elif [[ "${client_name}" == "lsb_release" ]]; then
+      client_name=lsb
   fi
 
   if [[ -a $client_location ]]; then
@@ -72,6 +76,13 @@ for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone 
     client_name=$apps; _check_install_1
 done
 }
+
+function _client_version_check(){
+[[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//g"`
+[[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'`
+[[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | grep version | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
+[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | grep http | grep -oP --color=never '\d*\.\d*.\d+'`
+}
 # --------------------------------------------------------------------------------
 ### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
@@ -85,14 +96,16 @@ function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15
 
 
 
-
-
-
 clear
+
+
+
+
+
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
-  echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for seedbox spec detection ...${normal}"
+  echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
   apt-get -yqq install lsb-release virt-what >> /dev/null 2>&1
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
@@ -115,10 +128,12 @@ function _intro() {
   isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate --timeout=10 -qO- http://v4.ipv6-test.com/api/myip.php)
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}ERROR${red} Failed to detect your public IPv4 address ...${normal}"
+  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
-
+  
+  echo "${bold}Checking your server spec ...${normal}"
   _check_install_2
+  _client_version_check
 
   virtua=$(virt-what) 2>/dev/null
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
@@ -394,6 +409,7 @@ function _askqbt() {
   echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white} (not supported by Debian)"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
+  [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
   echo -ne "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
@@ -420,18 +436,40 @@ function _askqbt() {
   elif [ "${QBVERSION}" == "4.0.2" ]; then
 
       if [ $relno = 8 ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}For now, qBittorrent4.X's compilation doesn't work on ${green}Debian 8${normal}"
+          echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4.0 doesn't work on ${cyan}Debian 8${normal}"
           QBVERSION=3.3.16
-          echo "${bold}The script will use qBittorrent 3.3.16 instead. If you do not want to use this version, press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
+          echo "${bold}The script will use qBittorrent 3.3.16 instead. If you don't like this version,"
+		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       elif [ $relno = 16 ]; then
           QBVERSION='Install from PPA'
-          echo "${bold}${baiqingse}qBittorrent 4.0.2${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.1.5${normal}"
+          echo "${bold}${baiqingse}qBittorrent 4.0.2${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.1.5${normal}"
       else
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       fi
 
   elif [[ "${QBVERSION}" == "Install from repo" ]]; then
+
+      sleep 0
+
+  elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
+
+      if [[ $DISTRO == Debian ]]; then
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+          echo -ne "Therefore "
+          QBVERSION='Install from repo'
+      else
+          echo "${bold}qBittorrent will be installed from Stable PPA, usually it will be ${cyan}the latest version${normal}"
+      fi
+
+  else
+
+      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
+
+  fi
+
+
+  if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
       echo -ne "${bold}qBittorrent will be installed from repository, and "
 
@@ -442,20 +480,6 @@ function _askqbt() {
       elif [ $relno = 16 ]; then
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1-1${normal}"
       fi
-
-  elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
-
-      if [[ $DISTRO == Debian ]]; then
-          echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
-          echo -e "Change install mode to ${cyan}Install from repo${white}"
-          QBVERSION='Install from repo'
-      else
-          echo "qBittorrent will be installed from Stable PPA, in most cases it will be the latest version"
-      fi
-
-  else
-
-      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${green}libtorrent-rasterbar 1.0.11${normal}"
 
   fi
 
@@ -476,6 +500,7 @@ function _askdeluge() {
   echo -e "${green}40)${white} Deluge from ${cyan}PPA${white} (not supported by Debian)"
   echo -e   "${red}99)${white} Do not install Deluge"
 
+  [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
   echo -ne "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
   case $version in
       01 | 1) DEVERSION=1.3.11 ;;
@@ -495,6 +520,27 @@ function _askdeluge() {
 
   elif [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
+      sleep 0
+
+  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+
+      if [[ $DISTRO == Debian ]]; then
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+          echo -ne "Therefore "
+          DEVERSION='Install from repo'
+      else
+          echo "${bold}Deluge will be installed from PPA, usually it will be ${cyan}the latest version${normal}"
+      fi
+
+  else
+
+      echo "${bold}${baiqingse}Deluge "${DEVERSION}"${normal} ${bold}will be installed${normal}"
+
+  fi
+
+
+  if [[ "${DEVERSION}" == "Install from repo" ]]; then 
+
       echo -ne "${bold}Deluge will be installed from repository, and "
 
       if [ $relno = 9 ]; then
@@ -505,21 +551,8 @@ function _askdeluge() {
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12-1ubuntu1${normal}"
       fi
 
-  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
-
-      if [[ $DISTRO == Debian ]]; then
-          echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
-          echo -e "Change install mode to ${cyan}Install from repo${white}"
-          DEVERSION='Install from repo'
-      else
-          echo "Deluge will be installed from Stable PPA, in most cases it will be the latest version"
-      fi
-
-  else
-
-      echo "${bold}${baiqingse}Deluge "${DEVERSION}"${normal} ${bold}will be installed${normal}"
-
   fi
+
 }
 
 
@@ -533,15 +566,15 @@ function _askdelt() {
       echo
       echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
+#     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
 #     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (default)"
 
-      echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): "; read -e version
+      echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}02${normal}): "; read -e version
       case $version in
           01 | 1) DELTVERSION=RC_0_16 ;;
           02 | 2) DELTVERSION=RC_1_0 ;;
           03 | 3) DELTVERSION=RC_1_1 ;;
-#         04 | 4 | "") DELTVERSION=No ;;
+          04 | 4 | "") DELTVERSION=No ;;
           *) DELTVERSION=RC_1_0 ;;
       esac
 
@@ -563,6 +596,7 @@ function _askrt() {
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white}"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
+  [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
   echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read -e version
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
@@ -600,6 +634,7 @@ function _askrt() {
 
 
 
+
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
 function _asktr() {
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
@@ -610,20 +645,23 @@ function _asktr() {
   echo -e "${green}40)${white} Transmission from ${cyan}PPA${white} (not supported by Debian)"
   echo -e   "${red}99)${white} Do not install Transmission"
 
-  echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}04${normal}): "; read -e version
+  [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
+  echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}30${normal}): "; read -e version
   case $version in
       01 | 1) TRVERSION=2.77 ;;
       02 | 2) TRVERSION=2.82 ;;
       03 | 3) TRVERSION=2.84 ;;
-      04 | 4 | "") TRVERSION=2.92 ;;
-      30) TRVERSION='Install from repo' ;;
+      04 | 4) TRVERSION=2.92 ;;
+      30 | "") TRVERSION='Install from repo' ;;
       40) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
       *) TRVERSION=2.92 ;;
   esac
 
   if [ "${TRVERSION}" == "No" ]; then
+
       echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
+
   else
 
       if [ "$CODENAME" = "stretch" ]; then
@@ -635,6 +673,28 @@ function _asktr() {
       else
 
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
+
+              sleep 0
+
+          elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
+
+              if [[ $DISTRO == Debian ]]; then
+                  echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+                  echo -ne "Therefore "
+                  TRVERSION='Install from repo'
+              else
+                  echo "Transmission will be installed from PPA, usually it will be the latest version"
+              fi
+
+          else
+
+              echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
+
+          fi
+
+
+          if [[ "${TRVERSION}" == "Install from repo" ]]; then 
+
               echo -ne "${bold}Transmission will be installed from repository, and "
 
               if [ "$CODENAME" = "stretch" ]; then
@@ -645,19 +705,7 @@ function _asktr() {
                   echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84-3ubuntu3${normal}"
               fi
 
-          elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
-
-              if [[ $DISTRO == Debian ]]; then
-                  echo -e "Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
-                  echo -e "Change install mode to ${cyan}Install from repo${white}"
-                  TRVERSION='Install from repo'
-              else
-                  echo "Transmission will be installed from Stable PPA, in most cases it will be the latest version"
-              fi
-
           fi
-
-          echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
 
       fi
 
@@ -669,8 +717,10 @@ function _asktr() {
 
 
 
+
 # --------------------- 询问是否需要安装 Flexget --------------------- #
 function _askflex() {
+  [[ "${flex_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
   echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
@@ -691,6 +741,7 @@ function _askflex() {
 
 # --------------------- 询问是否需要安装 rclone --------------------- #
 function _askrclone() {
+  [[ "${rclone_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
   echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) rclone=Yes ;;
@@ -976,7 +1027,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude smartmontools
+  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools
 }
 
 
@@ -1140,9 +1191,7 @@ function _installrt() {
 
   wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
 
-  if [ "${RTVERSION}" == "No" ]; then
-      cd
-  elif [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
+  if [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
       export RTVERSION=0.9.4
       bash rtsetup h5ai-ipv6
   elif [ "${RTVERSION}" == "0.9.4" ]; then
@@ -1228,8 +1277,8 @@ else
     cd
     rm -rf transmission
     echo;echo;echo;echo;echo;echo "  TR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
 fi
+
 }
 
 
@@ -1302,6 +1351,7 @@ function _installflex() {
   systemctl start flexget
 
   echo;echo;echo;echo;echo;echo "  FLEXGET-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 }
 
 
@@ -1323,6 +1373,7 @@ function _installrclone() {
   cd
   rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
   echo;echo;echo;echo;echo;echo "  RCLONE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 }
 
 
@@ -1341,6 +1392,7 @@ cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmwa
 cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
 echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 }
 
 
@@ -1377,7 +1429,7 @@ systemctl start vncserver
 
 
 # --------------------- 安装 mkvtoolnix／wine／mktorrent／ffmpeg／mediainfo --------------------- #
-# 没写完，目前还不会投入使用
+# 没写完，目前不会投入使用
 
 function _installtools() {
 
@@ -1494,8 +1546,8 @@ rm -rf eac3to.zip
 cd
 
 
-
 echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 }
 
 
@@ -1505,6 +1557,7 @@ echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;e
 
 # --------------------- 一些设置修改 --------------------- #
 function _tweaks() {
+
 if [ $tweaks == "Yes" ]; then
 
 #修改时区
@@ -1569,23 +1622,22 @@ alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
 
-alias delog="cat /etc/inexistence/01.Log/deluged.log | tail -n50"
-alias dewlog="cat /etc/inexistence/01.Log/delugeweb.log | tail -n50"
-alias qblog="cat /etc/inexistence/01.Log/qbittorrent.log | tail -n50"
+alias del="cat /etc/inexistence/01.Log/deluged.log | tail -n50"
+alias dewl="cat /etc/inexistence/01.Log/delugeweb.log | tail -n50"
+alias qbl="cat /etc/inexistence/01.Log/qbittorrent.log | tail -n50"
 alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
-alias fllog="cat /root/.flexget/flexget.log | tail -n50"
+alias fll="cat /root/.flexget/flexget.log | tail -n50"
 alias fls="nano /root/.flexget/config.yml"
 alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 
 alias scrl="screen ls"
 alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
-alias ${ANUSER}="su ${ANUSER}"
 alias ios="iostat -d -x -k 1"
 alias cdb="cd .."
 alias cesu="cesu --share"
 alias cesus="cesu --share --server"
-alias cesujiedian="cesu --list | grep -v speedtest | head -10"
+alias cesujiedian="echo;cesu --list >> tmpcesulist;if [[ `command -v lolcat` ]]; then head -n10 tmpcesulist | grep -v speedtest | lolcat; else head -n10 tmpcesulist | grep -v speedtest; fi;echo;rm -rf tmpcesulist"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll='ls -hAlvZ --color --group-directories-first'
 alias tree='tree --dirsfirst'
@@ -1633,6 +1685,7 @@ locale
 sysctl -p
 
 fi
+
 }
 
 
@@ -1650,25 +1703,36 @@ clear
 echo -e " ${baiqingse}${bold}    Clients URL    ${normal} "
 echo
 echo '-----------------------------------------------------------'
-if [ ! "${QBVERSION}" == "No" ]; then
+
+if [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "Yes" ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
+elif [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "No" ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}qBittorrent installation FAILED${normal}"
 fi
 
-if [ ! "${DEVERSION}" == "No" ]; then
+if [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
+elif [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "No" ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Deluge installation FAILED${normal}"
 fi
 
-if [ ! "${TRVERSION}" == "No" ]; then
+if [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
+elif [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "No" ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Transmission installation FAILED${normal}"
 fi
 
-if [ ! "${RTVERSION}" == "No" ]; then
+if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
+elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}rTorrent installation FAILED${normal}"
 fi
 
-if [ ! $flexget == "No" ]; then
+if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566"
+elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Flexget installation FAILED${normal}"
 fi
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
@@ -1685,7 +1749,7 @@ elif [[ $timeused -ge 3600 ]]; then
     timeusedsec=$(expr $timeused % 60)
     echo -e "The installation took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
-   echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
+    echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
 fi
 echo
 
