@@ -454,14 +454,14 @@ if [[ ! "${qbtnox_ver}" ]]; then
     echo  -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
 
     if [ ! "${qb_installed}" == "No" ]; then
-        qbtnox_ver=`qbittorrent-nox --version | cut -c14-`
+        qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//g"`
     else
         qbtnox_ver="好像没安装"
     fi
 
     if [ ! "${de_installed}" == "No" ]; then
-        delugelt_ver=`deluged --version | grep libtorrent --color=never | cut -c13-`
-        deluged_ver=`deluged --version | grep deluged --color=never | cut -c10-`
+        delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'`
+        deluged_ver=`deluged --version | grep deluged | awk '{print $2}'`
     else
         delugelt_ver="好像没安装"
         deluged_ver="好像没安装"
