@@ -237,6 +237,7 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
 wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
 bash ipv6.sh  
 bash ipv6.sh [interface] [address] [subnet] [DUID]  
+bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
 ```
 
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
@@ -247,7 +248,8 @@ bash ipv6.sh [interface] [address] [subnet] [DUID]
 用于截图和生成 mediainfo 的脚本，适合非原盘类的视频。  
 其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本。  
 ``` 
-jietu [path/to/file] [resloution]
+jietu [path/to/file] [resloution]  
+jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080
 ```
 ![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
 
@@ -255,6 +257,12 @@ jietu [path/to/file] [resloution]
  ## xiansu
 
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子。  
+
+``` 
+xiansu  
+xiansu [interface] [uploadspeed,Mbps]
+xiansu eth0 300
+```
 
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
 
