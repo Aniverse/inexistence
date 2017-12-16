@@ -2,7 +2,7 @@
   
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
 本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
-如果 `wget` 时出错，请添加 `--no-check-certificate`  
+如果 `wget` 时出错，请先运行 `alias wget="wget --no-check-certificate"`  
 
 -------------------
 # Inexistence
@@ -31,8 +31,7 @@ bash inexistence.sh
 2. 是否更换**系统源**  
 大多数情况下无需换源；某些 VPS 默认的源可能有点问题我才加入了这个选项
 
-3. 编译时使用的**线程数量**  
-（四个 BT 客户端默认都是编译安装的）  
+3. 编译时使用的**线程数量**    
 一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 
@@ -41,24 +40,29 @@ bash inexistence.sh
 在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替
 
 5. **Deluge 与 libtorrent**  
-Deluge 会安装额外的插件；libtorrent 版本不知道选什么的话选默认的就可以了  
-`ltconfig` 是一个调整 libtorrent 参数的插件，在安装时就启用了 `High Performance Seed` 模式  
-`Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，可以显示速度曲线和 Deluge 的总体传输流量  
+Deluge 还会安装一些插件；libtorrent 版本不知道选什么的话选默认的就可以了  
+
+`ltconfig` 是一个调整 libtorrent 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
+`Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理。这两个也需要 GtKUI  
 `AutoRemovePlus` 是自动删种插件，支持 WebUI  
 
 6. **rTorrent + ruTorrent**  
-这部分是调用我修改的 `rtinst` 来安装的（SSH端口22，不关闭 root 登陆，安装 webmin 和 h5ai）  
+这部分是调用我修改的 `rtinst` 来安装的（SSH端口22，不关闭 root 登陆，安装 h5ai）  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
+
 `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
-`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
-目前这个脚本安装的 0.9.6 版本不支持 IPv6，这个问题之后再修复  
-0.9.4 支持 IPv6 用的是打好补丁的版本，这是一个修改版的客户端  
+`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
+
+0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
+0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
 此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
 
 7. **Transmission**  
-会自动安装修改版的 WebUI。Debian 9 可能会失败 
+Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
+Debian 9 下编译安装会失败，因此会强制指定从仓库里安装 2.92 版  
+此外还会安装修改版的 WebUI，更易用  
 
 8. **Flexget**  
 默认不安装。我启用了 daemon 模式和 WebUI。还预设了一些模板，仅供参考  
@@ -75,6 +79,7 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 11. **系统设置**  
 默认不启用；主要是修改时区为 UTC+8、设置 `alias`、编码设置为 UTF-8、提高系统文件打开数  
+其实第一次运行脚本的话我还是推荐设置下这个，以后操作也方便点  
 
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -94,6 +99,8 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 安装 ffmepg、x264、x265、mediainfo、mkvtoolnix  
 - **Flexget 模板**  
 补充更多的站点预设  
+- **对于账号密码有效性的检查**  
+目前仅仅是在界面上提示用户该怎么填写，但不会进行真正的检查  
 
 #### Under Consideration
 
@@ -104,10 +111,8 @@ utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一
 
 #### Known Issues
 
-- **没有对于用户名和密码有效性的检查**  
-目前仅仅是在界面上提示用户该怎么设置，但不会进行真正的检查  
-- **rTorrent 0.9.6 不支持 IPv6**  
-我有点懵逼，我什么都没改突然就不行了...  
+- **(目前已知的我都修复了，欢迎提交 bug)**  
+有些修不好的功能我选择取消冲突的选项  
 
 -------------------
 ## BD Upload
@@ -123,7 +128,6 @@ bdupload
 ```
 #### 介绍
 
-
 转发蓝光原盘时可以使用的一个脚本；目前不支持 UltraHD Blu-ray
 
 ![检查是否缺少软件](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.01.png)
@@ -133,22 +137,28 @@ bdupload
 ![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
 
 目前可以实现以下功能：  
+
 - **判断是 BDISO 还是 BDMV**  
 输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
-（所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）
+（所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）  
+
 - **自动挂载镜像**  
 如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）  
 全部操作完成后 BDISO 会自动解除挂载  
+
 - **截图**  
 自动寻找 BD 里体积最大的 m2ts 截 10 张 png 图。默认用 1920×1080 的分辨率，也可以手动填写分辨率  
 指定 1920×1080 分辨率是因为某些原盘用 ffmepg 直接截图的话截出来的图是 1440 ×1080 的，不符合某些站的要求  
 自定义分辨率主要是考虑到有些原盘的分辨率不是 1080 （有些蓝光原盘甚至是 480i ）  
+
 - **扫描 BDinfo**  
 默认是自动扫描第一个最长的 mpls；也可以手动选择扫描哪一个 mpls  
 BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个是 Quick Summary  
 一般而言发种写个 Quick Summary 就差不多了  
+
 - **生成缩略图**  
 这个功能默认不启用；其实一般也用不上  
+
 - **制作种子**  
 针对 BDISO，默认选择重新做种子；针对 BDMV，默认选择不重新做种子 
 
@@ -214,7 +224,7 @@ mingling
  -------------------
 ## bdjietu
 
-这个是单独抽出来的，用于给 BD 截图的脚本。  
+这个是单独抽出来的，用于给 BD 截图的脚本  
 输入 BDMV 的路径后会自动从中找出最大的 m2ts 文件，截图 10 张到特定的目录  
 其实就是用 ffmepg 来截图，不过指定了分辨率和输出的路径  
  
@@ -223,7 +233,7 @@ mingling
   -------------------
  ## bdinfo
 
-这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本。  
+这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本  
 运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
@@ -233,7 +243,7 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
   -------------------
  ## ipv6
 
-用于配置 IPv6 的脚本。  
+用于配置 IPv6 的脚本  
 
 ``` 
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
@@ -247,9 +257,9 @@ bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26
   -------------------
  ## xiansu
 
-用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服。    
-更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速。  
-直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况。  
+用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
+更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
+直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况  
 
 ``` 
 xiansu  
@@ -262,8 +272,8 @@ xiansu eth0 300
   -------------------
  ## jietu
 
-用于截图和生成 mediainfo 的脚本，适合非原盘类的视频。  
-其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本。  
+用于截图和生成 mediainfo 的脚本，适合非原盘类的视频  
+其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本  
 ``` 
 jietu [path/to/file] [resloution]  
 jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080
