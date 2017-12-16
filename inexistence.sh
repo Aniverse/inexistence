@@ -1,4 +1,5 @@
 ﻿#!/bin/bash
+#
 # https://github.com/Aniverse/inexistence
 # Author: 弱鸡
 #
@@ -594,8 +595,8 @@ function _askdelt() {
 function _askrt() {
   echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
   echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white} (default)"
-  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with unoffical ipv6 support)"
-  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white}"
+  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with unoffical IPv6 support)"
+  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with   offical IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
