@@ -167,7 +167,7 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-mingling=0.5.6
+mingling=0.5.7
 
 inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
@@ -300,31 +300,51 @@ clear;echo
 
 if [[ "$inexistence" == "Yes" ]] && [[ "$tweaks" == Yes ]]; then
 
-    echo -e "${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
-    echo
-    echo -e "${bold}###################################################################################################"
-    echo -e "#                                                                                                 #"
-    echo -e "#  ${green}qba${white} = 运行 qBittorrent-nox  ${green}dea${white} = 运行 Deluged  ${green}dewa${white} = 运行 Deluge WebUI  ${green}rta${white} = 运行 rTorrent  #"
-    echo -e "#  ${green}qbb${white} = 关闭 qBittorrent-nox  ${green}deb${white} = 关闭 Deluged  ${green}dewb${white} = 关闭 Deluge WebUI  ${green}rtb${white} = 关闭 rTorrent  #"
-    echo -e "#  ${green}qbc${white} = 检查 qBittorrent-nox  ${green}dec${white} = 检查 Deluged  ${green}dewc${white} = 检查 Deluge WebUI  ${green}rtc${white} = 检查 rTorrent  #"
-    echo -e "#  ${green}qbr${white} = 重启 qBittorrent-nox  ${green}der${white} = 重启 Deluged  ${green}dewr${white} = 重启 Deluge WebUI  ${green}rtr${white} = 重启 rTorrent  #"
-    echo -e "#                                                                                                 #"
-    echo -e "#  ${green}cdqb${white}     = 切换目录到 qb 的下载目录并显示内容   ${green} fla ${white} = 运行 Flexget Daemon                    #"
-    echo -e "#  ${green}cdde${white}     = 切换目录到 de 的下载目录并显示内容   ${green} flb ${white} = 关闭 Flexget Daemon                    #"
-    echo -e "#  ${green}cdrt${white}     = 切换目录到 rt 的下载目录并显示内容   ${green} flc ${white} = 检查 Flexget Daemon                    #"
-    echo -e "#  ${green}cdtr${white}     = 切换目录到 tr 的下载目录并显示内容   ${green} flr ${white} = 重启 Flexget Daemon                    #"
-    echo -e "#  ${green}shanchu${white}  = rm -rf，删除                         ${green} tra ${white} = 运行 Transmission Daemon               #"
-    echo -e "#  ${green}anzhuang${white} = apt-get install，安装             ${green} trb ${white} = 关闭 Transmission Daemon               #"
-    echo -e "#  ${green}quanxian${white} = chmod -R 777，赋予权限               ${green} trc ${white} = 检查 Transmission Daemon               #"
-    echo -e "#  ${green}xiugai${white}   = 编辑快捷命令                         ${green} trr ${white} = 重启 Transmission Daemon               #"
-    echo -e "#                                                                                                 #"
-    echo -e "###################################################################################################${normal}"
+echo -e "${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
+echo -e "${bold}"
+echo -e " ${green}qba${white} = 运行 qBittorrent-nox  ${green}dea${white} = 运行 Deluged  ${green}dewa${white} = 运行 Deluge WebUI  ${green}rta${white} = 运行 rTorrent"
+echo -e " ${green}qbb${white} = 关闭 qBittorrent-nox  ${green}deb${white} = 关闭 Deluged  ${green}dewb${white} = 关闭 Deluge WebUI  ${green}rtb${white} = 关闭 rTorrent"
+echo -e " ${green}qbc${white} = 检查 qBittorrent-nox  ${green}dec${white} = 检查 Deluged  ${green}dewc${white} = 检查 Deluge WebUI  ${green}rtc${white} = 检查 rTorrent"
+echo -e " ${green}qbr${white} = 重启 qBittorrent-nox  ${green}der${white} = 重启 Deluged  ${green}dewr${white} = 重启 Deluge WebUI  ${green}rtr${white} = 重启 rTorrent"
+echo
+echo -e " ${green}tra${white} = 运行 Transmission Daemon      ${green}fla${white} = 运行 Flexget Daemon      ${green}irssia${white} = 运行 AutoDL-Irssi"
+echo -e " ${green}trb${white} = 关闭 Transmission Daemon      ${green}flb${white} = 关闭 Flexget Daemon      ${green}irssib${white} = 关闭 AutoDL-Irssi"
+echo -e " ${green}trc${white} = 检查 Transmission Daemon      ${green}flc${white} = 检查 Flexget Daemon      ${green}irssic${white} = 检查 AutoDL-Irssi"
+echo -e " ${green}trr${white} = 重启 Transmission Daemon      ${green}flr${white} = 重启 Flexget Daemon      ${green}irssir${white} = 重启 AutoDL-Irssi"
+echo
+echo -e " ${green}cdqb${white}  = 切换目录到  qBittorrent 的下载目录   ${green}ruisua${white} = 开启锐速    ${green}  fll  ${white} = 查看 Flexget 日志"
+echo -e " ${green}cdde${white}  = 切换目录到    Deluge    的下载目录   ${green}ruisua${white} = 关闭锐速    ${green}  fls  ${white} = 修改 Flexget 设置"
+echo -e " ${green}cdrt${white}  = 切换目录到   rTorrent   的下载目录   ${green}ruisua${white} = 检查锐速   ${green}shanchu${white}  = rm -rf，删除"
+echo -e " ${green}cdtr${white}  = 切换目录到 Transmission 的下载目录   ${green}ruisua${white} = 重启锐速   ${green}quanxian${white} = 递归赋予 777 权限"
+echo
+echo -e " ${green}cesu ${white} = 进行网速测试，Speedtest            ${green}anzhuang${white} = apt-get install ，安装"
+echo -e " ${green}cesu2${white} = 指定节点进行网速测试                    ${green}top${white} = 查看系统运行状况，按 q 退出"
+echo -e " ${green}cesu3${white} = 显示延迟最低的30个测速节点              ${green}ios${white} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
+echo
+echo -e " ${blue}mingling${white}  盒子操作脚本，也就是你现在正在用的这个脚本"
+echo
+echo -e " ${blue}xiansu${white}    限制盒子全局上传速度的脚本，适用于保证带宽有限的盒子"
+echo
+echo -e " ${blue}bdupload${white}  转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
+echo
+echo -e " ${blue}bdinfo${white}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
+echo -e "           ${yellow}bdinfo ${underline}\"/mnt/Looper.2012.1080p.POL.Blu-ray.AVC.DTS-HD.MA.5.1-DVDSEED\"${reset_underline}"
+echo
+echo -e " ${blue}bdjietu${white}   单独用于给 BDMV 截图脚本，需要填写文件路径，分辨率指定为 1920x1080"
+echo -e "           ${yellow}bdjietu ${underline}\"/root/Downloads/Cars 3 2017 1080p NOR Blu-ray AVC DTS-HD MA 7.1-HDMike\"${reset_underline}"
+echo
+echo -e " ${blue}zuozhong${white}  单独用于制作种子的脚本，需要填写文件路径"
+echo -e "           ${yellow}zuozhong ${underline}\"/media/md9/kuro/private/deluge/Cessez.Le.Feu.2016.FRENCH.COMPLETE.BLURAY\"${reset_underline}"
+echo
+echo -e " ${blue}jietu${white}     用于截图和生成 mediainfo 的脚本，需要填写文件路径和分辨率"
+echo -e "           ${yellow}jietu ${underline}\"/home/shiro/Frantz 2016 720p BluRay DD 5.1 x264-GrupoHDS.mkv\"${reset_underline} ${underline}1920x1080${reset_underline}"
+echo -e " ${normal}"
 
 else
 
-    echo -e "${bold}由于你没有使用 inexistence 脚本中的 tweaks，本功能无法使用"
-	echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
-	echo -e "${green}http://man.linuxde.net/alias${normal}"
+echo -e "${bold}由于你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
+echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
+echo -e "${green}http://man.linuxde.net/alias${normal}"
 
 fi
 }
