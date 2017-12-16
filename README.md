@@ -51,9 +51,9 @@ Deluge 还会安装一些插件；libtorrent 版本不知道选什么的话选�
 这部分是调用我修改的 `rtinst` 来安装的（SSH端口22，不关闭 root 登陆，安装 h5ai）  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
 
-`Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
-`ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
-`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
+  `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
+   `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
+    `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
 
 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
