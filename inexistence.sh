@@ -35,8 +35,8 @@ calc_disk() {
 }
 # --------------------------------------------------------------------------------
 ### 是否为 IP 地址 ###
-function isValidIpAddress() {
-	echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$'
+function isIpAddress() {
+	echo $1 | grep -qE '((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)'
 }
 
 ### 是否为内网 IP 地址 ###
@@ -125,13 +125,15 @@ function _intro() {
   echo "${bold}Checking your server's public IP address ...${normal}"
 # echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate --timeout=10 -qO- http://v4.ipv6-test.com/api/myip.php)
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
+  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -T10 -qO- http://v4.ipv6-test.com/api/myip.php)
+  isIpAddress "$serveripv4" || serveripv4=$(curl -s -T10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+  isIpAddress "$serveripv4" || serveripv4=$(curl -s -T10 ifconfig.me)
+  isIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T7 ipv6.icanhazip.com )
+# [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
+# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
   
-  echo "${bold}Checking your server spec ...${normal}"
+  echo "${bold}Checking your server's specification ...${normal}"
   _check_install_2
   _client_version_check
 
@@ -985,8 +987,8 @@ cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
-INEXISTENCEVER=087
-INEXISTENCEDATE=20171213
+INEXISTENCEVER=088
+INEXISTENCEDATE=20171216
 ANUSER=${ANUSER}
 QBVERSION="${QBVERSION}"
 DEVERSION="${DEVERSION}"
@@ -1608,7 +1610,7 @@ alias cdqb="cd /home/${ANUSER}/qbittorrent/download && ll"
 alias cdrt="cd /home/${ANUSER}/rtorrent/download && ll"
 alias cdtr="cd /home/${ANUSER}/transmission/download && ll"
 alias shanchu="rm -rf"
-alias xiugai="nano /etc/profile && source /etc/profile
+alias xiugai="nano /etc/profile && source /etc/profile"
 alias quanxian="chmod -R 777"
 alias anzhuang="apt-get install"
 alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
@@ -1637,11 +1639,12 @@ alias ios="iostat -d -x -k 1"
 alias cdb="cd .."
 alias cesu="cesu --share"
 alias cesus="cesu --share --server"
-alias cesujiedian="echo;cesu --list >> tmpcesulist;if [[ `command -v lolcat` ]]; then head -n10 tmpcesulist | grep -v speedtest | lolcat; else head -n10 tmpcesulist | grep -v speedtest; fi;echo;rm -rf tmpcesulist"
+alias cesujiedian="echo;cesu --list >> tmpcesulist;head -n30 tmpcesulist | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo;rm -rf tmpcesulist"
 alias ls="ls -hAv --color --group-directories-first"
-alias ll='ls -hAlvZ --color --group-directories-first'
-alias tree='tree --dirsfirst'
-alias gclone='git clone --depth=1'
+alias ll="ls -hAlvZ --color --group-directories-first"
+alias wget="wget --no-check-certificate"
+alias tree="tree --dirsfirst"
+alias gclone="git clone --depth=1"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
@@ -1674,8 +1677,6 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
-# IPv6 优先
-echo "precedence ::ffff:0:0/96 100">>/etc/gai.conf
 
 # 将最大的分区的保留空间设置为 0
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
