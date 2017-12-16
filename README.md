@@ -23,13 +23,12 @@ bash inexistence.sh
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
 1. **账号密码**  
-根据你输入的账号会新建一个用户，各类软件的运行也是用这个用户来运行（其他软件用 root 来运行）  
-除了 Flexget 外的软件登陆时用的也都是这个账号；密码用于各类软件的 WebUI  
-目前脚本不会检测输入的用户名和密码是否符合要求，所以你若用了无效的用户名(比如数字开头)或不够复杂的密码  
-脚本不会立即提示出错，但实际在软件的使用中你可能会碰到问题  
+你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
+用户名要求字母开头，长度4-16位；密码要求需要同时包含字母和数字，长度9-16位  
 
 2. 是否更换**系统源**  
-大多数情况下无需换源；某些 VPS 默认的源可能有点问题我才加入了这个选项
+大多数情况下无需换源；某些盒子默认的源可能有点问题，此时需要启用这个选项  
+具体怎么样算有问题，自己看着办吧  
 
 3. 编译时使用的**线程数量**    
 一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
@@ -37,47 +36,50 @@ bash inexistence.sh
 
 4. **qBittorrent**  
 选择 4.0.2 版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
-在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替
+在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替  
+由于目前不少站点还不支持新版本，因此还是建议使用 3.3.11 或 3.3.14  
 
-5. **Deluge 与 libtorrent**  
-Deluge 还会安装一些插件；libtorrent 版本不知道选什么的话选默认的就可以了  
-
+5. **Deluge**  
+Deluge 还会安装一些第三方插件
 `ltconfig` 是一个调整 libtorrent 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
 `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理。这两个也需要 GtKUI  
 `AutoRemovePlus` 是自动删种插件，支持 WebUI  
 
-6. **rTorrent + ruTorrent**  
-这部分是调用我修改的 `rtinst` 来安装的（SSH端口22，不关闭 root 登陆，安装 h5ai）  
+6. **libtorrent rasterbar**  
+不知道选什么版本的话选默认的 `2` 就可以了  
+有两个隐藏选项，选 `3` 是 `RC_1_1` 分支，选 `4` 是从系统源里安装  
+这两个选项都存在一些 bug 且无法修复，因此除非你知道你在做什么不然不要选 `3` 或 `4`  
+
+7. **rTorrent + ruTorrent**  
+这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
-
-  `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
-   `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
-    `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
-
+`Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
+`ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
+`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
 此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
 
-7. **Transmission**  
+8. **Transmission**  
 Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
 Debian 9 下编译安装会失败，因此会强制指定从仓库里安装 2.92 版  
 此外还会安装修改版的 WebUI，更易用  
 
-8. **Flexget**  
+9. **Flexget**  
 默认不安装。我启用了 daemon 模式和 WebUI。还预设了一些模板，仅供参考  
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己打开  
 
-9. **rclone**  
+10. **rclone**  
 默认不安装。安装好后自己输入 rclone config 进行配置
 
-10. **BBR**  
+11. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
 由于 BBR 需要 4.9 以上的内核，而更换内核或多或少是有点危险性的操作，因此需要考虑一下  
 不过针对常见的 Online.net 的独服我是准备了五个 firmware，应该没什么问题  
 BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
-11. **系统设置**  
+12. **系统设置**  
 默认不启用；主要是修改时区为 UTC+8、设置 `alias`、编码设置为 UTF-8、提高系统文件打开数  
 其实第一次运行脚本的话我还是推荐设置下这个，以后操作也方便点  
 
