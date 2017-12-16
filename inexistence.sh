@@ -106,7 +106,7 @@ clear
 # --------------------- 系统检查 --------------------- #
 function _intro() {
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
-  apt-get -yqq install lsb-release virt-what >> /dev/null 2>&1
+  apt-get -yqq install lsb-release virt-what wget curl >> /dev/null 2>&1
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
   CODENAME=$(lsb_release -cs)
@@ -125,9 +125,9 @@ function _intro() {
   echo "${bold}Checking your server's public IP address ...${normal}"
 # echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -T10 -qO- http://v4.ipv6-test.com/api/myip.php)
-  isIpAddress "$serveripv4" || serveripv4=$(curl -s -T10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
-  isIpAddress "$serveripv4" || serveripv4=$(curl -s -T10 ifconfig.me)
+  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 -T10 -qO- http://v4.ipv6-test.com/api/myip.php)
+  isIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+  isIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
   isIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T7 ipv6.icanhazip.com )
 # [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
@@ -1029,7 +1029,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools
+  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby
 }
 
 
@@ -1114,15 +1114,17 @@ function _installde() {
       apt-get update
       apt-get install -y deluged deluge-web
   else
-      cd
-      apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf psmisc
-      git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
-      cd libtorrent
-      ./autotool.sh
-      ./configure --enable-python-binding --with-libiconv
-      make -j${MAXCPUS}
-      checkinstall -y
-      ldconfig
+      if [ ! $DELTVERSION == "No" ]; then
+          cd
+          apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf
+          git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
+          cd libtorrent
+          ./autotool.sh
+          ./configure --enable-python-binding --with-libiconv
+          make -j${MAXCPUS}
+          checkinstall -y
+          ldconfig
+      fi
       cd
       apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako psmisc
       wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
