@@ -2,14 +2,15 @@
   
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
 本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
-  
+如果 `wget` 时出错，请添加 `--no-check-certificate`  
+
 -------------------
 # Inexistence
 
 
 #### 使用方法
 ``` 
-wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
+wget https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
 bash inexistence.sh
 ```
 #### 安装介绍
@@ -113,7 +114,7 @@ utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一
 
 #### 下载与安装
 ```
-wget --no-check-certificate -qO /usr/local/bin/bdupload https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/bdupload
+wget -qO /usr/local/bin/bdupload https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/bdupload
 chmod +x /usr/local/bin/bdupload
 ```
 #### 运行
@@ -136,7 +137,8 @@ bdupload
 输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
 （所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）
 - **自动挂载镜像**  
-如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）。全部操作完成后 BDISO 会自动解除挂载
+如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）  
+全部操作完成后 BDISO 会自动解除挂载  
 - **截图**  
 自动寻找 BD 里体积最大的 m2ts 截 10 张 png 图。默认用 1920×1080 的分辨率，也可以手动填写分辨率  
 指定 1920×1080 分辨率是因为某些原盘用 ffmepg 直接截图的话截出来的图是 1440 ×1080 的，不符合某些站的要求  
@@ -177,7 +179,7 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 
 #### 下载与安装
 ```
-wget --no-check-certificate -qO /usr/local/bin/mingling https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/mingling
+wget -qO /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling
 chmod +x /usr/local/bin/mingling
 ```
 
@@ -234,24 +236,13 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
 用于配置 IPv6 的脚本，在我的 Online.net 独服上测试通过。  
 
 ``` 
-wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
+wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
 bash ipv6.sh  
 bash ipv6.sh [interface] [address] [subnet] [DUID]  
 bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
 ```
 
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
-
-  -------------------
- ## jietu
-
-用于截图和生成 mediainfo 的脚本，适合非原盘类的视频。  
-其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本。  
-``` 
-jietu [path/to/file] [resloution]  
-jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080
-```
-![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
 
   -------------------
  ## xiansu
@@ -267,10 +258,19 @@ xiansu eth0 300
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
 
   -------------------
+ ## jietu
+
+用于截图和生成 mediainfo 的脚本，适合非原盘类的视频。  
+其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本。  
+``` 
+jietu [path/to/file] [resloution]  
+jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080
+```
+
+  -------------------
 
 还有一些脚本，比如 ``guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
-这些脚本在 `inexistence` 脚本里带上了但默认是不启用的  
-用拼音主要是照顾一些英语不好的人  
+这些脚本在 `inexistence` 脚本里启用了 system tweaks 后都会安装  
 
   -------------------
 ### Something else
