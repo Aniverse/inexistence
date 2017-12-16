@@ -869,8 +869,8 @@ function _askbbr() {
 # 目前不启用
 
 function _asktools() {
-  echo -e "wine, mono, BDinfo, eac3to, MKVToolnix, VNC, mktorrent, ffmpeg, mediainfo ..."
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares related to uploading torrents? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  echo -e "wine, mono, BDinfo, eac3to, MKVToolnix, mktorrent, ffmpeg, mediainfo ..."
+  echo -ne "${bold}${yellow}Would you like to install the above additional softwares related to uploading? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) tools=Yes ;;
       [nN] | [nN][Oo] | "" ) tools=No ;;
@@ -893,7 +893,7 @@ function _askreboot() {
   if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
       reboot
   else
-      echo -e "Reboot has been canceled..."
+      echo -e "${bold}Reboot has been canceled...${normal}"
       echo
   fi
 }
@@ -944,9 +944,7 @@ function _setuser() {
 starttime=$(date +%s)
 apt-get install -y git
 
-if [[ -d /etc/inexistence ]]; then
-    mv /etc/inexistence /etc/inexistence2
-fi
+[[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence2
 
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
 mkdir -p /etc/inexistence/01.Log
@@ -958,7 +956,7 @@ mv /etc/inexistence2/* /etc/inexistence/OLD >> /dev/null 2>&1
 rm -rf /etc/inexistence2
 
 if id -u ${ANUSER} >/dev/null 2>&1; then
-    echo "${ANUSER} already exists"
+    echo;echo "${ANUSER} already exists";echo
 else
     adduser --gecos "" ${ANUSER} --disabled-password
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
@@ -1030,7 +1028,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y wget python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby
+  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby
 }
 
 
@@ -1049,7 +1047,7 @@ function _installqbt() {
       apt-get update
       apt-get install -y qbittorrent-nox
   else
-      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git psmisc python python3
+      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
       cd
       git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
       cd libtorrent
@@ -1127,7 +1125,7 @@ function _installde() {
           ldconfig
       fi
       cd
-      apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako psmisc
+      apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
       wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       tar zxf deluge-"${DEVERSION}".tar.gz
       cd deluge-"${DEVERSION}"
@@ -1258,7 +1256,7 @@ elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
     apt-get update
     apt-get install -y transmission-daemon
 else
-    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git psmisc
+    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git
     apt-get install -y openssl
     wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xvf release-2.1.8-stable.tar.gz
@@ -1641,8 +1639,8 @@ alias jincheng="ps aux | grep -v grep | grep"
 alias ios="iostat -d -x -k 1"
 alias cdb="cd .."
 alias cesu="cesu --share"
-alias cesus="cesu --share --server"
-alias cesujiedian="echo;cesu --list >> tmpcesulist;head -n30 tmpcesulist | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo;rm -rf tmpcesulist"
+alias cesu2="cesu --share --server"
+alias cesu3="echo;cesu --list >> tmpcesulist;head -n30 tmpcesulist | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo;rm -rf tmpcesulist"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
 alias wget="wget --no-check-certificate"
@@ -1680,8 +1678,7 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
-
-# 将最大的分区的保留空间设置为 0
+# 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 
 source /etc/profile
@@ -1711,32 +1708,32 @@ echo '-----------------------------------------------------------'
 if [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "Yes" ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
 elif [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "No" ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}qBittorrent installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
 fi
 
 if [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
 elif [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "No" ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Deluge installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Deluge installation FAILED${normal}"
 fi
 
 if [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
 elif [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "No" ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Transmission installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Transmission installation FAILED${normal}"
 fi
 
 if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
 elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}rTorrent installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
 fi
 
 if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566"
 elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal} ${bold}${red}Flexget installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
 fi
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
@@ -1769,8 +1766,6 @@ echo
 _intro
 _checkroot
 _warning
-echo
-echo
 _askusername
 _askpassword
 _askaptsource
