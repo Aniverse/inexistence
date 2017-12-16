@@ -114,7 +114,7 @@ utserver 大多数站点不支持，wine utorrent 相对麻烦点，因此不一
 
 #### 下载与安装
 ```
-wget -qO /usr/local/bin/bdupload https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/bdupload
+wget -O /usr/local/bin/bdupload https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/bdupload
 chmod +x /usr/local/bin/bdupload
 ```
 #### 运行
@@ -179,7 +179,7 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 
 #### 下载与安装
 ```
-wget -qO /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling
+wget -O /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling
 chmod +x /usr/local/bin/mingling
 ```
 
