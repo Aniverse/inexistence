@@ -29,10 +29,11 @@ bash inexistence.sh
 2. 是否更换**系统源**  
 大多数情况下无需换源；某些盒子默认的源可能有点问题，此时需要启用这个选项  
 
-3. 编译时使用的**线程数量**    
-一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
+3. **线程数量**    
+编译时使用几个线程进行编译。一般来说独服用默认的选项，也就是全部线程都用于编译就行了  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
-下面四大客户端的安装，选择 `30` 是从系统源里安装，安装速度最快但版本往往比较老，且无法指定版本  
+下面四大客户端的安装，指定版本的一般都是编译安装，安装速度慢但可以任选版本  
+选择 `30` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
 选择 `40` 是从 PPA 安装**( 注意：不支持 Debian 系统 )**，同样无法指定版本但一般软件都是最新版  
 
 4. **qBittorrent**  
@@ -45,19 +46,19 @@ Deluge 还会安装一些第三方插件
 `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
 `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
-`AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI 
+`AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI  
 
 6. **libtorrent-rasterbar**  
 不知道选什么版本的话选默认的 `2` 就可以了  
-有两个隐藏选项，选 `3` 是 `RC_1_1` 分支，选 `4` 是从系统源里安装  
-这两个选项都存在一些 bug 且无法修复，因此除非你知道你在做什么不然不要选 `3` 或 `4`  
+这里有两个隐藏选项：选 `3` 是 `RC_1_1` 分支；选 `4` 是从系统源里安装  
+这两个选项都存在一些 bug 且似乎无法修复，因此除非你知道你在做什么不然不要选 `3` 或 `4`  
 
 7. **rTorrent + ruTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
 `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
-`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱   
+`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
 此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
@@ -72,7 +73,7 @@ Debian 9 下编译安装不成功，因此强制指定从仓库里安装 2.92 �
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己打开  
 
 10. **rclone**  
-默认不安装。安装好后自己输入 rclone config 进行配置
+默认不安装。安装好后自己输入 rclone config 进行配置  
 
 11. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
