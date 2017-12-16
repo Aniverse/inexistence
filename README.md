@@ -32,8 +32,8 @@ bash inexistence.sh
 3. 编译时使用的**线程数量**    
 一般来说独服用默认的选项，也就是全部线程都用于编译就可以  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
-下面四大客户端的安装，选择 `30` 是从系统源里安装，安装速度最快但版本往往比较老，且无法指定版本
-选择 `40` 是从 PPA 安装**( 注意：不支持 Debian 系统 )**，同样无法指定版本但一般软件都是最新版
+下面四大客户端的安装，选择 `30` 是从系统源里安装，安装速度最快但版本往往比较老，且无法指定版本  
+选择 `40` 是从 PPA 安装**( 注意：不支持 Debian 系统 )**，同样无法指定版本但一般软件都是最新版  
 
 4. **qBittorrent**  
 选择 4.0.2 版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
@@ -41,13 +41,13 @@ bash inexistence.sh
 由于目前不少站点还不支持新版本，因此还是建议使用 3.3.11 或 3.3.14  
 
 5. **Deluge**  
-Deluge 还会安装一些第三方插件
-`ltconfig` 是一个调整 libtorrent 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
+Deluge 还会安装一些第三方插件  
+`ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
 `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
 `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI 
 
-6. **libtorrent rasterbar**  
+6. **libtorrent-rasterbar**  
 不知道选什么版本的话选默认的 `2` 就可以了  
 有两个隐藏选项，选 `3` 是 `RC_1_1` 分支，选 `4` 是从系统源里安装  
 这两个选项都存在一些 bug 且无法修复，因此除非你知道你在做什么不然不要选 `3` 或 `4`  
