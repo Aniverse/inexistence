@@ -233,7 +233,7 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
   -------------------
  ## ipv6
 
-用于配置 IPv6 的脚本，在我的 Online.net 独服上测试通过。  
+用于配置 IPv6 的脚本。  
 
 ``` 
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
@@ -247,7 +247,9 @@ bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26
   -------------------
  ## xiansu
 
-用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子。  
+用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服。    
+更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速。  
+直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况。  
 
 ``` 
 xiansu  
