@@ -26,6 +26,7 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 
 mkdir -p "/etc/inexistence/07.Screenshots"
 outputpath="/etc/inexistence/07.Screenshots"
+echo
 
 # 截图
 for c in {01..10}
