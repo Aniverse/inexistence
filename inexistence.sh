@@ -401,7 +401,7 @@ function _askqbt() {
 # echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
 # echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
 # echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
-  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white} (default)"
+  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}    (default)"
   echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
   echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
   echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
@@ -409,7 +409,7 @@ function _askqbt() {
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
   echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
-  echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -498,9 +498,9 @@ function _askdeluge() {
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
-  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white} (default)"
-  echo -e "${green}30)${white} Deluge from ${cyan}repo${white} (default)"
-  echo -e "${green}40)${white} Deluge from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}    (default)"
+  echo -e "${green}30)${white} Deluge from ${cyan}repo${white}"
+  echo -e "${green}40)${white} Deluge from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
@@ -569,8 +569,8 @@ function _askdelt() {
       echo
       echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-#     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
-#     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (default)"
+#     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
+#     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (NOT supported on Ubuntu 16.04)"
 
       echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}02${normal}): "; read -e version
       case $version in
@@ -595,8 +595,8 @@ function _askdelt() {
 function _askrt() {
   echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
   echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white} (default)"
-  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with unoffical IPv6 support)"
-  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with   offical IPv6 support)"
+  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
+  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
@@ -622,7 +622,7 @@ function _askrt() {
       fi
 
       if [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
-          echo "${bold}${baiqingse}rTorrent 0.9.4 (with unoffical ipv6 support)${normal} ${bold}will be installed${normal}"
+          echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
       elif [ "${RTVERSION}" == "0.9.6" ]; then
           echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
       else
@@ -643,9 +643,9 @@ function _asktr() {
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
-  echo -e "${green}04)${white} Transmission ${cyan}2.92${white} (default)"
+  echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
   echo -e "${green}30)${white} Transmission from ${cyan}repo${white} (default)"
-  echo -e "${green}40)${white} Transmission from ${cyan}PPA${white} (not supported by Debian)"
+  echo -e "${green}40)${white} Transmission from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -989,7 +989,7 @@ cat>>/etc/profile<<EOF
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=088
-INEXISTENCEDATE=20171216
+INEXISTENCEDATE=20171217
 ANUSER=${ANUSER}
 QBVERSION="${QBVERSION}"
 DEVERSION="${DEVERSION}"
@@ -1005,6 +1005,19 @@ APTSOURCES=${aptsources}
 EOF
 
 source /etc/profile
+
+# 脚本设置
+mkdir -p /etc/inexistence/02.Tools/eac3to
+mkdir -p /etc/inexistence/04.Upload
+mkdir -p /etc/inexistence/05.Output
+mkdir -p /etc/inexistence/06.BluRay
+mkdir -p /etc/inexistence/07.Screenshots
+mkdir -p /etc/inexistence/08.BDinfo
+mkdir -p /etc/inexistence/09.Torrents
+mkdir -p /etc/inexistence/10.Demux
+mkdir -p /etc/inexistence/11.Remux
+mkdir -p /etc/inexistence/12.Output2
+cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
 }
 
@@ -1664,19 +1677,6 @@ echo "* - nofile 1926817">>/etc/security/limits.conf
 echo "* - nproc 1926817">>/etc/security/limits.conf
 echo "DefaultLimitNOFILE=123456">>/etc/systemd/system.conf
 echo "DefaultLimitNPROC=123456">>/etc/systemd/system.conf
-
-# 脚本的设置
-mkdir -p /etc/inexistence/02.Tools/eac3to
-mkdir -p /etc/inexistence/04.Upload
-mkdir -p /etc/inexistence/05.Output
-mkdir -p /etc/inexistence/06.BluRay
-mkdir -p /etc/inexistence/07.Screenshots
-mkdir -p /etc/inexistence/08.BDinfo
-mkdir -p /etc/inexistence/09.Torrents
-mkdir -p /etc/inexistence/10.Demux
-mkdir -p /etc/inexistence/11.Remux
-mkdir -p /etc/inexistence/12.Output2
-cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
