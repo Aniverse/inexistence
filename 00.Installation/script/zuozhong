@@ -4,7 +4,7 @@ black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput
 magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
 
 if [[ $1 == ""  ]]; then
-    echo; echo "${bold}${red}警告 ${white}你必须输入一个路径。如果路径里带空格的话还需要加上双引号${normal}"; echo
+    echo; echo "${red}${bold}WARNING${white} You must input the path to your file with double quotes${normal}"; echo
     exit 1
 fi
 
@@ -26,18 +26,18 @@ endtime=$(date +%s)
 timeused=$(( $endtime - $starttime ))
 
 clear
-echo -e "${bold}完成。生成的种子存放在 ${yellow}\"${outputpath}\"${normal}"
+echo -e "${bold}Done. Created torrent is stored in ${yellow}\"${outputpath}\"${normal}"
 if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
     timeusedmin=$(expr $timeused / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "${bold}用时：${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "${bold}Time used ${timeusedmin} min ${timeusedsec} sec${normal}"
 elif [[ $timeused -ge 3600 ]]; then
     timeusedhour=$(expr $timeused / 3600)
     timeusedmin=$(expr $(expr $timeused % 3600) / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "${bold}用时：${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "${bold}Time used ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
-   echo -e "${bold}用时：${timeused} sec${normal}"
+   echo -e "${bold}Time used ${timeused} sec${normal}"
 fi
 
 echo
