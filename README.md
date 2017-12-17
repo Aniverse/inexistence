@@ -239,6 +239,12 @@ mingling
 运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
+
+如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bdupload` 脚本安装需要的
+
+![bdinfo运行过程](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.02.png)
+
+![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.03.png)
  
 BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
