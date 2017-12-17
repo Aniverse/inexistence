@@ -79,10 +79,10 @@ done
 }
 
 function _client_version_check(){
-[[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//g"`
+[[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
 [[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'`
-[[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | grep version | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
-[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | grep http | grep -oP --color=never '\d*\.\d*.\d+'`
+[[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
+[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'`
 }
 # --------------------------------------------------------------------------------
 ### 随机数 ###
@@ -962,6 +962,8 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
+echo "${ANUSER}:${ANPASS}" >> /etc/inexistence/01.Log/installed.lock
+
 sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
 #sed -i '/^ANPASS/'d /etc/profile
@@ -1205,20 +1207,17 @@ function _installrt() {
 
 wget --no-check-certificate --timeout=10 -q https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rarlinux-x64-5.5.0.tar.gz
 tar zxf rarlinux-x64-5.5.0.tar.gz 2>/dev/null
-if [ -d rar ]; then
-    cp -f rar/rar /usr/bin/rar
-    cp -f rar/unrar /usr/bin/unrar
-    rm -rf rar
-fi
+cp -f rar/rar /usr/bin/rar
+cp -f rar/unrar /usr/bin/unrar
+rm -rf rar rarlinux-x64-5.5.0.tar.gz
 
   apt-get install -y libncurses5-dev libncursesw5-dev
   sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
   openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
-  cp -f /home/${ANUSER}/rtinst.log /etc/inexistence/01.Log/rtinst.log
-  cp -f /root/rtinst.log /etc/inexistence/01.Log/rtinst.log
-  cp -f /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/rtinst.info
+  mv /root/rtinst.log /etc/inexistence/01.Log/rtinst.log
+  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/rtinst.info
   
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
   sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
@@ -1387,6 +1386,7 @@ function _installrclone() {
 function _installbbr() {
 cd
 bash "${local_packages}"/script/dalao/bbr1.sh
+mv install_bbr.log /etc/inexistence/01.Log/install_bbr.log
 # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
 mkdir -p /lib/firmware/bnx2
 cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
@@ -1859,6 +1859,7 @@ fi
 
 
 _end
+rm "$0" >> /dev/null 2>&1
 _askreboot
 
 
