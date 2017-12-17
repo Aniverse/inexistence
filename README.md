@@ -228,7 +228,7 @@ mingling
 
 这个是单独抽出来的，用于给 BD 截图的脚本  
 输入 BDMV 的路径后会自动从中找出最大的 m2ts 文件，截图 10 张到特定的目录  
-其实就是用 ffmepg 来截图，不过指定了分辨率和输出的路径  
+其实就是用 ffmepg 来截图，不过指定了 1920x1080 的分辨率和输出的路径  
  
  ![bdjietu输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdjietu.01.png)
  
@@ -240,9 +240,11 @@ mingling
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
 
-如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bdupload` 脚本安装需要的
+如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bdupload` 脚本安装需要的软件  
 
 ![bdinfo运行过程](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.02.png)
+
+可以选择需要扫描的 mpls  
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.03.png)
  
