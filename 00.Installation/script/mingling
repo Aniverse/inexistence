@@ -473,7 +473,7 @@ if [[ ! "${qbtnox_ver}" ]]; then
     echo  -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
 
     if [ ! "${qb_installed}" == "No" ]; then
-        qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//g"`
+        qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
     else
         qbtnox_ver="好像没安装"
     fi
@@ -487,37 +487,37 @@ if [[ ! "${qbtnox_ver}" ]]; then
     fi
 
     if [ ! "${tr_installed}" == "No" ]; then
-        trd_ver=`transmission-daemon --help | grep http | grep -oP --color=never '\d*\.\d*.\d+'`
+        trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'`
     else
         trd_ver="好像没安装"
     fi
 
     if [ ! "${rt_installed}" == "No" ]; then
-        rtorrent_ver=`rtorrent -h | grep version | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
+        rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
     else
         rtorrent_ver="好像没安装"
     fi
 
     if [ ! "${flex_installed}" == "No" ]; then
-        flexget_ver=`flexget -V | grep -v release`
+        flexget_ver=`flexget -V | head -n1`
     else
         flexget_ver="好像没安装"
     fi
 
     if [ ! "${rclone_installed}" == "No" ]; then
-        rclone_ver=`rclone --version | grep rclone --color=never | cut -c9-` >/dev/null 2>&1
+        rclone_ver=`rclone --version | head -n1 | awk '{print $2}' | sed "s/v//"` >/dev/null 2>&1
     else
         rclone_ver="好像没安装"
     fi
 
     if [ ! "${irssi_installed}" == "No" ]; then
-        irssi_ver=`irssi --version | cut -c7-`
+        irssi_ver=`irssi --version | awk '{print $2}'`
     else
         irssi_ver="好像没安装"
     fi
 
     if [ ! "${ffmpeg_installed}" == "No" ]; then
-        ffmpeg_ver=`ffmpeg -version | grep 2000 | awk '{print $(NF-6)}'`
+        ffmpeg_ver=`ffmpeg -version | head -n1 | awk '{print $3}'`
     else
         ffmpeg_ver="好像没安装"
     fi
