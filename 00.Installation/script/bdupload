@@ -121,8 +121,12 @@ fi
 # 询问路径
 function _askpath() {
 
-echo; echo -e "Note that ${blue}Ultra Blu-ray${white} is not supported yet"
-echo -ne "${yellow}Input the path to your stuff: ${normal}"; read pathtostuff
+#echo; echo -e "Note that ${blue}Ultra Blu-ray${white} is not supported yet"
+#echo "${bold}Here are some path samples${normal}";echo
+#echo "${bold}/home/aniverse/deluge/download/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam.iso${normal}"
+#echo "${bold}/home/aniverse/qbittorrent/download/La belle noiseuse 1991 1080p JPN Blu-ray AVC DTS-HD MA 2.0-CrsS${normal}"
+echo
+echo -ne "${yellow}${bold}Input path to your stuff: ${normal}"; read -e pathtostuff
 echo
 
 }
@@ -368,8 +372,8 @@ if [[ "${resolution}" == "1080p" ]] || [[ "${resolution}" == "input" ]]; then
         do
         i=`expr $i + $timestampsetting`
         timestamp=`date -u -d @$i +%H:%M:%S`
-        ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/Screenshot${c}.png" >> /dev/null 2>&1
-        echo Writing Screenshot$c.png from timestamp $timestamp
+        ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
+        echo Writing screenshot$c.png from timestamp $timestamp
     done
 
 elif [[ "${resolution}" == "auto" ]]; then
@@ -378,15 +382,15 @@ elif [[ "${resolution}" == "auto" ]]; then
         do
         i=`expr $i + $timestampsetting`
         timestamp=`date -u -d @$i +%H:%M:%S`
-        ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/Screenshot${c}.png" >> /dev/null 2>&1
-        echo -e Writing Screenshot$c.png from timestamp $timestamp
+        ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
+        echo -e Writing screenshot$c.png from timestamp $timestamp
     done
 
 fi
 
 # 缩略图
 if [[ $sstn == Yes ]]; then
-    vcs "${main_m2ts_path}" -U0 -n 24 -c 4 -H200 -a 16/9 -o "${outputpath}/${file_title_clean}-thumbs.png"
+    vcs "${main_m2ts_path}" -U0 -n 24 -c 4 -H200 -a 16/9 -o "${outputpath}/thumbs.png"
 fi
 
 

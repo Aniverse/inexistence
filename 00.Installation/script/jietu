@@ -25,7 +25,7 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 mkdir -p "/etc/inexistence/07.Screenshots"
 outputpath="/etc/inexistence/07.Screenshots"
 
-# 截图
+# Screenshots
 for c in {01..10}
     do
     i=`expr $i + 66`
@@ -34,11 +34,11 @@ for c in {01..10}
     echo "Writing ${cyan}${file_title_clean}.scr${c}.png${white} from timestamp ${cyan}${timestamp}${white}"
 done
 
-# mediainfo；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；；
+# mediainfo
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo "Writing ${cyan}${file_title_clean}.mediainfo.txt${white} ..."
 
 echo
-echo -e "${bold}Done. The results are stored in ${yellow}\"${outputpath}\"${normal}"
+echo -e "${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}"
 echo
