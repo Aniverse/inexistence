@@ -2,7 +2,7 @@
   
 不保证本脚本能正常使用，翻车了不负责；上车前还请三思。  
 本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
-如果 `wget` 时出错，请先运行 `alias wget="wget --no-check-certificate"`  
+如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
 -------------------
 # Inexistence
@@ -26,7 +26,7 @@ bash inexistence.sh
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
 用户名要求字母开头，长度 4-16 位；密码要求需要同时包含字母和数字，长度 9-16 位  
 
-2. 是否更换**系统源**  
+2. **系统源**  
 大多数情况下无需换源；某些盒子默认的源可能有点问题，此时需要启用这个选项  
 
 3. **线程数量**    
@@ -34,7 +34,7 @@ bash inexistence.sh
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 下面四大客户端的安装，指定版本的一般都是编译安装，安装速度慢但可以任选版本  
 选择 `30` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
-选择 `40` 是从 PPA 安装**( 注意：不支持 Debian 系统 )**，同样无法指定版本但一般软件都是最新版  
+选择 `40` 是从 PPA 安装  **( 注意：不支持 Debian 系统 )**  同样无法指定版本但一般软件都是最新版  
 
 4. **qBittorrent**  
 选择 4.0.2 版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
@@ -233,7 +233,7 @@ mingling
  ![bdjietu输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdjietu.01.png)
  
   -------------------
- ## bdinfo
+## bdinfo
 
 这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本  
 运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
@@ -251,7 +251,7 @@ mingling
 BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
   -------------------
- ## ipv6
+## ipv6
 
 用于配置 IPv6 的脚本  
 
@@ -265,7 +265,7 @@ bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
 
   -------------------
- ## xiansu
+## xiansu
 
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
 更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
@@ -280,7 +280,7 @@ xiansu eth0 300
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
 
   -------------------
- ## jietu
+## jietu
 
 用于截图和生成 mediainfo 的脚本，适合非原盘类的视频  
 其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本  
