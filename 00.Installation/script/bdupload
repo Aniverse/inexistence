@@ -351,13 +351,13 @@ function _takescreenshots() {
 
 # 确定时间间隔
 if [[ "${duration2}" -ge 3600 ]]; then
-    timestampsetting=166
+    timestampsetting=306
 elif [[ "${duration2}" -ge 1500 && "${duration2}" -lt 3600 ]]; then
-    timestampsetting=66
+    timestampsetting=123
 elif [[ "${duration2}" -ge 600 && "${duration2}" -lt 1500 ]]; then
-    timestampsetting=22
+    timestampsetting=66
 elif [[ "${duration2}" -lt 600 ]]; then
-    timestampsetting=5
+    timestampsetting=25
 fi
 
 
