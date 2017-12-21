@@ -600,6 +600,7 @@ function _askrt() {
   echo -e   "${red}99)${white} Do not install rTorrent"
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
+  [[ "${rt_installed}" == "Yes" ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read -e version
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
@@ -989,7 +990,7 @@ cat>>/etc/profile<<EOF
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=088
-INEXISTENCEDATE=20171217
+INEXISTENCEDATE=20171222
 ANUSER=${ANUSER}
 QBVERSION="${QBVERSION}"
 DEVERSION="${DEVERSION}"
@@ -1017,6 +1018,7 @@ mkdir -p /etc/inexistence/09.Torrents
 mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
+ln -s /etc/inexistence /var/www/inexistence
 cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
 }
@@ -1043,7 +1045,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby
+  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat
 }
 
 
