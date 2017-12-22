@@ -139,27 +139,34 @@ bdupload
 
 ![正常运行界面](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.02.png)
 
+注意：路径里即使带空格也不需要双引号  
+以下是一些路径识别的例子  
+
+识别成 BDISO（正确案例）  
+``` 
+/home/aniverse/qbittorrent/download/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam.iso
+``` 
+识别成 BDMV（错误案例，你需要输入的是 BDMV 的根目录）  
+``` 
+/home/aniverse/deluge/download/JUST_BECAUSE_1/BDMV/STREAM
+``` 
+识别成 BDMV（错误案例，只要是文件夹就会认为是BDMV）  
+``` 
+/home/aniverse/transmission/watch
+``` 
+识别成 BDISO（错误案例，只要不是文件夹就会识别成 BDISO）  
+``` 
+/home/aniverse/qbittorrent/download/CCTV9.Blue.Planet.II.S02.2017.HDTV.1080i.H264-CHDTV.ts
+``` 
+识别成 BDISO（错误案例，路径不存在也会识别成 BDISO）  
+``` 
+/home/不存在的路径/rtorrent/download/根本就没有这张盘/BDMV/STERAM
+``` 
+
 目前可以实现以下功能：  
 
 - **判断是 BDISO 还是 BDMV**  
 输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
-**注意：路径里即使带空格也不需要双引号**  
-
-- **路径识别的例子，包含错误案例**  
-
-识别成 BDISO（正确识别，你必须输入完整的路径）  
-``` 
-/home/aniverse/qbittorrent/download/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam.iso
-``` 
-识别成 BDMV（错误案例，只要是文件夹就会认为是BDMV，不管里面是什么东西）  
-``` 
-/root
-``` 
-识别成 BDISO（错误案例，把ts识别成了BDISO，因为输入的不是文件夹）  
-``` 
-/home/aniverse/qbittorrent/download/CCTV9.Blue.Planet.II.S02.2017.HDTV.1080i.H264-CHDTV.ts
-``` 
-
 
 - **自动挂载镜像**  
 如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）  
