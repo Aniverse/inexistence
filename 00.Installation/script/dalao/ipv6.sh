@@ -119,10 +119,10 @@ clear
     if [[ $DISTRO = "Debian" ]]; then
         sysctl -w net.ipv6.conf.$INTERFACE.autoconf=0
         echo "net.ipv6.conf.$INTERFACE.autoconf=0" >> /etc/sysctl.conf
-        ifdown $INTERFACE && ifup $INTERFACE >> ifupresult
-        [[ -n "$(tail -n1 ifupresult | grep 'Failed')" ]] && ifdown $INTERFACE && ifup $INTERFACE >> ifupresult
-        [[ -n "$(tail -n1 ifupresult | grep 'Done')" ]] && echo "Waiting for DAD... Done"
-        rm -rf ifupresult
+        ifdown $INTERFACE
+        ifup $INTERFACE
+        ifup $INTERFACE
+        ifup $INTERFACE
     elif [[ $DISTRO = "Redhat" ]]; then
         systemctl enable ipv6-dhclient
         systemctl restart ipv6-dhclient
