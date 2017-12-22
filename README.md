@@ -55,6 +55,7 @@ Deluge 还会安装一些第三方插件
 
 7. **rTorrent + ruTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
+**注意：安装 rTorrent 会把你的 SSH 端口设置为 22，并覆盖你的 nginx 设置**  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
 `Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
@@ -65,8 +66,8 @@ Deluge 还会安装一些第三方插件
 
 8. **Transmission**  
 Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
-Debian 9 下编译安装不成功，因此强制指定从仓库里安装 2.92 版  
-此外还会安装修改版的 WebUI，更易用  
+Debian 9 下由于编译安装不成功，因此强制指定从仓库里安装 2.92 版  
+此外还会安装修改版的 WebUI，更方便易用  
 
 9. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
@@ -142,7 +143,23 @@ bdupload
 
 - **判断是 BDISO 还是 BDMV**  
 输入一个完整的路径，判断是不是文件夹；*是文件夹的话认为是 BDMV，不是文件夹的话认为是 BDISO*  
-（所以如果你的 BDISO 是放在一个文件夹里，你输入了文件夹的路径的话会识别成 BDMV）  
+**注意：路径里即使带空格也不需要双引号**  
+
+- **路径识别的例子，包含错误案例**  
+
+识别成 BDISO（正确识别，你必须输入完整的路径）  
+``` 
+/home/aniverse/qbittorrent/download/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam/Jeepers.Creepers.3.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-MTeam.iso
+``` 
+识别成 BDMV（错误案例，只要是文件夹就会认为是BDMV，不管里面是什么东西）  
+``` 
+/root
+``` 
+识别成 BDISO（错误案例，把ts识别成了BDISO，因为输入的不是文件夹）  
+``` 
+/home/aniverse/qbittorrent/download/CCTV9.Blue.Planet.II.S02.2017.HDTV.1080i.H264-CHDTV.ts
+``` 
+
 
 - **自动挂载镜像**  
 如果是 BDISO，会挂载成 BDMV，并问你是否需要对这个挂载生成的文件夹重命名（有时候 BDISO 的标题就是 DISC1 之类的，重命名下可能更好）  
@@ -165,8 +182,10 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 针对 BDISO，默认选择重新做种子；针对 BDMV，默认选择不重新做种子 
 
 ![输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.03.png)
+
+![h5ai](https://github.com/Aniverse/filesss/raw/master/Images/bdupload.04.png)
 需要注意的是，脚本里挂载、输出文件都是指定了一个固定的目录`/etc/inexistence`  
-一般情况下你需要 root 权限才能访问这个目录  
+安装了 `h5ai` 的话可以在网页上预览、下载生成的图片和文字  
 
 #### To Do List
 
@@ -217,11 +236,11 @@ mingling
 ![mingling.08](https://github.com/Aniverse/filesss/raw/master/Images/mingling.08.png)
 
 #### To Do List
-- 补充 alias 中的命令说明
-- 完善说明文档
-- 添加 AutoDL-Irssi 的开关
-- 添加锐速的开关与状态检测
-- 完成脚本菜单的功能
+- 补充 alias 中的命令说明  
+- 完善说明文档  
+- 添加 AutoDL-Irssi 的开关  
+- 添加锐速的开关与状态检测  
+- 完成脚本菜单的功能  
 
  -------------------
 ## bdjietu
@@ -291,7 +310,7 @@ jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_
 
   -------------------
 
-还有一些脚本，比如 ``guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
+还有一些脚本，比如 `guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 这些脚本在 `inexistence` 脚本里启用了 system tweaks 后都会安装  
 
   -------------------
@@ -317,10 +336,12 @@ https://rclone.org/install
 http://dev.deluge-torrent.org/wiki/UserGuide  
 https://mkvtoolnix.download/downloads.html  
 http://outlyer.net/etiq/projects/vcs  
-http://wilywx.com  
 https://www.dwhd.org  
 https://moeclub.org  
+https://sometimesnaive.org  
+https://www.94ish.me/  
 https://blog.gloriousdays.pw  
+http://wilywx.com  
 https://github.com/teddysun/across  
 https://github.com/oooldking/script  
 https://github.com/gutenye/systemd-units  
