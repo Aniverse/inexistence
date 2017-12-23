@@ -408,6 +408,7 @@ function _askqbt() {
   echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
   echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
+  echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
   echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install qBittorrent"
@@ -425,7 +426,8 @@ function _askqbt() {
       08 | 8) QBVERSION=3.3.14 ;;
       09 | 9) QBVERSION=3.3.15 ;;
       10) QBVERSION=3.3.16 ;;
-      11) QBVERSION=4.0.2 ;;
+      11) QBVERSION=4.0.2, QBVERSION4=Yes ;;
+      12) QBVERSION=4.0.3, QBVERSION4=Yes ;;
       30) QBVERSION='Install from repo' ;;
       40) QBVERSION='Install from PPA' ;;
       99) QBVERSION=No ;;
@@ -436,10 +438,10 @@ function _askqbt() {
 
       echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
 
-  elif [ "${QBVERSION}" == "4.0.2" ]; then
+  elif [ "${QBVERSION4}" == "Yes" ]; then
 
       if [ $relno = 8 ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4.0 doesn't work on ${cyan}Debian 8${normal}"
+          echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
           QBVERSION=3.3.16
           echo "${bold}The script will use qBittorrent 3.3.16 instead. If you don't like this version,"
 		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
@@ -575,13 +577,24 @@ function _askdelt() {
       echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}02${normal}): "; read -e version
       case $version in
           01 | 1) DELTVERSION=RC_0_16 ;;
-          02 | 2) DELTVERSION=RC_1_0 ;;
+          02 | 2 | "") DELTVERSION=RC_1_0 ;;
           03 | 3) DELTVERSION=RC_1_1 ;;
-          04 | 4 | "") DELTVERSION=No ;;
+          04 | 4) DELTVERSION=No ;;
           *) DELTVERSION=RC_1_0 ;;
       esac
 
-      echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
+      if [ $DELTVERSION == "No" ]; then
+          echo -ne "${bold}libtorrent-rasterbar will be installed from repository, and "
+          if [ $relno = 9 ]; then
+              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
+          elif [ $relno = 8 ]; then
+              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}libtorrent 0.16.18${normal}"
+          elif [ $relno = 16 ]; then
+              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
+          fi
+      else
+          echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
+      fi
 
   echo
   fi
@@ -670,8 +683,8 @@ function _asktr() {
 
       if [ "$CODENAME" = "stretch" ]; then
 
-          ecgo "Sorry, for now the compilation on Debian 9 doesn't work"
-          echo "For ${green}${bold}Debian 9${normal}${bold}, Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
+          echo "${bold}Sorry, for now the compilation on ${green}Debian 9${white} doesn't work"
+          echo "Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
           TRVERSION='Install from repo'
 
       else
@@ -766,16 +779,16 @@ function _askrclone() {
 
 # --------------------- 询问是否需要安装 VNC --------------------- #
 function _askvnc() {
-  echo -ne "${bold}${yellow}Would you like to install VNC? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  echo -ne "${bold}${yellow}Would you like to install VNC and wine? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) vnc=Yes ;;
       [nN] | [nN][Oo] | "" ) vnc=No ;;
       *) vnc=No ;;
   esac
   if [ $tweaks == "Yes" ]; then
-      echo "${bold}${baiqingse}VNC${normal} ${bold}will be installed${normal}"
+      echo "${bold}${baiqingse}VNC${normal} and ${baiqingse}wine${normal} ${bold}will be installed${normal}"
   else
-      echo "${baizise}VNC will ${baihongse}not${baizise} be installed${normal}"
+      echo "${baizise}VNC or wine will ${baihongse}not${baizise} be installed${normal}"
   fi
   echo
 }
@@ -830,8 +843,7 @@ function check_kernel_version() {
 function _askbbr() {
   check_bbr_status
   if [[ "${bbrinuse}" == "Yes" ]]; then
-      echo -e "${bold}${yellow}TCP BBR has been installed. Skip it${normal}"
-      echo
+      echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
       bbr=Already\ Installed
   else
       check_kernel_version
@@ -870,8 +882,8 @@ function _askbbr() {
 # 目前不启用
 
 function _asktools() {
-  echo -e "wine, mono, BDinfo, eac3to, MKVToolnix, mktorrent, ffmpeg, mediainfo ..."
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares related to uploading? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, ffmpeg, mediainfo ..."
+  echo -ne "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss]) tools=Yes ;;
       [nN] | [nN][Oo] | "" ) tools=No ;;
@@ -943,7 +955,6 @@ function _askcontinue() {
 function _setuser() {
 
 starttime=$(date +%s)
-apt-get install -y git
 
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence2
 
@@ -990,18 +1001,8 @@ cat>>/etc/profile<<EOF
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=088
-INEXISTENCEDATE=20171222
+INEXISTENCEDATE=20171223
 ANUSER=${ANUSER}
-QBVERSION="${QBVERSION}"
-DEVERSION="${DEVERSION}"
-RTVERSION="${RTVERSION}"
-TRVERSION="${TRVERSION}"
-MAXCPUS=${MAXCPUS}
-FLEXGETINSTALLED=${flexget}
-RCLONEINSTALLED=${rclone}
-USETWEAKS=${tweaks}
-BBRINSTALLED=${bbr}
-APTSOURCES=${aptsources}
 ##### U ########################################
 EOF
 
@@ -1018,6 +1019,7 @@ mkdir -p /etc/inexistence/09.Torrents
 mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
+mkdir -p /var/www
 ln -s /etc/inexistence /var/www/inexistence
 cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
@@ -1045,7 +1047,7 @@ function _setsources() {
       apt-get -y update
   fi
 
-  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat
+  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git
 }
 
 
@@ -1421,8 +1423,9 @@ echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;ec
 function _installvnc() {
 
 cd
-apt-get install -y vnc4server xfonts-intl-chinese-big fcitx locales xfonts-wqy
-apt-get install xfce4
+apt-get install -y vnc4server
+apt-get install -y xfonts-intl-chinese-big fcitx locales xfonts-wqy
+apt-get install -y xfce4
 #apt-get install -y mate-desktop-environment-extras
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
 vncpasswd <<EOF
@@ -1621,10 +1624,10 @@ alias fla="systemctl start flexget"
 alias flb="systemctl stop flexget"
 alias flc="flexget daemon status"
 alias flr="systemctl restart flexget"
-alias cdde="cd /home/${ANUSER}/deluge/download && ll"
-alias cdqb="cd /home/${ANUSER}/qbittorrent/download && ll"
-alias cdrt="cd /home/${ANUSER}/rtorrent/download && ll"
-alias cdtr="cd /home/${ANUSER}/transmission/download && ll"
+alias cdde="cd /home/${ANUSER}/deluge/download"
+alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
+alias cdrt="cd /home/${ANUSER}/rtorrent/download"
+alias cdtr="cd /home/${ANUSER}/transmission/download"
 alias shanchu="rm -rf"
 alias xiugai="nano /etc/profile && source /etc/profile"
 alias quanxian="chmod -R 777"
@@ -1662,7 +1665,7 @@ alias wget="wget --no-check-certificate"
 alias tree="tree --dirsfirst"
 alias gclone="git clone --depth=1"
 
-alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null'
+alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
 
 ################## Seedbox Script Mod END ##################
@@ -1683,7 +1686,7 @@ echo "DefaultLimitNPROC=123456">>/etc/systemd/system.conf
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 
-source /etc/profile
+locale-gen en_US.UTF-8
 locale
 sysctl -p
 
@@ -1703,7 +1706,7 @@ timeused=$(( $endtime - $starttime ))
 echo
 clear
 
-echo -e " ${baiqingse}${bold}    Clients URL    ${normal} "
+echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} "
 echo
 echo '-----------------------------------------------------------'
 
@@ -1783,8 +1786,8 @@ _askrclone
 # _asktools
 
 if [[ -d "/proc/vz" ]]; then
-    echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, and the normal BBR installation isn't supported by OpenVZ"
-    echo -e "you should install BBR in another way${normal}"
+    echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}"
+    echo
     bbr='not supported by OpenVZ'
 else
     _askbbr
@@ -1793,8 +1796,8 @@ fi
 _asktweaks
 _askcontinue
 
-_setuser
 _setsources
+_setuser
 
 # --------------------- 安装 --------------------- #
 
