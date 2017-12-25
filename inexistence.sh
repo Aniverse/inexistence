@@ -368,7 +368,7 @@ function _askaptsource() {
 
 # --------------------- 询问编译安装时需要使用的线程数量 --------------------- #
 function _askmt() {
-  echo -e "${green}01)${white} Use ${cyan}all${white} avaliable threads (default)"
+  echo -e "${green}01)${white} Use ${cyan}all${white} avaliable threads (Default)"
   echo -e "${green}02)${white} Use ${cyan}half${white} of avaliable threads"
   echo -e "${green}03)${white} Use ${cyan}one${white} thread"
   echo -e "${green}04)${white} Use ${cyan}two${white} threads"
@@ -403,7 +403,7 @@ function _askqbt() {
 # echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
 # echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
 # echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
-  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}    (default)"
+  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}    (Default)"
 # echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
 # echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
   echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
@@ -502,7 +502,7 @@ function _askdeluge() {
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
-  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}    (default)"
+  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}    (Default)"
   echo -e "${green}30)${white} Deluge from ${cyan}repo${white}"
   echo -e "${green}40)${white} Deluge from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install Deluge"
@@ -572,7 +572,7 @@ function _askdelt() {
   else
       echo
       echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white} (Default)"
 #     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
 #     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (NOT supported on Ubuntu 16.04)"
 
@@ -660,7 +660,7 @@ function _asktr() {
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}30)${white} Transmission from ${cyan}repo${white} (default)"
+  echo -e "${green}30)${white} Transmission from ${cyan}repo${white} (Default)"
   echo -e "${green}40)${white} Transmission from ${cyan}PPA${white}  (NOT supported on Debian)"
   echo -e   "${red}99)${white} Do not install Transmission"
 
@@ -1803,7 +1803,7 @@ _askrclone
 if [[ -d "/proc/vz" ]]; then
     echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}"
     echo
-    bbr='not supported by OpenVZ'
+    bbr='Not supported On OpenVZ'
 else
     _askbbr
 fi
