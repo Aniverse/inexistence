@@ -997,6 +997,7 @@ EOF
 
 sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
+sed -i '/^USETWEAKS/'d /etc/profile
 sed -i '/^#####\ U.*/'d /etc/profile
 
 cat>>/etc/profile<<EOF
@@ -1005,6 +1006,7 @@ cat>>/etc/profile<<EOF
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
+USETWEAKS=${tweaks}
 ANUSER=${ANUSER}
 ##### U ########################################
 EOF
