@@ -982,10 +982,10 @@ ANUSER=${ANUSER}
 ANPASS=${ANPASS}
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
-QBVERSION="${QBVERSION}"
-DEVERSION="${DEVERSION}"
-RTVERSION="${RTVERSION}"
-TRVERSION="${TRVERSION}"
+QBVERSION=${QBVERSION}
+DEVERSION=${DEVERSION}
+RTVERSION=${RTVERSION}
+TRVERSION=${TRVERSION}
 FLEXGETINSTALLED=${flexget}
 RCLONEINSTALLED=${rclone}
 BBRINSTALLED=${bbr}
@@ -1674,6 +1674,7 @@ alias ll="ls -hAlvZ --color --group-directories-first"
 alias wget="wget --no-check-certificate"
 alias tree="tree --dirsfirst"
 alias gclone="git clone --depth=1"
+alias xuanxiang="clear && cat /etc/inexistence/01.Log/installed.lock && echo"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
