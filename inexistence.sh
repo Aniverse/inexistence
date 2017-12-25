@@ -1,11 +1,13 @@
 ﻿#!/bin/bash
 #
 # https://github.com/Aniverse/inexistence
-# Author: 弱鸡
-#
+# Author: Ruoji
 # 四处抄来的，参考资料见 GitHub
 #
 # 无脑root，无脑777权限
+# --------------------------------------------------------------------------------
+INEXISTENCEVER=089
+INEXISTENCEDATE=20171225
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -402,10 +404,10 @@ function _askqbt() {
 # echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
 # echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
   echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}    (default)"
-  echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
-  echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
+# echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
+# echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
   echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
-  echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
+# echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
   echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
@@ -448,7 +450,7 @@ function _askqbt() {
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       elif [ $relno = 16 ]; then
           QBVERSION='Install from PPA'
-          echo "${bold}${baiqingse}qBittorrent 4.0.2${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.1.5${normal}"
+          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository with ${cyan}libtorrent-rasterbar 1.1.5${normal}"
       else
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       fi
@@ -954,10 +956,7 @@ function _askcontinue() {
 
 function _setuser() {
 
-starttime=$(date +%s)
-
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence2
-
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
 mkdir -p /etc/inexistence/01.Log
 mkdir -p /etc/inexistence/OLD
@@ -974,34 +973,38 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
-echo "${ANUSER}:${ANPASS}" >> /etc/inexistence/01.Log/installed.lock
+cat>>/etc/inexistence/01.Log/installed.lock<<EOF
+INEXISTENCEinstalled=Yes
+INEXISTENCEVER=${INEXISTENCEVER}
+INEXISTENCEDATE=${INEXISTENCEDATE}
+#################################
+ANUSER=${ANUSER}
+ANPASS=${ANPASS}
+MAXCPUS=${MAXCPUS}
+APTSOURCES=${aptsources}
+QBVERSION="${QBVERSION}"
+DEVERSION="${DEVERSION}"
+RTVERSION="${RTVERSION}"
+TRVERSION="${TRVERSION}"
+FLEXGETINSTALLED=${flexget}
+RCLONEINSTALLED=${rclone}
+BBRINSTALLED=${bbr}
+USETWEAKS=${tweaks}
+UPLOADTOOLS=${tools}
+VNCINSTALLED=${vnc}
+#################################
+EOF
 
 sed -i '/^INEXISTEN*/'d /etc/profile
 sed -i '/^ANUSER/'d /etc/profile
-#sed -i '/^ANPASS/'d /etc/profile
-sed -i '/^QBVERSION/'d /etc/profile
-sed -i '/^DEVERSION/'d /etc/profile
-sed -i '/^TRVERSION/'d /etc/profile
-sed -i '/^RTVERSION/'d /etc/profile
-sed -i '/^MAXCPUS/'d /etc/profile
-sed -i '/^FLEXGETINSTALLED/'d /etc/profile
-sed -i '/^RCLONEINSTALLED/'d /etc/profile
-sed -i '/^USETWEAKS/'d /etc/profile
-sed -i '/^BBRINSTALLED/'d /etc/profile
-sed -i '/^UPLOADTOOLS/'d /etc/profile
-sed -i '/^APTSOURCES/'d /etc/profile
-sed -i '/^VNCINSTALLED/'d /etc/profile
 sed -i '/^#####\ U.*/'d /etc/profile
-
-#UPLOADTOOLS=${tools}
-#VNCINSTALLED=${vnc}
 
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
-INEXISTENCEVER=088
-INEXISTENCEDATE=20171223
+INEXISTENCEVER=${INEXISTENCEVER}
+INEXISTENCEDATE=${INEXISTENCEDATE}
 ANUSER=${ANUSER}
 ##### U ########################################
 EOF
@@ -1032,22 +1035,30 @@ cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 # --------------------- 替换系统源 --------------------- #
 
 function _setsources() {
-  if [ $aptsources == "Yes" ]; then
-        if [[ $DISTRO == Debian ]]; then
-            cp "${local_packages}"/template/debian.apt.sources /etc/apt/sources.list
-            sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
-            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-            apt-get --yes --force-yes update
-        elif [[ $DISTRO == Ubuntu ]]; then
-            cp "${local_packages}"/template/ubuntu.apt.sources /etc/apt/sources.list
-            sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
-            apt-get -y update
-        fi
-  else
-      apt-get -y update
-  fi
 
-  apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git
+starttime=$(date +%s)
+
+# dpkg --configure -a
+# rm /var/lib/dpkg/updates/*
+
+if [ $aptsources == "Yes" ]; then
+    if [[ $DISTRO == Debian ]]; then
+        wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
+        sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
+        apt-get --yes --force-yes update
+    elif [[ $DISTRO == Ubuntu ]]; then
+        wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
+        sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
+        apt-get -y update
+    fi
+else
+    apt-get -y update
+fi
+
+# apt-get -y upgrade
+apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git
+
 }
 
 
@@ -1093,8 +1104,6 @@ function _installqbt() {
 # --------------------- 设置 qBittorrent --------------------- #
 function _setqbt() {
 
-  if [ ! "${QBVERSION}" == "No" ]; then
-
       mkdir -p /root/.config/qBittorrent
       mkdir -p /home/${ANUSER}/qbittorrent/download
       mkdir -p /home/${ANUSER}/qbittorrent/torrent
@@ -1114,7 +1123,6 @@ function _setqbt() {
       systemctl enable qbittorrent
       systemctl start qbittorrent
 
-  fi
 }
 
 
@@ -1673,15 +1681,20 @@ alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr 
 EOF
 
 # 提高文件打开数
-cat >>/etc/sysctl.conf<<EOF
-fs.file-max = 1926817
-fs.nr_open = 1926817
-EOF
 
-echo "* - nofile 1926817">>/etc/security/limits.conf
-echo "* - nproc 1926817">>/etc/security/limits.conf
-echo "DefaultLimitNOFILE=123456">>/etc/systemd/system.conf
-echo "DefaultLimitNPROC=123456">>/etc/systemd/system.conf
+sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
+sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
+echo "fs.file-max = 1926817" >> /etc/sysctl.conf
+echo "fs.nr_open = 1926817" >> /etc/sysctl.conf
+
+sed -i '/.*1926817.*/'d /etc/security/limits.conf
+echo "* - nofile 1926817" >> /etc/security/limits.conf
+echo "* - nproc 1926817" >> /etc/security/limits.conf
+
+sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
+sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
+echo "DefaultLimitNOFILE=123456" >> /etc/systemd/system.conf
+echo "DefaultLimitNPROC=123456" >> /etc/systemd/system.conf
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
