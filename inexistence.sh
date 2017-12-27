@@ -7,7 +7,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=089
-INEXISTENCEDATE=20171225
+INEXISTENCEDATE=20171227
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -515,6 +515,8 @@ function _askdeluge() {
       03 | 3) DEVERSION=1.3.13 ;;
       04 | 4) DEVERSION=1.3.14 ;;
       05 | 5 | "") DEVERSION=1.3.15 ;;
+      21) DEVERSION=1.3.5 ;;
+      22) DEVERSION=1.3.6 ;;
       30) DEVERSION='Install from repo' ;;
       40) DEVERSION='Install from PPA' ;;
       99) DEVERSION=No ;;
@@ -571,8 +573,8 @@ function _askdelt() {
       echo
   else
       echo
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white} (Default)"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (IPv4/IPv6 Dual Stack)"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}  (Default)"
 #     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
 #     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (NOT supported on Ubuntu 16.04)"
 
@@ -1416,11 +1418,13 @@ bash "${local_packages}"/script/dalao/bbr1.sh
 mv install_bbr.log /etc/inexistence/01.Log/install_bbr.log
 # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
 mkdir -p /lib/firmware/bnx2
+local_packages=/etc/inexistence
 cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
 cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
 cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
 cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
+local_packages=/etc/inexistence/00.Installation
 echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
@@ -1666,8 +1670,8 @@ alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
 alias ios="iostat -d -x -k 1"
 alias cdb="cd .."
-alias cesu="cesu --share"
-alias cesu2="cesu --share --server"
+alias cesu="echo;cesu --share;echo"
+alias cesu2="echo;cesu --share --server"
 alias cesu3="echo;cesu --list >> tmpcesulist;head -n30 tmpcesulist | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo;rm -rf tmpcesulist"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
@@ -1687,12 +1691,12 @@ EOF
 
 sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
 sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
-echo "fs.file-max = 1926817" >> /etc/sysctl.conf
-echo "fs.nr_open = 1926817" >> /etc/sysctl.conf
+echo "fs.file-max = 192617" >> /etc/sysctl.conf
+echo "fs.nr_open = 192617" >> /etc/sysctl.conf
 
 sed -i '/.*1926817.*/'d /etc/security/limits.conf
-echo "* - nofile 1926817" >> /etc/security/limits.conf
-echo "* - nproc 1926817" >> /etc/security/limits.conf
+echo "* - nofile 192617" >> /etc/security/limits.conf
+echo "* - nproc 192617" >> /etc/security/limits.conf
 
 sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
 sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
