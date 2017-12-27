@@ -12,7 +12,7 @@ BLOCK_DUID=$4
 DHCLIENT6_FILE="/etc/dhcp/dhclient6.conf"
 
 [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
-
+[[ "$wangka" == "eno2" ]] && wangka=eno1
 
 if [[ "$(id -u)" != 0 ]]; then
         echo "${bold}${baihongse}ERROR${normal} ${bold}You need to run this script as root${normal}"
