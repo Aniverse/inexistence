@@ -3,6 +3,7 @@ Description=Transmission Service
 After=network.target
 
 [Service]
+LimitNOFILE=100000
 User=root
 ExecStart=/usr/bin/transmission-daemon --log-error -f
 
