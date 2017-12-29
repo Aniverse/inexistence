@@ -7,8 +7,9 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=089
-INEXISTENCEDATE=20171227
+INEXISTENCEDATE=20171229
 # --------------------------------------------------------------------------------
+local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -132,7 +133,7 @@ function _intro() {
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T7 ipv6.icanhazip.com )
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T3 ipv6.icanhazip.com )
 # [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
   
@@ -958,11 +959,11 @@ function _askcontinue() {
 
 function _setuser() {
 
+rm -rf /etc/inexistence2
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence2
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
-mkdir -p /etc/inexistence/01.Log
+mkdir -p /etc/inexistence/01.Log/INSTALLATION
 mkdir -p /etc/inexistence/OLD
-local_packages=/etc/inexistence/00.Installation
 chmod -R 777 /etc/inexistence
 
 mv /etc/inexistence2/* /etc/inexistence/OLD >> /dev/null 2>&1
@@ -976,16 +977,19 @@ else
 fi
 
 cat>>/etc/inexistence/01.Log/installed.lock<<EOF
+
+$DISTRO $RELEASE $CODENAME ($arch)
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 #################################
-ANUSER=${ANUSER}
-ANPASS=${ANPASS}
+USERNAME=${ANUSER}
+PASSWORD=${ANPASS}
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
 QBVERSION=${QBVERSION}
 DEVERSION=${DEVERSION}
+DELTVERSION=${DELTVERSION}
 RTVERSION=${RTVERSION}
 TRVERSION=${TRVERSION}
 FLEXGETINSTALLED=${flexget}
@@ -1245,8 +1249,8 @@ rm -rf rar rarlinux-x64-5.5.0.tar.gz
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
   openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
-  mv /root/rtinst.log /etc/inexistence/01.Log/rtinst.log
-  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/rtinst.info
+  mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/rtinst.log
+  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/rtinst.info
   
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
   sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
@@ -1418,13 +1422,11 @@ bash "${local_packages}"/script/dalao/bbr1.sh
 mv install_bbr.log /etc/inexistence/01.Log/install_bbr.log
 # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
 mkdir -p /lib/firmware/bnx2
-local_packages=/etc/inexistence
-cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
-cp -f "${local_packages}"/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
-cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
-cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
-cp -f "${local_packages}"/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
-local_packages=/etc/inexistence/00.Installation
+cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
+cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
+cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
+cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
+cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
 echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
@@ -1448,8 +1450,8 @@ $ANPASS
 EOF
 vncserver && vncserver -kill :1
 mkdir -p .vnc
-cp -f "${local_packages}"/script/template/xstartup.1 /root/.vnc/xstartup
-cp -f "${local_packages}"/script/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
+cp -f "${local_packages}"/template/xstartup.1 /root/.vnc/xstartup
+cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
 systemctl daemon-reload
 systemctl enable vncserver
@@ -1536,26 +1538,14 @@ EOF
 apt-get update
 apt-get install -y mkvtoolnix mkvtoolnix-gui
 
-########### 安装 mediainfo ########## https://mediaarea.net/en/MediaInfo/Download/Debian
+########### 安装 mediainfo ########## 
+# https://mediaarea.net/en/MediaInfo/Download/Debian
 
-if [ $relno = 8 ]; then
-    wget --no-check-certificate -qO 1 https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0_0.4.37-1_amd64.Debian_8.0.deb
-    wget --no-check-certificate -qO 2 https://mediaarea.net/download/binary/libmediainfo0/17.10/libmediainfo0_17.10-1_amd64.Debian_8.0.deb
-    wget --no-check-certificate -qO 3 https://mediaarea.net/download/binary/mediainfo/17.10/mediainfo_17.10-1_amd64.Debian_8.0.deb
-elif [ $relno = 9 ]; then
-    wget --no-check-certificate -qO 1 https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0v5_0.4.37-1_amd64.Debian_9.0.deb
-    wget --no-check-certificate -qO 2 https://mediaarea.net/download/binary/libmediainfo0/17.10/libmediainfo0v5_17.10-1_amd64.Debian_9.0.deb
-    wget --no-check-certificate -qO 3 https://mediaarea.net/download/binary/mediainfo/17.10/mediainfo_17.10-1_amd64.Debian_9.0.deb
-else
-    wget --no-check-certificate -qO 1 https://mediaarea.net/download/binary/libzen0/0.4.37/libzen0v5_0.4.37-1_amd64.xUbuntu_16.04.deb
-    wget --no-check-certificate -qO 2 https://mediaarea.net/download/binary/libmediainfo0/17.10/libmediainfo0v5_17.10-1_amd64.xUbuntu_16.04.deb
-    wget --no-check-certificate -qO 3 https://mediaarea.net/download/binary/mediainfo/17.10/mediainfo_17.10-1_amd64.xUbuntu_16.04.deb
-fi
-
-dpkg -i 1
-dpkg -i 2
-dpkg -i 3
-rm -rf 1 2 3
+wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
+dpkg -i repo-mediaarea_1.0-5_all.deb
+rm -rf repo-mediaarea_1.0-5_all.deb
+apt-get update
+apt-get -y install mediainfo
 
 ########### 安装 mktorrent  ###########
 
@@ -1569,7 +1559,7 @@ rm -rf 1 2 3
 apt-get install -y mktorrent
 
 mkdir -p /var/www/mktorrent
-cp -f "${local_packages}"/script/template/mktorrent.php /var/www/mktorrent/index.php
+cp -f "${local_packages}"/template/mktorrent.php /var/www/mktorrent/index.php
 sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
 
 ######################  eac3to  ######################
@@ -1605,6 +1595,8 @@ hwclock -w
 cat>>/etc/profile<<EOF
 
 ################## Seedbox Script Mod Start ##################
+
+ulimit -SHn 666666
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -1691,17 +1683,25 @@ EOF
 
 sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
 sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
-echo "fs.file-max = 192617" >> /etc/sysctl.conf
-echo "fs.nr_open = 192617" >> /etc/sysctl.conf
+echo "fs.file-max = 666666" >> /etc/sysctl.conf
+echo "fs.nr_open = 666666" >> /etc/sysctl.conf
 
-sed -i '/.*1926817.*/'d /etc/security/limits.conf
-echo "* - nofile 192617" >> /etc/security/limits.conf
-echo "* - nproc 192617" >> /etc/security/limits.conf
+sed -i '/.*nofile.*/'d /etc/security/limits.conf
+sed -i '/.*nproc.*/'d /etc/security/limits.conf
+cat>>/etc/security/limits.conf<<EOF
+
+* - nofile 666666
+* - nproc 666666
+$ANUSER soft nofile 666666
+$ANUSER hard nofile 666666
+root soft nofile 666666
+root hard nofile 666666
+EOF
 
 sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
 sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
-echo "DefaultLimitNOFILE=123456" >> /etc/systemd/system.conf
-echo "DefaultLimitNPROC=123456" >> /etc/systemd/system.conf
+echo "DefaultLimitNOFILE=666666" >> /etc/systemd/system.conf
+echo "DefaultLimitNPROC=666666" >> /etc/systemd/system.conf
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
@@ -1817,7 +1817,8 @@ _asktweaks
 _askcontinue
 
 _setsources
-_setuser
+_setuser 2>&1 | tee /etc/01.setuser.log
+mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 # --------------------- 安装 --------------------- #
 
@@ -1825,7 +1826,7 @@ _setuser
 
 
 if [ $bbr == "Yes" ]; then
-    echo -n "Configuring BBR ... ";echo;echo;echo;_installbbr
+    echo -n "Configuring BBR ... ";echo;echo;echo;_installbbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
     echo "Skip BBR installation";echo;echo;echo;echo;echo
 fi
@@ -1834,38 +1835,38 @@ fi
 if [ "${QBVERSION}" == "No" ]; then
     echo "Skip qBittorrent installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing qBittorrent ... ";echo;echo;echo;_installqbt
-    echo -n "Configuring qBittorrent ... ";echo;echo;echo;_setqbt
+    echo -n "Installing qBittorrent ... ";echo;echo;echo;_installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.qb1.log
+    echo -n "Configuring qBittorrent ... ";echo;echo;echo;_setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.qb2.log
 fi
 
 
 if [ "${DEVERSION}" == "No" ]; then
     echo "Skip Deluge installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing Deluge ... ";echo;echo;echo;_installde
-    echo -n "Configuring Deluge ... ";echo;echo;echo;_setde
+    echo -n "Installing Deluge ... ";echo;echo;echo;_installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.de1.log
+    echo -n "Configuring Deluge ... ";echo;echo;echo;_setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.de2.log
 fi
 
 
 if [ "${RTVERSION}" == "No" ]; then
     echo "Skip rTorrent installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing rTorrent ... ";echo;echo;echo;_installrt
+    echo -n "Installing rTorrent ... ";echo;echo;echo;_installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
 fi
 
 
 if [ "${TRVERSION}" == "No" ]; then
     echo "Skip Transmission installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing Transmission ... ";echo;echo;echo;_installtr
-    echo -n "Configuring Transmission ... ";echo;echo;echo;_settr
+    echo -n "Installing Transmission ... ";echo;echo;echo;_installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
+    echo -n "Configuring Transmission ... ";echo;echo;echo;_settr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/09.tr2.log
 fi
 
 
 if [ $flexget == "No" ]; then
     echo "Skip Flexget installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing Flexget ... ";echo;echo;echo;_installflex
+    echo -n "Installing Flexget ... ";echo;echo;echo;_installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
 fi
 
 
