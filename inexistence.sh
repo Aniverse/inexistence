@@ -7,7 +7,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=089
-INEXISTENCEDATE=20171229
+INEXISTENCEDATE=20180102
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -129,11 +129,11 @@ function _intro() {
   echo "${bold}Checking your server's public IP address ...${normal}"
 # echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=10 -qO- http://v4.ipv6-test.com/api/myip.php)
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 10 ifconfig.me)
+  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=7 -qO- http://v4.ipv6-test.com/api/myip.php)
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T3 ipv6.icanhazip.com )
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
 # [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
   
@@ -1662,9 +1662,9 @@ alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
 alias ios="iostat -d -x -k 1"
 alias cdb="cd .."
-alias cesu="echo;cesu --share;echo"
-alias cesu2="echo;cesu --share --server"
-alias cesu3="echo;cesu --list >> tmpcesulist;head -n30 tmpcesulist | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo;rm -rf tmpcesulist"
+alias cesu="echo;spdtest --share;echo"
+alias cesu2="echo;spdtest --share --server"
+alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
 alias wget="wget --no-check-certificate"
