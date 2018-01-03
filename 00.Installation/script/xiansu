@@ -3,12 +3,10 @@
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3)
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7)
 bold=$(tput bold); normal=$(tput sgr0)
-[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
+wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
 upsudu=300
 
-tc_location=$( command -v tc )
-
-if [[ ! -a $tc_location ]]; then
+if [[ ! -a $( command -v tc ) ]]; then
     echo; echo "${bold}${red}警告 ${white}未检测到 tc ，限速命令无法执行${normal}"; echo
     exit 1
 fi
@@ -36,6 +34,7 @@ echo -ne "${yellow}${bold}你想做什么？ (默认选择解除限速)${normal}
 # echo -e "${green}(05) ${white}给 qBittorrent 限速"
 # echo -e "${green}(06) ${white}给 rTorrent 限速"
 # echo -e "${green}(07) ${white}给 Transmission 限速"
+# echo -e "${green}(07) ${white}给 rclone 限速"
 #echo -ne ""
 
 case $response in
