@@ -3,10 +3,8 @@
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
 magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
 
-lolcat_location=`command -v lolcat`
-mono_location=`command -v mono`
-if [[ -e $lolcat_location ]]; then    lolcat=Yes;    fi
-if [[ -e $mono_location ]]; then    mono=Yes;    fi
+[[ -e `command -v lolcat` ]] && lolcat=Yes
+[[ -e `command -v mono` ]] && mono=Yes
 
 outputpath=/etc/inexistence/08.BDinfo
 bdinfocli_path=/etc/inexistence/02.Tools/bdinfocli.exe
