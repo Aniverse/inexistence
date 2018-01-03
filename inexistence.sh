@@ -7,7 +7,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=089
-INEXISTENCEDATE=20180102
+INEXISTENCEDATE=20180103
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -351,9 +351,9 @@ return $exitvalue
 function _askaptsource() {
   echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
   case $responce in
-      [yY] | [yY][Ee][Ss]) aptsources=Yes ;;
-      [nN] | [nN][Oo] | "" ) aptsources=No ;;
-      *) aptsources=No ;;
+      [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
+      [nN] | [nN][Oo]) aptsources=No ;;
+      *) aptsources=Yes ;;
   esac
   if [ $aptsources == "Yes" ]; then
       echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
@@ -1147,6 +1147,8 @@ function _installde() {
       add-apt-repository -y ppa:deluge-team/ppa
       apt-get update
       apt-get install -y deluged deluge-web
+      apt-get install -y libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
+      apt-mark hold libtorrent-rasterbar8 python-libtorrent
   else
       if [ ! $DELTVERSION == "No" ]; then
           cd
@@ -1323,8 +1325,7 @@ fi
 function _settr() {
 
 if [ ! "${TRVERSION}" == "No" ]; then
-    wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/tr-control-easy-install.sh | bash
-    rm -rf tr-control-easy-install.sh
+    wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
 
     rm -rf /root/.config/transmiss*
     mkdir -p /root/.config/transmission-daemon
