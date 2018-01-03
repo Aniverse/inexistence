@@ -38,12 +38,12 @@ calc_disk() {
     echo ${total_size}
 }
 # --------------------------------------------------------------------------------
-### 是否为 IP 地址 ###
+### 是否为 IPv4 地址(其实也不一定是) ###
 function isValidIpAddress() {
     echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$'
 }
 
-### 是否为内网 IP 地址 ###
+### 是否为内网 IPv4 地址 ###
 function isInternalIpAddress() {
     echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
 }
@@ -52,21 +52,13 @@ function isInternalIpAddress() {
 function _check_install_1(){
   client_location=$( command -v ${client_name} )
 
-  if [[ "${client_name}" == "qbittorrent-nox" ]]; then
-      client_name=qb
-  elif [[ "${client_name}" == "transmission-daemon" ]]; then
-      client_name=tr
-  elif [[ "${client_name}" == "deluged" ]]; then
-      client_name=de
-  elif [[ "${client_name}" == "rtorrent" ]]; then
-      client_name=rt
-  elif [[ "${client_name}" == "flexget" ]]; then
-      client_name=flex
-  elif [[ "${client_name}" == "virt-what" ]]; then
-      client_name=virtwhat
-  elif [[ "${client_name}" == "lsb_release" ]]; then
-      client_name=lsb
-  fi
+  [[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
+  [[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
+  [[ "${client_name}" == "deluged" ]] && client_name=de
+  [[ "${client_name}" == "rtorrent" ]] && client_name=rt
+  [[ "${client_name}" == "flexget" ]] && client_name=flex
+  [[ "${client_name}" == "virt-what" ]] && client_name=virtwhat
+  [[ "${client_name}" == "lsb_release" ]] && client_name=lsb
 
   if [[ -a $client_location ]]; then
       eval "${client_name}"_installed=Yes
@@ -349,7 +341,7 @@ return $exitvalue
 
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 function _askaptsource() {
-  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: "; read -e responce
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
       [nN] | [nN][Oo]) aptsources=No ;;
@@ -1065,7 +1057,7 @@ else
 fi
 
 # apt-get -y upgrade
-apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git
+apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo
 
 }
 
@@ -1251,8 +1243,8 @@ rm -rf rar rarlinux-x64-5.5.0.tar.gz
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
   openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
-  mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/rtinst.log
-  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/rtinst.info
+  mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
+  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
   
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
   sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
@@ -1397,6 +1389,7 @@ function _installflex() {
 function _installrclone() {
 
   cd
+  apt-get install -y nload htop fuse p7zip-full
   wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-amd64.zip
   unzip rclone-current-linux-amd64.zip
   cd rclone-*-linux-amd64
@@ -1408,6 +1401,8 @@ function _installrclone() {
   mandb
   cd
   rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+  cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
+# bash /etc/init.d/recloned init
   echo;echo;echo;echo;echo;echo "  RCLONE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
