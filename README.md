@@ -284,12 +284,13 @@ mingling
 BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
   -------------------
-## ipv6
+## IPv6
 
 用于配置 IPv6 的脚本  
+如果第一次运行不成功，试着再跑一遍  
 
 ``` 
-wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/dalao/ipv6.sh
+wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6
 bash ipv6.sh  
 bash ipv6.sh [interface] [address] [subnet] [DUID]  
 bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
