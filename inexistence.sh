@@ -6,8 +6,8 @@
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=089
-INEXISTENCEDATE=20180103
+INEXISTENCEVER=090
+INEXISTENCEDATE=20180109
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -125,8 +125,8 @@ function _intro() {
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T2 ipv6.icanhazip.com )
-# [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^docker.*|^he-ipv6' |awk 'NR==1 {print $0}'`
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T5 ipv6.icanhazip.com )
+# wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
   
   echo "${bold}Checking your server's specification ...${normal}"
@@ -402,7 +402,7 @@ function _askqbt() {
   echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
 # echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
-  echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
+# echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
   echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}  (NOT supported on Debian)"
@@ -443,7 +443,7 @@ function _askqbt() {
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       elif [ $relno = 16 ]; then
           QBVERSION='Install from PPA'
-          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository with ${cyan}libtorrent-rasterbar 1.1.5${normal}"
+          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository with ${cyan}libtorrent-rasterbar 1.1.6${normal}"
       else
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
       fi
@@ -796,11 +796,11 @@ function _askvnc() {
 
 # --------------------- 询问是否需要修改一些设置 --------------------- #
 function _asktweaks() {
-  echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: "; read -e responce
   case $responce in
-      [yY] | [yY][Ee][Ss]) tweaks=Yes ;;
-      [nN] | [nN][Oo] | "" ) tweaks=No ;;
-      *) tweaks=No ;;
+      [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
+      [nN] | [nN][Oo]) tweaks=No ;;
+      *) tweaks=Yes ;;
   esac
   if [ $tweaks == "Yes" ]; then
       echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
@@ -1057,7 +1057,7 @@ else
 fi
 
 # apt-get -y upgrade
-apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo
+apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh wget
 
 }
 
@@ -1071,13 +1071,12 @@ function _installqbt() {
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
       apt-get install -y qbittorrent-nox
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
-      apt-get install -y software-properties-common
-      apt-get install -y python-software-properties
+      apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
       apt-get update
       apt-get install -y qbittorrent-nox
   else
-      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
+      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 #libtorrent-rasterbar-dev
       cd
       git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
       cd libtorrent
@@ -1134,13 +1133,12 @@ function _installde() {
   if [[ "${DEVERSION}" == "Install from repo" ]]; then
       apt-get install -y deluged deluge-web
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
-      apt-get install -y software-properties-common
-      apt-get install -y python-software-properties
+      apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:deluge-team/ppa
       apt-get update
-      apt-get install -y deluged deluge-web
-      apt-get install -y libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
+      apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
       apt-mark hold libtorrent-rasterbar8 python-libtorrent
+      apt-get install -y deluged deluge-web
   else
       if [ ! $DELTVERSION == "No" ]; then
           cd
@@ -1163,8 +1161,8 @@ function _installde() {
       cd
       rm -rf deluge* libtorrent
       echo;echo;echo;echo;echo;echo "  DELUGE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
   fi
+
 }
 
 
@@ -1241,10 +1239,13 @@ rm -rf rar rarlinux-x64-5.5.0.tar.gz
   apt-get install -y libncurses5-dev libncursesw5-dev
   sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
   sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
+
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+
   openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
   mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
   mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
+  ln -s /home/${ANUSER} /var/www/user.folder
   
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
   sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
@@ -1276,8 +1277,7 @@ function _installtr() {
 if [[ "${TRVERSION}" == "Install from repo" ]]; then
     apt-get install -y transmission-daemon
 elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
-    apt-get install -y software-properties-common
-    apt-get install -y python-software-properties
+    apt-get install -y software-properties-common python-software-properties
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
     apt-get install -y transmission-daemon
@@ -1431,12 +1431,19 @@ echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;ec
 
 
 
-# --------------------- 安装 VNC --------------------- #
+# --------------------- 安装 VNC/wine --------------------- #
 function _installvnc() {
 
 cd
+dpkg --add-architecture i386 
+wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
+apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+add-apt-repository -y ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install -y --install-recommends winehq-stable
+apt-get install -y fonts-noto
 apt-get install -y vnc4server
-apt-get install -y xfonts-intl-chinese-big fcitx locales xfonts-wqy
+apt-get install -y xfonts-intl-chinese-big fcitx xfonts-wqy
 apt-get install -y xfce4
 #apt-get install -y mate-desktop-environment-extras
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
@@ -1537,7 +1544,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui
 ########### 安装 mediainfo ########## 
 # https://mediaarea.net/en/MediaInfo/Download/Debian
 
-wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
+wget --no-check-certificate https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
 rm -rf repo-mediaarea_1.0-5_all.deb
 apt-get update
@@ -1580,6 +1587,19 @@ echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;e
 function _tweaks() {
 
 if [ $tweaks == "Yes" ]; then
+
+
+# Oh my zsh
+#sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
+#wget -O ~/.zshrc https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/config/zshrc
+git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
+cd fonts
+./install.sh
+cd
+rm -rf fonts
+#wget -O ~/.oh-my-zsh/themes/agnosterzak.zsh-theme http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme
+#chsh -s /bin/zsh
 
 #修改时区
 rm -rf /etc/localtime
