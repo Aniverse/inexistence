@@ -11,8 +11,7 @@
 
 #### 使用方法
 ``` 
-wget https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
-bash inexistence.sh
+bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"  
 ```
 #### 安装介绍
 
@@ -33,14 +32,15 @@ bash inexistence.sh
 3. **线程数量**    
 编译时使用几个线程进行编译。一般来说独服用默认的选项，也就是全部线程都用于编译就行了  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
-下面四大客户端的安装，指定版本的一般都是编译安装，安装速度慢但可以任选版本  
+下面四大客户端的安装，指定版本的一般都是编译安装，安装速度相对较慢但可以任选版本  
 选择 `30` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
-选择 `40` 是从 PPA 安装  **( 注意：不支持 Debian 系统 )**  同样无法指定版本但一般软件都是最新版  
+选择 `40` 是从 PPA 安装  **( 注意：不支持 Debian 系统 )**  同样无法指定版本不过一般软件都是最新版  
+选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否存在；可能会翻车）**  
+（50 这个选项还没做好，反正估计 README 也没人看，先写着好了）
 
 4. **qBittorrent**  
-选择 4.0.2 版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
+选择 4.0 及以后版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
 在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替  
-由于目前不少站点还不支持新版本，因此还是建议使用 3.3.11 或 3.3.14  
 
 5. **Deluge**  
 Deluge 还会安装一些第三方插件  
@@ -334,8 +334,8 @@ jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_
 有 bug 的话请告诉我 **但不保证能解决**  有意见或者改进也欢迎告知  
 
 如需提交 bug ，请告诉我如下的信息：  
-1. 你使用的是什么盒子   
-2. 你安装时的选项（在开始安装前那一步截图）  
+1. `cat /etc/inexistence/01.Log/installed.lock`  
+2. 你使用的是什么盒子   
 3. 你具体碰到了什么问题  
 
 需要注意的是有些问题可能不是本脚本造成的  
@@ -354,7 +354,7 @@ http://outlyer.net/etiq/projects/vcs
 https://www.dwhd.org  
 https://moeclub.org  
 https://sometimesnaive.org  
-https://www.94ish.me/  
+https://www.94ish.me  
 https://blog.gloriousdays.pw  
 http://wilywx.com  
 https://github.com/teddysun/across  
