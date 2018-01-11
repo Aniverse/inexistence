@@ -8,6 +8,7 @@
 -------------------
 # Inexistence
 
+# 报错请务必附上 Log！！！
 
 #### 使用方法
 ``` 
@@ -326,7 +327,6 @@ jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_
   -------------------
 
 还有一些脚本，比如 `guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
-这些脚本在 `inexistence` 脚本里启用了 system tweaks 后都会安装  
 
   -------------------
 ### Something else
