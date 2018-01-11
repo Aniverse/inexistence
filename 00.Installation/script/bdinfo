@@ -35,7 +35,8 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 
 echo;echo
 mono $bdinfocli_path "$bdmvpath" $outputpath
-if [ ! $? -eq 0 ];then echo "${bold}运行 BDinfo 出错，退出脚本 ...${normal}";exit 1; else
+
+[[ ! $? -eq 0 ]] && echo "${bold}运行 BDinfo 出错，退出脚本 ...${normal}" && exit 1
 
 sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
 count=`wc -l temptext | awk '{print $1-1}' `
@@ -68,7 +69,5 @@ if [ $showbdinfo == Yes ]; then
         cat "${outputpath}/bdinfo.quick.summary.txt"
     fi
     echo
-fi
-
 fi
 
