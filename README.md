@@ -6,9 +6,7 @@
 如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
 -------------------
-# Inexistence
-
-# 报错请务必附上 Log！！！
+# Inexistence   报错请务必附上 Log！！！
 
 #### 使用方法
 ``` 
@@ -292,9 +290,9 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
 
 ``` 
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6
-bash ipv6.sh  
-bash ipv6.sh [interface] [address] [subnet] [DUID]  
-bash ipv6.sh enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
+bash ipv6  
+bash ipv6 [interface] [address] [subnet] [DUID]  
+bash ipv6 enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
 ```
 
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
