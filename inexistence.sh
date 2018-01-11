@@ -6,8 +6,8 @@
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=090
-INEXISTENCEDATE=20180109
+INEXISTENCEVER=091
+INEXISTENCEDATE=20180111
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -68,7 +68,7 @@ function _check_install_1(){
 }
 
 function _check_install_2(){
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone virt-what lsb_release smartctl irssi ffmepg mediainfo; do
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone virt-what lsb_release smartctl irssi ffmepg mediainfo wget; do
     client_name=$apps; _check_install_1
 done
 }
@@ -82,6 +82,70 @@ function _client_version_check(){
 # --------------------------------------------------------------------------------
 ### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
+# --------------------------------------------------------------------------------
+### 检查网站是否可以访问
+check_url() {
+  if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi
+}
+
+### 检查系统源是否可用 ###
+function _checkrepo1() {
+os_repo=0
+
+echo "${bold}Checking the web sites we will need are accessible${normal}"
+for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq ); do
+  echo -n $i": "
+  check_url $i && echo "${bold}${green}OK${normal}" || { echo "${bold}${red}FAIL${normal}"; os_repo=1; }
+done
+
+if [ $os_repo = 1 ]; then
+  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it mannually${normal}"
+  exit 1
+fi
+}
+
+### 第三方源的网址 ###
+rt_url="http://rtorrent.net/downloads/"
+xmlrpc_url="https://svn.code.sf.net/p/xmlrpc-c/code/stable/"
+ru_url="https://github.com/Novik/ruTorrent/"
+adl_url="https://github.com/autodl-community/"
+inex_url="https://github.com/Aniverse/inexistence"
+qbt_url="https://github.com/qbittorrent/qBittorrent"
+de_url="http://download.deluge-torrent.org"
+lt_url="https://github.com/arvidn/libtorrent"
+rtinst_url="https://github.com/Aniverse/rtinst"
+libevent_url="https://github.com/libevent/libevent"
+tr_url="https://github.com/transmission/transmission"
+trweb_url="https://github.com/ronggang/transmission-web-control"
+rclone_url="https://downloads.rclone.org"
+
+### 检查第三方源是否可用 ###
+function _checkrepo2() {
+major_repo=0
+echo
+echo "Checking major 3rd party components"
+# echo -n ": "; check_url $_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Inexistence: "; check_url $inex_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "qBittorrent: "; check_url $qbt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Deluge: "; check_url $de_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Libtorrent-rasterbar: "; check_url $lt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "rtinst Aniverse Mod: "; check_url $rtinst_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Rtorrent: "; check_url $rt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "xmlrpc-c: "; check_url $xmlrpc_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "RuTorrent: ";check_url $ru_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Autodl-irssi: "; check_url $adl_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "libevent: "; check_url $libevent_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Transmission: "; check_url $tr_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Transmission Web Control: "; check_url $trweb_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "rclone: "; check_url $rclone_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo
+
+if [ $major_repo = 1 ]; then
+  echo "${bold}${baihongse}WARNING${normal} ${bold}Some of the repositories we need are not currently available"
+  echo "We will continue for now, but may not be able to finish${normal}"
+fi
+echo
+}
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -103,6 +167,7 @@ clear
 function _intro() {
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
   apt-get -yqq install lsb-release virt-what wget curl >> /dev/null 2>&1
+  [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check your repository${normal}" && exit 1
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
   CODENAME=$(lsb_release -cs)
@@ -440,12 +505,12 @@ function _askqbt() {
           QBVERSION=3.3.16
           echo "${bold}The script will use qBittorrent 3.3.16 instead. If you don't like this version,"
 		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
       elif [ $relno = 16 ]; then
           QBVERSION='Install from PPA'
-          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository with ${cyan}libtorrent-rasterbar 1.1.6${normal}"
+          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository${normal}"
       else
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
+          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
       fi
 
   elif [[ "${QBVERSION}" == "Install from repo" ]]; then
@@ -464,7 +529,7 @@ function _askqbt() {
 
   else
 
-      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed with ${cyan}libtorrent-rasterbar 1.0.11${normal}"
+      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
 
   fi
 
@@ -568,8 +633,8 @@ function _askdelt() {
       echo
       echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (IPv4/IPv6 Dual Stack)"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}  (Default)"
-#     echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
-#     echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (NOT supported on Ubuntu 16.04)"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
+      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
 
       echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}02${normal}): "; read -e version
       case $version in
@@ -697,7 +762,7 @@ function _asktr() {
                   echo -ne "Therefore "
                   TRVERSION='Install from repo'
               else
-                  echo "Transmission will be installed from PPA, usually it will be the latest version"
+                  echo "${bold}${white}Transmission will be installed from PPA, usually it will be the latest version${normal}"
               fi
 
           else
@@ -1056,6 +1121,9 @@ else
     apt-get -y update
 fi
 
+_checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
+_checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
+
 # apt-get -y upgrade
 apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh wget
 
@@ -1076,16 +1144,8 @@ function _installqbt() {
       apt-get update
       apt-get install -y qbittorrent-nox
   else
-      apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 #libtorrent-rasterbar-dev
-      cd
-      git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
-      cd libtorrent
-      ./autotool.sh
-      ./configure --disable-debug --enable-encryption --prefix=/usr --with-libgeoip=system
-      make clean
-      make -j${MAXCPUS}
-      make install
-      cd
+#     if [[ ! "${DEVERSION}" == "No" ]] || [[ "${de_installed}" == "Yes" ]]; then
+      apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
       git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent.git
       cd qBittorrent
       ./configure --prefix=/usr --disable-gui
@@ -1143,7 +1203,7 @@ function _installde() {
       if [ ! $DELTVERSION == "No" ]; then
           cd
           apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf
-          git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent.git
+          git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
           ./configure --enable-python-binding --with-libiconv
@@ -1811,9 +1871,9 @@ _askusername
 _askpassword
 _askaptsource
 _askmt
-_askqbt
 _askdeluge
 _askdelt
+_askqbt
 _askrt
 _asktr
 _askflex
@@ -1830,15 +1890,19 @@ else
 fi
 
 _asktweaks
-_askcontinue
+_askcontinue | tee /etc/00.info.log
 
-_setsources
+_setsources 2>&1 | tee /etc/00.setsources.log
 _setuser 2>&1 | tee /etc/01.setuser.log
+
 mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
+mv /etc/00.info.log /etc/inexistence/01.Log/INSTALLATION/00.info.log
+mv /etc/00.setsources.log /etc/inexistence/01.Log/INSTALLATION/00.setsources.log
+mv /etc/00.checkrepo1.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo1.log
+mv /etc/00.checkrepo2.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo2.log
+
 
 # --------------------- 安装 --------------------- #
-
-
 
 
 if [ $bbr == "Yes" ]; then
@@ -1847,20 +1911,19 @@ else
     echo "Skip BBR installation";echo;echo;echo;echo;echo
 fi
 
+if [ "${DEVERSION}" == "No" ]; then
+    echo "Skip Deluge installation";echo;echo;echo;echo;echo
+else
+    echo -n "Installing Deluge ... ";echo;echo;echo;_installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
+    echo -n "Configuring Deluge ... ";echo;echo;echo;_setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
+fi
+
 
 if [ "${QBVERSION}" == "No" ]; then
     echo "Skip qBittorrent installation";echo;echo;echo;echo;echo
 else
-    echo -n "Installing qBittorrent ... ";echo;echo;echo;_installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.qb1.log
-    echo -n "Configuring qBittorrent ... ";echo;echo;echo;_setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.qb2.log
-fi
-
-
-if [ "${DEVERSION}" == "No" ]; then
-    echo "Skip Deluge installation";echo;echo;echo;echo;echo
-else
-    echo -n "Installing Deluge ... ";echo;echo;echo;_installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.de1.log
-    echo -n "Configuring Deluge ... ";echo;echo;echo;_setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.de2.log
+    echo -n "Installing qBittorrent ... ";echo;echo;echo;_installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
+    echo -n "Configuring qBittorrent ... ";echo;echo;echo;_setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
 fi
 
 
