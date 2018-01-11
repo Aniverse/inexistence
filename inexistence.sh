@@ -1144,8 +1144,21 @@ function _installqbt() {
       apt-get update
       apt-get install -y qbittorrent-nox
   else
-#     if [[ ! "${DEVERSION}" == "No" ]] || [[ "${de_installed}" == "Yes" ]]; then
-      apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
+
+      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && "$DISTRO" == "Debian" ]]; then
+          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
+          cd
+          git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
+          cd libtorrent
+          ./autotool.sh
+          ./configure --disable-debug --enable-encryption --prefix=/usr --with-libgeoip=system
+          make clean
+          make -j${MAXCPUS}
+          make install
+      else
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
+      fi
+
       git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent.git
       cd qBittorrent
       ./configure --prefix=/usr --disable-gui
@@ -1206,7 +1219,7 @@ function _installde() {
           git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv
+          ./configure --enable-python-binding --with-libiconv --prefix=/usr
           make -j${MAXCPUS}
           checkinstall -y
           ldconfig
