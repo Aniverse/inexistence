@@ -92,10 +92,11 @@ check_url() {
 function _checkrepo1() {
 os_repo=0
 
+echo
 echo "${bold}Checking the web sites we will need are accessible${normal}"
 for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq ); do
   echo -n $i": "
-  check_url $i && echo "${bold}${green}OK${normal}" || { echo "${bold}${red}FAIL${normal}"; os_repo=1; }
+  check_url $i && echo "${green}OK${normal}" || { echo "${bold}${red}FAIL${normal}"; os_repo=1; }
 done
 
 if [ $os_repo = 1 ]; then
@@ -1101,8 +1102,6 @@ cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
 function _setsources() {
 
-starttime=$(date +%s)
-
 # dpkg --configure -a
 # rm /var/lib/dpkg/updates/*
 
@@ -1666,11 +1665,11 @@ if [ $tweaks == "Yes" ]; then
 #sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 #cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
 #wget -O ~/.zshrc https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/config/zshrc
-git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
-cd fonts
-./install.sh
-cd
-rm -rf fonts
+#git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
+#cd fonts
+#./install.sh
+#cd
+#rm -rf fonts
 #wget -O ~/.oh-my-zsh/themes/agnosterzak.zsh-theme http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme
 #chsh -s /bin/zsh
 
@@ -1810,8 +1809,9 @@ fi
 function _end() {
 
 _check_install_2
-endtime=$(date +%s) 
+
 timeused=$(( $endtime - $starttime ))
+
 echo
 clear
 
@@ -1905,6 +1905,7 @@ fi
 _asktweaks
 _askcontinue | tee /etc/00.info.log
 
+starttime=$(date +%s)
 _setsources 2>&1 | tee /etc/00.setsources.log
 _setuser 2>&1 | tee /etc/01.setuser.log
 
@@ -1976,6 +1977,7 @@ else
 fi
 
 
+endtime=$(date +%s)
 _end
 rm "$0" >> /dev/null 2>&1
 _askreboot
