@@ -1,13 +1,23 @@
 # ChangeLog  
 > 代码内部排版问题、不怎么影响使用的修改就不列出来了  
 
-### 2018.01.15  
+
+
+
+
+
+
+
+
+### 2018.01.15
 
 `inexistence 0.9.1`  
 1. 修复系统为 Debian 8，不安装 Deluge 时 qBittorrent 由于 libtorrent-rasterbar-dev 版本过低无法编译的情况  
 
 `ChangeLOG 0.0.1`  
 1. 第一次写 changelog，20180104-20180115  
+
+
 
 ### 2018.01.12
 
@@ -17,15 +27,20 @@
 2. 注释了 PowerFonts 的安装  
 3. 取消了检查系统源 OK 后的绿色粗体  
 
+
+
 ### 2018.01.11 
 
 `inexistence 0.9.1`  
-2-1. qBittorrent 在某些情况下不编译，用 libtorrent-rasterbar-dev 代替以节省时间
-1-1. 先安装 Deluge 再安装 qBittorrent  
-1-2. 安装前检查安装源的网站是否可以访问，系统源出错的话直接退出脚本  
-1-3. 选择 qBittorrent 版本后不显示 libtorrent 的版本  
-1-4. 不再隐藏 libtorrent-rasterbar 的 1.1 和 from repo 选项  
-1-5. 完善了 log  
+0. Bump to 0.9.1
+1. qBittorrent 在某些情况下不编译，用 libtorrent-rasterbar-dev 代替以节省时间
+2. 先安装 Deluge 再安装 qBittorrent  
+3. 安装前检查安装源的网站是否可以访问，系统源出错的话直接退出脚本  
+4. 选择 qBittorrent 版本后不显示 libtorrent 的版本  
+5. 不再隐藏 libtorrent-rasterbar 的 1.1 和 from repo 选项  
+6. 完善了 log  
+
+
 
 ### 2018.01.09
 
@@ -37,6 +52,8 @@
 5. 补充了 wine 的 PPA（尚未启用）  
 6. 补充了 oh-my-zsh 的代码（尚未完全启用）  
 7. 增加 IPv6 检测的时间到 5 秒  
+
+
 
 ### 2018.01.04
 
