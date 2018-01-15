@@ -36,7 +36,7 @@
 ### 2018.01.11 
 
 `inexistence 0.9.1`  
-1. Bump to 0.9.1
+1. **Bump to 0.9.1**  
 1. **在某些情况下不编译 libtorrent-rasterbar**  
 安装 qBittorrent 时，当 deluge libtorrent 版本选择非 0.16 分支或 Deluge libtorrent 不选择从 Debian 的系统源安装时，不编绎 libtorrent-rasterbar，选择用 libtorrent-rasterbar-dev 这个包代替以节省时间
 2. **顺序变动：先安装 Deluge 再安装 qBittorrent**  
