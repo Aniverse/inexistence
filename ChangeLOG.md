@@ -19,6 +19,8 @@
 
 
 
+
+
 ### 2018.01.12
 
 `inexistence 0.9.1`  
@@ -29,16 +31,21 @@
 
 
 
+
+
 ### 2018.01.11 
 
 `inexistence 0.9.1`  
-0. Bump to 0.9.1
-1. qBittorrent 在某些情况下不编译，用 libtorrent-rasterbar-dev 代替以节省时间
-2. 先安装 Deluge 再安装 qBittorrent  
-3. 安装前检查安装源的网站是否可以访问，系统源出错的话直接退出脚本  
-4. 选择 qBittorrent 版本后不显示 libtorrent 的版本  
+1. Bump to 0.9.1
+1. **在某些情况下不编译 libtorrent-rasterbar**
+安装 qBittorrent 时，当 deluge libtorrent 版本选择非 0.16 分支或 Deluge libtorrent 不选择从 Debian 的系统源安装时，不编绎 libtorrent-rasterbar，选择用 libtorrent-rasterbar-dev 这个包代替以节省时间
+2. **顺序变动：先安装 Deluge 再安装 qBittorrent**  
+3. 安装前检查安装源的网站是否可以访问，系统源出错时直接退出脚本  
+4. 选择 qBittorrent 版本后不显示将会使用的 libtorrent 的版本  
 5. 不再隐藏 libtorrent-rasterbar 的 1.1 和 from repo 选项  
 6. 完善了 log  
+
+
 
 
 
@@ -55,12 +62,90 @@
 
 
 
+
+
 ### 2018.01.04
 
 `ipv6 & xiansu`
 1. 改进判断默认网卡的方式  
 先是识别出本机 IPv4 地址，然后再在 ifconfig 的结果里找包含这个地址的上一排里的网卡名  
 也不知道靠不靠谱，感觉应该比之前的靠谱……
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
