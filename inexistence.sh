@@ -7,7 +7,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=091
-INEXISTENCEDATE=20180111
+INEXISTENCEDATE=20180115
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -1144,7 +1144,7 @@ function _installqbt() {
       apt-get install -y qbittorrent-nox
   else
 
-      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && "$DISTRO" == "Debian" ]]; then
+      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && "$DISTRO" == "Debian" ]] || [[ "${DEVERSION}" == "No" && "$DISTRO" == "Debian" ]]; then
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
           cd
           git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
@@ -1154,6 +1154,7 @@ function _installqbt() {
           make clean
           make -j${MAXCPUS}
           make install
+          ldconfig
       else
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
       fi
