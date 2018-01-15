@@ -37,7 +37,7 @@
 
 `inexistence 0.9.1`  
 1. Bump to 0.9.1
-1. **在某些情况下不编译 libtorrent-rasterbar**
+1. **在某些情况下不编译 libtorrent-rasterbar**  
 安装 qBittorrent 时，当 deluge libtorrent 版本选择非 0.16 分支或 Deluge libtorrent 不选择从 Debian 的系统源安装时，不编绎 libtorrent-rasterbar，选择用 libtorrent-rasterbar-dev 这个包代替以节省时间
 2. **顺序变动：先安装 Deluge 再安装 qBittorrent**  
 3. 安装前检查安装源的网站是否可以访问，系统源出错时直接退出脚本  
@@ -55,7 +55,7 @@
 1. **系统优化默认选项改成了 Yes**  
 2. 隐藏 qBittorrent 4.0.2 的选项  
 3. 在 /var/www 建立了到用户文件夹的软链
-4. 系统源加入了 wget 的安装（以防万一……）  
+4. 系统源加入了 wget 的安装（以防万一）  
 5. 补充了 wine 的 PPA（尚未启用）  
 6. 补充了 oh-my-zsh 的代码（尚未完全启用）  
 7. 增加 IPv6 检测的时间到 5 秒  
@@ -69,7 +69,7 @@
 `ipv6 & xiansu`
 1. 改进判断默认网卡的方式  
 先是识别出本机 IPv4 地址，然后再在 ifconfig 的结果里找包含这个地址的上一排里的网卡名  
-也不知道靠不靠谱，感觉应该比之前的靠谱……
+也不知道靠不靠谱，感觉大概比之前的靠谱吧
 
 
 
