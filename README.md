@@ -10,7 +10,7 @@
 
 #### 使用方法
 ``` 
-bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"  
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"  
 ```
 #### 安装介绍
 
