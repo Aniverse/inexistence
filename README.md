@@ -6,11 +6,11 @@
 如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
 -------------------
-# Inexistence   报错请务必附上 Log！！！
+# Inexistence
 
 #### 使用方法
 ``` 
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"  
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
 ```
 #### 安装介绍
 
