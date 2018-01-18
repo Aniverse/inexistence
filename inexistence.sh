@@ -7,7 +7,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=091
-INEXISTENCEDATE=20180115
+INEXISTENCEDATE=20180118
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -184,13 +184,14 @@ function _intro() {
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
 
-  echo "${bold}Checking your server's public IP address ...${normal}"
+  echo "${bold}Checking your server's public IPv4 address ...${normal}"
 # echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
   isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=7 -qO- http://v4.ipv6-test.com/api/myip.php)
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
   isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address ...${normal}"
+  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  echo "${bold}Checking your server's public IPv6 address ...${normal}"
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T5 ipv6.icanhazip.com )
 # wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
