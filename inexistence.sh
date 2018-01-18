@@ -1309,32 +1309,33 @@ cp -f rar/rar /usr/bin/rar
 cp -f rar/unrar /usr/bin/unrar
 rm -rf rar rarlinux-x64-5.5.0.tar.gz
 
-  apt-get install -y libncurses5-dev libncursesw5-dev
-  sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
-  sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
+apt-get install -y libncurses5-dev libncursesw5-dev
+sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
+sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+# rtwebmin
 
-  openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
-  mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
-  mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
-  ln -s /home/${ANUSER} /var/www/user.folder
+openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
+mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
+mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
+ln -s /home/${ANUSER} /var/www/user.folder
   
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
-  sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
-  /etc/init.d/vsftpd start
+sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
+/etc/init.d/vsftpd start
 
-  apt-get install -y sox libsox-fmt-mp3
+apt-get install -y sox libsox-fmt-mp3
 
-  cd /var/www/rutorrent/plugins
-  wget --no-check-certificate https://github.com/Aniverse/rtinst/raw/master/spectrogram.tar.gz
-  tar zxf spectrogram.tar.gz
-  rm -rf spectrogram.tar.gz
-  chown -R www-data:www-data spectrogram
+cd /var/www/rutorrent/plugins
+wget --no-check-certificate https://github.com/Aniverse/rtinst/raw/master/spectrogram.tar.gz
+tar zxf spectrogram.tar.gz
+rm -rf spectrogram.tar.gz
+chown -R www-data:www-data spectrogram
 
-  cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
-  cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
-  systemctl daemon-reload
+cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
+cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
+systemctl daemon-reload
 
   cd
   echo;echo;echo;echo;echo;echo "  RTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
@@ -1746,7 +1747,8 @@ alias fll="cat /root/.flexget/flexget.log | tail -n50"
 alias fls="nano /root/.flexget/config.yml"
 alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 
-alias scrl="screen ls"
+alias space='du -sB GB'
+alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
 alias ios="iostat -d -x -k 1"
@@ -1841,6 +1843,7 @@ fi
 if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
+#   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
 fi
@@ -1878,8 +1881,8 @@ echo
 
 # --------------------- 结构 --------------------- #
 
-_intro
 _checkroot
+_intro
 _warning
 _askusername
 _askpassword
