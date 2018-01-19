@@ -148,6 +148,13 @@ fi
 
 echo
 }
+
+### 输入自己想要的软件版本 ###
+function _inputversion() {
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
+read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo "${normal}"
+}
+
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -170,7 +177,7 @@ function _intro() {
 
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
   apt-get -yqq install lsb-release virt-what wget curl >> /dev/null 2>&1
-  [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check your repository${normal}" && exit 1
+  [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
@@ -484,7 +491,7 @@ function _askqbt() {
 # echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
 # echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
 # echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
-  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}    (Default)"
+  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}"
 # echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
 # echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
   echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
@@ -493,7 +500,8 @@ function _askqbt() {
 # echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
-  echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}  (NOT supported on Debian)"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}"
+  echo -e "${green}50)${white} Select another version of qBittorrent"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -515,6 +523,7 @@ function _askqbt() {
       12) QBVERSION=4.0.3, QBVERSION4=Yes ;;
       30) QBVERSION='Install from repo' ;;
       40) QBVERSION='Install from PPA' ;;
+      50) _inputversion && QBVERSION="${inputversion}"  ;;
       99) QBVERSION=No ;;
       *) QBVERSION=3.3.11 ;;
   esac
@@ -528,7 +537,7 @@ function _askqbt() {
       if [ $relno = 8 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Since buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
           QBVERSION=3.3.16
-          echo "${bold}The script will use qBittorrent 3.3.16 instead. If you don't like this version,"
+          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead. If you don't like this version,"
 		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
       elif [ $relno = 16 ]; then
@@ -587,27 +596,52 @@ function _askdeluge() {
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
-  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}    (Default)"
+  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
   echo -e "${green}30)${white} Deluge from ${cyan}repo${white}"
-  echo -e "${green}40)${white} Deluge from ${cyan}PPA${white}  (NOT supported on Debian)"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} Deluge from ${cyan}PPA${white}"
+  echo -e "${green}50)${white} Select another version of Deluge"
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
-  read -ep "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): " version
+  [[ $DISTRO == Ubuntu ]] && dedefaultnum=40
+  [[ $DISTRO == Debian ]] && dedefaultnum=05
+  read -ep "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
-  case $version in
-      01 | 1) DEVERSION=1.3.11 ;;
-      02 | 2) DEVERSION=1.3.12 ;;
-      03 | 3) DEVERSION=1.3.13 ;;
-      04 | 4) DEVERSION=1.3.14 ;;
-      05 | 5 | "") DEVERSION=1.3.15 ;;
-      21) DEVERSION=1.3.5 ;;
-      22) DEVERSION=1.3.6 ;;
-      30) DEVERSION='Install from repo' ;;
-      40) DEVERSION='Install from PPA' ;;
-      99) DEVERSION=No ;;
-      *) DEVERSION=1.3.15 ;;
-  esac
+  if [[ $DISTRO == Ubuntu ]]; then
+
+      case $version in
+          01 | 1) DEVERSION=1.3.11 ;;
+          02 | 2) DEVERSION=1.3.12 ;;
+          03 | 3) DEVERSION=1.3.13 ;;
+          04 | 4) DEVERSION=1.3.14 ;;
+          05 | 5) DEVERSION=1.3.15 ;;
+          21) DEVERSION=1.3.5 ;;
+          22) DEVERSION=1.3.6 ;;
+          30) DEVERSION='Install from repo' ;;
+          40 | "") DEVERSION='Install from PPA' ;;
+          50) _inputversion && DEVERSION="${inputversion}"  ;;
+          99) DEVERSION=No ;;
+          *) DEVERSION='Install from PPA' ;;
+          esac
+
+  elif [[ $DISTRO == Debian ]]; then
+
+      case $version in
+          01 | 1) DEVERSION=1.3.11 ;;
+          02 | 2) DEVERSION=1.3.12 ;;
+          03 | 3) DEVERSION=1.3.13 ;;
+          04 | 4) DEVERSION=1.3.14 ;;
+          05 | 5 | "") DEVERSION=1.3.15 ;;
+          21) DEVERSION=1.3.5 ;;
+          22) DEVERSION=1.3.6 ;;
+          30) DEVERSION='Install from repo' ;;
+          40) DEVERSION='Install from PPA' ;;
+          50) _inputversion && DEVERSION="${inputversion}"  ;;
+          99) DEVERSION=No ;;
+          *) DEVERSION=1.3.15 ;;
+      esac
+
+  fi
 
   if [ "${DEVERSION}" == "No" ]; then
 
@@ -706,7 +740,7 @@ function _askdelt() {
 function _askrt() {
 
   echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
-  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white} (default)"
+  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
   echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
@@ -759,8 +793,9 @@ function _asktr() {
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}30)${white} Transmission from ${cyan}repo${white} (Default)"
-  echo -e "${green}40)${white} Transmission from ${cyan}PPA${white}  (NOT supported on Debian)"
+  echo -e "${green}30)${white} Transmission from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} Transmission from ${cyan}PPA${white}"
+  echo -e "${green}50)${white} Select another version of Transmission"
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -773,6 +808,7 @@ function _asktr() {
       04 | 4) TRVERSION=2.92 ;;
       30 | "") TRVERSION='Install from repo' ;;
       40) TRVERSION='Install from PPA' ;;
+      50) _inputversion && TRVERSION="${inputversion}"  ;;
       99) TRVERSION=No ;;
       *) TRVERSION=2.92 ;;
   esac
@@ -1231,7 +1267,7 @@ _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 # apt-get -f -y install
 
 apt-get -y install lsb-release virt-what wget curl
-[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check your repository${normal}" && exit 1
+[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh
 
@@ -1243,6 +1279,30 @@ apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toi
 
 # --------------------- 编译安装 qBittorrent --------------------- #
 function _installqbt() {
+
+# 吐槽下，libtorrent 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
+
+  SysLTVer0=`apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+  SysLTVer1=`echo $SysLTVer0 | awk '{print $1}'`
+  SysLTVer2=`echo $SysLTVer0 | awk '{print $2}'`
+  SysLTVer3=`echo $SysLTVer0 | awk '{print $3}'`
+  SysLTVer4=`echo ${SysLTVer1}.${SysLTVer2}.${SysLTVer3}`
+
+  if [[ -a $( command -v deluged ) ]]; then
+      DeLTVer0=`deluged --version | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+      DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
+      DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
+      DeLTVer3=`echo $DeLTVer0 | awk '{print $3}'`
+      DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
+  fi
+  
+  [[ ${SysLTVer1} == 1 ]] && [[ ${SysLTVer2} == 0 ]] && [[ ${SysLTVer3} -ge 6 ]] && SysQbLT=Yes
+  [[ ${SysLTVer1} == 1 ]] && [[ ${SysLTVer2} -ge 1 ]] && SysQbLT=Yes
+  [[ ${DeLTVer1} == 1 ]] && [[ ${DeLTVer2} == 0 ]] && [[ ${DeLTVer3} -ge 6 ]] && DeQbLT=Yes
+  [[ ${DeLTVer1} == 1 ]] && [[ ${DeLTVer2} -ge 1 ]] && DeQbLT=Yes
+  [[ ${SysLTVer4} == ${DeLTVer4} ]] && SameLT=Yes
+
+# 这段先放着……
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
@@ -1258,6 +1318,7 @@ function _installqbt() {
   else
 
       if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && $relno = 8 ]] || [[ "${DEVERSION}" == "No" && $relno = 8 ]]; then
+
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
           cd
           git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
@@ -1268,8 +1329,11 @@ function _installqbt() {
           make -j${MAXCPUS}
           make install
           ldconfig
+
       else
+
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
+
       fi
 
       git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent.git
@@ -1280,7 +1344,9 @@ function _installqbt() {
       cd
       rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
   fi
+  
 }
 
 
@@ -1815,6 +1881,19 @@ ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
 ntpdate time.windows.com
 hwclock -w
 
+#screen 设置
+cat>>/etc/screenrc<<EOF
+
+shell -$SHELL
+
+startup_message off
+defutf8 on
+defencoding utf8  
+encoding utf8 utf8 
+defscrollback 23333
+
+EOF
+
 #设置编码与alias
 cat>>/etc/profile<<EOF
 
@@ -1881,7 +1960,7 @@ alias fll="cat /root/.flexget/flexget.log | tail -n50"
 alias fls="nano /root/.flexget/config.yml"
 alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 
-alias space='du -sB GB'
+alias yongle='du -sB GB'
 alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
