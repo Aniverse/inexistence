@@ -2,12 +2,13 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Ruoji
+#
 # 四处抄来的，参考资料见 GitHub
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=091
-INEXISTENCEDATE=20180118
+INEXISTENCEVER=092
+INEXISTENCEDATE=20180119
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -84,9 +85,7 @@ function _client_version_check(){
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
 ### 检查网站是否可以访问
-check_url() {
-  if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi
-}
+check_url() {   if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi; }
 
 ### 检查系统源是否可用 ###
 function _checkrepo1() {
@@ -94,6 +93,7 @@ os_repo=0
 
 echo
 echo "${bold}Checking the web sites we will need are accessible${normal}"
+
 for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq ); do
   echo -n $i": "
   check_url $i && echo "${green}OK${normal}" || { echo "${bold}${red}FAIL${normal}"; os_repo=1; }
@@ -145,6 +145,7 @@ if [ $major_repo = 1 ]; then
   echo "${bold}${baihongse}WARNING${normal} ${bold}Some of the repositories we need are not currently available"
   echo "We will continue for now, but may not be able to finish${normal}"
 fi
+
 echo
 }
 # --------------------------------------------------------------------------------
@@ -166,9 +167,28 @@ clear
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
+
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
   apt-get -yqq install lsb-release virt-what wget curl >> /dev/null 2>&1
   [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check your repository${normal}" && exit 1
+
+
+  echo "${bold}Checking your server's public IPv4 address ...${normal}"
+  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=7 -qO- http://v4.ipv6-test.com/api/myip.php)
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
+  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
+  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+
+
+  echo "${bold}Checking your server's public IPv6 address ...${normal}"
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T5 ipv6.icanhazip.com )
+# wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
+# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
+
+
+  echo "${bold}Checking your server's specification ...${normal}"
+
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
   CODENAME=$(lsb_release -cs)
@@ -184,19 +204,6 @@ function _intro() {
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
 
-  echo "${bold}Checking your server's public IPv4 address ...${normal}"
-# echo "${bold}If you stick here for quite a while, please press ${red}Ctrl+C${white} to stop the script${normal}"
-  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=7 -qO- http://v4.ipv6-test.com/api/myip.php)
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  echo "${bold}Checking your server's public IPv6 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T5 ipv6.icanhazip.com )
-# wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
-# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
-  
-  echo "${bold}Checking your server's specification ...${normal}"
   _check_install_2
   _client_version_check
 
@@ -248,11 +255,13 @@ function _intro() {
   fi
 
   echo
+
   if [ ! -x  /usr/bin/lsb_release ]; then
       echo "Too young! It looks like you are running $DISTRO, which is not supported by this script"
       echo "Exiting..."
       exit 1
   fi
+
   if [[ ! "$DISTRO" =~ ("Ubuntu"|"Debian") ]]; then
       echo "$DISTRO: ${alert}Too simple! It looks like you are running $DISTRO, which is not supported by this script${normal} "
       echo 'Exiting...'
@@ -263,6 +272,7 @@ function _intro() {
       echo 'Exiting...'
       exit 1
   fi
+
 }
 
 
@@ -270,12 +280,15 @@ function _intro() {
 
 # --------------------- 检查是否以root运行 --------------------- #
 function _checkroot() {
+
   if [[ $EUID != 0 ]]; then
     echo '{title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
     echo ' Exiting...'
     exit 1
   fi
+
   echo "${green}${bold}Excited! You're running as root. Let's make some big news ... ${normal}"
+  
 }
 
 
@@ -284,6 +297,7 @@ function _checkroot() {
 
 # --------------------- 询问是否继续 Type-A --------------------- #
 function _warning() {
+
   echo
   echo -e "${bold}The author of this script is a fool, speaks poor English and knows nothing about Linux or codes"
   echo -e "So you guys should not have any expectations on this garbage, you could use something better instead"
@@ -295,8 +309,9 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo -e "If you want to exit, you may press ${on_red}Ctrl+C${normal} ";read input
+  read -ep "If you want to exit, you may press ${on_red}Ctrl+C${normal} " input
 # echo -ne "${guangbiao}"
+
 }
 
 
@@ -338,8 +353,7 @@ function _askusername(){
     confirm_name=1
     while [ $confirm_name = 1 ]
       do
-        echo -ne "${bold}Enter user name: ${normal}${blue}${bold}"
-        read -e answerusername
+        read -ep "${bold}Enter user name: ${normal}${blue}${bold}" answerusername
         addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that user name is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
         if _confirmation; then
@@ -348,6 +362,7 @@ function _askusername(){
       done
 
     ANUSER=$addname
+
 }
 
 
@@ -370,10 +385,8 @@ echo "The password must consist of characters and numbers and at least 9 chars"
 
 while [ -z $localpass ]
 do
-  echo "${bold}Please enter the new password, or leave blank to generate a random one${normal}"
-  stty -echo
-  read -e password1
-  stty echo
+
+  read -ep "${bold}Please enter the new password, or leave blank to generate a random one${normal}" password1
 
   if [ -z $password1 ]; then
       echo "${bold}Random password generated${normal} "
@@ -382,16 +395,14 @@ do
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
-      echo "${bold}Enter the new password again${normal} "
-      stty -echo
-      read -e password2
-      stty echo
+      read -ep "${bold}Enter the new password again${normal} " password2
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
       else
           localpass=$password1
       fi
   fi
+
 done
 
 ANPASS=$localpass
@@ -408,18 +419,23 @@ return $exitvalue
 
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 function _askaptsource() {
-  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: "; read -e responce
+
+  read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " responce
+
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
       [nN] | [nN][Oo]) aptsources=No ;;
       *) aptsources=Yes ;;
   esac
+
   if [ $aptsources == "Yes" ]; then
       echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
   else
       echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
   fi
+
   echo
+
 }
 
 
@@ -428,6 +444,7 @@ function _askaptsource() {
 
 # --------------------- 询问编译安装时需要使用的线程数量 --------------------- #
 function _askmt() {
+
   echo -e "${green}01)${white} Use ${cyan}all${white} avaliable threads (Default)"
   echo -e "${green}02)${white} Use ${cyan}half${white} of avaliable threads"
   echo -e "${green}03)${white} Use ${cyan}one${white} thread"
@@ -435,7 +452,8 @@ function _askmt() {
 # echo -e   "${red}99)${white} Do not compile, install softwares from repo"
 
   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
-  echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): "; read -e version
+  read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+
   case $version in
       01 | 1 | "") MAXCPUS=$(nproc) ;;
       02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
@@ -444,6 +462,7 @@ function _askmt() {
       05 | 5) MAXCPUS=No ;;
       *) MAXCPUS=$(nproc) ;;
   esac
+
   if [ $MAXCPUS == "No" ]; then
       echo "${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
   else
@@ -451,6 +470,7 @@ function _askmt() {
   fi
 
   echo
+
 }
 
 
@@ -459,6 +479,7 @@ function _askmt() {
 
 # --------------------- 询问需要安装的 qBittorrent 的版本 --------------------- #
 function _askqbt() {
+
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
 # echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
 # echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
@@ -476,7 +497,8 @@ function _askqbt() {
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-  echo -ne "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
+  read -ep "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): " version
+
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
       02 | 2) QBVERSION=3.3.8 ;;
@@ -551,6 +573,7 @@ function _askqbt() {
   fi
 
   echo
+
 }
 
 
@@ -558,6 +581,7 @@ function _askqbt() {
 
 # --------------------- 询问需要安装的 Deluge 版本 --------------------- #
 function _askdeluge() {
+
   echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
@@ -568,7 +592,8 @@ function _askdeluge() {
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
-  echo -ne "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): "; read -e version
+  read -ep "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}05${normal}): " version
+
   case $version in
       01 | 1) DEVERSION=1.3.11 ;;
       02 | 2) DEVERSION=1.3.12 ;;
@@ -629,21 +654,27 @@ function _askdeluge() {
 
 # --------------------- 询问需要安装的 Deluge libtorrent 版本 --------------------- #
 function _askdelt() {
-  if [[ "${DEVERSION}" == "No" ]] || [[ "${DEVERSION}" == "Install from repo" ]] || [[ "${DEVERSION}" == "Install from PPA" ]]; then
-      echo
-  else
-      echo
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (IPv4/IPv6 Dual Stack)"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}  (Default)"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
-      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
 
-      echo -ne "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}02${normal}): "; read -e version
+  if [[ "${DEVERSION}" == "No" ]] || [[ "${DEVERSION}" == "Install from repo" ]] || [[ "${DEVERSION}" == "Install from PPA" ]]; then
+
+      echo
+
+  else
+
+      echo
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}   (IPv4/IPv6 Dual Stack)"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
+      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (Default)"
+
+      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
+      read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): " version
+
       case $version in
           01 | 1) DELTVERSION=RC_0_16 ;;
-          02 | 2 | "") DELTVERSION=RC_1_0 ;;
+          02 | 2) DELTVERSION=RC_1_0 ;;
           03 | 3) DELTVERSION=RC_1_1 ;;
-          04 | 4) DELTVERSION=No ;;
+          04 | 4 | "") DELTVERSION=No ;;
           *) DELTVERSION=RC_1_0 ;;
       esac
 
@@ -660,8 +691,10 @@ function _askdelt() {
           echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
       fi
 
-  echo
+      echo
+
   fi
+
 }
 
 
@@ -670,6 +703,7 @@ function _askdelt() {
 
 # --------------------- 询问需要安装的 rTorrent 版本 --------------------- #
 function _askrt() {
+
   echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
   echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white} (default)"
   echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
@@ -678,7 +712,8 @@ function _askrt() {
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
-  echo -ne "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): "; read -e version
+  read -ep "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): " version
+
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
     02 | 2 | "") RTVERSION=0.9.4 ;;
@@ -718,6 +753,7 @@ function _askrt() {
 
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
 function _asktr() {
+
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
@@ -727,7 +763,8 @@ function _asktr() {
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
-  echo -ne "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}30${normal}): "; read -e version
+  read -ep "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}30${normal}): " version
+
   case $version in
       01 | 1) TRVERSION=2.77 ;;
       02 | 2) TRVERSION=2.82 ;;
@@ -791,7 +828,9 @@ function _asktr() {
       fi
 
   fi
+
   echo
+
 }
 
 
@@ -801,19 +840,24 @@ function _asktr() {
 
 # --------------------- 询问是否需要安装 Flexget --------------------- #
 function _askflex() {
+
   [[ "${flex_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
-  echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
     [nN] | [nN][Oo] | "" ) flexget=No ;;
     *) flexget=No ;;
   esac
+
   if [ $flexget == "Yes" ]; then
       echo "${bold}${baiqingse}Flexget${normal} ${bold}will be installed${normal}"
   else
       echo "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}"
   fi
+
   echo
+
 }
 
 
@@ -822,19 +866,24 @@ function _askflex() {
 
 # --------------------- 询问是否需要安装 rclone --------------------- #
 function _askrclone() {
+
   [[ "${rclone_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
-  echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
   case $responce in
       [yY] | [yY][Ee][Ss]) rclone=Yes ;;
       [nN] | [nN][Oo] | "" ) rclone=No ;;
       *) rclone=No ;;
   esac
+
   if [ $rclone == "Yes" ]; then
       echo "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}"
   else
       echo "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}"
   fi
+
   echo
+
 }
 
 
@@ -843,18 +892,23 @@ function _askrclone() {
 
 # --------------------- 询问是否需要安装 VNC --------------------- #
 function _askvnc() {
-  echo -ne "${bold}${yellow}Would you like to install VNC and wine? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+
+  read -ep "${bold}${yellow}Would you like to install VNC and wine? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
   case $responce in
       [yY] | [yY][Ee][Ss]) vnc=Yes ;;
       [nN] | [nN][Oo] | "" ) vnc=No ;;
       *) vnc=No ;;
   esac
+
   if [ $tweaks == "Yes" ]; then
       echo "${bold}${baiqingse}VNC${normal} and ${baiqingse}wine${normal} ${bold}will be installed${normal}"
   else
       echo "${baizise}VNC or wine will ${baihongse}not${baizise} be installed${normal}"
   fi
+
   echo
+
 }
 
 
@@ -863,18 +917,23 @@ function _askvnc() {
 
 # --------------------- 询问是否需要修改一些设置 --------------------- #
 function _asktweaks() {
-  echo -ne "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: "; read -e responce
+
+  read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
       [nN] | [nN][Oo]) tweaks=No ;;
       *) tweaks=Yes ;;
   esac
+
   if [ $tweaks == "Yes" ]; then
       echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
   else
       echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
   fi
+
   echo
+
 }
 
 
@@ -884,59 +943,80 @@ function _asktweaks() {
 
 # 检查是否已经启用BBR
 function check_bbr_status() {
+
     export bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
+
     if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
         bbrinuse=Yes
     else
         bbrinuse=No
     fi
+
 }
 
 
 # 检查系统内核版本是否大于4.9
 function check_kernel_version() {
+
   if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
       bbrkernel=Yes
   else
       bbrkernel=No
   fi
+
 }
 
 
 # 询问是否安装BBR
 function _askbbr() {
+
   check_bbr_status
+
   if [[ "${bbrinuse}" == "Yes" ]]; then
+
       echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
       bbr=Already\ Installed
+
   else
+
       check_kernel_version
+
       if [[ "${bbrkernel}" == "Yes" ]]; then
+
           echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
-          echo -ne "${bold}${yellow}Would you like to use BBR as default congestion control algorithm? ${normal} [${cyan}Y${normal}]es or [N]o: "; read -e responce
+          read -ep "${bold}${yellow}Would you like to use BBR as default congestion control algorithm? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+
           case $responce in
               [yY] | [yY][Ee][Ss] | "" ) bbr=Yes ;;
               [nN] | [nN][Oo]) bbr=No ;;
               *) bbr=Yes ;;
           esac
+
       else
+
           echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
           echo -e "A new kernel will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
-          echo -ne "${bold}${yellow}Would you like to install latest kernel and enable BBR? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+          read -ep "${bold}${yellow}Would you like to install latest kernel and enable BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
           case $responce in
               [yY] | [yY][Ee][Ss]) bbr=Yes ;;
               [nN] | [nN][Oo] | "" ) bbr=No ;;
               *) bbr=No ;;
           esac
+
       fi
+
       if [ "${bbr}" == "Yes" ]; then
           echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be installed${normal}"
       else
           echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
       fi
+
   fi
+
   echo
+
 }
 
 
@@ -946,19 +1026,24 @@ function _askbbr() {
 # 目前不启用
 
 function _asktools() {
+
   echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, ffmpeg, mediainfo ..."
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: "; read -e responce
+  read -ep "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
   case $responce in
       [yY] | [yY][Ee][Ss]) tools=Yes ;;
       [nN] | [nN][Oo] | "" ) tools=No ;;
       *) tools=No ;;
   esac
+
   if [ $tools == "Yes" ]; then
       echo "${bold}${baiqingse}Uploading Toolbox${normal} ${bold}will be installed${normal}"
   else
       echo "${baizise}Uploading Toolbox will ${baihongse}not${baizise} be configured${normal}"
   fi
+
   echo
+
 }
 
 
@@ -966,13 +1051,16 @@ function _asktools() {
 
 # --------------------- 装完后询问是否重启 --------------------- #
 function _askreboot() {
-  echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "; read -e is_reboot
+
+  read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
+
   if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
       reboot
   else
       echo -e "${bold}Reboot has been canceled...${normal}"
       echo
   fi
+
 }
 
 
@@ -980,6 +1068,7 @@ function _askreboot() {
 
 # --------------------- 询问是否继续 Type-B --------------------- #
 function _askcontinue() {
+
   clear
   echo -e "${bold}Please check the following information${normal}"
   echo
@@ -1003,11 +1092,12 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  echo -e "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ;read input
+  read -ep "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" input
   echo ""
   echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
   echo ""
+
 }
 
 
@@ -1025,7 +1115,7 @@ mkdir -p /etc/inexistence/01.Log/INSTALLATION
 mkdir -p /etc/inexistence/OLD
 chmod -R 777 /etc/inexistence
 
-mv /etc/inexistence2/* /etc/inexistence/OLD >> /dev/null 2>&1
+mv /etc/inexistence2/* /etc/inexistence/OLD
 rm -rf /etc/inexistence2
 
 if id -u ${ANUSER} >/dev/null 2>&1; then
@@ -1041,6 +1131,7 @@ $DISTRO $RELEASE $CODENAME ($arch)
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
+SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
 #################################
 USERNAME=${ANUSER}
 PASSWORD=${ANPASS}
@@ -1091,7 +1182,7 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 mkdir -p /var/www
 ln -s /etc/inexistence /var/www/inexistence
-cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
+cp -f "${local_packages}"/script/* /usr/local/bin
 
 }
 
@@ -1103,16 +1194,19 @@ cp -f "${local_packages}"/script/* /usr/local/bin >> /dev/null 2>&1
 
 function _setsources() {
 
-# dpkg --configure -a
 # rm /var/lib/dpkg/updates/*
+# rm -rf /var/lib/apt/lists/partial/*
+# apt-get -y upgrade
 
 if [ $aptsources == "Yes" ]; then
     if [[ $DISTRO == Debian ]]; then
+        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
         wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
         apt-get --yes --force-yes update
     elif [[ $DISTRO == Ubuntu ]]; then
+        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
         wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-get -y update
@@ -1124,8 +1218,13 @@ fi
 _checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
 _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 
-# apt-get -y upgrade
-apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh wget
+# dpkg --configure -a
+# apt-get -f -y install
+
+apt-get -y install lsb-release virt-what wget curl
+[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check your repository${normal}" && exit 1
+
+apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh
 
 }
 
@@ -1902,7 +2001,7 @@ _askrclone
 if [[ -d "/proc/vz" ]]; then
     echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}"
     echo
-    bbr='Not supported On OpenVZ'
+    bbr='Not supported on OpenVZ'
 else
     _askbbr
 fi
@@ -1911,15 +2010,15 @@ _asktweaks
 _askcontinue | tee /etc/00.info.log
 
 starttime=$(date +%s)
+
 _setsources 2>&1 | tee /etc/00.setsources.log
 _setuser 2>&1 | tee /etc/01.setuser.log
 
-mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 mv /etc/00.info.log /etc/inexistence/01.Log/INSTALLATION/00.info.log
 mv /etc/00.setsources.log /etc/inexistence/01.Log/INSTALLATION/00.setsources.log
 mv /etc/00.checkrepo1.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo1.log
 mv /etc/00.checkrepo2.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo2.log
-
+mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 # --------------------- 安装 --------------------- #
 
