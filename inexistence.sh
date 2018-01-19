@@ -497,6 +497,7 @@ function _askqbt() {
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
+  [[ $relno = 8 ]] && echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
   read -ep "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): " version
 
   case $version in
@@ -525,7 +526,7 @@ function _askqbt() {
   elif [ "${QBVERSION4}" == "Yes" ]; then
 
       if [ $relno = 8 ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
+          echo "${bold}${red}WARNING${normal} ${bold}Since buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
           QBVERSION=3.3.16
           echo "${bold}The script will use qBittorrent 3.3.16 instead. If you don't like this version,"
 		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
@@ -1199,20 +1200,28 @@ function _setsources() {
 # apt-get -y upgrade
 
 if [ $aptsources == "Yes" ]; then
+
     if [[ $DISTRO == Debian ]]; then
+
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
         wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
         apt-get --yes --force-yes update
+
     elif [[ $DISTRO == Ubuntu ]]; then
+
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
         wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-get -y update
+
     fi
+
 else
+
     apt-get -y update
+
 fi
 
 _checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
@@ -1236,16 +1245,20 @@ apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toi
 function _installqbt() {
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
+
       apt-get install -y qbittorrent-nox
+
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
+
       apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
       apt-get update
       apt-get install -y qbittorrent-nox
+
   else
 
-      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && "$DISTRO" == "Debian" ]] || [[ "${DEVERSION}" == "No" && "$DISTRO" == "Debian" ]]; then
-          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools  geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
+      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && $relno = 8 ]] || [[ "${DEVERSION}" == "No" && $relno = 8 ]]; then
+          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
           cd
           git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
           cd libtorrent
@@ -1304,16 +1317,22 @@ function _setqbt() {
 function _installde() {
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then
+
       apt-get install -y deluged deluge-web
+
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+
       apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:deluge-team/ppa
       apt-get update
       apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
       apt-mark hold libtorrent-rasterbar8 python-libtorrent
       apt-get install -y deluged deluge-web
+
   else
+
       if [ ! $DELTVERSION == "No" ]; then
+
           cd
           apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf
           git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
@@ -1323,7 +1342,9 @@ function _installde() {
           make -j${MAXCPUS}
           checkinstall -y
           ldconfig
+
       fi
+
       cd
       apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
       wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
@@ -1333,8 +1354,10 @@ function _installde() {
       python setup.py install --install-layout=deb
       cd
       rm -rf deluge* libtorrent
-      echo;echo;echo;echo;echo;echo "  DELUGE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
   fi
+
+  echo;echo;echo;echo;echo;echo "  DELUGE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
 
@@ -1439,6 +1462,7 @@ systemctl daemon-reload
 
   cd
   echo;echo;echo;echo;echo;echo "  RTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 }
 
 
@@ -1449,13 +1473,18 @@ systemctl daemon-reload
 function _installtr() {
 
 if [[ "${TRVERSION}" == "Install from repo" ]]; then
+
     apt-get install -y transmission-daemon
+
 elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
+
     apt-get install -y software-properties-common python-software-properties
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
     apt-get install -y transmission-daemon
+
 else
+
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git
     apt-get install -y openssl
     wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
@@ -1479,8 +1508,10 @@ else
     make install
     cd
     rm -rf transmission
-    echo;echo;echo;echo;echo;echo "  TR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+
 fi
+
+echo;echo;echo;echo;echo;echo "  TR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
 
@@ -1491,6 +1522,7 @@ fi
 function _settr() {
 
 if [ ! "${TRVERSION}" == "No" ]; then
+
     wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
 
     rm -rf /root/.config/transmiss*
@@ -1511,10 +1543,10 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     systemctl daemon-reload
     systemctl enable transmission
-#   systemctl enable /etc/systemd/system/transmission.service
     systemctl start transmission
 
 fi
+
 }
 
 
@@ -1587,9 +1619,11 @@ function _installrclone() {
 
 # --------------------- 安装 BBR --------------------- #
 function _installbbr() {
+
 cd
 bash "${local_packages}"/script/dalao/bbr1.sh
 mv install_bbr.log /etc/inexistence/01.Log/install_bbr.log
+
 # 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
 mkdir -p /lib/firmware/bnx2
 cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
@@ -1879,6 +1913,7 @@ echo "fs.nr_open = 666666" >> /etc/sysctl.conf
 
 sed -i '/.*nofile.*/'d /etc/security/limits.conf
 sed -i '/.*nproc.*/'d /etc/security/limits.conf
+
 cat>>/etc/security/limits.conf<<EOF
 
 * - nofile 666666
@@ -1893,6 +1928,11 @@ sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
 sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
 echo "DefaultLimitNOFILE=666666" >> /etc/systemd/system.conf
 echo "DefaultLimitNPROC=666666" >> /etc/systemd/system.conf
+
+sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/user.conf
+sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/user.conf
+echo "DefaultLimitNOFILE=666666" >> /etc/systemd/user.conf
+echo "DefaultLimitNPROC=666666" >> /etc/systemd/user.conf
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
@@ -1956,8 +1996,13 @@ fi
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
 
+echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
+echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
+
+
 echo '-----------------------------------------------------------'
 echo
+
 if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
     timeusedmin=$(expr $timeused / 60)
     timeusedsec=$(expr $timeused % 60)
@@ -1970,6 +2015,7 @@ elif [[ $timeused -ge 3600 ]]; then
 else
     echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
 fi
+
 echo
 
 }
