@@ -6,12 +6,54 @@
 
 
 
-### 2018.01.15
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 2018.01.19
+
+`inexistence 0.9.2`  
+1. 大幅修改排版，加了很多换行  
+2. read -ep 代替 echo -ne/read -e，不会出现 backspace 后 echo 文字消失的情况  
+3. 将 libtorrent-rasterbar for deluge 的默认选项改回了从系统源安装  
+4. Ubuntu 系统默认从 PPA 安装 Deluge  
+5. Debian 系统不显示从 PPA 安装的 40 选项  
+6. 询问版本时加入了 50 选项，允许自己输入软件版本  
+7. 增加对 /etc/systemd/user.conf LimitNOFILE 的修改  
+8. 加入了对 /etc/screenrc 的修改  
+9. alias 里 space 改成 yongle  
+10. 检查安装软件是否成功，失败的话直接退出脚本  
+11. 替换 /etc/apt/sources.list 前先做一个备份  
+12. 加入了检查系统和 Deluge 所用的 libtorrent-ratserbar 的功能  
+13. 将针对 qBittorrent 是否编译 libtorrent-ratserbar 时判断条件里的是否为 Debian 修正为是否为 Debian 8 系统
+14. 有一个严重 bug 我也不知道解决了没有  
+在 Online.net 独服的 Ubuntu 16.04 下，安装 Deluge 编译完 libtorrent-rasterbar 后安装 libtorrent-rasterbar-dev ，会导致冲突，然后 apt-get install 就炸了……  
+
+
+
+
+
+### 2018.01.18
 
 `inexistence 0.9.1`  
 1. 先检查 root 权限，再做之后的检查  
 2. 将检查IP地址的提示分成了 IPv4 和 IPv6 两部分  
 3. 加回了 rtwebmin 但不启用
+
+
+
 
 
 ### 2018.01.15
