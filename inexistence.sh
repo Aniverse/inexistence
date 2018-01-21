@@ -1375,10 +1375,6 @@ fi
 
   else
 
-      if
-
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3
-
       # 1. 不需要再安装 libtorrent-rasterbar
       # 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
       if [[ ! $DeQbLT == Yes && -a $BuildedLT ]]; then
@@ -1710,19 +1706,21 @@ function _installflex() {
   pip install --upgrade setuptools pip
   pip install flexget transmissionrpc
 
-  mkdir -p /root/.config/flexget
-  mkdir -p /home/${ANUSER}/{transmission,qBittorrent,rtorrent,deluge}/{download,watch}
+  mkdir -p /home/${ANUSER}/{transmission,qBittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
-  cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml
-  cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
-
-  systemctl daemon-reload
-  systemctl enable /etc/systemd/system/flexget.service
+  cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
+  sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
+  sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
 
   flexget web passwd ${ANPASS}
+
+  cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
+# cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
+  systemctl daemon-reload
+  systemctl enable /etc/systemd/system/flexget.service
   systemctl start flexget
+# systemctl enable flexget@${ANPASS}
+# systemctl start flexget@${ANPASS}
 
   echo;echo;echo;echo;echo;echo "  FLEXGET-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
