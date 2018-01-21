@@ -335,7 +335,7 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  read -ep "If you want to exit, you may press ${on_red}Ctrl+C${normal} " input
+  read -p "If you want to exit, you may press ${on_red}Ctrl+C${normal} " input
 # echo -ne "${guangbiao}"
 
 }
@@ -1147,7 +1147,7 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  read -ep "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" input
+  read -p "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" input
   echo ""
   echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
