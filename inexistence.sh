@@ -7,7 +7,7 @@
 #
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=092
+INEXISTENCEVER=093
 INEXISTENCEDATE=20180121
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -335,7 +335,8 @@ function _warning() {
   echo
   echo -e "${bold}For more information, please refer the guide"
   echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  read -p "If you want to exit, you may press ${on_red}Ctrl+C${normal} " input
+  echo -e "If you want to exit, you may press ${on_red}Ctrl+C${normal} "
+  read input
 # echo -ne "${guangbiao}"
 
 }
@@ -1125,7 +1126,7 @@ function _askreboot() {
 # --------------------- 询问是否继续 Type-B --------------------- #
 function _askcontinue() {
 
-  echo -e "${bold}Please check the following information${normal}"
+  echo -e "\n\n${bold}Please check the following information${normal}"
   echo
   echo '####################################################################'
   echo
@@ -1147,7 +1148,8 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  read -p "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" input
+  echo -e "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}"
+  read input
   echo ""
   echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
@@ -1303,29 +1305,62 @@ apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toi
 # --------------------- 编译安装 qBittorrent --------------------- #
 function _installqbt() {
 
-# 吐槽下，libtorrent 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
+# libtorrent-rasterbar 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent-rasterbar；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
 
-  SysLTVer0=`apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"`
-  SysLTVer1=`echo $SysLTVer0 | awk '{print $1}'`
-  SysLTVer2=`echo $SysLTVer0 | awk '{print $2}'`
-  SysLTVer3=`echo $SysLTVer0 | awk '{print $3}'`
-  SysLTVer4=`echo ${SysLTVer1}.${SysLTVer2}.${SysLTVer3}`
+# 好吧，先检查下系统源里的 libtorrent-rasterbar-dev 版本是多少压压惊
+SysLTDEVer0=`apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+SysLTDEVer1=`echo $SysLTDEVer0 | awk '{print $1}'`
+SysLTDEVer2=`echo $SysLTDEVer0 | awk '{print $2}'`
+SysLTDEVer3=`echo $SysLTDEVer0 | awk '{print $3}'`
+SysLTDEVer4=`echo ${SysLTDEVer1}.${SysLTDEVer2}.${SysLTDEVer3}`
 
-  if [[ -a $( command -v deluged ) ]]; then
-      DeLTVer0=`deluged --version | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
-      DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
-      DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
-      DeLTVer3=`echo $DeLTVer0 | awk '{print $3}'`
-      DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
-  fi
-  
-  [[ ${SysLTVer1} == 1 ]] && [[ ${SysLTVer2} == 0 ]] && [[ ${SysLTVer3} -ge 6 ]] && SysQbLT=Yes
-  [[ ${SysLTVer1} == 1 ]] && [[ ${SysLTVer2} -ge 1 ]] && SysQbLT=Yes
-  [[ ${DeLTVer1} == 1 ]] && [[ ${DeLTVer2} == 0 ]] && [[ ${DeLTVer3} -ge 6 ]] && DeQbLT=Yes
-  [[ ${DeLTVer1} == 1 ]] && [[ ${DeLTVer2} -ge 1 ]] && DeQbLT=Yes
-  [[ ${SysLTVer4} == ${DeLTVer4} ]] && SameLT=Yes
+# 检查 python-libtorrent 版本
+PyLTVer0=`dpkg -l | grep python-libtorrent | awk '{print $3}' | sed 's/[^0-9]/ /g'`
+PyLTVer1=`echo $PyLTVer0 | awk '{print $1}'`
+PyLTVer2=`echo $PyLTVer0 | awk '{print $2}'`
+PyLTVer3=`echo $PyLTVer0 | awk '{print $3}'`
+PyLTVer4=`echo ${PyLTVer1}.${PyLTVer2}.${PyLTVer3}`
 
-# 这段先放着……
+# 检查已安装的 libtorrent-rasterbar 版本
+InstalledLTVer0=`dpkg -l | egrep libtorrent-rasterbar[789] | awk '{print $3}' | sed 's/[^0-9]/ /g'`
+InstalledLTVer1=`echo $InstalledLTVer0 | awk '{print $1}'`
+InstalledLTVer2=`echo $InstalledLTVer0 | awk '{print $2}'`
+InstalledLTVer3=`echo $InstalledLTVer0 | awk '{print $3}'`
+InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
+
+# 检查已编译的 libtorrent-rasterbar 版本（只能检查到用 checkinstall 安装且写入了版本的）
+BuildedLT=`dpkg -l | egrep "libtorrent|checkinstall"`
+BuildedLTVer0=`dpkg -l | egrep "libtorrent|checkinstall" | awk '{print $3}' | sed 's/[^0-9]/ /g'`
+BuildedLTVer1=`echo $BuildedLTVer0 | awk '{print $1}'`
+BuildedLTVer2=`echo $BuildedLTVer0 | awk '{print $2}'`
+BuildedLTVer3=`echo $BuildedLTVer0 | awk '{print $3}'`
+BuildedLTVer4=`echo ${BuildedLTVer1}.${BuildedLTVer2}.${BuildedLTVer3}`
+
+# 检查当前 Deluge 用的 libtorrent-rasterbar 版本（当之前安装 Deluge 是编译 libtorrent 的时候，这里的版本可能和 python-libtorrent 不一样）
+if [[ -a $( command -v deluged ) ]]; then
+    DeLTVer0=`deluged --version | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+    DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
+    DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
+    DeLTVer3=`echo $DeLTVer0 | awk '{print $3}'`
+    DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
+fi
+
+[[ "${SysLTDEVer1}" == 0 ]] && SysQbLT=No
+[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 0 ]] && [[ "${SysLTDEVer3}" -lt 6 ]] && SysQbLT=No
+[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 0 ]] && [[ "${SysLTDEVer3}" -ge 6 ]] && SysQbLT=Yes
+[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" -ge 1 ]] && SysQbLT=Yes
+[[ "${DeLTVer1}" == 0 ]] && DeLT=7 && DeQbLT=No
+[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 0 ]] && [[ "${DeLTVer3}" -ge 6 ]] && DeLT=8 && DeQbLT=Yes
+[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 0 ]] && [[ "${DeLTVer3}" -lt 6 ]] && DeLT=8 && DeQbLT=No
+[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" -ge 1 ]] && DeLT=9 && DeQbLT=Yes
+# 其实这个 same 并不严谨
+[[ "${SysLTDEVer4}" == "${DeLTVer4}" ]] && SameLT=Yes
+
+# 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
+
+
+
+
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
@@ -1340,32 +1375,46 @@ function _installqbt() {
 
   else
 
-      if [[ "${DELTVERSION}" == "RC_0_16" ]] || [[ "${DELTVERSION}" == "No" && $relno = 8 ]] || [[ "${DEVERSION}" == "No" && $relno = 8 ]]; then
+      if
+
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3
+
+      # 1. 不需要再安装 libtorrent-rasterbar
+      # 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
+      if [[ ! $DeQbLT == Yes && -a $BuildedLT ]]; then
+
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3
+
+      # 2. 需要安装 libtorrent-rasterbar-dev
+      # Ubuntu16.04或者Debian9，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本
+      elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
+
+      # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
+      # Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
+      # elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+      # 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
+      else
 
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
-          cd
-          git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent.git
-          cd libtorrent
+          cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent libtorrent2
+          cd libtorrent2
           ./autotool.sh
-          ./configure --disable-debug --enable-encryption --prefix=/usr --with-libgeoip=system
+          ./configure --disable-debug --enable-encryption --with-libgeoip=system
           make clean
           make -j${MAXCPUS}
           make install
           ldconfig
 
-      else
-
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
-
       fi
 
-      git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent.git
+      cd; git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent
       cd qBittorrent
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
       make install
-      cd
-      rm -rf libtorrent qBittorrent
+      cd;rm -rf libtorrent2 qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
   fi
@@ -1380,24 +1429,26 @@ function _installqbt() {
 # --------------------- 设置 qBittorrent --------------------- #
 function _setqbt() {
 
-      mkdir -p /root/.config/qBittorrent
-      mkdir -p /home/${ANUSER}/qbittorrent/download
-      mkdir -p /home/${ANUSER}/qbittorrent/torrent
-      mkdir -p /home/${ANUSER}/qbittorrent/watch
+      [[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
+#     [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qBittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
+      mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
       chmod -R 777 /home/${ANUSER}/qbittorrent
-      chmod -R 777 /etc/inexistence/01.Log
-      mkdir -p /var/www
+      chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
+      chmod -R 777 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
       ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
 
-      cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf
+      cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
       cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
+#     cp -f "${local_packages}"/template/systemd/qbittorrent@.service /etc/systemd/system/qbittorrent@.service
       QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
-      sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf
-      sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf
+      sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+      sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 
       systemctl daemon-reload
       systemctl enable qbittorrent
       systemctl start qbittorrent
+#     systemctl enable qbittorrent@${ANUSER}
+#     systemctl start qbittorrent@${ANUSER}
 
 }
 
@@ -1424,14 +1475,17 @@ function _installde() {
 
       if [ ! $DELTVERSION == "No" ]; then
 
-          cd
+          [[ $DELTVERSION == "RC_0_16" ]] && LTPKG=0.16.19
+          [[ $DELTVERSION == "RC_1_0" ]] && LTPKG=1.0.11
+          [[ $DELTVERSION == "RC_1_1" ]] && LTPKG=1.1.6
+
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
-          git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
-          cd libtorrent
+          cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent libtorrent1
+          cd libtorrent1
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv --prefix=/usr
+          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
           make -j${MAXCPUS}
-          checkinstall -y
+          checkinstall -y --pkgversion=${LTPKG}
           ldconfig
 
       else
@@ -1440,14 +1494,13 @@ function _installde() {
 
       fi
 
-      cd
-      wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+      cd; wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       tar zxf deluge-"${DEVERSION}".tar.gz
       cd deluge-"${DEVERSION}"
       python setup.py build
       python setup.py install --install-layout=deb
-      cd
-      rm -rf deluge* libtorrent
+      python setup.py install_data
+      cd; rm -rf deluge* libtorrent1
 
   fi
 
@@ -1463,42 +1516,43 @@ function _setde() {
 
   if [ ! "${DEVERSION}" == "No" ]; then
 
-      mkdir -p /home/${ANUSER}/deluge/download
-      mkdir -p /home/${ANUSER}/deluge/torrent
-      mkdir -p /home/${ANUSER}/deluge/watch
-      mkdir -p /var/www
+#     [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
+      mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
       ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
-      chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge
-      chmod -R 777 /home/${ANUSER}/deluge
+      chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+      chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
-      cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
-      cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
-
-      touch /etc/inexistence/01.Log/deluged.log
-      touch /etc/inexistence/01.Log/delugeweb.log
+      touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
       chmod -R 777 /etc/inexistence/01.Log
 
-      mkdir -p /root/.config
-      cd /root/.config
-      rm -rf deluge
+#     mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
+#     cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
+      mkdir -p /root/.config && cd /root/.config
+      [[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
       cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
       tar zxf deluge.config.tar.gz
       chmod -R 777 /root/.config
-      rm -rf deluge.config.tar.gz
-      cd
+      rm -rf deluge.config.tar.gz; cd
 
       DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
       DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
-      echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth
-      sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf
-      sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf
-      sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf
+      echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
+      sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf  #/home/${ANUSER}/.config/deluge/core.conf
+      sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
+      sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
+
+      cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
+      cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
+#     cp -f "${local_packages}"/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
+#     cp -f "${local_packages}"/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
 
       systemctl daemon-reload
       systemctl enable /etc/systemd/system/deluge-web.service
       systemctl enable /etc/systemd/system/deluged.service
       systemctl start deluged
       systemctl start deluge-web
+#     systemctl enable {deluged,deluge-web}@${ANUSER}
+#     systemctl start {deluged,deluge-web}@${ANUSER}
 
   fi
 
@@ -1584,15 +1638,14 @@ else
 
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git
     apt-get install -y openssl
-    wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+    cd; wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xvf release-2.1.8-stable.tar.gz
     cd libevent-release-2.1.8-stable
     ./autogen.sh
     ./configure
     make -j${MAXCPUS}
     make install
-    cd
-    rm -rf libevent-release-2.1.8-stable release-2.1.8-stable.tar.gz
+    cd; rm -rf libevent-release-2.1.8-stable release-2.1.8-stable.tar.gz
     ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
 
     git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
@@ -1603,8 +1656,7 @@ else
     ./configure --prefix=/usr
     make -j${MAXCPUS}
     make install
-    cd
-    rm -rf transmission
+    cd; rm -rf transmission
 
 fi
 
@@ -1622,25 +1674,27 @@ if [ ! "${TRVERSION}" == "No" ]; then
 
     wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
 
-    rm -rf /root/.config/transmiss*
-    mkdir -p /root/.config/transmission-daemon
+#   [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
+    [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-    cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
+    mkdir -p /home/${ANUSER}/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
+    chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+    chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+    ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
+
+    cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
     cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
+#   cp -f "${local_packages}"/template/systemd/transmission@.service /etc/systemd/system/transmission@.service
     [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
     
-    sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json
-    sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
-
-    mkdir -p /home/${ANUSER}/transmission/download
-    mkdir -p /home/${ANUSER}/transmission/watch
-    chmod -R 777 /home/${ANUSER}/transmission
-    mkdir -p /var/www
-    ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
+    sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
+    sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
 
     systemctl daemon-reload
     systemctl enable transmission
     systemctl start transmission
+#   systemctl enable transmission@${ANUSER}
+#   systemctl start transmission@${ANUSER}
 
 fi
 
@@ -1653,24 +1707,15 @@ fi
 function _installflex() {
 
   apt-get -y install python-pip
-  pip install --upgrade setuptools
-  pip install flexget
-  pip install transmissionrpc
-  pip install --upgrade pip
+  pip install --upgrade setuptools pip
+  pip install flexget transmissionrpc
 
-  mkdir -p /root/.flexget
-  mkdir -p /home/${ANUSER}/qbittorrent/download
-  mkdir -p /home/${ANUSER}/qbittorrent/watch
-  mkdir -p /home/${ANUSER}/rtorrent/download
-  mkdir -p /home/${ANUSER}/rtorrent/watch
-  mkdir -p /home/${ANUSER}/transmission/download
-  mkdir -p /home/${ANUSER}/transmission/watch
-  mkdir -p /home/${ANUSER}/deluge/download
-  mkdir -p /home/${ANUSER}/deluge/watch
+  mkdir -p /root/.config/flexget
+  mkdir -p /home/${ANUSER}/{transmission,qBittorrent,rtorrent,deluge}/{download,watch}
 
-  cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.flexget/config.yml
-  sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.flexget/config.yml
-  sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.flexget/config.yml
+  cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 
   systemctl daemon-reload
@@ -1689,9 +1734,8 @@ function _installflex() {
 # --------------------- 安装 rclone --------------------- #
 function _installrclone() {
 
-  cd
   apt-get install -y nload htop fuse p7zip-full
-  wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-amd64.zip
+  cd; wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-amd64.zip
   unzip rclone-current-linux-amd64.zip
   cd rclone-*-linux-amd64
   cp rclone /usr/bin/
@@ -1700,8 +1744,7 @@ function _installrclone() {
   mkdir -p /usr/local/share/man/man1
   cp rclone.1 /usr/local/share/man/man1
   mandb
-  cd
-  rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+  cd; rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
   cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
   echo;echo;echo;echo;echo;echo "  RCLONE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
@@ -1726,6 +1769,7 @@ cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bn
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
+
 echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
@@ -1737,7 +1781,6 @@ echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;ec
 # --------------------- 安装 VNC/wine --------------------- #
 function _installvnc() {
 
-cd
 dpkg --add-architecture i386 
 wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
@@ -1755,7 +1798,7 @@ $ANPASS
 $ANPASS
 EOF
 vncserver && vncserver -kill :1
-mkdir -p .vnc
+cd; mkdir -p .vnc
 cp -f "${local_packages}"/template/xstartup.1 /root/.vnc/xstartup
 cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
@@ -1981,12 +2024,12 @@ alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
 
-alias del="cat /etc/inexistence/01.Log/deluged.log | tail -n50"
-alias dewl="cat /etc/inexistence/01.Log/delugeweb.log | tail -n50"
-alias qbl="cat /etc/inexistence/01.Log/qbittorrent.log | tail -n50"
+alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
+alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
+alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
 alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
-alias fll="cat /root/.flexget/flexget.log | tail -n50"
-alias fls="nano /root/.flexget/config.yml"
+alias fll="tail -n100 /root/.config/flexget/flexget.log"
+alias fls="nano /root/.config/flexget/config.yml"
 alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 
 alias banben1='apt-cache policy'
