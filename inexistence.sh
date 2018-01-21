@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=092
-INEXISTENCEDATE=20180119
+INEXISTENCEDATE=20180121
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -37,6 +37,12 @@ calc_disk() {
         total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
     done
     echo ${total_size}
+}
+### 操作系统检测 ###
+get_opsy() {
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 # --------------------------------------------------------------------------------
 ### 是否为 IPv4 地址(其实也不一定是) ###
@@ -152,7 +158,7 @@ echo
 ### 输入自己想要的软件版本 ###
 function _inputversion() {
 echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
-read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo "${normal}"
+read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}"
 }
 
 # --------------------------------------------------------------------------------
@@ -176,7 +182,7 @@ clear
 function _intro() {
 
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
-  apt-get -yqq install lsb-release virt-what wget curl >> /dev/null 2>&1
+  apt-get -y install lsb-release virt-what wget curl >> /dev/null 2>&1
   [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 
@@ -195,6 +201,19 @@ function _intro() {
 
 
   echo "${bold}Checking your server's specification ...${normal}"
+
+# 去掉 lsb_release 和 virt-what 的安装的话更省时间，并且还有其他办法用于判断系统和是否为 OpenVZ
+# 不过嘛目前还是不去掉吧……
+
+  opsy=$( get_opsy )
+  OPSYDEBIAN=`echo $opsy | egrep 'Ubuntu|Debian'`
+  OPSYUB16=`echo $opsy | grep 'Ubuntu' | grep '16.04'`
+  OPSYDE8=`echo $opsy | grep 'Debian' | grep '8'`
+  OPSYDE9=`echo $opsy | grep 'Debian' | grep '9'`
+
+  [ -n "$OPSYUB16" ] && DISTRO=Ubuntu && CODENAME=xenial && relno=16
+  [ -n "$OPSYDE8" ] && DISTRO=Debian && CODENAME=jessie && relno=8
+  [ -n "$OPSYDE9" ] && DISTRO=Debian && CODENAME=stretch && relno=9
 
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
@@ -499,9 +518,9 @@ function _askqbt() {
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
 # echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
-  echo -e "${green}30)${white} qBittorrent from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} qBittorrent from ${cyan}PPA${white}"
-  echo -e "${green}50)${white} Select another version of qBittorrent"
+  echo -e "${green}30)${white} Select another version of qBittorrent"
+  echo -e "${green}40)${white} qBittorrent from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -521,9 +540,9 @@ function _askqbt() {
       10) QBVERSION=3.3.16 ;;
       11) QBVERSION=4.0.2, QBVERSION4=Yes ;;
       12) QBVERSION=4.0.3, QBVERSION4=Yes ;;
-      30) QBVERSION='Install from repo' ;;
-      40) QBVERSION='Install from PPA' ;;
-      50) _inputversion && QBVERSION="${inputversion}"  ;;
+      30) _inputversion && QBVERSION="${inputversion}"  ;;
+      40) QBVERSION='Install from repo' ;;
+      50) QBVERSION='Install from PPA' ;;
       99) QBVERSION=No ;;
       *) QBVERSION=3.3.11 ;;
   esac
@@ -597,9 +616,9 @@ function _askdeluge() {
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
   echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
-  echo -e "${green}30)${white} Deluge from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} Deluge from ${cyan}PPA${white}"
-  echo -e "${green}50)${white} Select another version of Deluge"
+  echo -e "${green}30)${white} Select another version of Deluge"
+  echo -e "${green}40)${white} Deluge from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
@@ -617,9 +636,9 @@ function _askdeluge() {
           05 | 5) DEVERSION=1.3.15 ;;
           21) DEVERSION=1.3.5 ;;
           22) DEVERSION=1.3.6 ;;
-          30) DEVERSION='Install from repo' ;;
-          40 | "") DEVERSION='Install from PPA' ;;
-          50) _inputversion && DEVERSION="${inputversion}"  ;;
+          30) _inputversion && DEVERSION="${inputversion}"  ;;
+          40) DEVERSION='Install from repo' ;;
+          50 | "") DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
           *) DEVERSION='Install from PPA' ;;
           esac
@@ -634,9 +653,9 @@ function _askdeluge() {
           05 | 5 | "") DEVERSION=1.3.15 ;;
           21) DEVERSION=1.3.5 ;;
           22) DEVERSION=1.3.6 ;;
-          30) DEVERSION='Install from repo' ;;
-          40) DEVERSION='Install from PPA' ;;
-          50) _inputversion && DEVERSION="${inputversion}"  ;;
+          30) _inputversion && DEVERSION="${inputversion}"  ;;
+          40) DEVERSION='Install from repo' ;;
+          50) DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
           *) DEVERSION=1.3.15 ;;
       esac
@@ -710,7 +729,7 @@ function _askdelt() {
           02 | 2) DELTVERSION=RC_1_0 ;;
           03 | 3) DELTVERSION=RC_1_1 ;;
           04 | 4 | "") DELTVERSION=No ;;
-          *) DELTVERSION=RC_1_0 ;;
+          *) DELTVERSION=No ;;
       esac
 
       if [ $DELTVERSION == "No" ]; then
@@ -793,9 +812,9 @@ function _asktr() {
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}30)${white} Transmission from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}40)${white} Transmission from ${cyan}PPA${white}"
-  echo -e "${green}50)${white} Select another version of Transmission"
+  echo -e "${green}30)${white} Select another version of Transmission"
+  echo -e "${green}40)${white} Transmission from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -806,9 +825,9 @@ function _asktr() {
       02 | 2) TRVERSION=2.82 ;;
       03 | 3) TRVERSION=2.84 ;;
       04 | 4) TRVERSION=2.92 ;;
-      30 | "") TRVERSION='Install from repo' ;;
-      40) TRVERSION='Install from PPA' ;;
-      50) _inputversion && TRVERSION="${inputversion}"  ;;
+      30) _inputversion && TRVERSION="${inputversion}"  ;;
+      40 | "") TRVERSION='Install from repo' ;;
+      50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
       *) TRVERSION=2.92 ;;
   esac
@@ -1106,7 +1125,6 @@ function _askreboot() {
 # --------------------- 询问是否继续 Type-B --------------------- #
 function _askcontinue() {
 
-  clear
   echo -e "${bold}Please check the following information${normal}"
   echo
   echo '####################################################################'
@@ -1162,16 +1180,21 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
-cat>>/etc/inexistence/01.Log/installed.lock<<EOF
-
-$DISTRO $RELEASE $CODENAME ($arch)
-INEXISTENCEinstalled=Yes
+cat>>/etc/inexistence/01.Log/installed.log<<EOF
+CPU     : $cname"
+Cores   : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
+Mem     : $tram MB ($uram MB Used)"
+Disk    : $disk_total_size GB ($disk_used_size GB Used)
+OS      : $DISTRO $RELEASE $CODENAME ($arch)
+Kernel  : $kern
+#################################
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
 #################################
 USERNAME=${ANUSER}
 PASSWORD=${ANPASS}
+#账号密码打码
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
 QBVERSION=${QBVERSION}
@@ -1352,6 +1375,8 @@ function _installqbt() {
 
 
 
+
+
 # --------------------- 设置 qBittorrent --------------------- #
 function _setqbt() {
 
@@ -1400,7 +1425,7 @@ function _installde() {
       if [ ! $DELTVERSION == "No" ]; then
 
           cd
-          apt-get install -y git build-essential checkinstall libboost-system-dev libboost-python-dev libboost-chrono-dev libboost-random-dev libssl-dev git libtool automake autoconf
+          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
           git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
@@ -1409,10 +1434,13 @@ function _installde() {
           checkinstall -y
           ldconfig
 
+      else
+
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent
+
       fi
 
       cd
-      apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-libtorrent python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
       wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       tar zxf deluge-"${DEVERSION}".tar.gz
       cd deluge-"${DEVERSION}"
@@ -1473,6 +1501,7 @@ function _setde() {
       systemctl start deluge-web
 
   fi
+
 }
 
 
@@ -1504,6 +1533,8 @@ sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtu
 
   rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
 # rtwebmin
+
+sed -i "s/\"mkv\"/\"mkv\",\"m2ts\"/g" /var/www/rutorrent/plugins/screenshots/conf.php
 
 openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
@@ -1627,7 +1658,6 @@ function _installflex() {
   pip install transmissionrpc
   pip install --upgrade pip
 
-  cd
   mkdir -p /root/.flexget
   mkdir -p /home/${ANUSER}/qbittorrent/download
   mkdir -p /home/${ANUSER}/qbittorrent/watch
@@ -1646,7 +1676,6 @@ function _installflex() {
   systemctl daemon-reload
   systemctl enable /etc/systemd/system/flexget.service
 
-  cd
   flexget web passwd ${ANPASS}
   systemctl start flexget
 
@@ -1960,6 +1989,8 @@ alias fll="cat /root/.flexget/flexget.log | tail -n50"
 alias fls="nano /root/.flexget/config.yml"
 alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 
+alias banben1='apt-cache policy'
+alias banben2='dpkg -l | grep'
 alias yongle='du -sB GB'
 alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
