@@ -1,5 +1,5 @@
 # ChangeLog  
-> 代码内部排版问题、不怎么影响使用的修改就不列出来了  
+> 有时候代码内部排版问题、不怎么影响使用的修改就不列出来了  
 
 
 
@@ -15,9 +15,57 @@
 
 
 
+### 2018.01.22
+
+`inexistence 0.9.3`  
+1. 修改了一些输出文字的问题  
+2. 补充一些注释  
+3. 增加了脚本文件夹到用户文件夹的软链  
+4. 重新加回了隐藏输入密码的设计  
+其实主要是我一时半会儿懒得调整这里的界面了  
+5. 修复了 Debian 9 下的三个问题
+更改了apt源，添加了 --allow-unauthenticated，修复了 qb 4.0.x 版本号  
 
 
 
+
+
+### 2018.01.21
+
+`inexistence 0.9.3`  
+1. **Bump to 0.9.3**
+2. 从 bench.sh 和 军火脚本 参(chao)考(xi)了判断系统的代码  
+打算以后用于代替 lsb_release 作系统判断，不然一开始的检测太慢了  
+3. 调换了 30/40/50 的显示顺序  
+30 自选版本，40 系统源，50 PPA（Debian 下隐藏）  
+4. 在 installed.lock 添加了系统硬件参数，添加了打码账号密码的提示  
+5. 为 ruTorrent 的 screenshots 插件添加了 m2ts 的支持
+6. 增加/修改了部分 alias
+7. 修复了之前使用 read -ep 导致两个暂停出不显示的问题
+8. flexget 配置文件的存储路径移动到 ~/.config/flexget，更统一
+9. 在安装 de/tr/qb 前备份以前可能存在的配置文件
+10. **多处排版修改，预先添加了以后(不用root账户运行客户端)时候应该修改的命令**  
+11. **BUG FIX libtorrent-rasterbar**  
+
+`BUG FIX libtorrent-rasterbar`  
+这是本次更新的重点…… 忍不住吐槽下，辣鸡 VPS 编译一次 libtorrent-rasterbar 要40分钟，让我测试得真是没耐心，并且以前单核1GB跑下来也没压力，这次我不开 swap 就不行了……    
+0.9.2 中那个残留的 bug 这次在我编译完 libtorrent 又安装 python-libtorrent 的时候碰到了，于是先把 deluge 那边的这个包去掉  
+然后考虑了各种可能的情况，把 qb 安装 lt 分成了三种情况来处理，其实有点蛋疼……  
+
+- 不需要再安装 libtorrent-rasterbar  
+适用于之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar 的情况。有一个问题在于这个检查方式依赖 checkinstall  
+- 需要安装 libtorrent-rasterbar-dev  
+适用于 Ubuntu16.04 或 Debian9 系统，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本的情况
+- 需要编译安装 libtorrent-rasterbar  
+适用于 Debian8 系统没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1 的情况  
+这也是我想避免的情况，因为编译 lt 实在是花时间……  
+考虑到这个情况可能更通用，我就把它写成了 else  
+
+考虑到有的人可能只是用脚本单独安装 qb，所以必须得从系统里检测 deluge 和已编译的 lt 的情况  
+反正让我这种菜鸡挺头疼的，希望这次是解决了这个 bug 了吧  
+
+最后再吐槽下垃圾 VPS，以前全部安装、编译两次 libtorrent 也就50分钟左右，现在 Ubuntu 16.04 不编绎 libtorrent 竟然都要63分钟 ……
+这次 commit 偷懒用中文写了（讲道理吧以前的英文写得也很烂……）
 
 
 
@@ -25,14 +73,15 @@
 ### 2018.01.19
 
 `inexistence 0.9.2`  
+1. **Bump to 0.9.2**
 1. 大幅修改排版，加了很多换行  
 2. read -ep 代替 echo -ne/read -e，不会出现 backspace 后 echo 文字消失的情况  
-3. 将 libtorrent-rasterbar for deluge 的默认选项改回了从系统源安装  
+3. **将 libtorrent-rasterbar for deluge 的默认选项改回了从系统源安装**  
 4. Ubuntu 系统默认从 PPA 安装 Deluge  
 5. Debian 系统不显示从 PPA 安装的 40 选项  
 6. 询问版本时加入了 50 选项，允许自己输入软件版本  
 7. 增加对 /etc/systemd/user.conf LimitNOFILE 的修改  
-8. 加入了对 /etc/screenrc 的修改  
+8. **加入了对 /etc/screenrc 的修改**  
 9. alias 里 space 改成 yongle  
 10. 检查安装软件是否成功，失败的话直接退出脚本  
 11. 替换 /etc/apt/sources.list 前先做一个备份  
