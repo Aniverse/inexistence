@@ -17,5 +17,5 @@ deb-src http://ftp.debian.org/debian/ RELEASE-updates main contrib non-free
 
 #Third Parties Repos -- updated
 # Deb Multimedia
-deb http://www.deb-multimedia.org RELEASE main non-free
-deb-src http://www.deb-multimedia.org RELEASE main non-free
+# deb http://www.deb-multimedia.org jessie main non-free
+# deb-src http://www.deb-multimedia.org jessie main non-free
