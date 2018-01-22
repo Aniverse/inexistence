@@ -25,6 +25,7 @@
 其实主要是我一时半会儿懒得调整这里的界面了  
 5. 修复了 Debian 9 下的三个问题
 更改了apt源，添加了 --allow-unauthenticated，修复了 qb 4.0.x 版本号  
+6. 增加编译安装 libtorrent-rasterbar 的一些输出提示/注释，方便查错  
 
 
 
@@ -47,10 +48,9 @@
 10. **多处排版修改，预先添加了以后(不用root账户运行客户端)时候应该修改的命令**  
 11. **BUG FIX libtorrent-rasterbar**  
 
-`BUG FIX libtorrent-rasterbar`  
-这是本次更新的重点…… 忍不住吐槽下，辣鸡 VPS 编译一次 libtorrent-rasterbar 要40分钟，让我测试得真是没耐心，并且以前单核1GB跑下来也没压力，这次我不开 swap 就不行了……    
-0.9.2 中那个残留的 bug 这次在我编译完 libtorrent 又安装 python-libtorrent 的时候碰到了，于是先把 deluge 那边的这个包去掉  
-然后考虑了各种可能的情况，把 qb 安装 lt 分成了三种情况来处理，其实有点蛋疼……  
+这是本次更新的重点…… 忍不住吐槽下，辣鸡 VPS 编译一次 libtorrent-rasterbar 要40分钟，让我测试得真是没耐心，并且以前单核1GB跑下来也没压力，这次我不开 swap 就不行了    
+0.9.2 中那个残留的 bug 这次我在编译完 libtorrent 又安装 python-libtorrent 的时候碰到了，于是先把 deluge 编译时的这个包去掉  
+然后考虑了各种可能的情况，把 qb 安装 lt 分成了三种情况来处理，其实有点蛋疼  
 
 - 不需要再安装 libtorrent-rasterbar  
 适用于之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar 的情况。有一个问题在于这个检查方式依赖 checkinstall  
@@ -64,8 +64,8 @@
 考虑到有的人可能只是用脚本单独安装 qb，所以必须得从系统里检测 deluge 和已编译的 lt 的情况  
 反正让我这种菜鸡挺头疼的，希望这次是解决了这个 bug 了吧  
 
-最后再吐槽下垃圾 VPS，以前全部安装、编译两次 libtorrent 也就50分钟左右，现在 Ubuntu 16.04 不编绎 libtorrent 竟然都要63分钟 ……
-这次 commit 偷懒用中文写了（讲道理吧以前的英文写得也很烂……）
+最后再吐槽下垃圾 VPS，以前全部安装、编译两次 libtorrent 也就50分钟左右，现在 Ubuntu 16.04 不编绎 libtorrent 竟然都要63分钟   
+这次 commit 偷懒用中文写了（讲道理吧以前的英文写得也很烂）  
 
 
 
