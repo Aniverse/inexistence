@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=093
-INEXISTENCEDATE=20180121
+INEXISTENCEDATE=20180122
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -413,7 +413,9 @@ echo "The password must consist of characters and numbers and at least 9 chars"
 while [ -z $localpass ]
 do
 
+  stty -echo
   read -ep "${bold}Please enter the new password, or leave blank to generate a random one${normal}" password1
+  stty echo
 
   if [ -z $password1 ]; then
       echo "${bold}Random password generated${normal} "
@@ -422,7 +424,9 @@ do
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
+      stty -echo
       read -ep "${bold}Enter the new password again${normal} " password2
+      stty echo
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
       else
@@ -539,8 +543,8 @@ function _askqbt() {
       08 | 8) QBVERSION=3.3.14 ;;
       09 | 9) QBVERSION=3.3.15 ;;
       10) QBVERSION=3.3.16 ;;
-      11) QBVERSION=4.0.2, QBVERSION4=Yes ;;
-      12) QBVERSION=4.0.3, QBVERSION4=Yes ;;
+      11) QBVERSION=4.0.2 && QBVERSION4=Yes ;;
+      12) QBVERSION=4.0.3 && QBVERSION4=Yes ;;
       30) _inputversion && QBVERSION="${inputversion}"  ;;
       40) QBVERSION='Install from repo' ;;
       50) QBVERSION='Install from PPA' ;;
@@ -623,7 +627,7 @@ function _askdeluge() {
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
-  [[ $DISTRO == Ubuntu ]] && dedefaultnum=40
+  [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
   [[ $DISTRO == Debian ]] && dedefaultnum=05
   read -ep "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
@@ -724,16 +728,15 @@ function _askdelt() {
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
       read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): " version
-
       case $version in
-          01 | 1) DELTVERSION=RC_0_16 ;;
-          02 | 2) DELTVERSION=RC_1_0 ;;
-          03 | 3) DELTVERSION=RC_1_1 ;;
-          04 | 4 | "") DELTVERSION=No ;;
-          *) DELTVERSION=No ;;
+          01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
+          02 | 2) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+          03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
+          04 | 4 | "") DELTVERSION='Install from repo' ;;
+          *) DELTVERSION='Install from repo' ;;
       esac
 
-      if [ $DELTVERSION == "No" ]; then
+      if [ $DELTVERSION == "Install from repo" ]; then
           echo -ne "${bold}libtorrent-rasterbar will be installed from repository, and "
           if [ $relno = 9 ]; then
               echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
@@ -819,7 +822,7 @@ function _asktr() {
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
-  read -ep "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}30${normal}): " version
+  read -ep "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}40${normal}): " version
 
   case $version in
       01 | 1) TRVERSION=2.77 ;;
@@ -830,7 +833,7 @@ function _asktr() {
       40 | "") TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
-      *) TRVERSION=2.92 ;;
+      *) TRVERSION='Install from repo';;
   esac
 
   if [ "${TRVERSION}" == "No" ]; then
@@ -1243,7 +1246,9 @@ mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 mkdir -p /var/www
+
 ln -s /etc/inexistence /var/www/inexistence
+ln -s /etc/inexistence /home/${ANUSER}/inexistence
 cp -f "${local_packages}"/script/* /usr/local/bin
 
 }
@@ -1303,6 +1308,7 @@ apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toi
 
 
 # --------------------- 编译安装 qBittorrent --------------------- #
+
 function _installqbt() {
 
 # libtorrent-rasterbar 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent-rasterbar；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
@@ -1376,21 +1382,29 @@ fi
   else
 
       # 1. 不需要再安装 libtorrent-rasterbar
-      # 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
+      #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
+
       if [[ ! $DeQbLT == Yes && -a $BuildedLT ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3
 
+          echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
+
       # 2. 需要安装 libtorrent-rasterbar-dev
-      # Ubuntu16.04或者Debian9，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本
+      #### Ubuntu16.04或者Debian9，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本
+      ################ 还有一个情况，Ubuntu16.04或者Debian9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再编译一次算了……
+
       elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 libtorrent-rasterbar-dev
 
+          echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
+
       # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
-      # Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
-      # elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
-      # 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
+      #### Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
+      #### elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+      #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
+
       else
 
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3
@@ -1402,6 +1416,9 @@ fi
           make -j${MAXCPUS}
           make install
           ldconfig
+          echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
+
+          echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
 
       fi
 
@@ -1469,11 +1486,8 @@ function _installde() {
 
   else
 
-      if [ ! $DELTVERSION == "No" ]; then
-
-          [[ $DELTVERSION == "RC_0_16" ]] && LTPKG=0.16.19
-          [[ $DELTVERSION == "RC_1_0" ]] && LTPKG=1.0.11
-          [[ $DELTVERSION == "RC_1_1" ]] && LTPKG=1.1.6
+      # 编译安装 libtorrent-rasterbar
+      if [ ! $DELTVERSION == "Install from repo" ]; then
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent libtorrent1
@@ -1483,7 +1497,9 @@ function _installde() {
           make -j${MAXCPUS}
           checkinstall -y --pkgversion=${LTPKG}
           ldconfig
+          echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
+      # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
       else
 
           apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent
@@ -1711,6 +1727,8 @@ function _installflex() {
   cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
+# chmod -R 777 /home/${ANUSER}/.config/flexget
+# chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
   flexget web passwd ${ANPASS}
 
