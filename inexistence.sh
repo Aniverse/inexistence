@@ -1593,7 +1593,7 @@ cp -f rar/rar /usr/bin/rar
 cp -f rar/unrar /usr/bin/unrar
 rm -rf rar rarlinux-x64-5.5.0.tar.gz
 
-apt-get install -y libncurses5-dev libncursesw5-dev
+apt-get install -y --allow-unauthenticated libncurses5-dev libncursesw5-dev
 sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
 sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
