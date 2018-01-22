@@ -14,7 +14,6 @@
 
 
 
-
 ### 2018.01.22
 
 `inexistence 0.9.3`  
@@ -26,6 +25,8 @@
 5. 修复了 Debian 9 下的三个问题
 更改了apt源，添加了 --allow-unauthenticated，修复了 qb 4.0.x 版本号  
 6. 增加编译安装 libtorrent-rasterbar 的一些输出提示/注释，方便查错  
+
+偶然想去测试下我基本不用的 Debian 9，没想到随便一试就发现了三个 bug ……
 
 
 
@@ -48,24 +49,24 @@
 10. **多处排版修改，预先添加了以后(不用root账户运行客户端)时候应该修改的命令**  
 11. **BUG FIX libtorrent-rasterbar**  
 
-这是本次更新的重点…… 忍不住吐槽下，辣鸡 VPS 编译一次 libtorrent-rasterbar 要40分钟，让我测试得真是没耐心，并且以前单核1GB跑下来也没压力，这次我不开 swap 就不行了    
-0.9.2 中那个残留的 bug 这次我在编译完 libtorrent 又安装 python-libtorrent 的时候碰到了，于是先把 deluge 编译时的这个包去掉  
+这是本次更新的重点…… 忍不住吐槽下，辣鸡 VPS 编译一次 libtorrent-rasterbar 要40分钟，让我测试得真是没耐心，并且以前单核1GB跑下来也没压力，这次我不开 swap 就不行了  
+之前残留的 bug 这次我在编译完 libtorrent 又安装 python-libtorrent 的时候碰到了，于是先把 deluge 编译时的这个包去掉  
 然后考虑了各种可能的情况，把 qb 安装 lt 分成了三种情况来处理，其实有点蛋疼  
 
-- 不需要再安装 libtorrent-rasterbar  
+- `不需要再安装 libtorrent-rasterbar`  
 适用于之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar 的情况。有一个问题在于这个检查方式依赖 checkinstall  
-- 需要安装 libtorrent-rasterbar-dev  
+- `需要安装 libtorrent-rasterbar-dev`  
 适用于 Ubuntu16.04 或 Debian9 系统，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本的情况
-- 需要编译安装 libtorrent-rasterbar  
+- `需要编译安装 libtorrent-rasterbar`  
 适用于 Debian8 系统没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1 的情况  
-这也是我想避免的情况，因为编译 lt 实在是花时间……  
-考虑到这个情况可能更通用，我就把它写成了 else  
+这也是我想避免的情况，因为编译 lt 实在是花时间；考虑到这个情况可能更通用，我就把它写成了 else  
 
 考虑到有的人可能只是用脚本单独安装 qb，所以必须得从系统里检测 deluge 和已编译的 lt 的情况  
-反正让我这种菜鸡挺头疼的，希望这次是解决了这个 bug 了吧  
+这个问题我也挺奇怪的，我和别人都用默认设置安装下来，有的人就是翻车，我自己测试基本就没问题……反正让我这种菜鸡挺头疼的，希望这次是解决了这个 bug 了吧  
+这次 commit 偷懒用中文写了（讲道理吧英文写得也很烂，并且反正也没人看，就是写着自嗨的东西）  
+说到这个，我挺好奇我这种写着自嗨的东西有没有人看的，如果谁看到了 QQ 敲下我吧 233  
+最后再次吐槽下垃圾 VPS，以前全部安装、编译两次 libtorrent 也就50分钟左右，现在 Ubuntu 16.04 不编绎 libtorrent 竟然都要63分钟  
 
-最后再吐槽下垃圾 VPS，以前全部安装、编译两次 libtorrent 也就50分钟左右，现在 Ubuntu 16.04 不编绎 libtorrent 竟然都要63分钟   
-这次 commit 偷懒用中文写了（讲道理吧以前的英文写得也很烂）  
 
 
 
@@ -87,7 +88,7 @@
 11. 替换 /etc/apt/sources.list 前先做一个备份  
 12. 加入了检查系统和 Deluge 所用的 libtorrent-ratserbar 的功能  
 13. 将针对 qBittorrent 是否编译 libtorrent-ratserbar 时判断条件里的是否为 Debian 修正为是否为 Debian 8 系统
-14. 有一个严重 bug 我也不知道解决了没有  
+14. 有一个严重 bug 我也不知道解决了没有（2017.01.22：没有！）  
 在 Online.net 独服的 Ubuntu 16.04 下，安装 Deluge 编译完 libtorrent-rasterbar 后安装 libtorrent-rasterbar-dev ，会导致冲突，然后 apt-get install 就炸了……  
 
 
