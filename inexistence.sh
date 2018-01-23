@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=093
-INEXISTENCEDATE=20180122
+INEXISTENCEDATE=20180123
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -181,6 +181,37 @@ clear
 # --------------------- 系统检查 --------------------- #
 function _intro() {
 
+  # 检查是否以 root 权限运行脚本
+
+  if [[ $EUID != 0 ]]; then
+    echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
+    echo ' Exiting...'
+    exit 1
+  fi
+
+  echo "${green}${bold}Excited! You're running as root. Let's make some big news ... ${normal}"
+
+
+  # 检查系统是否为支持的系统
+
+  opsy=$( get_opsy )
+  OPSYDEBIAN=`echo $opsy | egrep 'Ubuntu|Debian'`
+  OPSYUB16=`echo $opsy | grep 'Ubuntu' | grep '16.04'`
+  OPSYDE8=`echo $opsy | grep 'Debian' | grep '8'`
+  OPSYDE9=`echo $opsy | grep 'Debian' | grep '9'`
+
+  [[ -n "$OPSYUB16" ]] && DISTRO=Ubuntu && CODENAME=xenial && relno=16 && INEXISTENCES=1
+  [[ -n "$OPSYDE8" ]] && DISTRO=Debian && CODENAME=jessie && relno=8 && INEXISTENCES=1
+  [[ -n "$OPSYDE9" ]] && DISTRO=Debian && CODENAME=stretch && relno=9 && INEXISTENCES=1
+
+  if [[ ! -n "INEXISTENCES" ]]; then
+      echo "Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script"
+      echo "Exiting..."
+      exit 1
+  fi
+
+  # 装 wget 和 curl 以防万一，lsb_release 和 virt-what 其实可以去掉……
+
   echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
   apt-get -y install lsb-release virt-what wget curl >> /dev/null 2>&1
   [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
@@ -202,18 +233,6 @@ function _intro() {
 
   echo "${bold}Checking your server's specification ...${normal}"
 
-# 去掉 lsb_release 和 virt-what 的安装的话更省时间，并且还有其他办法用于判断系统和是否为 OpenVZ
-# 不过嘛目前还是不去掉吧……
-
-  opsy=$( get_opsy )
-  OPSYDEBIAN=`echo $opsy | egrep 'Ubuntu|Debian'`
-  OPSYUB16=`echo $opsy | grep 'Ubuntu' | grep '16.04'`
-  OPSYDE8=`echo $opsy | grep 'Debian' | grep '8'`
-  OPSYDE9=`echo $opsy | grep 'Debian' | grep '9'`
-
-  [ -n "$OPSYUB16" ] && DISTRO=Ubuntu && CODENAME=xenial && relno=16
-  [ -n "$OPSYDE8" ] && DISTRO=Debian && CODENAME=jessie && relno=8
-  [ -n "$OPSYDE9" ] && DISTRO=Debian && CODENAME=stretch && relno=9
 
   DISTRO=$(lsb_release -is)
   RELEASE=$(lsb_release -rs)
@@ -282,39 +301,6 @@ function _intro() {
 
   echo
 
-  if [ ! -x  /usr/bin/lsb_release ]; then
-      echo "Too young! It looks like you are running $DISTRO, which is not supported by this script"
-      echo "Exiting..."
-      exit 1
-  fi
-
-  if [[ ! "$DISTRO" =~ ("Ubuntu"|"Debian") ]]; then
-      echo "$DISTRO: ${alert}Too simple! It looks like you are running $DISTRO, which is not supported by this script${normal} "
-      echo 'Exiting...'
-      exit 1
-  elif [[ ! "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]]; then
-      echo "Too young too simple! You do not appear to be running a supported $DISTRO release"
-      echo "${bold}$SETNAME${normal}"
-      echo 'Exiting...'
-      exit 1
-  fi
-
-}
-
-
-
-
-# --------------------- 检查是否以root运行 --------------------- #
-function _checkroot() {
-
-  if [[ $EUID != 0 ]]; then
-    echo '{title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
-    echo ' Exiting...'
-    exit 1
-  fi
-
-  echo "${green}${bold}Excited! You're running as root. Let's make some big news ... ${normal}"
-  
 }
 
 
@@ -523,13 +509,13 @@ function _askqbt() {
   echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
 # echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
-  echo -e "${green}30)${white} Select another version of qBittorrent"
+  echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} qBittorrent from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-  [[ $relno = 8 ]] && echo "${bold}${red}WARNING${normal} ${bold}For now, buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
+  [[ $relno = 8 ]] && echo "${bold}${red}WARNING${normal} ${bold}For now, building qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
   read -ep "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): " version
 
   case $version in
@@ -559,7 +545,7 @@ function _askqbt() {
   elif [ "${QBVERSION4}" == "Yes" ]; then
 
       if [ $relno = 8 ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}Since buliding qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
+          echo "${bold}${red}WARNING${normal} ${bold}Since building qBittorrent 4 doesn't work on ${cyan}Debian 8${normal}"
           QBVERSION=3.3.16
           echo "${bold}The script will use qBittorrent "${QBVERSION}" instead. If you don't like this version,"
 		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
@@ -614,6 +600,7 @@ function _askqbt() {
 
 
 # --------------------- 询问需要安装的 Deluge 版本 --------------------- #
+
 function _askdeluge() {
 
   echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
@@ -621,7 +608,7 @@ function _askdeluge() {
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
   echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
-  echo -e "${green}30)${white} Select another version of Deluge"
+  echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Deluge from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Deluge"
@@ -712,6 +699,7 @@ function _askdeluge() {
 
 
 # --------------------- 询问需要安装的 Deluge libtorrent 版本 --------------------- #
+
 function _askdelt() {
 
   if [[ "${DEVERSION}" == "No" ]] || [[ "${DEVERSION}" == "Install from repo" ]] || [[ "${DEVERSION}" == "Install from PPA" ]]; then
@@ -728,6 +716,7 @@ function _askdelt() {
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
       read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): " version
+
       case $version in
           01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
           02 | 2) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
@@ -736,8 +725,10 @@ function _askdelt() {
           *) DELTVERSION='Install from repo' ;;
       esac
 
-      if [ $DELTVERSION == "Install from repo" ]; then
+      if [[ $DELTVERSION == "Install from repo" ]]; then
+
           echo -ne "${bold}libtorrent-rasterbar will be installed from repository, and "
+
           if [ $relno = 9 ]; then
               echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
           elif [ $relno = 8 ]; then
@@ -745,8 +736,11 @@ function _askdelt() {
           elif [ $relno = 16 ]; then
               echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
           fi
+
       else
+
           echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
+
       fi
 
       echo
@@ -810,13 +804,14 @@ function _askrt() {
 
 
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
+
 function _asktr() {
 
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}30)${white} Select another version of Transmission"
+  echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Transmission from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Transmission"
@@ -899,6 +894,7 @@ function _asktr() {
 
 
 # --------------------- 询问是否需要安装 Flexget --------------------- #
+
 function _askflex() {
 
   [[ "${flex_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
@@ -925,6 +921,7 @@ function _askflex() {
 
 
 # --------------------- 询问是否需要安装 rclone --------------------- #
+
 function _askrclone() {
 
   [[ "${rclone_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
@@ -951,6 +948,7 @@ function _askrclone() {
 
 
 # --------------------- 询问是否需要安装 VNC --------------------- #
+
 function _askvnc() {
 
   read -ep "${bold}${yellow}Would you like to install VNC and wine? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
@@ -976,6 +974,7 @@ function _askvnc() {
 
 
 # --------------------- 询问是否需要修改一些设置 --------------------- #
+
 function _asktweaks() {
 
   read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
@@ -1110,6 +1109,7 @@ function _asktools() {
 
 
 # --------------------- 装完后询问是否重启 --------------------- #
+
 function _askreboot() {
 
   read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
@@ -1127,6 +1127,7 @@ function _askreboot() {
 
 
 # --------------------- 询问是否继续 Type-B --------------------- #
+
 function _askcontinue() {
 
   echo -e "\n\n${bold}Please check the following information${normal}"
@@ -1185,6 +1186,8 @@ else
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
+export TZ="/usr/share/zoneinfo/Asia/Shanghai"
+
 cat>>/etc/inexistence/01.Log/installed.log<<EOF
 CPU     : $cname"
 Cores   : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
@@ -1197,9 +1200,6 @@ INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
 #################################
-USERNAME=${ANUSER}
-PASSWORD=${ANPASS}
-#账号密码打码
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
 QBVERSION=${QBVERSION}
@@ -1334,7 +1334,7 @@ InstalledLTVer2=`echo $InstalledLTVer0 | awk '{print $2}'`
 InstalledLTVer3=`echo $InstalledLTVer0 | awk '{print $3}'`
 InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
 
-# 检查已编译的 libtorrent-rasterbar 版本（只能检查到用 checkinstall 安装且写入了版本的）
+# 检查已编译的 libtorrent-rasterbar 版本（只能检查到用 checkinstall 安装且写入了版本号的）
 BuildedLT=`dpkg -l | egrep "libtorrent|checkinstall"`
 BuildedLTVer0=`dpkg -l | egrep "libtorrent|checkinstall" | awk '{print $3}' | sed 's/[^0-9]/ /g'`
 BuildedLTVer1=`echo $BuildedLTVer0 | awk '{print $1}'`
@@ -1415,6 +1415,7 @@ fi
           make clean
           make -j${MAXCPUS}
           make install
+          #checkinstall -y --pkgversion=1.0.12(不知道行不行？？？)
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -2196,7 +2197,6 @@ echo
 
 # --------------------- 结构 --------------------- #
 
-_checkroot
 _intro
 _warning
 _askusername
@@ -2297,7 +2297,7 @@ fi
 
 
 endtime=$(date +%s)
-_end
+_end 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/99.end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
 
