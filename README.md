@@ -44,7 +44,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 5. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
-此外本脚本还会安装一些实用的 Deluge 第三方插件：  
+此外还会安装一些实用的 Deluge 第三方插件：  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
 - `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 - `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
@@ -55,19 +55,19 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
 7. **rTorrent + ruTorrent**  
-这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
-**注意：安装 rTorrent 会把你的 SSH 端口设置为 22，并覆盖你的 nginx 设置**  
-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
-0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
-如果系统是 Debian 9 的话，rTorrent 版本会强制指定成 0.9.6（因为其他版本不支持）  
-  
-还会安装了一些第三方插件和主题  
-- `club-QuickBox` `MaterialDesign` 两个第三方主题  
+这部分是调用我修改的 `rtinst` 来安装的，默认选项为安装原版 0.9.4  
+- 安装指定版本的 rTorrent，ruTorrent 3.8，nginx  
+- 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
+- 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6；Debian 9 强制使用本版本  
+- FTP，端口号 21  
+- SSH，端口号 22  
+- h5ai 目录列表程序  
+此外还会安装了一些 ruTorrent 的第三方插件和主题  
+- `club-QuickBox` `MaterialDesign` 第三方主题  
 - `AutoDL-Irssi` 这个其实是 rtinst 安装的  
 - `Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
 - `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
-
 
 8. **Transmission**  
 Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
