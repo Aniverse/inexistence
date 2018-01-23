@@ -54,15 +54,14 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 如果你对这个不了解的话，敲回车选择默认的选项就可以了  
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
-7. **rTorrent + ruTorrent**  
+7. **rTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的，默认选项为安装原版 0.9.4  
-- 安装指定版本的 rTorrent，ruTorrent 3.8，nginx  
+- 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar  
 - 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 - 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6；Debian 9 强制使用本版本  
-- FTP，端口号 21  
-- SSH，端口号 22  
+- FTP，端口号 21；SSH，端口号 22  
 - h5ai 目录列表程序  
-此外还会安装了一些 ruTorrent 的第三方插件和主题  
+- ruTorrent 版本为 3.8，包含一些第三方插件和主题  
 - `club-QuickBox` `MaterialDesign` 第三方主题  
 - `AutoDL-Irssi` 这个其实是 rtinst 安装的  
 - `Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
