@@ -1,7 +1,7 @@
 > 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
 > 作者从来没有学过 Linux，从来没有学过任何编程语言  
 > 那你问我是怎么写出来的？  
-> 盒子用久了自然而然地就会了一些皮毛的东西，此外也有很多现成的脚本可以参考，碰到不懂的也可以问谷歌   
+> 盒子用久了自然而然地就会了一些皮毛的东西，此外也有很多现成的脚本可以参考，碰到不懂的也可以问谷歌  
   
   
 本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
@@ -28,7 +28,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 用户名要求字母开头，长度 4-16 位；密码要求需要同时包含字母和数字，长度 9-16 位  
 
 2. **系统源**  
-大多数情况下无需换源；某些盒子默认的源可能有点问题，此时需要启用这个选项  
+其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
 
 3. **线程数量**    
 编译时使用几个线程进行编译。一般来说独服用默认的选项，也就是全部线程都用于编译就行了  
@@ -36,30 +36,29 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 下面四大客户端的安装，指定版本的一般都是编译安装，安装速度相对较慢但可以任选版本  
 选择 `30` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
 选择 `40` 是从 PPA 安装  **( 注意：不支持 Debian 系统 )**  同样无法指定版本不过一般软件都是最新版  
-选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否存在；可能会翻车）**  
-（50 这个选项还没做好，反正估计 README 也没人看，先写着好了）
+选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 
 4. **qBittorrent**  
-选择 4.0 及以后版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装  
+选择 4.0 及以后版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装最新版  
 在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替  
 
 5. **Deluge**  
-Deluge 还会安装一些第三方插件  
-`ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
-`Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
-`YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
-`AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI  
+在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
+此外本脚本还会安装一些实用的 Deluge 第三方插件：  
+- `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
+- `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
+- `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
+- `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI  
 
 6. **libtorrent-rasterbar**  
-不知道选什么版本的话选默认的 `2` 就可以了  
-这里有两个隐藏选项：选 `3` 是 `RC_1_1` 分支；选 `4` 是从系统源里安装  
-这两个选项都存在一些 bug 且似乎无法修复，因此除非你知道你在做什么不然不要选 `3` 或 `4`  
+如果你对这个不了解的话，敲回车选择默认的选项就可以了  
+最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
 7. **rTorrent + ruTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
 **注意：安装 rTorrent 会把你的 SSH 端口设置为 22，并覆盖你的 nginx 设置**  
 还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
-`Filemanager` 插件可以在 ruTorrent 上删除文件、创建压缩包、生成 mediaino 和截图  
+`Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
 `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
@@ -103,7 +102,7 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - **安装 VNC**  
 打算把 mono 和 wine 也加上  
 - **发种相关**  
-安装 ffmepg、x264、x265、mediainfo、mkvtoolnix  
+安装 ffmepg、mediainfo、mkvtoolnix  
 - **Flexget 模板**  
 补充更多的站点预设  
 - **公网 IP 地址检测**  
@@ -114,16 +113,12 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 - **不使用 root 运行**  
 将 Tr/De/Qb 的运行用户换成普通用户  
-- **修改输出**  
-输出到log；只显示错误内容  
 
 #### Known Issues
 
 - Transmission 在 Debian 9 下无法编译安装  
 - qBittorrent 4.0 及以后的版本的编译安装只在 Debian 9 上成功  
-- Ubuntu 16.04 下安装 qBittorrent 后 Deluge libtorrent 选择从仓库安装的话会导致 qb 运行出错  
 - 没有检查用户输入的账号密码的有效性  
-- 在系统源有问题的情况下安装可能会翻车，应该加入检测  
 
 -------------------
 ## BD Upload
@@ -216,18 +211,12 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 对于文件夹，检查是不是里面包含着单个 BDISO，或者包不包含 BDMV 这个文件夹  
 对于非文件夹，检查文件后缀名是不是 ISO  
 - **自动检测分辨率**  
-自动使用AR后的分辨率  
+自动使用 AR 后的分辨率  
 - **自动上传到 ptpimg**  
 调用 ptpimg_uploader 来完成，脚本跑完后会输出 ptpimg 的链接。运行之前你需要自己配置好 ptpimg_uploader  
 
 -------------------
 ## mingling
-
-#### 下载与安装
-```
-wget -O /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling
-chmod +x /usr/local/bin/mingling
-```
 
 #### 运行
 ```
@@ -238,7 +227,7 @@ mingling
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
 此外有些功能还没做完  
-不做具体的介绍了，自己看图吧  
+不做具体的介绍了，直接看图吧  
 
 ![mingling.00](https://github.com/Aniverse/filesss/raw/master/Images/mingling.00.png)
 ![mingling.01](https://github.com/Aniverse/filesss/raw/master/Images/mingling.01.png)
@@ -250,8 +239,10 @@ mingling
 ![mingling.07](https://github.com/Aniverse/filesss/raw/master/Images/mingling.07.png)
 ![mingling.08](https://github.com/Aniverse/filesss/raw/master/Images/mingling.08.png)
 
+#### Known Issues
+- rTorrent 的操作可能没啥卵用  
+
 #### To Do List
-- 补充 alias 中的命令说明  
 - 完善说明文档  
 - 添加 AutoDL-Irssi 的开关  
 - 添加锐速的开关与状态检测  
