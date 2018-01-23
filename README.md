@@ -57,13 +57,17 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 7. **rTorrent + ruTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的（SSH 端口 22，不关闭 root 登陆，安装 h5ai）  
 **注意：安装 rTorrent 会把你的 SSH 端口设置为 22，并覆盖你的 nginx 设置**  
-还会安装了一些插件和 `club-QuickBox` `MaterialDesign` 这两个主题  
-`Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
-`ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
-`spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6  
-此外如果系统是 Debian 9 的话，rTorrent 版本强制会指定成 0.9.6（因为其他版本不支持）  
+如果系统是 Debian 9 的话，rTorrent 版本会强制指定成 0.9.6（因为其他版本不支持）  
+  
+还会安装了一些第三方插件和主题  
+- `club-QuickBox` `MaterialDesign` 两个第三方主题  
+- `AutoDL-Irssi` 这个其实是 rtinst 安装的  
+- `Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
+- `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
+- `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
+
 
 8. **Transmission**  
 Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
@@ -84,8 +88,12 @@ Debian 9 下由于编译安装不成功，因此强制指定从仓库里安装 2
 BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
 12. **系统设置**  
-默认不启用；主要是修改时区为 UTC+8、设置 `alias`、编码设置为 UTF-8、提高系统文件打开数  
-其实第一次运行脚本的话我还是推荐设置下这个，以后操作也方便点  
+默认启用，具体操作如下：  
+- 修改时区为 UTC+8  
+- 语言编码设置为 UTF-8  
+- 设置 `alias` 简化命令  
+- 提高系统文件打开数  
+- 修改 screen 设置  
 
 ![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
