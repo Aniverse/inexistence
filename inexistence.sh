@@ -105,7 +105,6 @@ done
 
 if [ $os_repo = 1 ]; then
   echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it mannually${normal}"
-  exit 1
 fi
 }
 
@@ -438,10 +437,9 @@ do
   read -e password1
 
   if [ -z $password1 ]; then
-      echo "${bold}${white}Random password generated"
       exitvalue=1
       localpass=$(genpasswd)
-      echo "Password sets to ${blue}$localpass${normal}"
+      echo "${bold}${white}Password sets to ${blue}$localpass${normal}"
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
