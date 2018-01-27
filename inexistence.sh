@@ -344,17 +344,16 @@ fi
 function _warning() {
 
   echo
-  echo -e "${bold}The author of this script is a fool, speaks poor English and knows nothing about Linux or codes"
-  echo -e "So you guys should not have any expectations on this garbage, you could use something better instead"
-  echo -e "This script will try to do the following things, but it couldn't work fine on every SeedBox"
+  echo "${bold}${white}This script will try to do the following things"
+  echo "but it couldn't work fine on every seedbox${blue}"
   echo
-  echo -e "${blue} 1. Install the selected version of qBittorrent, Deluge, rTorrent, Transmission"
-  echo -e " 2. Install Flexget, rclone, BBR and some other softwares"
-  echo -e " 3. Do some system tweaks${normal}"
+  echo " 1. Install qBittorrent, Deluge, rTorrent, Transmission"
+  echo " 2. Install Flexget, rclone, BBR and some other softwares"
+  echo " 3. Do some system tweaks"
   echo
-  echo -e "${bold}For more information, please refer the guide"
-  echo -e "If you do not care about the potential possiblity of installation failure, Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo -e "If you want to exit, you may press ${on_red}Ctrl+C${normal} "
+  echo "${white}For more information, please refer the guide"
+  echo "Press ${bailvse}ENTER${normal} ${bold}to continue"
+  echo "Press ${on_red}Ctrl+C${normal} ${bold}to exit${normal}"
   read input
 # echo -ne "${guangbiao}"
 
@@ -396,15 +395,14 @@ function _askusername(){
 
     clear
     echo "${bold}${yellow}The script needs a username${white}"
-    echo "The username may only consist of characters and numbers and must start with a character"
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
     confirm_name=1
     while [ $confirm_name = 1 ]
       do
-        read -ep "${bold}Enter user name: ${blue}" answerusername
+        read -ep "${bold}Enter username: ${blue}" answerusername
         addname="${answerusername}"
-        echo -n "${normal}${bold}Confirm that user name is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
+        echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
         if _confirmation; then
             confirm_name=0
         fi
@@ -436,7 +434,7 @@ echo "The password must consist of characters and numbers and at least 9 chars"
 while [ -z $localpass ]
 do
 
-  echo -n "${bold}Please enter the new password, or leave blank to generate a random one${blue} "
+  echo -n "${bold}Enter the password, or leave blank to generate a random one${blue} "
   read -e password1
 
   if [ -z $password1 ]; then
@@ -447,7 +445,7 @@ do
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
-      echo -n "${bold}Enter the new password again${blue} "
+      echo -n "${white}${bold}Enter the new password again${blue} "
       read -e password2
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
