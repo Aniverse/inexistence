@@ -350,9 +350,8 @@ function _warning() {
   echo " 2. Install Flexget, rclone, BBR and some other softwares"
   echo " 3. Do some system tweaks"
   echo
-  echo "${white}For more information, please refer the guide"
-  echo "Press ${bailvse}ENTER${normal} ${bold}to continue"
-  echo "Press ${on_red}Ctrl+C${normal} ${bold}to exit${normal}"
+  echo "${white}For more information, please refer the README on GitHub"
+  echo "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue"
   read input
 # echo -ne "${guangbiao}"
 
@@ -399,9 +398,14 @@ function _askusername(){
     confirm_name=1
     while [ $confirm_name = 1 ]
       do
-        read -ep "${bold}Enter username: ${blue}" answerusername
+
+        while [[ $answerusername = "" ]]; do
+            read -ep "${white}${bold}Enter username: ${blue}" answerusername
+        done
+
         addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
+
         if _confirmation; then
             confirm_name=0
         fi
@@ -427,7 +431,7 @@ local password2
 exec 3>&1 >/dev/tty
 
 echo
-echo "${bold}${yellow}The script needs a password, it will be used for both Unix and WebUI${white} "
+echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
 echo "The password must consist of characters and numbers and at least 9 chars"
 
 while [ -z $localpass ]
@@ -437,19 +441,27 @@ do
   read -e password1
 
   if [ -z $password1 ]; then
+
       exitvalue=1
       localpass=$(genpasswd)
-      echo "${bold}${white}Password sets to ${blue}$localpass${normal}"
+      echo "${bold}${white}Random password sets to ${blue}$localpass${normal}"
+
   elif [ ${#password1} -lt 9 ]; then
+
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
+
   else
-      echo -n "${white}${bold}Enter the new password again${blue} "
-      read -e password2
+
+      while [[ $password2 = "" ]]; do
+          read -ep "${white}${bold}Enter the new password again${blue} " password2
+      done
+
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
       else
           localpass=$password1
       fi
+
   fi
 
 done
@@ -743,21 +755,40 @@ function _askdelt() {
   else
 
       echo
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}   (IPv4/IPv6 Dual Stack)"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (IPv4/IPv6 Dual Stack)"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}    (NOT recommended)"
-      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white} (Default)"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
+      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
-      read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want to be used for Deluge?${normal} (Default ${cyan}04${normal}): " version
+      
 
-      case $version in
-          01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
-          02 | 2) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
-          03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
-          04 | 4 | "") DELTVERSION='Install from repo' ;;
-          *) DELTVERSION='Install from repo' ;;
-      esac
+      if [ $CODENAME = stretch ]; then
+
+          read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want?${normal} (Default ${cyan}02${normal}): " version
+
+          case $version in
+              01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
+              02 | 2 | "") DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+              03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
+              04 | 4) DELTVERSION='Install from repo' ;;
+              *) DELTVERSION=DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+          esac
+
+      else
+
+          read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want?${normal} (Default ${cyan}04${normal}): " version
+
+          case $version in
+              01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
+              02 | 2) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+              03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
+              04 | 4 | "") DELTVERSION='Install from repo' ;;
+              *) DELTVERSION='Install from repo' ;;
+          esac
+
+      fi
+
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
