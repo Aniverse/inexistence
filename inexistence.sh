@@ -436,20 +436,19 @@ echo "The password must consist of characters and numbers and at least 9 chars"
 while [ -z $localpass ]
 do
 
-  stty -echo
-  read -ep "${bold}Please enter the new password, or leave blank to generate a random one${normal}" password1
-  stty echo
+  echo "${bold}Please enter the new password, or leave blank to generate a random one${normal}"
+  read -e password1
 
   if [ -z $password1 ]; then
       echo "${bold}Random password generated${normal} "
       exitvalue=1
       localpass=$(genpasswd)
+      echo "${bold}Password sets to ${blue}$localpass${normal}"
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
-      stty -echo
-      read -ep "${bold}Enter the new password again${normal} " password2
-      stty echo
+      echo "${bold}Enter the new password again${normal} "
+      read -e password2
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
       else
@@ -461,7 +460,6 @@ done
 
 ANPASS=$localpass
 exec >&3-
-echo "${bold}Password sets to ${blue}$localpass${normal}"
 echo
 return $exitvalue
 
