@@ -1,10 +1,7 @@
 > 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
-> 作者从来没有学过 Linux，从来没有学过任何编程语言  
-> 那你问我是怎么写出来的？  
-> 盒子用久了自然而然地就会了一些皮毛的东西，此外也有很多现成的脚本可以参考，碰到不懂的也可以问谷歌  
+> 作者是个菜鸡，本脚本的主要内容是抄袭 + 百度谷歌得来的  
   
-  
-本介绍的内容不会及时更新；目前最新的脚本在界面上和截图里有一点不一样  
+本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
 如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
 -------------------
@@ -19,7 +16,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
 
 检查是否 root，检查系统是不是 `Ubuntu 16.04、Debian 8、Debian 9`  
-如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出
+如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出  
 
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
@@ -35,7 +32,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 下面四大客户端的安装，指定版本的一般都是编译安装，安装速度相对较慢但可以任选版本  
 选择 `30` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
-选择 `40` 是从 PPA 安装  **( 注意：不支持 Debian 系统 )**  同样无法指定版本不过一般软件都是最新版  
+选择 `40` 是从 PPA 安装  **( 不支持 Debian 系统所以自动隐藏了 )**  同样无法指定版本不过一般软件都是最新版  
 选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 
 4. **qBittorrent**  
