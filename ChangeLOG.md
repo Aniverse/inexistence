@@ -19,14 +19,35 @@
 
 
 
+### 2018.01.23
+
+`inexistence 0.9.4`  
+1. **Bump to 0.9.4**  
+2. 部分输出文字调整
+3. ** 将 lsb-release 和 virt-what 的安装移到了后面 **  
+用很笨的办法直接从系统里检测系统版本，同时也不检测虚拟化技术了  
+wget 和 curl 加入了是否安装的检测，没安装再执行 apt-get -y install  
+同时考虑加入检测是否 64位 和 x86 架构的问题……
+4. qBittorrent 选项调整  
+Debian 8 下不显示 qb 4.0 的选项，Debian 9 增加 4.0.2 的选项  
+将不支持编译的提示增加到了 Ubuntu 16.04 （有待进一步测试）  
+5. ** qBittorrent 安装调整 **  
+Debian 9 下仍然选择编译安装 lt 1.0.11，因为 1.1.1 似乎有问题编译不了  
+不编译 lt 的情况也都增加了 zlib1g-dev 这个包  
+6. 无关紧要的脚本内部修正  
+不使用 relno，全部用 CODENAME，此外增加了一些换行  
+libtorrent1/2改成de/qb（checkinstall后包名也会变）  
+7. rclone 加入了判断系统架构的选项，加了 log 输出  
+但其实也就是 x86 和 x64 而已
+
+`readme 0.5.0.1`  
+1. emmmm  
 
 
 
 
 
-
-
-### 2018.01.22
+### 2018.01.23
 
 `inexistence 0.9.3`  
 1. **运行前先检测一次系统版本，不符合条件的话直接退出（不使用 lsb-release）**  
