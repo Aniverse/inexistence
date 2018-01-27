@@ -64,8 +64,6 @@ function _check_install_1(){
   [[ "${client_name}" == "deluged" ]] && client_name=de
   [[ "${client_name}" == "rtorrent" ]] && client_name=rt
   [[ "${client_name}" == "flexget" ]] && client_name=flex
-  [[ "${client_name}" == "virt-what" ]] && client_name=virtwhat
-  [[ "${client_name}" == "lsb_release" ]] && client_name=lsb
 
   if [[ -a $client_location ]]; then
       eval "${client_name}"_installed=Yes
@@ -75,7 +73,7 @@ function _check_install_1(){
 }
 
 function _check_install_2(){
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone virt-what lsb_release smartctl irssi ffmepg mediainfo wget; do
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmepg mediainfo wget; do
     client_name=$apps; _check_install_1
 done
 }
@@ -286,7 +284,7 @@ fi
   _check_install_2
   _client_version_check
 
-  virtua=$(virt-what) 2>/dev/null
+# virtua=$(virt-what) 2>/dev/null
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
   cpucores=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
@@ -300,23 +298,23 @@ fi
 
   clear
 
-  wget --no-check-certificate --timeout=5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/03.Files/inexistence.logo.1
+  wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/03.Files/inexistence.logo.1
 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
 
   echo -ne "  IPv4    : "
   if [[ "${serveripv4}" ]]; then
-      echo -e "${cyan}$serveripv4${normal}"
+      echo "${cyan}$serveripv4${normal}"
   else
-      echo -e "${cyan}No Public IPv4 Address Found${normal}"
+      echo "${cyan}No Public IPv4 Address Found${normal}"
   fi
 
   echo -ne "  IPv6    : "
   if [[ "${serveripv6}" ]]; then
-      echo -e "${cyan}$serveripv6${normal}"
+      echo "${cyan}$serveripv6${normal}"
   else
-      echo -e "${cyan}No IPv6 Address Found${normal}"
+      echo "${cyan}No IPv6 Address Found${normal}"
   fi
 
   echo "  CPU     : ${cyan}$cname${normal}"
@@ -328,9 +326,9 @@ fi
 
 # echo -ne "  Virt    : "
 # if [[ "${virtua}" ]]; then
-#     echo -e "${cyan}$virtua${normal}"
+#     echo "${cyan}$virtua${normal}"
 # else
-#     echo -e "${cyan}No Virt${normal}"
+#     echo "${cyan}No Virt${normal}"
 # fi
 
   echo
