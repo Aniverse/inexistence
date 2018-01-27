@@ -402,7 +402,7 @@ function _askusername(){
     confirm_name=1
     while [ $confirm_name = 1 ]
       do
-        read -ep "${bold}Enter user name: ${normal}${blue}${bold}" answerusername
+        read -ep "${bold}Enter user name: ${blue}" answerusername
         addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that user name is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
         if _confirmation; then
@@ -430,24 +430,24 @@ local password2
 exec 3>&1 >/dev/tty
 
 echo
-echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
+echo "${bold}${yellow}The script needs a password, it will be used for both Unix and WebUI${white} "
 echo "The password must consist of characters and numbers and at least 9 chars"
 
 while [ -z $localpass ]
 do
 
-  echo "${bold}Please enter the new password, or leave blank to generate a random one${normal}"
+  echo -n "${bold}Please enter the new password, or leave blank to generate a random one${blue} "
   read -e password1
 
   if [ -z $password1 ]; then
-      echo "${bold}Random password generated${normal} "
+      echo "${bold}${white}Random password generated"
       exitvalue=1
       localpass=$(genpasswd)
-      echo "${bold}Password sets to ${blue}$localpass${normal}"
+      echo "Password sets to ${blue}$localpass${normal}"
   elif [ ${#password1} -lt 9 ]; then
       echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
   else
-      echo "${bold}Enter the new password again${normal} "
+      echo -n "${bold}Enter the new password again${blue} "
       read -e password2
       if [ $password1 != $password2 ]; then
           echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
