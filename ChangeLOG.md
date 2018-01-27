@@ -19,14 +19,14 @@
 
 
 
-### 2018.01.23
+### 2018.01.27
 
 `inexistence 0.9.4`  
 1. **Bump to 0.9.4**  
 2. 部分输出文字调整
 3. ** 将 lsb-release 和 virt-what 的安装移到了后面 **  
 用很笨的办法直接从系统里检测系统版本，同时也不检测虚拟化技术了  
-wget 和 curl 加入了是否安装的检测，没安装再执行 apt-get -y install  
+wget 加入了是否安装的检测，没安装的话再执行安装  
 同时考虑加入检测是否 64位 和 x86 架构的问题……
 4. qBittorrent 选项调整  
 Debian 8 下不显示 qb 4.0 的选项，Debian 9 增加 4.0.2 的选项  
@@ -38,10 +38,17 @@ Debian 9 下仍然选择编译安装 lt 1.0.11，因为 1.1.1 似乎有问题编
 不使用 relno，全部用 CODENAME，此外增加了一些换行  
 libtorrent1/2改成de/qb（checkinstall后包名也会变）  
 7. rclone 加入了判断系统架构的选项，加了 log 输出  
-但其实也就是 x86 和 x64 而已
+但其实也就是 x86 和 x64 而已  
+8. 不使用 curl 检测 IP 地址，只用 wget  
+在安装第一步还是尽量少安装一点，有些系统默认不带 curl 的
 
-`readme 0.5.0.1`  
-1. emmmm  
+`readme 0.5.1`  
+1. 无关紧要的小幅改动  
+
+`ChangeLOG 0.0.2`  
+1. 20180104-20180127  
+
+
 
 
 
@@ -216,7 +223,7 @@ libtorrent1/2改成de/qb（checkinstall后包名也会变）
 `ipv6 & xiansu`
 1. 改进判断默认网卡的方式  
 先是识别出本机 IPv4 地址，然后再在 ifconfig 的结果里找包含这个地址的上一排里的网卡名  
-也不知道靠不靠谱，感觉大概比之前的靠谱吧
+也不知道靠不靠谱，感觉大概比之前的靠谱吧  
 
 
 
@@ -237,7 +244,10 @@ libtorrent1/2改成de/qb（checkinstall后包名也会变）
 
 
 
+### 2017.10.XX
 
+`inexistence 0.0.1`  
+1. 第一个版本，只能安装 qBittorrent 一个软件
 
 
 
