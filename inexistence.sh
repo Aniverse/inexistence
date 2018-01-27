@@ -236,17 +236,11 @@ OPSYDE7=`echo $opsy | grep 'Debian' | grep '7'`        ; OPSYDE8=`echo $opsy | g
 # fi
 
 
-  # 装 wget 和 curl 以防万一
+  # 装 wget 以防万一，不屏蔽错误输出
 
-if [[ ! -n `command -v wget` ]] && [[ ! -n `command -v wget` ]]; then
-    apt-get install -y wget curl
-    echo "${bold}Now the script is installing ${yellow}wget${white} and ${yellow}curl${white} ...${normal}"
-elif [[ ! -n `command -v wget` ]]; then
-    apt-get install -y wget
+if [[ ! -n `command -v wget` ]]; then
     echo "${bold}Now the script is installing ${yellow}wget${white} ...${normal}"
-elif [[ ! -n `command -v curl` ]]; then
-    apt-get install -y curl
-    echo "${bold}Now the script is installing ${yellow}curl${white} ...${normal}"
+    apt-get install -y wget >> /dev/null
 fi
 
 [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget or curl, please check it and rerun once it is resolved${normal}\n" && exit 1
@@ -259,14 +253,14 @@ fi
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-  isInternalIpAddress "$serveripv4" || serveripv4=$(wget --no-check-certificate -t1 --timeout=7 -qO- http://v4.ipv6-test.com/api/myip.php)
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ip.cn | awk -F'：' '{print $2}' | awk '{print $1}')
-  isValidIpAddress "$serveripv4" || serveripv4=$(curl -s --connect-timeout 7 ifconfig.me)
+  isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
-  serveripv6=$( wget --no-check-certificate -qO- -t1 -T5 ipv6.icanhazip.com )
+  serveripv6=$( wget -qO- -t1 -T5 ipv6.icanhazip.com )
 # wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
 
@@ -1346,10 +1340,10 @@ _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get -y install wget curl
+apt-get -y install wget
 [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
-apt-get install -y python ntpdate sysstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude smartmontools ruby screen vnstat git sudo zsh virt-what lsb-release
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl
 
 }
 
