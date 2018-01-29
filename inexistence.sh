@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=094
-INEXISTENCEDATE=20180127
+INEXISTENCEDATE=20180129
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -191,7 +191,17 @@ function _intro() {
 
   # 检查系统是否为支持的系统
 
-# cat /etc/os-release，刚发现这玩意儿，瞬间感觉我下面写的一堆东西和 SB 一样…… 算了不管了 (╯‵□′)╯︵┻━┻
+# cat /etc/os-release，刚发现这玩意儿，瞬间感觉我下面写的一堆东西和 SB 一样 ……
+# 先放着再说
+
+# ubosversion=`grep -oE  "[0-9.]+" /etc/issue`
+# deosversion=`cat /etc/debian_version`
+
+# 不是 Ubuntu 或 Debian 的就不管了，反正不支持……
+# DISTRO=`awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release`
+# CODENAME=`cat /etc/os-release | grep "(" | cut -d '(' -f2 | cut -d ')' -f1 | head -n1 | awk '{print $1}' | tr '[A-Z]' '[a-z]'`
+# [[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
+
 
 opsy=$( get_opsy )
 OPSYDEBIAN=`echo $opsy | egrep 'Ubuntu|Debian'`
@@ -878,6 +888,7 @@ function _asktr() {
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
+  echo -e "${green}04)${white} Transmission ${cyan}2.93${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Transmission from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
@@ -891,6 +902,7 @@ function _asktr() {
       02 | 2) TRVERSION=2.82 ;;
       03 | 3) TRVERSION=2.84 ;;
       04 | 4) TRVERSION=2.92 ;;
+      05 | 5) TRVERSION=2.93 ;;
       30) _inputversion && TRVERSION="${inputversion}"  ;;
       40 | "") TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
@@ -1744,6 +1756,7 @@ else
     cd transmission
     git submodule update --init
     sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+    sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     ./autogen.sh
     ./configure --prefix=/usr
     make -j${MAXCPUS}
