@@ -775,7 +775,7 @@ function _askdelt() {
 
       if [ $CODENAME = stretch ]; then
 
-          read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want?${normal} (Default ${cyan}02${normal}): " version
+          read -ep "${bold}${yellow}What version of libtorrent do you want?${normal} (Default ${cyan}02${normal}): " version
 
           case $version in
               01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
@@ -787,7 +787,7 @@ function _askdelt() {
 
       else
 
-          read -ep "${bold}${yellow}What version of libtorrent-rasterbar do you want?${normal} (Default ${cyan}04${normal}): " version
+          read -ep "${bold}${yellow}What version of libtorrent do you want?${normal} (Default ${cyan}04${normal}): " version
 
           case $version in
               01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
@@ -888,7 +888,7 @@ function _asktr() {
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
   echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}04)${white} Transmission ${cyan}2.93${white}"
+  echo -e "${green}05)${white} Transmission ${cyan}2.93${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Transmission from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
@@ -1052,22 +1052,24 @@ function _askvnc() {
 
 
 
-# --------------------- 询问是否需要修改一些设置 --------------------- #
+# --------------------- 询问是否安装发种工具箱 --------------------- #
+# 目前不启用
 
-function _asktweaks() {
+function _asktools() {
 
-  read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, mediainfo ..."
+  read -ep "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
   case $responce in
-      [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
-      [nN] | [nN][Oo]) tweaks=No ;;
-      *) tweaks=Yes ;;
+      [yY] | [yY][Ee][Ss]) tools=Yes ;;
+      [nN] | [nN][Oo] | "" ) tools=No ;;
+      *) tools=No ;;
   esac
 
-  if [ $tweaks == "Yes" ]; then
-      echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
+  if [ $tools == "Yes" ]; then
+      echo "${bold}${baiqingse}Uploading Toolbox${normal} ${bold}will be installed${normal}"
   else
-      echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
+      echo "${baizise}Uploading Toolbox will ${baihongse}not${baizise} be configured${normal}"
   fi
 
   echo
@@ -1077,31 +1079,27 @@ function _asktweaks() {
 
 
 
+
 # --------------------- BBR 相关 --------------------- #
 
-# 检查是否已经启用BBR
+# 检查是否已经启用BBR、BBR 魔改版
 function check_bbr_status() {
-
-    export bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
-
-    if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
-        bbrinuse=Yes
-    else
-        bbrinuse=No
-    fi
-
+export bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
+if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
+    bbrinuse=Yes
+else
+    bbrinuse=No
+fi
 }
 
 
 # 检查系统内核版本是否大于4.9
 function check_kernel_version() {
-
-  if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
-      bbrkernel=Yes
-  else
-      bbrkernel=No
-  fi
-
+if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
+    bbrkernel=Yes
+else
+    bbrkernel=No
+fi
 }
 
 
@@ -1122,7 +1120,7 @@ function _askbbr() {
       if [[ "${bbrkernel}" == "Yes" ]]; then
 
           echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
-          read -ep "${bold}${yellow}Would you like to use BBR as default congestion control algorithm? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+          read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
 
           case $responce in
               [yY] | [yY][Ee][Ss] | "" ) bbr=Yes ;;
@@ -1133,9 +1131,9 @@ function _askbbr() {
       else
 
           echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
-          echo -e "A new kernel will be installed if BBR is to be installed"
+          echo -e "A latest kernel will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
-          read -ep "${bold}${yellow}Would you like to install latest kernel and enable BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+          read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
           case $responce in
               [yY] | [yY][Ee][Ss]) bbr=Yes ;;
@@ -1160,29 +1158,30 @@ function _askbbr() {
 
 
 
-# --------------------- 询问是否安装发种工具箱 --------------------- #
-# 目前不启用
 
-function _asktools() {
+# --------------------- 询问是否需要修改一些设置 --------------------- #
 
-  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, ffmpeg, mediainfo ..."
-  read -ep "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+function _asktweaks() {
+
+  read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
 
   case $responce in
-      [yY] | [yY][Ee][Ss]) tools=Yes ;;
-      [nN] | [nN][Oo] | "" ) tools=No ;;
-      *) tools=No ;;
+      [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
+      [nN] | [nN][Oo]) tweaks=No ;;
+      *) tweaks=Yes ;;
   esac
 
-  if [ $tools == "Yes" ]; then
-      echo "${bold}${baiqingse}Uploading Toolbox${normal} ${bold}will be installed${normal}"
+  if [ $tweaks == "Yes" ]; then
+      echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
   else
-      echo "${baizise}Uploading Toolbox will ${baihongse}not${baizise} be configured${normal}"
+      echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
   fi
 
   echo
 
 }
+
+
 
 
 
@@ -1375,10 +1374,8 @@ _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get -y install wget
-[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
-
 apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl
+[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 }
 
@@ -1444,9 +1441,6 @@ fi
 [[ "${SysLTDEVer4}" == "${DeLTVer4}" ]] && SameLT=Yes
 
 # 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
-
-
-
 
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
@@ -1714,8 +1708,8 @@ cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 systemctl daemon-reload
 
-  cd
-  echo;echo;echo;echo;echo;echo "  RTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+cd
+echo;echo;echo;echo;echo;echo "  RTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
 
