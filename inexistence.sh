@@ -1410,9 +1410,9 @@ InstalledLTVer2=`echo $InstalledLTVer0 | awk '{print $2}'`
 InstalledLTVer3=`echo $InstalledLTVer0 | awk '{print $3}'`
 InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
 
-# 检查已编译的 libtorrent-rasterbar 版本（只能检查到用 checkinstall 安装且写入了版本号的）
-BuildedLT=`dpkg -l | egrep "libtorrent|checkinstall"`
-BuildedLTVer0=`dpkg -l | egrep "libtorrent|checkinstall" | awk '{print $3}' | sed 's/[^0-9]/ /g'`
+# 检查已编译的 libtorrent-rasterbar 版本（只能检查到之前用脚本 checkinstall 安装且写入了版本号的）
+BuildedLT=`dpkg -l | egrep "libtorrentde"`
+BuildedLTVer0=`dpkg -l | egrep "libtorrentde" | awk '{print $3}' | sed 's/[^0-9]/ /g'`
 BuildedLTVer1=`echo $BuildedLTVer0 | awk '{print $1}'`
 BuildedLTVer2=`echo $BuildedLTVer0 | awk '{print $2}'`
 BuildedLTVer3=`echo $BuildedLTVer0 | awk '{print $3}'`
@@ -1442,6 +1442,10 @@ fi
 
 # 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
 
+# 测试用的
+# echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4
+# [[ $DeQbLT == Yes ]] && [[ $BuildedLTVer4 ]] && echo 123
+
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
@@ -1459,7 +1463,7 @@ fi
       # 1. 不需要再安装 libtorrent-rasterbar
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
 
-      if [[ ! $DeQbLT == Yes && -a $BuildedLT ]]; then
+      if [[ $DeQbLT == Yes ]] && [[ $BuildedLTVer4 ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev
 
@@ -1469,7 +1473,7 @@ fi
       #### Ubuntu 16.04 或 Debian9，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本
       ################ 还有一个情况，Ubuntu16.04或者Debian9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再编译一次算了……
 
-      elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+      elif [[ $SysQbLT == Yes && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev
 
@@ -1578,7 +1582,7 @@ function _installde() {
           ./autotool.sh
           ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
           make -j${MAXCPUS}
-          checkinstall -y --pkgversion=${LTPKG}
+          checkinstall -y --pkgversion=${DELTPKG}
           ldconfig
           echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -2161,10 +2165,17 @@ alias ll="ls -hAlvZ --color --group-directories-first"
 alias wget="wget --no-check-certificate"
 alias tree="tree --dirsfirst"
 alias gclone="git clone --depth=1"
-alias xuanxiang="clear && cat /etc/inexistence/01.Log/installed.lock && echo"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
+
+alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
+alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
+alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
+alias jiaobenrt="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
+alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
+alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
 
 ################## Seedbox Script Mod END ##################
 EOF
