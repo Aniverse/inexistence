@@ -1394,21 +1394,21 @@ SysLTDEVer0=`apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{
 SysLTDEVer1=`echo $SysLTDEVer0 | awk '{print $1}'`
 SysLTDEVer2=`echo $SysLTDEVer0 | awk '{print $2}'`
 SysLTDEVer3=`echo $SysLTDEVer0 | awk '{print $3}'`
-SysLTDEVer4=`echo ${SysLTDEVer1}.${SysLTDEVer2}.${SysLTDEVer3}`
+[[ $SysLTDEVer0 ]] && SysLTDEVer4=`echo ${SysLTDEVer1}.${SysLTDEVer2}.${SysLTDEVer3}`
 
 # 检查 python-libtorrent 版本
 PyLTVer0=`dpkg -l | grep python-libtorrent | awk '{print $3}' | sed 's/[^0-9]/ /g'`
 PyLTVer1=`echo $PyLTVer0 | awk '{print $1}'`
 PyLTVer2=`echo $PyLTVer0 | awk '{print $2}'`
 PyLTVer3=`echo $PyLTVer0 | awk '{print $3}'`
-PyLTVer4=`echo ${PyLTVer1}.${PyLTVer2}.${PyLTVer3}`
+[[ $PyLTVer0 ]] && PyLTVer4=`echo ${PyLTVer1}.${PyLTVer2}.${PyLTVer3}`
 
 # 检查已安装的 libtorrent-rasterbar 版本
 InstalledLTVer0=`dpkg -l | egrep libtorrent-rasterbar[789] | awk '{print $3}' | sed 's/[^0-9]/ /g'`
 InstalledLTVer1=`echo $InstalledLTVer0 | awk '{print $1}'`
 InstalledLTVer2=`echo $InstalledLTVer0 | awk '{print $2}'`
 InstalledLTVer3=`echo $InstalledLTVer0 | awk '{print $3}'`
-InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
+[[ $InstalledLTVer0 ]] && InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
 
 # 检查已编译的 libtorrent-rasterbar 版本（只能检查到之前用脚本 checkinstall 安装且写入了版本号的）
 BuildedLT=`dpkg -l | egrep "libtorrentde"`
@@ -1416,15 +1416,15 @@ BuildedLTVer0=`dpkg -l | egrep "libtorrentde" | awk '{print $3}' | sed 's/[^0-9]
 BuildedLTVer1=`echo $BuildedLTVer0 | awk '{print $1}'`
 BuildedLTVer2=`echo $BuildedLTVer0 | awk '{print $2}'`
 BuildedLTVer3=`echo $BuildedLTVer0 | awk '{print $3}'`
-BuildedLTVer4=`echo ${BuildedLTVer1}.${BuildedLTVer2}.${BuildedLTVer3}`
+[[ $BuildedLT ]] && BuildedLTVer4=`echo ${BuildedLTVer1}.${BuildedLTVer2}.${BuildedLTVer3}`
 
 # 检查当前 Deluge 用的 libtorrent-rasterbar 版本（当之前安装 Deluge 是编译 libtorrent 的时候，这里的版本可能和 python-libtorrent 不一样）
 if [[ -a $( command -v deluged ) ]]; then
-    DeLTVer0=`deluged --version | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+    DeLTVer0=`deluged --version 2>/dev/null | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
     DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
     DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
     DeLTVer3=`echo $DeLTVer0 | awk '{print $3}'`
-    DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
+    [[ $DeLTVer0 ]] && DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
 fi
 
 [[ "${SysLTDEVer1}" == 0 ]] && SysQbLT=No
@@ -1442,9 +1442,9 @@ fi
 
 # 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
 
-# 测试用的
-# echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4
-# [[ $DeQbLT == Yes ]] && [[ $BuildedLTVer4 ]] && echo 123
+# 测试用的，在 Log 里也可以看
+echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4
+# [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && echo 123
 
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
@@ -1463,7 +1463,7 @@ fi
       # 1. 不需要再安装 libtorrent-rasterbar
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
 
-      if [[ $DeQbLT == Yes ]] && [[ $BuildedLTVer4 ]]; then
+      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev
 
@@ -1492,14 +1492,14 @@ fi
 
           apt-get purge -y libtorrent-rasterbar-dev
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall
-          cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent libtorrentqb
-          cd libtorrentqb
+          cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent
+          cd libtorrent
           ./autotool.sh
           ./configure --disable-debug --enable-encryption --with-libgeoip=system
           make clean
           make -j${MAXCPUS}
-          make install
-          #checkinstall -y --pkgversion=1.0.12(这么装完以后包名就是libtorrentqb)
+          #make install
+          checkinstall -y --pkgversion=1.0.12
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1512,7 +1512,7 @@ fi
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
       make install
-      cd;rm -rf libtorrentqb qBittorrent
+      cd;rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
   fi
