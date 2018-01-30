@@ -259,7 +259,8 @@ fi
 
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
-  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+# serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
+  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}' )
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
@@ -571,7 +572,7 @@ function _askqbt() {
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-  read -ep "${bold}${yellow}What version of qBittorrent do you want?${normal} (Default ${cyan}05${normal}): " version
+  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}05${normal}): " version
 
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
@@ -672,7 +673,7 @@ function _askdeluge() {
   [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
   [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
   [[ $DISTRO == Debian ]] && dedefaultnum=05
-  read -ep "${bold}${yellow}What version of Deluge do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
+  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
   if [[ $DISTRO == Ubuntu ]]; then
 
@@ -765,9 +766,9 @@ function _askdelt() {
   else
 
       echo
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (IPv4/IPv6 Dual Stack)"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
       echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
@@ -775,7 +776,7 @@ function _askdelt() {
 
       if [ $CODENAME = stretch ]; then
 
-          read -ep "${bold}${yellow}What version of libtorrent do you want?${normal} (Default ${cyan}02${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
 
           case $version in
               01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
@@ -787,7 +788,7 @@ function _askdelt() {
 
       else
 
-          read -ep "${bold}${yellow}What version of libtorrent do you want?${normal} (Default ${cyan}04${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
 
           case $version in
               01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
@@ -840,7 +841,7 @@ function _askrt() {
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
-  read -ep "${bold}${yellow}What version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): " version
+  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
 
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
@@ -895,7 +896,7 @@ function _asktr() {
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
-  read -ep "${bold}${yellow}What version of Transmission do you want?${normal} (Default ${cyan}40${normal}): " version
+  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
   case $version in
       01 | 1) TRVERSION=2.77 ;;
@@ -1343,6 +1344,9 @@ function _setsources() {
 # rm -rf /var/lib/apt/lists/partial/*
 # apt-get -y upgrade
 
+# 关闭交互
+export DEBIAN_FRONTEND=noninteractive
+
 if [ $aptsources == "Yes" ]; then
 
     if [[ $DISTRO == Debian ]]; then
@@ -1374,8 +1378,11 @@ _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall
 [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
+
+sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc
+sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
 
 }
 
@@ -1678,6 +1685,7 @@ function _installrt() {
 
 wget --no-check-certificate --timeout=10 -q https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rarlinux-x64-5.5.0.tar.gz
 tar zxf rarlinux-x64-5.5.0.tar.gz 2>/dev/null
+chmod -R +x rar
 cp -f rar/rar /usr/bin/rar
 cp -f rar/unrar /usr/bin/unrar
 rm -rf rar rarlinux-x64-5.5.0.tar.gz
