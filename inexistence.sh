@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=094
-INEXISTENCEDATE=20180129
+INEXISTENCEDATE=20180130
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -1382,7 +1382,7 @@ apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toil
 [[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc
-sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
+# sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
 
 }
 
@@ -1748,25 +1748,29 @@ else
 
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git
     apt-get install -y openssl
+    [[ "$CODENAME" = "stretch" ]] && apt-get install -y libssl1.0-dev
     cd; wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xvf release-2.1.8-stable.tar.gz
-    cd libevent-release-2.1.8-stable
+    mv libevent-release-2.1.8-stable libevent
+    cd libevent
     ./autogen.sh
     ./configure
     make -j${MAXCPUS}
     make install
-    cd; rm -rf libevent-release-2.1.8-stable release-2.1.8-stable.tar.gz
+#   checkinstall -y --pkgversion=2.1.8
+    cd; rm -rf libevent release-2.1.8-stable.tar.gz
     ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
 
     git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
     cd transmission
     git submodule update --init
-    sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-    sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     ./autogen.sh
     ./configure --prefix=/usr
+    sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+#   sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     make -j${MAXCPUS}
-    make install
+#   make install
+    checkinstall -y --pkgversion=$TRVERSION
     cd; rm -rf transmission
 
 fi
