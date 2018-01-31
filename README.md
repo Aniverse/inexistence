@@ -14,16 +14,16 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 #### 安装介绍
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
+
 检查是否 root，检查系统是不是 `Ubuntu 16.04、Debian 8、Debian 9`  
 如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出  
 
-![错误界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
-
-
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
+
 显示系统信息以及注意事项  
 
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
+
 
 1. **账号密码**  
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
@@ -100,9 +100,12 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 
 ![安装完成界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.05.png)
+
 安装完成后会输出各类 WebUI 的网址，以及本次安装花了多少时间，然后问你是否重启系统（默认是不重启）  
 
 ![Web界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.06.png)
+
+最后打开浏览器检查下各客户端是否都在正常运行  
 
 
 #### To Do List
