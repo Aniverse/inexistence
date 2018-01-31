@@ -14,11 +14,16 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 #### 安装介绍
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
-
 检查是否 root，检查系统是不是 `Ubuntu 16.04、Debian 8、Debian 9`  
 如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出  
 
-![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
+![错误界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
+
+
+![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
+显示系统信息以及注意事项  
+
+![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
 
 1. **账号密码**  
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
@@ -67,7 +72,6 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 8. **Transmission**  
 Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
-Debian 9 下由于编译安装不成功，因此强制指定从仓库里安装 2.92 版  
 此外还会安装修改版的 WebUI，更方便易用  
 
 9. **Flexget**  
@@ -91,15 +95,15 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - 提高系统文件打开数  
 - 修改 screen 设置  
 
-![确认信息是否有误](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
-
+13. **确认信息**  
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 
-![安装完成](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
 
+![安装完成界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.05.png)
 安装完成后会输出各类 WebUI 的网址，以及本次安装花了多少时间，然后问你是否重启系统（默认是不重启）  
 
-在我的10欧（i3 2100／4GB／2×1TB HW RAID0）上安装这些花了16分钟。感觉比自己手动编译安装还是更省时间的  
+![Web界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.06.png)
+
 
 #### To Do List
 
@@ -109,8 +113,6 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 安装 ffmepg、mediainfo、mkvtoolnix  
 - **Flexget 模板**  
 补充更多的站点预设  
-- **公网 IP 地址检测**  
-脚本检查公网 IPv4 地址失败后应要求用户手动输入地址  
 - **检查安装完成后客户端是否正在运行**  
 
 #### Under Consideration
@@ -120,9 +122,8 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### Known Issues
 
-- Transmission 在 Debian 9 下无法编译安装  
 - qBittorrent 4.0 及以后的版本的编译安装只在 Debian 9 上成功  
-- 没有检查用户输入的账号密码的有效性  
+- 没有检查用户输入的账号、密码的有效性  
 
 -------------------
 ## BD Upload
@@ -203,6 +204,11 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 
 #### To Do List
 
+- **完善对于输入路径的判断**  
+对于文件夹，检查是不是里面包含着单个 BDISO，或者包不包含 BDMV 这个文件夹  
+对于非文件夹，检查文件后缀名是不是 ISO  
+- **增加对于无 root 权限盒子的支持**  
+主要适配 FeralHosting 与 SeedHost  
 - **判断操作是否成功**  
 目前操作中哪一步翻车了也不会有翻车了的提醒    
 - **自动上传到 Google Drive**  
@@ -211,9 +217,8 @@ BDinfo 会有三个文件，一个是原版的，一个是 Main Summary，一个
 
 #### Under Consideration
 
-- **完善对于输入路径的判断**  
-对于文件夹，检查是不是里面包含着单个 BDISO，或者包不包含 BDMV 这个文件夹  
-对于非文件夹，检查文件后缀名是不是 ISO  
+- **判断操作是否成功**  
+目前操作中哪一步翻车了也不会有翻车了的提醒    
 - **自动检测分辨率**  
 自动使用 AR 后的分辨率  
 - **自动上传到 ptpimg**  
