@@ -9,21 +9,49 @@
 
 
 
-### 2018.01.31
 
-没错，我超前写了一次 ChangeLog ……
 
-`inexistence 0.9.4`  
-1. 
+
+
+
+
+### 2018.02.01
+
+`inexistence 0.9.5`  
+1. **Bump to 0.9.5**  
+2. 优化界面  
+3. 修复系统检查无效的问题  
+4. **通过修改脚本开头的 SYSTEMCHECK=1，允许跳过系统检查**  
+只不过 bug 我就不管了  
+5. 修复录入用户名输入 No 后无限循环的问题  
+6. **支持在 Debian 9 下编译 Transmission**  
+7. **支持在 Ubuntu 16.04 下编译 qBittorrent 4.0**  
+8. 使用 checkinstall 代替 make install，并写入对应的版本号  
+9. **尝试使 Transmission 突破 1024 打开数的限制**  
+因为可能存在问题，所以改成了需要手动输入版本的时候才会生效  
+10. 隐藏安装 libtorrent-rasterbar 0.16 分支的选项  
+11. 优化了检查 qb 版本是否大于等于 4.0 的判断方法  
+12. **qBittorrent 安装部分重新编号，增加了可以跳过校验的 3.3.11 版本**  
 
 `IPv6`  
-1. **使用 systemd 代替 ifup ifdown**  
+1. **使用 systemctl reload-or-restart networking.service 代替 ifdown && ifup**  
+应该没问题了吧，心情复杂  
+2. 加上了脚本的修改日期  
 
-`ChangeLOG 0.2.0`  
-1. 20171215-20180130  
-2. 201710XX-20171015  
+`README 0.5.8`  
+1. 随着脚本的更新，修正了一些内容  
+
+`ChangeLOG 0.1.2`  
+1. 超前写日志失败，昨天有事出去了结果没更新，尴尬……  
 
 
+
+
+
+### 2018.01.31
+
+`README 0.5.5`  
+1. **更新了 inexistence 安装脚本的截图**  
 
 
 
