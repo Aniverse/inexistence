@@ -8,7 +8,7 @@
 # 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=094
-INEXISTENCEDATE=20180130
+INEXISTENCEDATE=20180131
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -410,16 +410,19 @@ function _askusername(){
     while [ $confirm_name = 1 ]
       do
 
-        while [[ $answerusername = "" ]]; do
+        while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
+            reinput_name=0
             read -ep "${white}${bold}Enter username: ${blue}" answerusername
         done
 
         addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
 
-        if _confirmation; then
-            confirm_name=0
-        fi
+        read answer
+        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
+                        [nN] | [nN][Oo] ) reinput_name=1 ;;
+                        * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+
       done
 
     ANUSER=$addname
@@ -1502,11 +1505,11 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --disable-debug --enable-encryption --with-libgeoip=system
+          ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
           make clean
           make -j${MAXCPUS}
-          #make install
-          checkinstall -y --pkgversion=1.0.12
+#         make install
+          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.12
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1518,12 +1521,16 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       cd qBittorrent
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
-      make install
+      checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
+#     make install
       cd;rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
   fi
-  
+
+# git cherry-pick db3158c
+# git cherry-pick b271fa9
+
 }
 
 
@@ -1584,12 +1591,12 @@ function _installde() {
       if [ ! $DELTVERSION == "Install from repo" ]; then
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
-          cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent libtorrentde
-          cd libtorrentde
+          cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
+          cd libtorrent
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
+          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system CXXFLAGS=-std=c++11
           make -j${MAXCPUS}
-          checkinstall -y --pkgversion=${DELTPKG}
+          checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
           ldconfig
           echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1605,8 +1612,8 @@ function _installde() {
       cd deluge-"${DEVERSION}"
       python setup.py build
       python setup.py install --install-layout=deb
-      python setup.py install_data
-      cd; rm -rf deluge* libtorrentde
+#     python setup.py install_data
+      cd; rm -rf deluge* libtorrent
 
   fi
 
@@ -1756,17 +1763,18 @@ else
     ./autogen.sh
     ./configure
     make -j${MAXCPUS}
-    make install
-#   checkinstall -y --pkgversion=2.1.8
+#   make install
+    checkinstall -y --pkgversion=2.1.8
     cd; rm -rf libevent release-2.1.8-stable.tar.gz
-    ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+#   ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+    ldconfig
 
     git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
     cd transmission
     git submodule update --init
     ./autogen.sh
     ./configure --prefix=/usr
-    sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+    [[ ! "$TRVERSION" = "2.93" ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
 #   sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     make -j${MAXCPUS}
 #   make install
