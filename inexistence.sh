@@ -253,7 +253,7 @@ if [[ ! -n `command -v wget` ]]; then
     apt-get install -y wget >> /dev/null
 fi
 
-[[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget or curl, please check it and rerun once it is resolved${normal}\n" && exit 1
+[[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 
 # echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
@@ -271,9 +271,10 @@ fi
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
-  serveripv6=$( wget -qO- -t1 -T5 ipv6.icanhazip.com )
-# wangka=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}'`
-# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' )
+  serveripv6=$( wget -qO- -t1 -T8 ipv6.icanhazip.com )
+# [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+# wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n1 )
 
 
   echo "${bold}Checking your server's specification ...${normal}"
@@ -576,12 +577,12 @@ function _askqbt() {
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}05${normal}): " version
+  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
 
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
       02 | 2 | "") QBVERSION=3.3.11 ;;
-      03 | 3) QBVERSION=3.3.11 && QBPATCH=Yes ;;
+      03 | 3) QBVERSION='3.3.11 Skip hash check' && QBPATCH=Yes ;;
       04 | 4) QBVERSION=3.3.14 ;;
       05 | 5) QBVERSION=3.3.16 ;;
       11) QBVERSION=4.0.2 ;;
@@ -845,7 +846,7 @@ function _askrt() {
   case $version in
     01 | 1) RTVERSION=0.9.3 ;;
     02 | 2 | "") RTVERSION=0.9.4 ;;
-    03 | 3) RTVERSION='0.9.4 ipv6 supported' ;;
+    03 | 3) RTVERSION='0.9.4 IPv6 supported' ;;
     04 | 4) RTVERSION=0.9.6 ;;
     99) RTVERSION=No ;;
     *) RTVERSION=0.9.4 ;;
@@ -1510,6 +1511,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       cd; git clone https://github.com/qbittorrent/qBittorrent
       cd qBittorrent
+
+      [[ "${QBVERSION}" == '3.3.11 Skip hash check' ]] && QBVERSION=3.3.11
       git checkout release-${QBVERSION}
 
       if [[ "${QBPATCH}" == "Yes" ]]; then
@@ -1676,7 +1679,7 @@ function _installrt() {
 
   wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
 
-  if [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
+  if [ "${RTVERSION}" == "0.9.4 IPv6 supported" ]; then
       export RTVERSION=0.9.4
       bash rtsetup h5ai-ipv6
   elif [ "${RTVERSION}" == "0.9.4" ]; then
@@ -2059,7 +2062,6 @@ cd
 echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
 }
-
 
 
 
