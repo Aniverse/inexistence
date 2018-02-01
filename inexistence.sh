@@ -597,7 +597,7 @@ function _askqbt() {
       QBVERSION4=Yes
   else
       QBVERSION4=No
-  if
+  fi
 
   if [ "${QBVERSION}" == "No" ]; then
 
