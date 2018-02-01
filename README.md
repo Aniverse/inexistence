@@ -41,8 +41,8 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 
 4. **qBittorrent**  
-选择 4.0 及以后版本的话，在 `Debian 9` 下用编译安装，在 `Ubuntu 16.04` 下从 PPA 安装最新版  
-在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成编译，会强制选择 `3.3.16` 版代替  
+在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成 4.0 及以后版本的编译，会强制选择 `3.3.16` 版代替  
+新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
 
 5. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
@@ -125,7 +125,6 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### Known Issues
 
-- qBittorrent 4.0 及以后的版本的编译安装只在 Debian 9 上成功  
 - 没有检查用户输入的账号、密码的有效性  
 
 -------------------
@@ -348,10 +347,10 @@ jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_
 
 https://github.com/arakasi72/rtinst  
 https://github.com/QuickBox/QB  
-https://github.com/qbittorrent/qBittorrent/wiki  
+https://github.com/qbittorrent/qBittorrent  
 https://flexget.com  
 https://rclone.org/install  
-http://dev.deluge-torrent.org/wiki/UserGuide  
+http://dev.deluge-torrent.org/wiki/UserGuide    
 https://mkvtoolnix.download/downloads.html  
 http://outlyer.net/etiq/projects/vcs  
 https://www.dwhd.org  
@@ -367,4 +366,8 @@ https://github.com/outime/ipv6-dhclient-script
 https://github.com/jxzy199306/ipv6_dhclient_online_net  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
 https://xxxxxx.org/forums/viewtopic?topicid=61434  
+https://tieba.baidu.com/p/5536354634  
+https://tieba.baidu.com/p/5532509017  
+https://tieba.baidu.com/p/5158974574  
+
 
