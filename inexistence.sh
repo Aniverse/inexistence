@@ -333,6 +333,7 @@ fi
   echo "  Disk    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
   echo "  OS      : ${cyan}$DISTRO $RELEASE $CODENAME ($arch) ${normal}"
   echo "  Kernel  : ${cyan}$kern${normal}"
+  echo "  Script  : ${cyan}$INEXISTENCEDATE${normal}"
 
 # echo -ne "  Virt    : "
 # if [[ "${virtua}" ]]; then
@@ -407,8 +408,7 @@ function _askusername(){
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
     confirm_name=1
-    while [ $confirm_name = 1 ]
-      do
+    while [[ $confirm_name = 1 ]]; do
 
         while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
             reinput_name=0
@@ -422,8 +422,9 @@ function _askusername(){
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
                         [nN] | [nN][Oo] ) reinput_name=1 ;;
                         * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+        esac
 
-      done
+    done
 
     ANUSER=$addname
 
@@ -1509,7 +1510,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           make clean
           make -j${MAXCPUS}
 #         make install
-          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.12
+          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
