@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=094
+INEXISTENCEVER=095
 INEXISTENCEDATE=20180201
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
@@ -564,16 +564,11 @@ function _askmt() {
 function _askqbt() {
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
-# echo -e "${green}02)${white} qBittorrent ${cyan}3.3.8${white}"
-# echo -e "${green}03)${white} qBittorrent ${cyan}3.3.9${white}"
-# echo -e "${green}04)${white} qBittorrent ${cyan}3.3.10${white}"
-  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.11${white}"
-# echo -e "${green}06)${white} qBittorrent ${cyan}3.3.12${white}"
-# echo -e "${green}07)${white} qBittorrent ${cyan}3.3.13${white}"
-  echo -e "${green}08)${white} qBittorrent ${cyan}3.3.14${white}"
-# echo -e "${green}09)${white} qBittorrent ${cyan}3.3.15${white}"
-  echo -e "${green}10)${white} qBittorrent ${cyan}3.3.16${white}"
-  [[ $CODENAME = stretch ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
+  echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
+  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.11${white} (Skip Hash Check)"
+  echo -e "${green}04)${white} qBittorrent ${cyan}3.3.14${white}"
+  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.16${white}"
+  [[ ! $CODENAME = jessie ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} qBittorrent from ${cyan}repo${white}"
@@ -585,17 +580,12 @@ function _askqbt() {
 
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
-      02 | 2) QBVERSION=3.3.8 ;;
-      03 | 3) QBVERSION=3.3.9 ;;
-      04 | 4) QBVERSION=3.3.10 ;;
-      05 | 5 | "") QBVERSION=3.3.11 ;;
-      06 | 6) QBVERSION=3.3.12 ;;
-      07 | 7) QBVERSION=3.3.13 ;;
-      08 | 8) QBVERSION=3.3.14 ;;
-      09 | 9) QBVERSION=3.3.15 ;;
-      10) QBVERSION=3.3.16 ;;
-      11) QBVERSION=4.0.2 && QBVERSION4=Yes ;;
-      12) QBVERSION=4.0.3 && QBVERSION4=Yes ;;
+      02 | 2 | "") QBVERSION=3.3.11 ;;
+      03 | 3) QBVERSION=3.3.11 && QBPATCH=Yes ;;
+      04 | 4) QBVERSION=3.3.14 ;;
+      05 | 5) QBVERSION=3.3.16 ;;
+      11) QBVERSION=4.0.2 ;;
+      12) QBVERSION=4.0.3 ;;
       30) _inputversion && QBVERSION="${inputversion}"  ;;
       40) QBVERSION='Install from repo' ;;
       50) QBVERSION='Install from PPA' ;;
@@ -603,23 +593,23 @@ function _askqbt() {
       *) QBVERSION=3.3.11 ;;
   esac
 
+  if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
+      QBVERSION4=Yes
+  else
+      QBVERSION4=No
+  if
+
   if [ "${QBVERSION}" == "No" ]; then
 
       echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
 
   elif [ "${QBVERSION4}" == "Yes" ]; then
 
-      echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white} or ${cyan}Ubuntu 16.04${normal}"
+      echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
 
       if [ $CODENAME = jessie ]; then
-          QBVERSION=3.3.16
-          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead. If you don't like this version,"
-		  echo "press ${baihongse}Ctrl+C${normal}${bold} to exit and run this script again"
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
-      elif [ $CODENAME = xenial ]; then
-          QBVERSION='Install from PPA'
-          echo "${bold}${baiqingse}qBittorrent 4.0.3${normal} ${bold}will be installed from repository${normal}"
-      else
+          QBVERSION=3.3.16 && QBVERSION4=No
+          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
       fi
 
@@ -775,9 +765,9 @@ function _askdelt() {
   else
 
       echo
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white}"
+#     echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (NOT recommended)"
       echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white} (NOT recommended)"
+      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
       echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
@@ -913,7 +903,7 @@ function _asktr() {
       03 | 3) TRVERSION=2.84 ;;
       04 | 4) TRVERSION=2.92 ;;
       05 | 5) TRVERSION=2.93 ;;
-      30) _inputversion && TRVERSION="${inputversion}"  ;;
+      30) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
       40 | "") TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
@@ -1468,7 +1458,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
   else
 
       # 1. 不需要再安装 libtorrent-rasterbar
-      #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar
+      #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
 
       if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
 
@@ -1477,10 +1467,11 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
       # 2. 需要安装 libtorrent-rasterbar-dev
-      #### Ubuntu 16.04 或 Debian9，没装deluge，或者装了 deluge 且用的 libtorrent 是源的版本
-      ################ 还有一个情况，Ubuntu16.04或者Debian9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再编译一次算了……
+      #### Ubuntu 16.04 ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本，且需要装的 qBittorrent 版本不是 4.0 的
+      ################ 还有一个情况，Ubuntu 16.04 或者 Debian 9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再用第三个方案编译一次算了……
+      # 2018.02.01 这个情况一般不会出现了，因为我又隐藏了 libtorrent-rasterbar 0.16 分支的选项……
 
-      elif [[ $SysQbLT == Yes && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+      elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev
 
@@ -1492,8 +1483,11 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
 
       #### 2018.01.26：今天我非常蛋疼地发现，Debian 9 自带的 libtorrent 1.1.1 可能编译 qb 的时候会出问题，所以 Debian 9 还是指定来编译 1.0 的 libtorrent 算了
-      #### 也就是说现在 libtorrent 版本需要是 1.0.6-1.0.11，或 1.1.2-1.2.0 （？？？）
+      #### 也就是说现在 libtorrent 版本需要是 1.0.6-1.0.11，或 1.1.2 及以上 （？？？）
       #### https://github.com/qbittorrent/qBittorrent/issues/6197
+
+      #### 2018.02.01：再补充一个需要安装的情况：Ubuntu 16.04 如果想要安装 qb 4.0 及以后的版本，repo 或 Deluge PPA 的 lt 都不行，必须在 C++11 模式下编译 lt
+      #### https://github.com/qbittorrent/qBittorrent/issues/7863
 
       else
 
@@ -1506,7 +1500,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           make clean
           make -j${MAXCPUS}
 #         make install
-          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
+          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11 || make install
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1514,8 +1508,15 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       fi
 
-      cd; git clone --depth=1 -b release-${QBVERSION} --single-branch https://github.com/qbittorrent/qBittorrent
+      cd; git clone https://github.com/qbittorrent/qBittorrent
       cd qBittorrent
+      git checkout release-${QBVERSION}
+
+      if [[ "${QBPATCH}" == "Yes" ]]; then
+          git cherry-pick db3158c
+          git cherry-pick b271fa9
+      fi
+      
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
       checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
@@ -1525,11 +1526,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
   fi
 
-# git cherry-pick db3158c
-# git cherry-pick b271fa9
-
 }
-
 
 
 
@@ -1578,6 +1575,7 @@ function _installde() {
       apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:deluge-team/ppa
       apt-get update
+#     apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
       apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
       apt-mark hold libtorrent-rasterbar8 python-libtorrent
       apt-get install -y deluged deluge-web
@@ -1766,17 +1764,23 @@ else
 #   ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     ldconfig
 
-    git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
-    cd transmission
-    git submodule update --init
+    if [[ "${TRdefault}" == "No" ]]; then
+        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${TRVERSION}.tar.gz
+        tar xvf transmission-${TRVERSION}.tar.gz
+        cd transmission-${TRVERSION}
+    else
+        git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
+        cd transmission
+        [[ ! "$TRVERSION" = "2.93" ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+#       sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
+    fi
+
     ./autogen.sh
     ./configure --prefix=/usr
-    [[ ! "$TRVERSION" = "2.93" ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-#   sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     make -j${MAXCPUS}
 #   make install
     checkinstall -y --pkgversion=$TRVERSION
-    cd; rm -rf transmission
+    cd; rm -rf transmission*
 
 fi
 
