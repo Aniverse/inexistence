@@ -1,14 +1,12 @@
 ﻿#!/bin/bash
 #
 # https://github.com/Aniverse/inexistence
-# Author: Ruoji
+# Author: Aniverse
 #
-# 四处抄来的，参考资料见 GitHub
-#
-# 无脑root，无脑777权限
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=094
-INEXISTENCEDATE=20180131
+INEXISTENCEDATE=20180201
+SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -158,6 +156,14 @@ echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}"
 }
 
+### 检查系统是否被支持 ###
+function _oscheck() {
+if [[ ! "$SysSupport" == 1 ]]; then
+    echo "Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script"
+    echo "Exiting..."
+    exit 1
+fi
+}
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -211,15 +217,15 @@ OPSYUB1604=`echo $opsy | grep 'Ubuntu' | grep '16.04'` ; OPSYUB1610=`echo $opsy 
 OPSYUB1704=`echo $opsy | grep 'Ubuntu' | grep '17.04'` ; OPSYUB1710=`echo $opsy | grep 'Ubuntu' | grep '17.10'` ; OPSYUB1804=`echo $opsy | grep 'Ubuntu' | grep '18.04'`
 OPSYDE7=`echo $opsy | grep 'Debian' | grep '7'`        ; OPSYDE8=`echo $opsy | grep 'Debian' | grep '8'`        ; OPSYDE9=`echo $opsy | grep 'Debian' | grep '9'`  
 
-[[ -n "$OPSYUB1404" ]] && RELEASE=14.04                     && DISTRO=Ubuntu && CODENAME=trusty     && SysSupport=0
-[[ -n "$OPSYUB1410" ]] && RELEASE=14.10                     && DISTRO=Ubuntu && CODENAME=utopic     && SysSupport=0
-[[ -n "$OPSYUB1504" ]] && RELEASE=15.04                     && DISTRO=Ubuntu && CODENAME=vivid      && SysSupport=0
-[[ -n "$OPSYUB1510" ]] && RELEASE=15.10                     && DISTRO=Ubuntu && CODENAME=wily       && SysSupport=0
-[[ -n "$OPSYUB1610" ]] && RELEASE=16.10                     && DISTRO=Ubuntu && CODENAME=yakkety    && SysSupport=0
-[[ -n "$OPSYUB1704" ]] && RELEASE=17.04                     && DISTRO=Ubuntu && CODENAME=zesty      && SysSupport=0
-[[ -n "$OPSYUB1710" ]] && RELEASE=17.10                     && DISTRO=Ubuntu && CODENAME=artful     && SysSupport=0
-[[ -n "$OPSYUB1804" ]] && RELEASE=18.04                     && DISTRO=Ubuntu && CODENAME=bionic     && SysSupport=0
-[[ -n   "$OPSYDE7"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=wheezy     && SysSupport=0
+[[ -n "$OPSYUB1404" ]] && RELEASE=14.04                     && DISTRO=Ubuntu && CODENAME=trusty
+[[ -n "$OPSYUB1410" ]] && RELEASE=14.10                     && DISTRO=Ubuntu && CODENAME=utopic
+[[ -n "$OPSYUB1504" ]] && RELEASE=15.04                     && DISTRO=Ubuntu && CODENAME=vivid
+[[ -n "$OPSYUB1510" ]] && RELEASE=15.10                     && DISTRO=Ubuntu && CODENAME=wily
+[[ -n "$OPSYUB1610" ]] && RELEASE=16.10                     && DISTRO=Ubuntu && CODENAME=yakkety
+[[ -n "$OPSYUB1704" ]] && RELEASE=17.04                     && DISTRO=Ubuntu && CODENAME=zesty
+[[ -n "$OPSYUB1710" ]] && RELEASE=17.10                     && DISTRO=Ubuntu && CODENAME=artful
+[[ -n "$OPSYUB1804" ]] && RELEASE=18.04                     && DISTRO=Ubuntu && CODENAME=bionic
+[[ -n   "$OPSYDE7"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=wheezy
 
 [[ -n "$OPSYUB1604" ]] && RELEASE=16.04                     && DISTRO=Ubuntu && CODENAME=xenial     && SysSupport=1 && relno=16
 [[ -n   "$OPSYDE8"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=jessie     && SysSupport=1 && relno=8
@@ -227,12 +233,9 @@ OPSYDE7=`echo $opsy | grep 'Debian' | grep '7'`        ; OPSYDE8=`echo $opsy | g
 
 # echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "RELEASE=$RELEASE" && echo "relno=$relno" && echo "SysSupport=$SysSupport"
 
-  if [[ ! -n "$SysSupport" ]]; then
-      echo "Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script"
-      echo "Exiting..."
-      exit 1
-  fi
 
+# 检查本脚本是否支持当前系统，可以关闭此功能
+[[ $SYSTEMCHECK == 1 ]] && _oscheck
 
 # 其实我也不知道 32位 系统行不行…… 也不知道这个能不能判断是不是 ARM
 
@@ -341,6 +344,8 @@ fi
 # else
 #     echo "${cyan}No Virt${normal}"
 # fi
+
+  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n"${bold}System Checking Skipped. Note that this script may not work on unsupported system"${normal} \n"
 
   echo
 
@@ -644,11 +649,11 @@ function _askqbt() {
       echo -ne "${bold}qBittorrent will be installed from repository, and "
 
       if [ $CODENAME = stretch ]; then
-          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7-3${normal}"
+          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7${normal}"
       elif [ $CODENAME = jessie ]; then
-          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}qBittorrent 3.1.10-1${normal}"
+          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}qBittorrent 3.1.10${normal}"
       elif [ $CODENAME = xenial ]; then
-          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1-1${normal}"
+          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1${normal}"
       fi
 
   fi
@@ -745,11 +750,11 @@ function _askdeluge() {
       echo -ne "${bold}Deluge will be installed from repository, and "
 
       if [ $CODENAME = stretch ]; then
-          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13+git20161130.48cedf63-3${normal}"
+          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13${normal}"
       elif [ $CODENAME = jessie ]; then
-          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Deluge 1.3.10-3+deb8u1${normal}"
+          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Deluge 1.3.10${normal}"
       elif [ $CODENAME = xenial ]; then
-          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12-1ubuntu1${normal}"
+          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
       fi
 
   fi
@@ -921,14 +926,6 @@ function _asktr() {
 
   else
 
-      if [ "$CODENAME" = "stretch" ]; then
-
-          echo "${bold}Sorry, for now the compilation on ${green}Debian 9${white} doesn't work"
-          echo "Transmission will be installed from repo which version is ${baiqingse}Transmission 2.92-2${normal}"
-          TRVERSION='Install from repo'
-
-      else
-
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
               sleep 0
@@ -955,16 +952,14 @@ function _asktr() {
               echo -ne "${bold}Transmission will be installed from repository, and "
 
               if [ "$CODENAME" = "stretch" ]; then
-                  echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92-2${normal}"
+                  echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92${normal}"
               elif [ "$CODENAME" = "jessie" ]; then
-                  echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84-0.2${normal}"
+                  echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
               elif [ "$CODENAME" = "xenial" ]; then
-                  echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84-3ubuntu3${normal}"
+                  echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
               fi
 
           fi
-
-      fi
 
   fi
 
@@ -1032,6 +1027,7 @@ function _askrclone() {
 
 
 # --------------------- 询问是否需要安装 VNC --------------------- #
+# 目前不启用
 
 function _askvnc() {
 
@@ -1213,7 +1209,7 @@ function _askreboot() {
 
 function _askcontinue() {
 
-  echo -e "\n\n${bold}Please check the following information${normal}"
+  echo -e "\n${bold}Please check the following information${normal}"
   echo
   echo '####################################################################'
   echo
