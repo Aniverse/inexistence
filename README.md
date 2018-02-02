@@ -43,8 +43,9 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 
 4. **qBittorrent**  
-在 `Debian 8` 下由于不满足 qt 5.5.1 的依赖要求，无法完成 4.0 及以后版本的编译，会强制选择 `3.3.16` 版代替  
+在 `Debian 8` 下由于不满足依赖的要求，无法完成 4.0 及以后版本的编译  
 新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
+**跳过校验存在风险，后果自负**  
 
 5. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
@@ -73,7 +74,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 
 8. **Transmission**  
-Transmission 一般哪个版本都能用并且没多大差别，因此默认选择从仓库里安装  
+Transmission 一般无论哪个版本PT站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
 此外还会安装修改版的 WebUI，更方便易用  
 
 9. **Flexget**  
