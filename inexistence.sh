@@ -916,13 +916,12 @@ function _asktr() {
       04 | 4) TRVERSION=2.92 ;;
       05 | 5) TRVERSION=2.93 ;;
       30) _inputversion && TRVERSION="${inputversion}" ;;
+      31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
       40 | "") TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
       *) TRVERSION='Install from repo';;
   esac
-
-# TRdefault=No
 
   if [ "${TRVERSION}" == "No" ]; then
 
@@ -1531,6 +1530,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       if [[ "${QBPATCH}" == "Yes" ]]; then
           git cherry-pick db3158c
           git cherry-pick b271fa9
+          echo -e "\n\n\nQB 3.3.11 SKIP\n\n\n"
       fi
       
       ./configure --prefix=/usr --disable-gui
@@ -1621,6 +1621,7 @@ function _installde() {
       if [[ $DESKIP == Yes ]]; then
           DEVERSION=1.3.15
           cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
+          echo -e "\n\n\nDESKIP\n\n\n"
       else
           cd; wget http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
@@ -1635,6 +1636,7 @@ function _installde() {
       if [[ $DESSL=Yes ]]; then
           sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
           sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
+          echo "\n\nSSL FIX\n\n"
       fi
 
       python setup.py build
@@ -1644,7 +1646,7 @@ function _installde() {
 
   fi
 
-  echo;echo;echo;echo;echo;echo "  DELUGE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+  echo -e "\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n"
 
 }
 
@@ -1655,7 +1657,7 @@ function _installde() {
 
 function _setde() {
 
-  if [ ! "${DEVERSION}" == "No" ]; then
+  if [[ ! "${DEVERSION}" == "No" ]]; then
 
 #     [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
       mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
@@ -1708,10 +1710,10 @@ function _installrt() {
 
   wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
 
-  if [ "${RTVERSION}" == "0.9.4 IPv6 supported" ]; then
+  if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
       export RTVERSION=0.9.4
       bash rtsetup h5ai-ipv6
-  elif [ "${RTVERSION}" == "0.9.4" ]; then
+  elif [[ "${RTVERSION}" == "0.9.4" ]]; then
       bash rtsetup h5ai
   else
       bash rtsetup h5ai-ipv6
