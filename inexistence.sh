@@ -580,7 +580,7 @@ function _askqbt() {
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
       02 | 2 | "") QBVERSION=3.3.11 ;;
-      03 | 3) QBVERSION='3.3.11 Skip hash check' && QBPATCH=Yes ;;
+      03 | 3) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
       04 | 4) QBVERSION=3.3.14 ;;
       05 | 5) QBVERSION=3.3.16 ;;
       11) QBVERSION=4.0.2 ;;
@@ -708,7 +708,7 @@ function _askdeluge() {
           13) DEVERSION=1.3.7 ;;
           14) DEVERSION=1.3.8 ;;
           15) DEVERSION=1.3.9 ;;
-          21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
+          21) DEVERSION='1.3.15 (Skip hash check)' && DESKIP=Yes ;;
           30) _inputversion && DEVERSION="${inputversion}"  ;;
           40) DEVERSION='Install from repo' ;;
           50) DEVERSION='Install from PPA' ;;
@@ -1304,11 +1304,11 @@ sed -i '/^#####\ U.*/'d /etc/profile
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
-INEXISTENCEinstalled Yes
-INEXISTENCEVER ${INEXISTENCEVER}
-INEXISTENCEDATE ${INEXISTENCEDATE}
-USETWEAKS ${tweaks}
-ANUSER ${ANUSER}
+INEXISTENCEinstalled=Yes
+INEXISTENCEVER=${INEXISTENCEVER}
+INEXISTENCEDATE=${INEXISTENCEDATE}
+USETWEAKS=${tweaks}
+ANUSER=${ANUSER}
 ##### U ########################################
 EOF
 
@@ -1522,13 +1522,13 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       cd; git clone https://github.com/qbittorrent/qBittorrent
       cd qBittorrent
 
-      [[ "${QBVERSION}" == '3.3.11 Skip hash check' ]] && QBVERSION=3.3.11
+      [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
       git checkout release-${QBVERSION}
 
       if [[ "${QBPATCH}" == "Yes" ]]; then
           git cherry-pick db3158c
           git cherry-pick b271fa9
-          echo -e "\n\n\nQB 3.3.11 SKIP\n\n\n"
+          echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
       fi
       
       ./configure --prefix=/usr --disable-gui
@@ -1619,7 +1619,7 @@ function _installde() {
       if [[ $DESKIP == Yes ]]; then
           DEVERSION=1.3.15
           cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
-          echo -e "\n\n\nDESKIP\n\n\n"
+          echo -e "\n\n\nDELUGE SKIP HASH CHECK (FOR LOG)\n\n\n"
       else
           cd; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
@@ -1631,10 +1631,10 @@ function _installde() {
       ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
-      if [[ $DESSL=Yes ]]; then
+      if [[ $DESSL == Yes ]]; then
           sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
           sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
-          echo "\n\nSSL FIX\n\n"
+          echo "\n\nSSL FIX (FOR LOG)\n\n"
       fi
 
       python setup.py build
