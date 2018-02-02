@@ -2,6 +2,9 @@
 # Author: 弱鸡
 # 方便盒子使用的一个辣鸡脚本
 
+mingling=0.5.9
+UPDATE=2018.02.02
+
 # --------------------------------
 # echo $de_installed $rt_installed $qb_installed $tr_installed $flex_installed $rclone_installed $virtwhat_installed $lsb_installed $smartctl_installed
 
@@ -166,8 +169,6 @@ swap_usage=`free -m | awk '/Swap/ { printf("%3.1f%%", "exit !$2;$3/$2*100") }'`
 users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
-
-mingling=0.5.7
 
 inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
