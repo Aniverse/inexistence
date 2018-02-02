@@ -264,14 +264,14 @@ fi
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
 # serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}' )
-  isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
+  isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+  isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+  isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
-  serveripv6=$( wget -qO- -t1 -T8 ipv6.icanhazip.com )
+  serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
 # [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
 # wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n1 )
@@ -346,9 +346,7 @@ fi
 #     echo "${cyan}No Virt${normal}"
 # fi
 
-  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n"${bold}System Checking Skipped. Note that this script may not work on unsupported system"${normal} \n"
-
-  echo
+  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n"${bold}System Checking Skipped. Note that this script may not work on unsupported system"${normal}"
 
 }
 
@@ -1306,11 +1304,11 @@ sed -i '/^#####\ U.*/'d /etc/profile
 cat>>/etc/profile<<EOF
 
 ##### Used for future script determination #####
-INEXISTENCEinstalled=Yes
-INEXISTENCEVER=${INEXISTENCEVER}
-INEXISTENCEDATE=${INEXISTENCEDATE}
-USETWEAKS=${tweaks}
-ANUSER=${ANUSER}
+INEXISTENCEinstalled Yes
+INEXISTENCEVER ${INEXISTENCEVER}
+INEXISTENCEDATE ${INEXISTENCEDATE}
+USETWEAKS ${tweaks}
+ANUSER ${ANUSER}
 ##### U ########################################
 EOF
 
@@ -1623,7 +1621,7 @@ function _installde() {
           cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
           echo -e "\n\n\nDESKIP\n\n\n"
       else
-          cd; wget http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+          cd; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
 
       tar zxf deluge-"${DEVERSION}".tar.gz
@@ -1799,7 +1797,7 @@ else
     ldconfig
 
     if [[ "${TRdefault}" == "No" ]]; then
-        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${TRVERSION}.tar.gz
+        wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${TRVERSION}.tar.gz
         tar xvf transmission-${TRVERSION}.tar.gz
         cd transmission-${TRVERSION}
     else
