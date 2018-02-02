@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=095
-INEXISTENCEDATE=20180201
+INEXISTENCEDATE=20180202
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -566,7 +566,7 @@ function _askqbt() {
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
-  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.11${white} (Skip Hash Check)"
+  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.11${white} (Skip hash check)"
   echo -e "${green}04)${white} qBittorrent ${cyan}3.3.14${white}"
   echo -e "${green}05)${white} qBittorrent ${cyan}3.3.16${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
@@ -665,6 +665,7 @@ function _askdeluge() {
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
   echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
+# echo -e "${green}11)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Deluge from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
@@ -683,8 +684,12 @@ function _askdeluge() {
           03 | 3) DEVERSION=1.3.13 ;;
           04 | 4) DEVERSION=1.3.14 ;;
           05 | 5) DEVERSION=1.3.15 ;;
-          21) DEVERSION=1.3.5 ;;
-          22) DEVERSION=1.3.6 ;;
+          11) DEVERSION=1.3.5 ;;
+          12) DEVERSION=1.3.6 ;;
+          13) DEVERSION=1.3.7 ;;
+          14) DEVERSION=1.3.8 ;;
+          15) DEVERSION=1.3.9 ;;
+          21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
           30) _inputversion && DEVERSION="${inputversion}"  ;;
           40) DEVERSION='Install from repo' ;;
           50 | "") DEVERSION='Install from PPA' ;;
@@ -700,8 +705,12 @@ function _askdeluge() {
           03 | 3) DEVERSION=1.3.13 ;;
           04 | 4) DEVERSION=1.3.14 ;;
           05 | 5 | "") DEVERSION=1.3.15 ;;
-          21) DEVERSION=1.3.5 ;;
-          22) DEVERSION=1.3.6 ;;
+          11) DEVERSION=1.3.5 ;;
+          12) DEVERSION=1.3.6 ;;
+          13) DEVERSION=1.3.7 ;;
+          14) DEVERSION=1.3.8 ;;
+          15) DEVERSION=1.3.9 ;;
+          21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
           30) _inputversion && DEVERSION="${inputversion}"  ;;
           40) DEVERSION='Install from repo' ;;
           50) DEVERSION='Install from PPA' ;;
@@ -710,6 +719,8 @@ function _askdeluge() {
       esac
 
   fi
+
+  [[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
 
   if [ "${DEVERSION}" == "No" ]; then
 
@@ -766,35 +777,35 @@ function _askdelt() {
   else
 
       echo
-#     echo -e "${green}01)${white} libtorrent ${cyan}RC_0_16${white} (NOT recommended)"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}03)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
-      echo -e "${green}04)${white} libtorrent from ${cyan}repo${white}"
+#     echo -e "${green}00)${white} libtorrent ${cyan}RC_0_16${white} (NOT recommended)"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_1_0${white}"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
+      echo -e "${green}03)${white} libtorrent from ${cyan}repo${white}"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
       
 
       if [ $CODENAME = stretch ]; then
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
 
           case $version in
-              01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
-              02 | 2 | "") DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
-              03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
-              04 | 4) DELTVERSION='Install from repo' ;;
+              00 | 0) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
+              01 | 1 | "") DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+              02 | 2) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
+              03 | 3) DELTVERSION='Install from repo' ;;
               *) DELTVERSION=DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
           esac
 
       else
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}03${normal}): " version
 
           case $version in
-              01 | 1) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
-              02 | 2) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
-              03 | 3) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
-              04 | 4 | "") DELTVERSION='Install from repo' ;;
+              00 | 0) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
+              01 | 1) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+              02 | 2) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
+              03 | 3 | "") DELTVERSION='Install from repo' ;;
               *) DELTVERSION='Install from repo' ;;
           esac
 
@@ -1605,9 +1616,25 @@ function _installde() {
 
       fi
 
-      cd; wget --no-check-certificate -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+      if [[ $DESKIP=Yes ]]; then
+          DEVERSION=1.3.15
+          cd; wget --no-check-certificate -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
+      else
+          cd; wget -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+      fi
+
       tar zxf deluge-"${DEVERSION}".tar.gz
       cd deluge-"${DEVERSION}"
+
+      ### 修复稍微新一点的系统（比如 Debian 8）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
+      ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
+      ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
+      ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
+      if [[ $DESSL=Yes ]]; then
+          sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
+          sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
+      fi
+
       python setup.py build
       python setup.py install --install-layout=deb
 #     python setup.py install_data
@@ -2227,11 +2254,6 @@ sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
 sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
 echo "DefaultLimitNOFILE=666666" >> /etc/systemd/system.conf
 echo "DefaultLimitNPROC=666666" >> /etc/systemd/system.conf
-
-sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/user.conf
-sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/user.conf
-echo "DefaultLimitNOFILE=666666" >> /etc/systemd/user.conf
-echo "DefaultLimitNPROC=666666" >> /etc/systemd/user.conf
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
