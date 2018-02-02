@@ -1,0 +1,13 @@
+[Unit]
+Description=Transmission Service
+After=network.target
+
+[Service]
+User=%I
+LimitNOFILE=666666
+WorkingDirectory=/home/%I/
+ExecStart=/usr/bin/transmission-daemon --log-error -f
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
