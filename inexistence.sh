@@ -915,12 +915,14 @@ function _asktr() {
       03 | 3) TRVERSION=2.84 ;;
       04 | 4) TRVERSION=2.92 ;;
       05 | 5) TRVERSION=2.93 ;;
-      30) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
+      30) _inputversion && TRVERSION="${inputversion}" ;;
       40 | "") TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
       *) TRVERSION='Install from repo';;
   esac
+
+# TRdefault=No
 
   if [ "${TRVERSION}" == "No" ]; then
 
@@ -1374,8 +1376,8 @@ else
 
 fi
 
-_checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
-_checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
+# _checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
+# _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 
 # dpkg --configure -a
 # apt-get -f -y install
@@ -1597,7 +1599,7 @@ function _installde() {
   else
 
       # 编译安装 libtorrent-rasterbar
-      if [ ! $DELTVERSION == "Install from repo" ]; then
+      if [[ ! $DELTVERSION == "Install from repo" ]]; then
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
@@ -1616,11 +1618,11 @@ function _installde() {
 
       fi
 
-      if [[ $DESKIP=Yes ]]; then
+      if [[ $DESKIP == Yes ]]; then
           DEVERSION=1.3.15
-          cd; wget --no-check-certificate -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
+          cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
       else
-          cd; wget -q http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+          cd; wget http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
 
       tar zxf deluge-"${DEVERSION}".tar.gz
