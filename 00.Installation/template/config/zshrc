@@ -1,3 +1,103 @@
+################## Seedbox Script Mod START ##################
+
+ulimit -SHn 666666
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+
+alias -s sh='bash'
+alias -s log='tail -n50'
+alias -s gz='tar -xzvf'
+alias -s xz='tar xf'
+alias -s tgz='tar -xzvf'
+alias -s rar='unrar x'
+alias -s zip='unzip'
+alias -s bz2='tar -xjvf'
+
+alias qba="systemctl start qbittorrent"
+alias qbb="systemctl stop qbittorrent"
+alias qbc="systemctl status qbittorrent"
+alias qbr="systemctl restart qbittorrent"
+alias dea="systemctl start deluged"
+alias deb="systemctl stop deluged"
+alias dec="systemctl status deluged"
+alias der="systemctl restart deluged"
+alias dewa="systemctl start deluge-web"
+alias dewb="systemctl stop deluge-web"
+alias dewc="systemctl status deluge-web"
+alias dewr="systemctl restart deluge-web"
+alias tra="systemctl start transmission"
+alias trb="systemctl stop transmission"
+alias trc="systemctl status transmission"
+alias trr="systemctl restart transmission"
+alias rta="systemctl start rtorrent@${ANUSER}"
+alias rtb="systemctl stop rtorrent@${ANUSER}"
+alias rtc="systemctl status rtorrent@${ANUSER}"
+alias rtr="systemctl restart rtorrent@${ANUSER}"
+alias irssia="systemctl start irssi@${ANUSER}"
+alias irssib="systemctl stop irssi@${ANUSER}"
+alias irssic="systemctl status irssi@${ANUSER}"
+alias irssir="systemctl restart irssi@${ANUSER}"
+alias fla="systemctl start flexget"
+alias flb="systemctl stop flexget"
+alias flc="flexget daemon status"
+alias flr="systemctl restart flexget"
+alias cdde="cd /home/${ANUSER}/deluge/download"
+alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
+alias cdrt="cd /home/${ANUSER}/rtorrent/download"
+alias cdtr="cd /home/${ANUSER}/transmission/download"
+alias shanchu="rm -rf"
+alias xiugai="nano /etc/profile && source /etc/profile"
+alias quanxian="chmod -R 777"
+alias anzhuang="apt-get install"
+alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
+
+alias ssa="/etc/init.d/shadowsocks-r start"
+alias ssb="/etc/init.d/shadowsocks-r stop"
+alias ssc="/etc/init.d/shadowsocks-r status"
+alias ssr="/etc/init.d/shadowsocks-r restart"
+alias ruisua="/appex/bin/serverSpeeder.sh start"
+alias ruisub="/appex/bin/serverSpeeder.sh stop"
+alias ruisuc="/appex/bin/serverSpeeder.sh status"
+alias ruisur="/appex/bin/serverSpeeder.sh restart"
+
+alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
+alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
+alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
+alias fll="tail -n100 /root/.config/flexget/flexget.log"
+alias fls="nano /root/.config/flexget/config.yml"
+alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
+
+alias banben1='apt-cache policy'
+alias banben2='dpkg -l | grep'
+alias yongle='du -sB GB'
+alias scrl="screen -ls"
+alias scrgd="screen -U -R GoogleDrive"
+alias jincheng="ps aux | grep -v grep | grep"
+alias ios="iostat -d -x -k 1"
+alias cdb="cd .."
+alias cesu="echo;spdtest --share;echo"
+alias cesu2="echo;spdtest --share --server"
+alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
+alias ls="ls -hAv --color --group-directories-first"
+alias ll="ls -hAlvZ --color --group-directories-first"
+alias wget="wget --no-check-certificate"
+alias tree="tree --dirsfirst"
+alias gclone="git clone --depth=1"
+
+alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
+alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
+
+alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
+alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
+alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
+alias jiaobenrt="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
+alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
+alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
+
 # Fix numeric keypad  
 # 0 . Enter  
 bindkey -s "^[Op" "0"  
@@ -21,8 +121,7 @@ bindkey -s "^[Om" "-"
 bindkey -s "^[Oj" "*"  
 bindkey -s "^[Oo" "/"  
 
-export LC_ALL=en_US.UTF-8  
-export LANG=en_US.UTF-8
+################## Seedbox Script Mod END ##################
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
