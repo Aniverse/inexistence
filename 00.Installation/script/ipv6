@@ -120,6 +120,7 @@ clear
 
     if [[ $DISTRO = "Debian" ]]; then
         sysctl -w net.ipv6.conf.$INTERFACE.autoconf=0
+        sed -i '/^net.ipv6.conf.*/'d /etc/sysctl.conf
         echo "net.ipv6.conf.$INTERFACE.autoconf=0" >> /etc/sysctl.conf
 #       ifdown $INTERFACE && ifup $INTERFACE
         systemctl reload-or-restart networking.service
