@@ -17,6 +17,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 检查是否 root，检查系统是不是 `Ubuntu 16.04、Debian 8、Debian 9`  
 如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出  
+你可以通过修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统的检查，不过嘛脚本能不能正常工作就是另一回事了  
 
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -27,7 +28,8 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 1. **账号密码**  
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
-用户名要求字母开头，长度 4-16 位；密码要求需要同时包含字母和数字，长度 9-16 位  
+用户名需要以字母开头，长度 4-16 位；密码最好同时包含字母和数字，长度至少 8 位
+恩，目前我话是这么说，但脚本里还没有检查账号密码是否合乎要求，所以还是自己注意点吧  
 
 2. **系统源**  
 其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
