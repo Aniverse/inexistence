@@ -1,0 +1,15 @@
+[Unit]
+Description=Deluge Daemon Service
+After=network.target
+
+[Service]
+User=%I
+LimitNOFILE=666666
+WorkingDirectory=/home/%I/
+ExecStart=/usr/bin/deluged -d -l /etc/inexistence/01.Log/deluged.log -L info
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluged
+Restart=on-failure
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=qBittorrent Daemon Service
+After=network.target
+
+[Service]
+User=%I
+LimitNOFILE=666666
+WorkingDirectory=/home/%I/
+ExecStart=/usr/bin/qbittorrent-nox --webui-port=2017
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
