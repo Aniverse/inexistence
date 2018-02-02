@@ -453,7 +453,7 @@ exec 3>&1 >/dev/tty
 
 echo
 echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
-echo "The password must consist of characters and numbers and at least 9 chars"
+echo "The password must consist of characters and numbers and at least 8 chars"
 
 while [ -z $localpass ]
 do
@@ -467,9 +467,9 @@ do
       localpass=$(genpasswd)
       echo "${bold}${white}Random password sets to ${blue}$localpass${normal}"
 
-  elif [ ${#password1} -lt 9 ]; then
+  elif [ ${#password1} -lt 8 ]; then
 
-      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[9]${normal}${bold} chars long${normal}" && continue
+      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[8]${normal}${bold} chars long${normal}" && continue
 
   else
 
