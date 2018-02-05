@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=095
-INEXISTENCEDATE=20180202
+INEXISTENCEDATE=20180205
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -663,7 +663,7 @@ function _askdeluge() {
   echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
   echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
   echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
-# echo -e "${green}11)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
+# echo -e "${green}21)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Deluge from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
@@ -776,12 +776,12 @@ function _askdelt() {
 
       echo
 #     echo -e "${green}00)${white} libtorrent ${cyan}RC_0_16${white} (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_1_0${white}"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_1${white}  (NOT recommended)"
-      echo -e "${green}03)${white} libtorrent from ${cyan}repo${white}"
+      echo -e "${green}01)${white} libtorrent ${cyan}RC_1_0${white}    (DO NOT USE IT)"
+      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_1${white}    (DO NOT USE IT)"
+      echo -e "${green}03)${white} libtorrent from ${cyan}repo${white} (Default)"
 
-      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the default opinion${normal}"
-      
+      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the DEFAULT opinion${normal}"
+      echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
       if [ $CODENAME = stretch ]; then
 
@@ -1470,8 +1470,9 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       # 1. 不需要再安装 libtorrent-rasterbar
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
+      #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
 
-      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
+      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev
 
@@ -1500,6 +1501,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       #### 2018.02.01：再补充一个需要安装的情况：Ubuntu 16.04 如果想要安装 qb 4.0 及以后的版本，repo 或 Deluge PPA 的 lt 都不行，必须在 C++11 模式下编译 lt
       #### https://github.com/qbittorrent/qBittorrent/issues/7863
 
+      #### 2018.02.05：如果之前 Deluge 用的是编译的 libtorrent-rasterbar，这里再编译一次的话似乎会冲突……
+
       else
 
           apt-get purge -y libtorrent-rasterbar-dev
@@ -1510,8 +1513,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
           make clean
           make -j${MAXCPUS}
-#         make install
-          checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11 || make install
+          make install
+#         checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1603,10 +1606,12 @@ function _installde() {
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system CXXFLAGS=-std=c++11
+          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
           make -j${MAXCPUS}
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
           ldconfig
+          mkdir -p /etc/inexistence/00.Installation/packages
+          mv libtorrentde_1.0.11-1_amd64.deb /etc/inexistence/00.Installation/packages/libtorrentde_1.0.11-1_amd64.deb
           echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
       # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
@@ -1988,6 +1993,11 @@ systemctl start vncserver
 function _installtools() {
 
 cd
+
+# https://www.johnvansickle.com/ffmpeg
+# http://www.deb-multimedia.org
+# deb http://www.deb-multimedia.org jessie main non-free
+# deb http://www.deb-multimedia.org stretch main non-free
 
 ########## 安装 ffmpeg x265 x264 yasm imagemagick ##########
 
