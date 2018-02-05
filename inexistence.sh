@@ -1472,7 +1472,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
       #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
 
-      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No]]; then
+      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev
 
