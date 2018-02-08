@@ -19,17 +19,22 @@
 
 
 
+### 2018.02.08
+
+`rtinst Aniverse Mod`  
+1. 修复 Ubuntu 16.04 下 Autodl-Irssi 安装不正确的问题  
 
 
 
 
 
 
+### 2018.02.05
 
-
-
-
-
+`inexistence 0.9.5`  
+1. 又是 libtorrent-rasterbar 的问题
+没有完全修复，不知道怎么修，只能先提示用户没事不要去编译 libtorrent-rasterbar 1.0.11 给 Deluge 用  
+不过 Debian 9 下就是个问题了，因为自带的 lt 有 bug，估摸着要取消 C++11 了……
 
 
 
@@ -39,20 +44,24 @@
 
 `inexistence 0.9.5`  
 1. 对一些选项进行重新编号  
-2. 增加能够跳过校验的 Deluge 1.3.15 的选项  
+2. 增加能够跳过校验的 Deluge 1.3.15 的隐藏选项  
 **一切后果自负**  
 3. 增加 Deluge 1.3.5-1.3.9 的隐藏选项，修复了这些旧版 Deluge SSL 连接的问题  
 SSL 的修改代码和 Deluge 1.3.11 的一样  
 4. Transmission 的无限打开文件数版本改到了 31 选项，目前还在测试阶段  
 5. 修复了 Deluge libtorrent 判断的问题  
 6. 密码长度要求降低到至少 8位  
+7. 已知问题：Transmission 无限打开数版本编译失败，以后看情况处理  
+
+`IPv6`  
+1. 加上了删除之前的 net.ipv6.conf.$INTERFACE.autoconf 的命令  
 
 `README 0.6.0`  
 1. **更新了 inexistence 安装脚本的截图**  
 2. 补充、修正了一些内容  
 
 `ChangeLOG 0.1.2`  
-1. 暂时先空着
+1. 暂时先空着  
 
 
 
@@ -139,6 +148,9 @@ SSL 的修改代码和 Deluge 1.3.11 的一样
 5. qBittorrent 编译 lt 时采用 checkinstall，写入版本号为实际并不存在的 1.0.12  
 6. 进一步缩短某些输出语句，尽量避免排版错位的问题  
 7. 加入了新的 alias，查看脚本错误更方便  
+
+`rtinst Aniverse Mod`  
+1. 移除升级已安装软件包的步骤，加快安装速度  
 
 `ChangeLOG 0.1.0`  
 1. 20171215-20180129  
@@ -309,6 +321,9 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 `inexistence 0.9.1`  
 1. 修复系统为 Debian 8，不安装 Deluge 时 qBittorrent 由于 libtorrent-rasterbar-dev 版本过低无法编译的情况  
 
+`rtinst Aniverse Mod`  
+1. 去除 log 功能，以免出 bug （暂时懒得修复）  
+
 `ChangeLOG 0.0.1`  
 1. 第一次写 changelog，20180104-20180115  
 
@@ -380,6 +395,9 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 4. **更新 tr-webui 到新版本**  
 5. **针对 Ubuntu PPA 安装 deluge，增加了 apt-mark hold 和指定安装 deluge ppa lt 的操作**  
 6. ipv6.sh 重命名为 ipv6  
+
+`rtinst Aniverse Mod`  
+1. 修复第二次运行 rtinst 由于 unzip 没有用 -O 参数导致安装卡住不动的问题  
 
 `readme 0.4.9`  
 1. 更新 ipv6  
@@ -507,9 +525,12 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 ### 2017.12.21
 
 `inexistence 0.8.8`  
-1. 已安装 rt 的话，提示改成请使用 rtupdate 更换版本
+1. 已安装 rt 的话，提示改成请使用 rtupdate 更换版本  
 2. 增加了到用户文件夹的软链  
-3. 增加了 screen 和 vnstat 的安装
+3. 增加了 screen 和 vnstat 的安装  
+
+`rtinst Aniverse Mod`  
+1. 修复SCGI Server Timeout 设置用户名的问题  
 
 `bdupload`  
 1. 修复时间判断不正确的问题  
@@ -612,6 +633,11 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 
 
 
+
+### 2017.12.10
+
+`rtinst Aniverse Mod`  
+1. 修复 rar/unrar 安装的问题  
 
 
 
