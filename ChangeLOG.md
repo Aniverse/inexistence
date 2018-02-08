@@ -24,6 +24,9 @@
 `rtinst Aniverse Mod`  
 1. 修复 Ubuntu 16.04 下 Autodl-Irssi 安装不正确的问题  
 
+`ChangeLOG 0.2.0`  
+1. 2017.12.07-2018.02.08  
+2. 201710XX-20171015  
 
 
 
@@ -627,18 +630,91 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 ### 2017.12.13
 
 `inexistence 0.8.7`  
-1. 
+1. **Bump to 0.8.7**  
+2. Bug Fix：tr 装完后可能无法启动的问题  
+3. 增加高版本内核需要的 frimware  
+4. **增加安装 vncserer 的功能，但不启用**  
+5. 增加对于客户端安装情况的检查  
+6. UI Change：询问版本时的编号采用绿色字体  
+7. 安装 qb 4.0 版本时候的处理的变化  
+16.04 强制从 PPA 安装，Debian 8 强制换成 3.3.16  
+8. 优化对已安装的 BBR 的判断逻辑，加入了对魔改版 BBR 的识别  
+9. Bug Fix：写入 /etc/profile 的版本信息带上引号  
+10. 统一采用 libtorrent 1.0 分支用于 qb，不用 1.1  
+11. qb 编译时候 prefix=/usr  
+
+`readme 0.3.3-0.3.5`  
+1. bdupload 部分完善  
+2. 其他还有很多……  
 
 
+
+
+
+### 2017.12.12
+
+`inexistence 0.8.6`  
+1. Bug Fix：tr systemd  
+
+`readme 0.3.1-0.3.2`  
+
+
+
+
+
+### 2017.12.11
+
+`inexistence 0.8.6`  
+1. Bug Fix：修复 IPv4 地址不显示的问题  
+2. Bug Fix：修复 Debian 9 下安装 Tr 失败的问题  
+
+`readme 0.2.9-0.3.0`  
+1. **加入了 --no-check-certificate 参数**  
+2. **加入了 To Do List、Under Consideration、Known Issues**  
 
 
 
 
 ### 2017.12.10
 
+`inexistence 0.8.6`  
+1. **Bump to 0.8.6**  
+2. New Function：先检测内网 IPv4 地址，再检测外网地址  
+3. rtorrent：安装 rar 5.5.0  
+4. rtorrent：生成 https 证书  
+5. **RENAME：去掉了.sh**  
+6. **New Function：read -e，允许删掉重写**  
+7. 往 /etc/profile 写入更多的安装选项  
+
+`mingling`  
+1. New Function：先检测内网 IPv4 地址，再检测外网地址  
+2. UI Change  
+3. 在网址界面去掉了账号密码的显示  
+
 `rtinst Aniverse Mod`  
 1. 修复 rar/unrar 安装的问题  
 
+`readme 0.2.2-0.2.8`  
+
+
+
+
+
+### 2017.12.09
+
+`inexistence 0.8.5`  
+1. UI Change  
+2. 修改一些文件的存放路径  
+3. tr 的配置文件存放位置改成 /root/.config/transmission-daemon  
+4. Bug Fix：换源时添加 key  
+
+`mingling`  
+1. 判断逻辑问题修复  
+
+`readme 0.1.0-0.2.1`  
+1. 初始化，完善  
+2. 写上 bdupload  
+3. 写上 Mingling  
 
 
 
@@ -646,15 +722,49 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 
 ### 2017.12.08
 
-`inexistence `  
-1. 大量新脚本上传、内容更改  
-2. 一些小问题修复  
+`inexistence 0.8.5`  
+1. **Bump to 0.8.5**  
+2. **第一次写入脚本版本号和日期**  
+3. UI Change  
+4. 密码长度要求改为至少 9 位
+5. **五个新脚本，去掉了 bdshuchu**  
+bdinfo、bejietu、guazai、jietu、zuozhong  
+6. BDUpload Logo  
+7. 一些小问题修复  
+
+`xiansu`  
+1. 加入了在命令里填写网卡和网速的功能，适用于开机自启  
+
+`readme 0.0.9`  
+1. 修复安装命令错误运用管道的问题  
+
+
+
+
+
+### 2017.12.07
+
+`inexistence 0.8.4`  
+1. 初始化上传 bdupload、mingling、inexistence  
+
+`readme 0.0.8`  
+1. 安装命令的 source 改成 bash  
 
 
 
 
 
 
+
+
+
+
+
+
+似乎导致为止 GitHub 更新的部分写完了，剩下的是本地的部分了……真麻烦，呸  
+还有 rtinst 的部分……  
+
+-------------------
 
 
 
