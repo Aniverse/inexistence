@@ -9,8 +9,30 @@
 
 
 
+### 2018.02.13
 
-
+`inexistence 0.9.5`  
+1. 排版上部分采用了 ; }  
+2. 修复 available 单词拼错的问题（没人报错？！）  
+3. **重新设计了 Deluge libtorrent 的选项**  
+- 考虑到有的时候可能会用脚本更换 Deluge 的版本，因此加入了不再安装 libtorrent 的选项（需要检测到已安装 deluge 才会显示这个选项）  
+- 此外，Ubuntu 系统也可以用来自 Deluge PPA 的 python-libtorrent，再另外编译自己需要的 Deluge 版本，因此加入了从 PPA 安装的选项  
+- 选择从系统源和 PPA 安装的话也会输出要安装的版本号提示  
+- 加入了可以自定义版本的功能，输入版本前会显示所有在 GitHub 上能下载的分支，不过能不能装上以及有没有 bug 是另一回事了  
+- 原先的 RC_1_0 之类的分支改成了 0.16.19 1.0.11 1.1.6 这样的版本，同时让 DELTPKG 自动检测版本号  
+- 修改了下默认选项的写法，感觉比之前好看一点  
+5. 修复替换系统源，wget 文件时没有用 --no-check-certificate 导致可能出错的问题  
+6. 修复安装包失败时，脚本没有退出，继续往下运行的问题  
+7. 部分输出内容很冗长的，丢弃掉错误输出以外的部分  
+8. qBittorrent 编译 libtorrent 时，只在 Ubuntu 16.04 下采用 C++11 模式  
+9. checkinstall 前先做 dpke -r，减少可能存在的重装时翻车的可能性（但还未经测试……）  
+10. checkinstall 后生成的安装包都会被存放到 /etc/inexistence/01.Log/INSTALLATION/packages 目录备用  
+11. Transmission 编译 libevent 从 checkinstall 改回了 make install  
+12. 部分 alias 调整，新增部分命令，举例如下：  
+- sshr 开启 root 登陆  
+- cronr 重启 cron  
+- deyongle deluge 检查下载路径占用的硬盘空间  
+13. 安装如有失败，在最后提示如何检查安装日志  
 
 
 
@@ -761,7 +783,7 @@ bdinfo、bejietu、guazai、jietu、zuozhong
 
 
 
-似乎导致为止 GitHub 更新的部分写完了，剩下的是本地的部分了……真麻烦，呸  
+似乎到此为止 GitHub 更新的部分写完了，剩下的是本地的部分了……真麻烦，呸  
 还有 rtinst 的部分……  
 
 -------------------
