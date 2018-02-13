@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=095
-INEXISTENCEDATE=20180205
+INEXISTENCEDATE=20180213
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -34,24 +34,21 @@ calc_disk() {
         [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
         total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
     done
-    echo ${total_size}
-}
+    echo ${total_size} ; }
+
 ### 操作系统检测 ###
 get_opsy() {
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
-    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
-}
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return ; }
+
 # --------------------------------------------------------------------------------
 ### 是否为 IPv4 地址(其实也不一定是) ###
-function isValidIpAddress() {
-    echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$'
-}
+function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 
 ### 是否为内网 IPv4 地址 ###
-function isInternalIpAddress() {
-    echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))'
-}
+function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
+
 # --------------------------------------------------------------------------------
 # 检查客户端是否已安装、客户端版本
 function _check_install_1(){
@@ -67,34 +64,30 @@ function _check_install_1(){
       eval "${client_name}"_installed=Yes
   else
       eval "${client_name}"_installed=No
-  fi
-}
+  fi ; }
 
 function _check_install_2(){
 for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmepg mediainfo wget; do
     client_name=$apps; _check_install_1
-done
-}
+done ; }
 
 function _client_version_check(){
 [[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
 [[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'`
 [[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
-[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'`
-}
+[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; }
+
 # --------------------------------------------------------------------------------
 ### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
 ### 检查网站是否可以访问
-check_url() {   if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi; }
+check_url() { if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi ; }
 
 ### 检查系统源是否可用 ###
 function _checkrepo1() {
 os_repo=0
-
-echo
-echo "${bold}Checking the web sites we will need are accessible${normal}"
+echo -e "\n${bold}Checking the web sites we will need are accessible${normal}"
 
 for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq ); do
   echo -n $i": "
@@ -147,14 +140,18 @@ if [ $major_repo = 1 ]; then
   echo "We will continue for now, but may not be able to finish${normal}"
 fi
 
-echo
-}
+echo ; }
 
 ### 输入自己想要的软件版本 ###
 function _inputversion() {
 echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
-read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}"
-}
+read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
+
+function _inputversionlt() {
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
+echo -e "${red}${bold} Here is a list of all the available versions${normal}\n"
+curl -s "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
@@ -162,8 +159,8 @@ if [[ ! "$SysSupport" == 1 ]]; then
     echo "Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script"
     echo "Exiting..."
     exit 1
-fi
-}
+fi ; }
+
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -526,8 +523,8 @@ function _askaptsource() {
 
 function _askmt() {
 
-  echo -e "${green}01)${white} Use ${cyan}all${white} avaliable threads (Default)"
-  echo -e "${green}02)${white} Use ${cyan}half${white} of avaliable threads"
+  echo -e "${green}01)${white} Use ${cyan}all${white} available threads (Default)"
+  echo -e "${green}02)${white} Use ${cyan}half${white} of available threads"
   echo -e "${green}03)${white} Use ${cyan}one${white} thread"
   echo -e "${green}04)${white} Use ${cyan}two${white} threads"
 # echo -e   "${red}99)${white} Do not compile, install softwares from repo"
@@ -561,6 +558,8 @@ function _askmt() {
 # --------------------- 询问需要安装的 qBittorrent 的版本 --------------------- #
 
 function _askqbt() {
+
+# curl -s "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
@@ -657,6 +656,8 @@ function _askqbt() {
 # --------------------- 询问需要安装的 Deluge 版本 --------------------- #
 
 function _askdeluge() {
+
+# curl -s "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
 
   echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
@@ -768,31 +769,48 @@ function _askdeluge() {
 
 function _askdelt() {
 
-  if [[ "${DEVERSION}" == "No" ]] || [[ "${DEVERSION}" == "Install from repo" ]] || [[ "${DEVERSION}" == "Install from PPA" ]]; then
+# DELTVERSION=$(  curl -s "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+
+  if [[ "${DEVERSION}" == "No" ]]; then
 
       echo
+
+  elif [[ "${DEVERSION}" == "Install from repo" ]]; then
+
+      echo ; DELTVERSION='Install from repo'
+
+  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+
+      echo ; DELTVERSION='Install from PPA'
 
   else
 
       echo
-#     echo -e "${green}00)${white} libtorrent ${cyan}RC_0_16${white} (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent ${cyan}RC_1_0${white}    (DO NOT USE IT)"
-      echo -e "${green}02)${white} libtorrent ${cyan}RC_1_1${white}    (DO NOT USE IT)"
-      echo -e "${green}03)${white} libtorrent from ${cyan}repo${white} (Default)"
+#     echo -e "${green}00)${white} libtorrent ${cyan}0.16.19${white}   (NOT recommended)"
+      echo -e "${green}01)${white} libtorrent ${cyan}1.0.11${white}      (DO NOT USE IT)"
+      echo -e "${green}02)${white} libtorrent ${cyan}1.1.6${white}       (DO NOT USE IT)"
+      echo -e "${green}30)${white} Select another version"
+      echo -e "${green}40)${white} libtorrent from ${cyan}repo${white}   (Default)"
+      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent from ${cyan}Deluge PPA${white}"
+      [[ "${de_installed}" == "Yes" ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
-      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}If you do not know what's this, please use the DEFAULT opinion${normal}"
+      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
       echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
+
 
       if [ $CODENAME = stretch ]; then
 
           read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
 
           case $version in
-              00 | 0) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
-              01 | 1 | "") DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
-              02 | 2) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
-              03 | 3) DELTVERSION='Install from repo' ;;
-              *) DELTVERSION=DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
+              00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+              01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+              02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+              30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+              40) DELTVERSION='Install from repo' ;;
+              50) DELTVERSION='Install from PPA' ;;
+              99) DELTVERSION='No' ;;
+              * | "") DELTVERSION=libtorrent-1_0_11 ;;
           esac
 
       else
@@ -800,15 +818,19 @@ function _askdelt() {
           read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}03${normal}): " version
 
           case $version in
-              00 | 0) DELTVERSION=RC_0_16 && DELTPKG=0.16.19 ;;
-              01 | 1) DELTVERSION=RC_1_0 && DELTPKG=1.0.11 ;;
-              02 | 2) DELTVERSION=RC_1_1 && DELTPKG=1.1.6 ;;
-              03 | 3 | "") DELTVERSION='Install from repo' ;;
-              *) DELTVERSION='Install from repo' ;;
+              00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+              01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+              02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+              30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+              40) DELTVERSION='Install from repo' ;;
+              50) DELTVERSION='Install from PPA' ;;
+              99) DELTVERSION='No' ;;
+              * | "") DELTVERSION='Install from repo' ;;
           esac
 
       fi
 
+      DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
@@ -822,9 +844,17 @@ function _askdelt() {
               echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
           fi
 
+      elif [[ $DELTVERSION == "Install from PPA" ]]; then
+
+          echo "${baiqingse}libtorrent 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
+
+      elif [[ $DELTVERSION == "No" ]]; then
+
+          echo "${baiqingse}libtorrent ${delugelt_ver}${normal}${bold} will be used from system${normal}"
+
       else
 
-          echo "${baiqingse}libtorrent $DELTVERSION${normal} ${bold}will be installed${normal}"
+          echo "${baiqingse}libtorrent ${DELTPKG}${normal} ${bold}will be installed${normal}"
 
       fi
 
@@ -893,6 +923,8 @@ function _askrt() {
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
 
 function _asktr() {
+
+# curl -s "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
@@ -1252,7 +1284,7 @@ function _setuser() {
 rm -rf /etc/inexistence2
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence2
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
-mkdir -p /etc/inexistence/01.Log/INSTALLATION
+mkdir -p /etc/inexistence/01.Log/INSTALLATION/packages
 mkdir -p /etc/inexistence/OLD
 chmod -R 777 /etc/inexistence
 
@@ -1353,7 +1385,7 @@ if [ $aptsources == "Yes" ]; then
     if [[ $DISTRO == Debian ]]; then
 
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-        wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
+        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
         apt-get --yes --force-yes update
@@ -1361,7 +1393,7 @@ if [ $aptsources == "Yes" ]; then
     elif [[ $DISTRO == Ubuntu ]]; then
 
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-        wget -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
+        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
         sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
         apt-get -y update
 
@@ -1379,8 +1411,12 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall
-[[ ! $? -eq 0 ]] && echo "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall #ca-certificates
+
+if [[ ! $? -eq 0 ]]; then
+    echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
+    exit 1
+fi
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc
 # sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
@@ -1474,7 +1510,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev >> /dev/null
 
           echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
@@ -1485,7 +1521,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev >> /dev/null
 
           echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
 
@@ -1506,11 +1542,17 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       else
 
           apt-get purge -y libtorrent-rasterbar-dev
-          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall
+          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall >> /dev/null
           cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
+
+          if [[ "$CODENAME" =~ ("jessie"|"stretch") ]]; then
+              ./configure --disable-debug --enable-encryption --with-libgeoip=system
+          else
+              ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
+          fi
+
           make clean
           make -j${MAXCPUS}
           make install
@@ -1525,7 +1567,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       cd; git clone https://github.com/qbittorrent/qBittorrent
       cd qBittorrent
 
-      [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
+#     [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
+      QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
       git checkout release-${QBVERSION}
 
       if [[ "${QBPATCH}" == "Yes" ]]; then
@@ -1536,7 +1579,9 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
+      dpkg -r qbittorrentnox
       checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
+      mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
 #     make install
       cd;rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
@@ -1602,22 +1647,37 @@ function _installde() {
       # 编译安装 libtorrent-rasterbar
       if [[ ! $DELTVERSION == "Install from repo" ]]; then
 
-          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf
+          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf >> /dev/null
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
           ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
           make -j${MAXCPUS}
+          dpkg -r libtorrentde
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
+          mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
-          mkdir -p /etc/inexistence/00.Installation/packages
-          mv libtorrentde_1.0.11-1_amd64.deb /etc/inexistence/00.Installation/packages/libtorrentde_1.0.11-1_amd64.deb
           echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
+
+      # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
+      elif [[ $DELTVERSION == "Install from PPA" ]]; then
+
+          apt-get install -y software-properties-common python-software-properties
+          add-apt-repository -y ppa:deluge-team/ppa
+          apt-get update
+          apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
+          apt-mark hold libtorrent-rasterbar8 python-libtorrent
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+
+      # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
+      elif [[ $DELTVERSION == "No" ]]; then
+
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
 
       # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
       else
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent >> /dev/null
 
       fi
 
@@ -1639,10 +1699,10 @@ function _installde() {
       if [[ $DESSL == Yes ]]; then
           sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
           sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
-          echo "\n\nSSL FIX (FOR LOG)\n\n"
+          echo -e "\n\nSSL FIX (FOR LOG)\n\n"
       fi
 
-      python setup.py build
+      python setup.py build >> /dev/null 
       python setup.py install --install-layout=deb
 #     python setup.py install_data
       cd; rm -rf deluge* libtorrent
@@ -1785,7 +1845,7 @@ elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
 
 else
 
-    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git
+    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git >> /dev/null
     apt-get install -y openssl
     [[ "$CODENAME" = "stretch" ]] && apt-get install -y libssl1.0-dev
     cd; wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
@@ -1795,8 +1855,8 @@ else
     ./autogen.sh
     ./configure
     make -j${MAXCPUS}
-#   make install
-    checkinstall -y --pkgversion=2.1.8
+    make install
+#   checkinstall -y --pkgversion=2.1.8
     cd; rm -rf libevent release-2.1.8-stable.tar.gz
 #   ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     ldconfig
@@ -1816,7 +1876,9 @@ else
     ./configure --prefix=/usr
     make -j${MAXCPUS}
 #   make install
+    dpkg -r transmission
     checkinstall -y --pkgversion=$TRVERSION
+    mv tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd; rm -rf transmission*
 
 fi
@@ -2150,6 +2212,8 @@ EOF
 cat>>/etc/profile<<EOF
 ################## Seedbox Script Mod Start ##################
 
+wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+
 ulimit -SHn 666666
 
 export LC_ALL=en_US.UTF-8
@@ -2160,14 +2224,18 @@ alias qba="systemctl start qbittorrent"
 alias qbb="systemctl stop qbittorrent"
 alias qbc="systemctl status qbittorrent"
 alias qbr="systemctl restart qbittorrent"
+alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
 alias dea="systemctl start deluged"
 alias deb="systemctl stop deluged"
 alias dec="systemctl status deluged"
 alias der="systemctl restart deluged"
+alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
 alias dewa="systemctl start deluge-web"
 alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
 alias dewr="systemctl restart deluge-web"
+alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
 alias tra="systemctl start transmission"
 alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
@@ -2176,6 +2244,7 @@ alias rta="systemctl start rtorrent@${ANUSER}"
 alias rtb="systemctl stop rtorrent@${ANUSER}"
 alias rtc="systemctl status rtorrent@${ANUSER}"
 alias rtr="systemctl restart rtorrent@${ANUSER}"
+alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
 alias irssia="systemctl start irssi@${ANUSER}"
 alias irssib="systemctl stop irssi@${ANUSER}"
 alias irssic="systemctl status irssi@${ANUSER}"
@@ -2184,16 +2253,8 @@ alias fla="systemctl start flexget"
 alias flb="systemctl stop flexget"
 alias flc="flexget daemon status"
 alias flr="systemctl restart flexget"
-alias cdde="cd /home/${ANUSER}/deluge/download"
-alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
-alias cdrt="cd /home/${ANUSER}/rtorrent/download"
-alias cdtr="cd /home/${ANUSER}/transmission/download"
-alias shanchu="rm -rf"
-alias xiugai="nano /etc/profile && source /etc/profile"
-alias quanxian="chmod -R 777"
-alias anzhuang="apt-get install"
-alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
-
+alias fll="echo ; tail -n100 /root/.config/flexget/flexget.log ; echo"
+alias fls="nano /root/.config/flexget/config.yml"
 alias ssa="/etc/init.d/shadowsocks-r start"
 alias ssb="/etc/init.d/shadowsocks-r stop"
 alias ssc="/etc/init.d/shadowsocks-r status"
@@ -2203,30 +2264,43 @@ alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
 
-alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
-alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
-alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
-alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
-alias fll="tail -n100 /root/.config/flexget/flexget.log"
-alias fls="nano /root/.config/flexget/config.yml"
-alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
+alias yongle="du -sB GB"
+alias rtyongle="du -sB GB /home/${ANUSER}/rtorrent/download"
+alias qbyongle="du -sB GB /home/${ANUSER}/qbittorrent/download"
+alias deyongle="du -sB GB /home/${ANUSER}/deluge/download"
+alias tryongle="du -sB GB /home/${ANUSER}/transmission/download"
+alias cdde="cd /home/${ANUSER}/deluge/download"
+alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
+alias cdrt="cd /home/${ANUSER}/rtorrent/download"
+alias cdtr="cd /home/${ANUSER}/transmission/download"
+
+alias shanchu="rm -rf"
+alias xiugai="nano /etc/profile && source /etc/profile"
+alias quanxian="chmod -R 777"
+alias anzhuang="apt-get install"
+alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
 
 alias banben1='apt-cache policy'
 alias banben2='dpkg -l | grep'
-alias yongle='du -sB GB'
 alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
 alias jincheng="ps aux | grep -v grep | grep"
-alias ios="iostat -d -x -k 1"
+
 alias cdb="cd .."
-alias cesu="echo;spdtest --share;echo"
-alias cesu2="echo;spdtest --share --server"
-alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
+alias tree="tree --dirsfirst"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
-alias wget="wget --no-check-certificate"
-alias tree="tree --dirsfirst"
 alias gclone="git clone --depth=1"
+
+alias cesu="echo;spdtest --share;echo"
+alias cesu2="echo;spdtest --shar*e --server"
+alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
+alias ios="iostat -dxm 1"
+alias vms="vmstat 3 10"
+alias vns="vnstat -l -i $wangka"
+
+alias cronr="/etc/init.d/cron restart"
+alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
@@ -2234,7 +2308,8 @@ alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr 
 alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
 alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
 alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
-alias jiaobenrt="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobenrt1="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobenrt2="clear && /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
 alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
 alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
 alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
@@ -2304,18 +2379,21 @@ if [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "Yes" ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
 elif [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
+    QBFAILED=1 ; INSFAILED=1
 fi
 
 if [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
 elif [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Deluge installation FAILED${normal}"
+    DEFAILED=1 ; INSFAILED=1
 fi
 
 if [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
 elif [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Transmission installation FAILED${normal}"
+    TRFAILED=1 ; INSFAILED=1
 fi
 
 if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
@@ -2324,12 +2402,14 @@ if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
+    RTFAILED=1 ; INSFAILED=1
 fi
 
 if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
     echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566"
 elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
+    FLFAILED=1 ; INSFAILED=1
 fi
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
@@ -2352,6 +2432,15 @@ elif [[ $timeused -ge 3600 ]]; then
     echo -e "The installation took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
     echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
+fi
+
+if [[ $INSFAILED == 1 ]]; then
+echo "${bold}Unfortunately something went wrong during installation.
+Check log by typing these commands (if you have enabled system tweaks):
+${yellow}source /etc/profile"
+[[ $QBFAILED == 1 ]] && echo "jiaobenqb" ; [[ $DEFAILED == 1 ]] && echo "jiaobende" ; [[ $TRFAILED == 1 ]] && echo "jiaobentr"
+[[ $TRFAILED == 1 ]] && echo "jiaobenrt1\n jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
+echo -ne "${normal}"
 fi
 
 echo
