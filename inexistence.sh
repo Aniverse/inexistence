@@ -603,9 +603,8 @@ function _askqbt() {
 
   elif [ "${QBVERSION4}" == "Yes" ]; then
 
-      echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
-
       if [ $CODENAME = jessie ]; then
+          echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
           QBVERSION=3.3.16 && QBVERSION4=No
           echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
           echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
@@ -815,7 +814,7 @@ function _askdelt() {
 
       else
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}03${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
           case $version in
               00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
@@ -830,6 +829,8 @@ function _askdelt() {
 
       fi
 
+  fi
+
       DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
@@ -837,30 +838,28 @@ function _askdelt() {
           echo -ne "${bold}libtorrent-rasterbar will be installed from repository, and "
 
           if [ $CODENAME = stretch ]; then
-              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}libtorrent 1.1.1${normal}"
+              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.1.1${normal}"
           elif [ $CODENAME = jessie ]; then
-              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}libtorrent 0.16.18${normal}"
+              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}${bold}libtorrent 0.16.18${normal}"
           elif [ $CODENAME = xenial ]; then
-              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}libtorrent 1.0.7${normal}"
+              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.0.7${normal}"
           fi
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
-          echo "${baiqingse}libtorrent 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
+          echo "${baiqingse}${bold}libtorrent 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
 
       elif [[ $DELTVERSION == "No" ]]; then
 
-          echo "${baiqingse}libtorrent ${delugelt_ver}${normal}${bold} will be used from system${normal}"
+          echo "${baiqingse}${bold}libtorrent ${delugelt_ver}${normal}${bold} will be used from system${normal}"
 
       else
 
-          echo "${baiqingse}libtorrent ${DELTPKG}${normal} ${bold}will be installed${normal}"
+          echo "${baiqingse}${bold}libtorrent ${DELTPKG}${normal} ${bold}will be installed${normal}"
 
       fi
 
       echo
-
-  fi
 
 }
 
@@ -1572,6 +1571,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       git checkout release-${QBVERSION}
 
       if [[ "${QBPATCH}" == "Yes" ]]; then
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
           git cherry-pick db3158c
           git cherry-pick b271fa9
           echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
@@ -1644,8 +1645,28 @@ function _installde() {
 
   else
 
+      # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
+      if [[ $DELTVERSION == "Install from repo" ]]; then
+
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent >> /dev/null
+
+      # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
+      elif [[ $DELTVERSION == "Install from PPA" ]]; then
+
+          apt-get install -y software-properties-common python-software-properties
+          add-apt-repository -y ppa:deluge-team/ppa
+          apt-get update
+          apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
+          apt-mark hold libtorrent-rasterbar8 python-libtorrent
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+
+      # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
+      elif [[ $DELTVERSION == "No" ]]; then
+
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+
       # 编译安装 libtorrent-rasterbar
-      if [[ ! $DELTVERSION == "Install from repo" ]]; then
+      else
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf >> /dev/null
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
@@ -1658,26 +1679,6 @@ function _installde() {
           mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
           echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
-
-      # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
-      elif [[ $DELTVERSION == "Install from PPA" ]]; then
-
-          apt-get install -y software-properties-common python-software-properties
-          add-apt-repository -y ppa:deluge-team/ppa
-          apt-get update
-          apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
-          apt-mark hold libtorrent-rasterbar8 python-libtorrent
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
-
-      # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
-      elif [[ $DELTVERSION == "No" ]]; then
-
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
-
-      # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
-      else
-
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent >> /dev/null
 
       fi
 
@@ -1703,7 +1704,7 @@ function _installde() {
       fi
 
       python setup.py build >> /dev/null 
-      python setup.py install --install-layout=deb
+      python setup.py install --install-layout=deb >> /dev/null
 #     python setup.py install_data
       cd; rm -rf deluge* libtorrent
 
@@ -2439,7 +2440,7 @@ echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands (if you have enabled system tweaks):
 ${yellow}source /etc/profile"
 [[ $QBFAILED == 1 ]] && echo "jiaobenqb" ; [[ $DEFAILED == 1 ]] && echo "jiaobende" ; [[ $TRFAILED == 1 ]] && echo "jiaobentr"
-[[ $TRFAILED == 1 ]] && echo "jiaobenrt1\n jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
+[[ $RTFAILED == 1 ]] && echo -e "jiaobenrt1\n jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
 echo -ne "${normal}"
 fi
 
