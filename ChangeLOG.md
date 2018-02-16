@@ -4,8 +4,30 @@
 
 
 
+### 2018.02.16
+
+`inexistence 0.9.6`  
+1. **Bump to 0.9.6**  
+2. 其实这次单独而言没多少更新（不过相较 0.9.5 第一版还是有不少更新的），但就是想更新下版本号，新年了 ……  
+3. 增加安装 qBittorrent 4.0.4 的选项  
+4. BugFix：修复选择安装 qBittorrent 4.0.X 时候 Debian 9 和 Ubuntu 16.04 没提示文字的情况  
+5. 吐槽下，最近主要在弄 bdupload  
 
 
+
+
+### 2018.02.14
+
+`inexistence 0.9.5`  
+1. BugFix：修复系统不是 Debian 8 也会提示 qb 4.0 无法编译的问题  
+2. BugFix：修复 libtorrent 选项默认选项显示不正确的问题  
+3. BugFix：修复某些情况下可能 qb patch 没打上的问题  
+4. **BugFix：修复 Deluge libtorrent 安装判断逻辑的问题**  
+5. BugFix：修复安装失败时 tr 失败输出成 rt 日志的问题  
+6. 舍弃了 Deluge 编译时候 install 的非错误日志  
+
+`bdupload`  
+1. 
 
 
 
@@ -33,8 +55,6 @@
 - cronr 重启 cron  
 - deyongle deluge 检查下载路径占用的硬盘空间  
 13. 安装如有失败，在最后提示如何检查安装日志  
-
-
 
 
 
