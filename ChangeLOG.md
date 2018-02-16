@@ -16,6 +16,7 @@
 
 
 
+
 ### 2018.02.14
 
 `inexistence 0.9.5`  
@@ -26,8 +27,7 @@
 5. BugFix：修复安装失败时 tr 失败输出成 rt 日志的问题  
 6. 舍弃了 Deluge 编译时候 install 的非错误日志  
 
-`bdupload`  
-1. 
+
 
 
 
