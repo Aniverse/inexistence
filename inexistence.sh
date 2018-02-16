@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=095
-INEXISTENCEDATE=20180213
+INEXISTENCEDATE=20180216
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -568,6 +568,7 @@ function _askqbt() {
   echo -e "${green}05)${white} qBittorrent ${cyan}3.3.16${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
+  [[ ! $CODENAME = jessie ]] && echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} qBittorrent from ${cyan}repo${white}"
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent from ${cyan}PPA${white}"
@@ -578,17 +579,18 @@ function _askqbt() {
 
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
-      02 | 2 | "") QBVERSION=3.3.11 ;;
+      02 | 2) QBVERSION=3.3.11 ;;
       03 | 3) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
       04 | 4) QBVERSION=3.3.14 ;;
       05 | 5) QBVERSION=3.3.16 ;;
       11) QBVERSION=4.0.2 ;;
       12) QBVERSION=4.0.3 ;;
+      13) QBVERSION=4.0.4 ;;
       30) _inputversion && QBVERSION="${inputversion}"  ;;
       40) QBVERSION='Install from repo' ;;
       50) QBVERSION='Install from PPA' ;;
       99) QBVERSION=No ;;
-      *) QBVERSION=3.3.11 ;;
+      * | "") QBVERSION=3.3.11 ;;
   esac
 
   if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
@@ -600,15 +602,6 @@ function _askqbt() {
   if [ "${QBVERSION}" == "No" ]; then
 
       echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
-
-  elif [ "${QBVERSION4}" == "Yes" ]; then
-
-      if [ $CODENAME = jessie ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
-          QBVERSION=3.3.16 && QBVERSION4=No
-          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
-          echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
-      fi
 
   elif [[ "${QBVERSION}" == "Install from repo" ]]; then
 
@@ -625,6 +618,12 @@ function _askqbt() {
       fi
 
   else
+
+      if [ $CODENAME = jessie ] && [ "${QBVERSION4}" == "Yes" ]; then
+          echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
+          QBVERSION=3.3.16 && QBVERSION4=No
+          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
+      fi
 
       echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
 
@@ -2131,6 +2130,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui
 ########### 安装 mediainfo ########## 
 # https://mediaarea.net/en/MediaInfo/Download/Debian
 
+# apt-get -y install apt-transport-https
 wget --no-check-certificate https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
 rm -rf repo-mediaarea_1.0-5_all.deb
