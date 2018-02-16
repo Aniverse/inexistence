@@ -1,18 +1,22 @@
 #!/bin/bash
-# Only used for 1080p BDMV screenshots
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+# 2018.02.16
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
-magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
+magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
 mediapath=`echo "$1"`
 
 if [[ "$mediapath" == "" ]]; then
-    echo; echo "${red}${bold}WARNING${white} You must input the path to your file with double quotes"; echo
+    echo -e "\n${red}${bold}WARNING${white} You must input the path to your file with double quotes\n${normal}"
     exit 1
 fi
 
 if [[ -d "$mediapath" ]]; then
-    echo; echo "${red}${bold}WARNING${white} You should input a video file, not a dictionary"; echo
-    exit 1
+    mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  `
+    echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots"
+    echo -e "That file is ${underline}${mediapath}${reset_underline}\n${normal}"
 fi
 
 fenbianlv=`echo "$2"`
@@ -25,20 +29,54 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 mkdir -p "/etc/inexistence/07.Screenshots"
 outputpath="/etc/inexistence/07.Screenshots"
 
+# Calculating resolution
+if [[ "$fenbianlv" == "" ]]; then
+    echo -ne "${bold}Calculating resolution ...${normal} "
+    VideoResolution=` ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
+    echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
+    VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
+    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" ` ; DW=$VideoHeight
+    DAR=` ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
+    echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
+    DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
+    DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
+    DH0=` expr $VideoHeight / $DARW  `
+    DH=` expr $DH0 \* $DARH  `
+    fenbianlv="${DH}x${DW}"
+    echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+fi
+
+# Calculating timestampsetting
+duration1=$(ffmpeg -i "$mediapath" 2>&1 | egrep '(Duration:)' | cut -d ' ' -f4 | cut -c1-8)
+duration2=`date -u -d "1970-01-01 $duration1" +%s`
+if [[ "${duration2}" -ge 3600 ]]; then
+    timestampsetting=331
+elif [[ "${duration2}" -ge 1500 && "${duration2}" -lt 3600 ]]; then
+    timestampsetting=121
+elif [[ "${duration2}" -ge 600 && "${duration2}" -lt 1500 ]]; then
+    timestampsetting=71
+elif [[ "${duration2}" -lt 600 ]]; then
+    timestampsetting=21
+fi
+
+
 # Screenshots
 for c in {01..10}
     do
-    i=`expr $i + 66`
+    i=`expr $i + $timestampsetting`
     timestamp=`date -u -d @$i +%H:%M:%S`
+    echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${white} from timestamp ${blue}${timestamp}${white} ...  "
     ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
-    echo "Writing ${cyan}${file_title_clean}.scr${c}.png${white} from timestamp ${cyan}${timestamp}${white}"
+    echo -e "${green}DONE${normal}"
 done
 
+
 # mediainfo
+echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${white} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
-echo "Writing ${cyan}${file_title_clean}.mediainfo.txt${white} ..."
+echo -e "${green}DONE${normal}"
 
-echo
-echo -e "${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}"
-echo
+# finished
+echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
+
