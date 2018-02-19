@@ -2,32 +2,33 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.02.16
+# 2018.02.19
+# --------------------------------------------------------------------------------
+# If you would like to change the output path,
+# sets CustomedOutput=1，then write your output path to OUTPUT
+CustomedOutput=0
+OUTPUT="/replace/here/with/your/output/path"
+# --------------------------------------------------------------------------------
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
-magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
-mediapath=`echo "$1"`
 
-if [[ "$mediapath" == "" ]]; then
-    echo -e "\n${red}${bold}WARNING${white} You must input the path to your file with double quotes\n${normal}"
-    exit 1
-fi
 
-if [[ -d "$mediapath" ]]; then
-    mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  `
-    echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots"
-    echo -e "That file is ${underline}${mediapath}${reset_underline}\n${normal}"
-fi
 
-fenbianlv=`echo "$2"`
+# Colors
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
+
+mediapath=`echo "$1"`; fenbianlv=`echo "$2"`
+
+[[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${white} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${white} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${white} Please edit this script to set output path first\n${normal}" && exit 1
+
+[[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${white} You must input the path to your file with double quotes\n${normal}" && exit 1
+[[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` && echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nThat file is ${underline}${mediapath}${reset_underline}\n${normal}"
 file_title=`basename "$mediapath"`
 file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
-
-mkdir -p "/etc/inexistence/07.Screenshots"
-outputpath="/etc/inexistence/07.Screenshots"
 
 # Calculating resolution
 if [[ "$fenbianlv" == "" ]]; then
@@ -59,17 +60,16 @@ elif [[ "${duration2}" -lt 600 ]]; then
     timestampsetting=21
 fi
 
+[[ $CustomedOutput == 0 ]] && mkdir -p "/etc/inexistence/07.Screenshots" && outputpath="/etc/inexistence/07.Screenshots"
+[[ ! $CustomedOutput == 0 ]] && mkdir -p "$OUTPUT" && outputpath="$OUTPUT"
 
 # Screenshots
-for c in {01..10}
-    do
-    i=`expr $i + $timestampsetting`
-    timestamp=`date -u -d @$i +%H:%M:%S`
+for c in {01..10} ; do
+    i=`expr $i + $timestampsetting` ; timestamp=`date -u -d @$i +%H:%M:%S`
     echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${white} from timestamp ${blue}${timestamp}${white} ...  "
     ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
     echo -e "${green}DONE${normal}"
 done
-
 
 # mediainfo
 echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${white} ...  "
