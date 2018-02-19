@@ -9,9 +9,9 @@
 # Inexistence
 
 #### 使用方法
-``` 
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
-```
+
+自己看着办 (╯‵□′)╯︵┻━┻  
+
 #### 安装介绍
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
@@ -197,7 +197,7 @@ BDinfo 输出结果彩色是因为使用了 lolcat，如果你没安装 lolcat �
 ## IPv6
 
 用于配置 IPv6 的脚本  
-如果第一次运行不成功，试着再跑一遍  
+如果第一次运行不成功，可以试着再跑一遍  
 
 ``` 
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6
@@ -223,19 +223,63 @@ xiansu eth0 300
 
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
 
+
   -------------------
 ## jietu
 
 用于截图和生成 mediainfo 的脚本，适合非原盘类的视频  
-其实一般情况下用 ruTorrent 的插件就可以完成这些任务，不需要用这个脚本  
+输入文件名则对这个文件进行操作，输入文件夹则寻找该文件夹内最大的文件当做视频文件进行操作  
+你可以指定分辨率进行截图，也可以不写分辨率让脚本自动计算 DAR 后的分辨率  
+比如有一张 DVD 的原始分辨率是 720x576，DAR 是 16:9，那么脚本就会采用 1024x576 来截图  
+
 ``` 
 jietu [path/to/file] [resloution]  
-jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080
+jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080  
+jietu [path/to/folder]  
+jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"  
 ```
+
+![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
+
+
+  -------------------
+## guazai
+
+用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此需要 root 权限才能运行  
+
+
+![guazai.03](https://github.com/Aniverse/filesss/raw/master/Images/guazai.03.png)
+
+`guazai` 后输入文件名则挂载那个文件  
+
+![guazai.01](https://github.com/Aniverse/filesss/raw/master/Images/guazai.01.png)
+![guazai.02](https://github.com/Aniverse/filesss/raw/master/Images/guazai.02.png)
+
+`guazai` 后输入路径则会寻找该路径下的所有 ISO 进行挂载  
+直接输入 `guazai`，会在当前目录下寻找 ISO 挂载  
+
+
+  -------------------
+## jiegua
+
+解除挂载用的脚本，会把能检测到的所有已挂载的 ISO 全部解除挂载
+
+![jiegua.01](https://github.com/Aniverse/filesss/raw/master/Images/jiegua.01.png)
+
+`guazai` + `jietu` + `jiegua` 三连
+
+
+  -------------------
+## BD-Upload
+
+关于 BD-Upload 的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bdupload)  
+inexistence 自带 bdupload，不过不包括它的软件库  
+
 
   -------------------
 
-还有一些脚本，比如 `guazai`、`zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
+
+还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 
   -------------------
 ### Something else
@@ -243,11 +287,19 @@ jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_
 有 bug 的话请告诉我 **但不保证能解决**  有意见或者改进也欢迎告知  
 
 如需提交 bug ，请告诉我如下的信息：  
-1. `cat /etc/inexistence/01.Log/installed.lock`  
+1. 具体日志，日志的查看方法在最后安装出错后会有显示  
 2. 你使用的是什么盒子   
 3. 你具体碰到了什么问题  
 
 需要注意的是有些问题可能不是本脚本造成的  
+
+
+  -------------------
+### Usage for Inexistence
+
+```
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
+```
 
   -------------------
 ### Some references
