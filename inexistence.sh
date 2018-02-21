@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=096
-INEXISTENCEDATE=20180216
+INEXISTENCEDATE=20180221
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -943,6 +943,8 @@ function _asktr() {
       03 | 3) TRVERSION=2.84 ;;
       04 | 4) TRVERSION=2.92 ;;
       05 | 5) TRVERSION=2.93 ;;
+      11) TRVERSION=2.92 && TRdefault=No ;;
+      12) TRVERSION=2.93 && TRdefault=No ;;
       30) _inputversion && TRVERSION="${inputversion}" ;;
       31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
       40 | "") TRVERSION='Install from repo' ;;
@@ -1409,11 +1411,11 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall #ca-certificates
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates
 
-if [[ ! $? -eq 0 ]]; then
+if ! [ $? = 0 ]; then
     echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
-    exit 1
+    exit
 fi
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc
@@ -2285,6 +2287,7 @@ alias banben1='apt-cache policy'
 alias banben2='dpkg -l | grep'
 alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
+alias scrgdb="screen -S GoogleDrive -X quit"
 alias jincheng="ps aux | grep -v grep | grep"
 
 alias cdb="cd .."
@@ -2403,6 +2406,7 @@ if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
+    echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
 fi
 
