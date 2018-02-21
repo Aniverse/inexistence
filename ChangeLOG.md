@@ -4,6 +4,70 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 2018.02.21
+
+`inexistence 0.9.6`  
+1. **增加 Transmission 2.92/2.93 跳过校验、破解文件打开数限制的版本**  
+隐藏选项11和12分别对应修改版的2.92/2.93  
+注意：跳过校验有风险，使用修改版客户端有风险，用不用自己看着办  
+2. 增加安装 ca-certificates  
+3. 不知道有没有修复包安装失败时没有 exit 的问题  
+
+`README 0.6.3`  
+1. 更新了几个隐藏选项的说明  
+2. 修改了使用说明  
+
+
+
+
+### 2018.02.19
+
+`jietu 2.1.0`  
+1. 检测 ffmpeg 和 mediainfo 命令是否可用  
+2. 检测是否有 root 权限，没有的话则要求必须自定义输出路径
+3. New Feature：允许自定义输出路径
+
+`guazai 2.0`  
+1. New Feature：三种模式：当前路径寻找 ISO 挂载，指定路径寻找 ISO 挂载，挂载指定 ISO  
+2. UI：界面改进，提示挂载模式
+3. ToDo：目前失败了也不会有提示，并且没有检测是否为 ISO 文件
+4. TuCao：然而 ToDo 的功能我大概是懒得做了……
+
+`jiegua 1.0`  
+1. NEW：统计当前已挂载 ISO 数量，批量解除挂载  
+
+`README 0.6.3`  
+1. **更新了 jietu、guazai、jiegua 安装脚本的说明和截图**  
+2. **修改了使用说明**  
+
+
+
+
+
 ### 2018.02.16
 
 `inexistence 0.9.6`  
@@ -12,6 +76,32 @@
 3. 增加安装 qBittorrent 4.0.4 的选项  
 4. BugFix：修复选择安装 qBittorrent 4.0.X 时候 Debian 9 和 Ubuntu 16.04 没提示文字的情况  
 5. 吐槽下，最近主要在弄 bdupload  
+
+`bdupload`  
+1. **Bump to 2.0.8**  
+2. 合并 bdupload-FH 分支  
+3. New Feature：可以在非共享盒子上运行  
+4. New Feature：NoInstall=1，允许每次都自动使用内置软件库  
+5. New Feature：RCLONE=1，允许使用 rclone 备份生成的文件  
+6. New Feature：DeBUG=1，允许输出更多的信息用于调试  
+7. New Feature：CustomedOutput=1，允许自定义输出路径  
+8. New Feature：判断是不是 UHD Blu-ray，是的话提示不支持，要求重新输入  
+9. New Feature：判断文件夹下是否有 BDMV 文件夹存在  
+10. New Feature：检测 DAR，默认使用 DAR 的分辨率，如不满意该分辨率也可以自定义分辨率  
+11. UI：每一步操作完成后输出 DONE，每一张截图完成后输出 DONE  
+12. 是否创建缩略图改成单独的问题  
+13. 截图时间间隔修改  
+14. 精简部分代码  
+15. 运行完毕后输出 BDinfo QuickSummary （如果扫描了的话）
+
+`jietu`  
+1. Bump to 2.0.0  
+2. New Feature：支持输入文件夹，会自动寻找文件夹里最大的文件来用于截图  
+3. New Feature：可以不指定分辨率，脚本会自动计算 DAR 后的分辨率用于截图  
+4. New Feature：判断视频时长，从而改变截图时间点  
+5. UI：界面改进，在截图前先打省略号，完成后输出 done  
+6. 主要代码都是 bdupload 小改一下  
+7. 下次可能加入指定输出路径的功能，需要自己修改脚本  
 
 
 
