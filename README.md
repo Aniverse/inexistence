@@ -10,7 +10,9 @@
 
 #### 使用方法
 
-自己看着办 (╯‵□′)╯︵┻━┻  
+```
+无非就是 wget 和 bash，自己看着办吧  _(:з」∠)_  
+```
 
 #### 安装介绍
 
@@ -46,7 +48,7 @@
 4. **qBittorrent**  
 在 `Debian 8` 下由于不满足依赖的要求，无法完成 4.0 及以后版本的编译  
 新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
-**跳过校验存在风险，后果自负**  
+**使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 5. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
@@ -55,6 +57,9 @@
 - `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
 - `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
 - `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI  
+隐藏选项 11-15 ，分别对应 1.3.5-1.3.9 的老版本  
+隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
+**使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 6. **libtorrent-rasterbar**  
 如果你对这个不了解的话，敲回车选择默认的选项就可以了  
@@ -77,6 +82,8 @@
 8. **Transmission**  
 Transmission 一般无论哪个版本PT站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
 此外还会安装修改版的 WebUI，更方便易用  
+11 和 12 这两个隐藏选项，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
+**使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 9. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
@@ -134,6 +141,14 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - 有时候 ruTorrent 会有一些插件有问题或者插件需要的依赖没装  
 本人水平菜+人懒，这部分等 rtinst 作者处理  
 - 没有检查用户输入的账号、密码的有效性  
+
+
+  -------------------
+### Usage for Inexistence
+
+```
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
+```
 
 -------------------
 ## mingling
@@ -297,12 +312,6 @@ inexistence 自带 bdupload，不过不包括它的软件库
 需要注意的是有些问题可能不是本脚本造成的  
 
 
-  -------------------
-### Usage for Inexistence
-
-```
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
-```
 
   -------------------
 ### Some references
