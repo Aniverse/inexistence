@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=096
-INEXISTENCEDATE=20180221
+INEXISTENCEDATE=20180222
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -21,6 +21,9 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white};
 shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
+# 用于退出脚本
+export TOP_PID=$$
+trap 'exit 1' TERM
 ### 硬盘计算 ###
 calc_disk() {
     local total_size=0
@@ -250,7 +253,7 @@ if [[ ! -n `command -v wget` ]]; then
     apt-get install -y wget >> /dev/null
 fi
 
-[[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && exit 1
+[[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID
 
 
 # echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
@@ -343,7 +346,7 @@ fi
 #     echo "${cyan}No Virt${normal}"
 # fi
 
-  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n"${bold}System Checking Skipped. Note that this script may not work on unsupported system"${normal}"
+  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
 }
 
@@ -759,6 +762,7 @@ function _askdeluge() {
   fi
 
 }
+
 
 
 
@@ -1413,12 +1417,12 @@ fi
 
 apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates
 
-if ! [ $? = 0 ]; then
-    echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
-    exit
+[ ! $? = 0 ] && 
+    echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
+    kill -s TERM $TOP_PID
 fi
 
-sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc
+sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 # sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
 
 }
