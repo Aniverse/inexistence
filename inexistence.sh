@@ -872,9 +872,9 @@ function _askdelt() {
 
 function _askrt() {
 
-  [ ! $CODENAME = stretch ]echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
-  [ ! $CODENAME = stretch ]echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
-  [ ! $CODENAME = stretch ]echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
+  [[ ! $CODENAME == stretch ]] && echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
+  [[ ! $CODENAME == stretch ]] && echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
+  [[ ! $CODENAME == stretch ]] && echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
