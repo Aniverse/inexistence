@@ -19,10 +19,25 @@
 
 
 
+### 2018.02.22
 
+`inexistence 0.9.6`  
+1. Bug Fix：修复安装包失败后没有退出的问题  
+修了三次，换了个姿势终于修好了 orz  
+2. UI：改进退出脚本以及提示跳过系统检查时的提示文字  
 
-
-
+`bluray 2.2.2`  
+1. **RENAME to bluray**  
+1. **Bump to 2.2.2**  
+这种东西的版本号其实就是随便写的  
+2. New Feature：在制作种子时可以选择暂时移除非必要的文件  
+因为 mktorrent 不支持跳过某些文件，所以只能先把文件移动到别的地方去了  
+一般这些文件都是 ANY!、FAB!、!UHD、MAKEMKV、disk.inf 之类的  
+3. New Feature：制作种子时候可以指定 Tracker  
+默认为空 Tracker，等站点自己修改  
+因为 HD-Torrents 必须写自己的 Tracker，所以单独为 HD-T 设计了一个选项  
+还有 Public Trackers 的选项，预设里写了 16 个公开的 Trackers  
+最后一个就是自定义 Tracker 的选项，不过自定义的话只能写一个 Tracker  
 
 
 
@@ -141,9 +156,9 @@
 10. checkinstall 后生成的安装包都会被存放到 /etc/inexistence/01.Log/INSTALLATION/packages 目录备用  
 11. Transmission 编译 libevent 从 checkinstall 改回了 make install  
 12. 部分 alias 调整，新增部分命令，举例如下：  
-- sshr 开启 root 登陆  
+- sshr 重启 SSH，并开启 root 登陆  
 - cronr 重启 cron  
-- deyongle deluge 检查下载路径占用的硬盘空间  
+- deyongle 检查 deluge 默认下载路径占用的硬盘空间  
 13. 安装如有失败，在最后提示如何检查安装日志  
 
 
