@@ -692,10 +692,9 @@ function _askdeluge() {
           21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
           30) _inputversion && DEVERSION="${inputversion}"  ;;
           40) DEVERSION='Install from repo' ;;
-          50 | "") DEVERSION='Install from PPA' ;;
+          50 | "" | *) DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
-          *) DEVERSION='Install from PPA' ;;
-          esac
+      esac
 
   elif [[ $DISTRO == Debian ]]; then
 
@@ -704,7 +703,7 @@ function _askdeluge() {
           02 | 2) DEVERSION=1.3.12 ;;
           03 | 3) DEVERSION=1.3.13 ;;
           04 | 4) DEVERSION=1.3.14 ;;
-          05 | 5 | "") DEVERSION=1.3.15 ;;
+          05 | 5 | "" | *) DEVERSION=1.3.15 ;;
           11) DEVERSION=1.3.5 ;;
           12) DEVERSION=1.3.6 ;;
           13) DEVERSION=1.3.7 ;;
@@ -715,7 +714,6 @@ function _askdeluge() {
           40) DEVERSION='Install from repo' ;;
           50) DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
-          *) DEVERSION=1.3.15 ;;
       esac
 
   fi
@@ -874,35 +872,49 @@ function _askdelt() {
 
 function _askrt() {
 
-  echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
-  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
-  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
+  [ ! $CODENAME = stretch ]echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
+  [ ! $CODENAME = stretch ]echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
+  [ ! $CODENAME = stretch ]echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
   [[ "${rt_installed}" == "Yes" ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
-  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+  
+    if [ $CODENAME = stretch ]; then
 
-  case $version in
-    01 | 1) RTVERSION=0.9.3 ;;
-    02 | 2 | "") RTVERSION=0.9.4 ;;
-    03 | 3) RTVERSION='0.9.4 IPv6 supported' ;;
-    04 | 4) RTVERSION=0.9.6 ;;
-    99) RTVERSION=No ;;
-    *) RTVERSION=0.9.4 ;;
-  esac
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
+        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
+
+        case $version in
+            04 | 4) RTVERSION=0.9.6 ;;
+            99) RTVERSION=No ;;
+            "" | *) RTVERSION=0.9.6 ;;
+        esac
+
+    else
+
+        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+
+        case $version in
+            01 | 1) RTVERSION=0.9.3 ;;
+            02 | 2) RTVERSION=0.9.4 ;;
+            03 | 3) RTVERSION='0.9.4 IPv6 supported' ;;
+            04 | 4) RTVERSION=0.9.6 ;;
+            99) RTVERSION=No ;;
+            "" | *) RTVERSION=0.9.4 ;;
+        esac
+
+    fi
+
+
+
 
   if [ "${RTVERSION}" == "No" ]; then
 
       echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
 
   else
-
-      if [ $CODENAME == "stretch" ]; then
-          RTVERSION=0.9.6
-          echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
-      fi
 
       if [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
           echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
@@ -1417,7 +1429,7 @@ fi
 
 apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates
 
-[ ! $? = 0 ] && 
+if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
     kill -s TERM $TOP_PID
 fi
