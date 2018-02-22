@@ -288,10 +288,10 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 
   -------------------
-## BD-Upload
+## Blu-ray
 
-关于 BD-Upload 的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bdupload)  
-inexistence 自带 bdupload，不过不包括它的软件库  
+关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
+inexistence 自带 bluray，不过不包括它的软件库  
 
 
   -------------------
