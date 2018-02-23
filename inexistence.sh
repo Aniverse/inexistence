@@ -692,8 +692,9 @@ function _askdeluge() {
           21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
           30) _inputversion && DEVERSION="${inputversion}"  ;;
           40) DEVERSION='Install from repo' ;;
-          50 | "" | *) DEVERSION='Install from PPA' ;;
+          50) DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
+          * | "") DEVERSION='Install from PPA' ;;
       esac
 
   elif [[ $DISTRO == Debian ]]; then
@@ -703,7 +704,7 @@ function _askdeluge() {
           02 | 2) DEVERSION=1.3.12 ;;
           03 | 3) DEVERSION=1.3.13 ;;
           04 | 4) DEVERSION=1.3.14 ;;
-          05 | 5 | "" | *) DEVERSION=1.3.15 ;;
+          05 | 5) DEVERSION=1.3.15 ;;
           11) DEVERSION=1.3.5 ;;
           12) DEVERSION=1.3.6 ;;
           13) DEVERSION=1.3.7 ;;
@@ -714,6 +715,7 @@ function _askdeluge() {
           40) DEVERSION='Install from repo' ;;
           50) DEVERSION='Install from PPA' ;;
           99) DEVERSION=No ;;
+          * | "") DEVERSION=1.3.15 ;;
       esac
 
   fi
@@ -963,10 +965,10 @@ function _asktr() {
       12) TRVERSION=2.93 && TRdefault=No ;;
       30) _inputversion && TRVERSION="${inputversion}" ;;
       31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
-      40 | "") TRVERSION='Install from repo' ;;
+      40) TRVERSION='Install from repo' ;;
       50) TRVERSION='Install from PPA' ;;
       99) TRVERSION=No ;;
-      *) TRVERSION='Install from repo';;
+      "" | *) TRVERSION='Install from repo';;
   esac
 
   if [ "${TRVERSION}" == "No" ]; then
@@ -2427,7 +2429,7 @@ elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
 fi
 
 if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
-    echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566"
+    echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 (Username for Flexget is ${underline}flexget${reset_underline})"
 elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
     FLFAILED=1 ; INSFAILED=1
@@ -2437,7 +2439,6 @@ fi
 
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
-
 
 echo '-----------------------------------------------------------'
 echo
