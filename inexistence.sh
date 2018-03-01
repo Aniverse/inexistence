@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=096
-INEXISTENCEDATE=20180222
+INEXISTENCEDATE=20180301
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -85,7 +85,7 @@ function _client_version_check(){
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
 ### 检查网站是否可以访问
-check_url() { if [[ `wget -S --spider $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi ; }
+check_url() { if [[ `wget -S --spider --no-check-certificate -t1 -T6 $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi ; }
 
 ### 检查系统源是否可用 ###
 function _checkrepo1() {
@@ -383,15 +383,13 @@ function _warning() {
 
 function _confirmation(){
 local answer
-while true
-  do
+while true ; do
     read answer
     case $answer in [yY] | [yY][Ee][Ss] | "" ) return 0 ;;
                     [nN] | [nN][Oo] ) return 1 ;;
                     * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
     esac
-  done
-}
+done ; }
 
 
 # 生成随机密码，genln=密码长度
@@ -399,8 +397,7 @@ while true
 function genpasswd() {
 local genln=$1
 [ -z "$genln" ] && genln=12
-tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs
-}
+tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 
 
 # 询问用户名。检查用户名是否有效的功能以后再做
@@ -430,9 +427,7 @@ function _askusername(){
 
     done
 
-    ANUSER=$addname
-
-}
+    ANUSER=$addname ; }
 
 
 
@@ -488,9 +483,7 @@ done
 ANPASS=$localpass
 exec >&3-
 echo
-return $exitvalue
-
-}
+return $exitvalue ; }
 
 
 
@@ -514,9 +507,7 @@ function _askaptsource() {
       echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -550,9 +541,7 @@ function _askmt() {
       echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -647,9 +636,7 @@ function _askqbt() {
 
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -759,9 +746,7 @@ function _askdeluge() {
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
       fi
 
-  fi
-
-}
+  fi ; }
 
 
 
@@ -862,9 +847,7 @@ function _askdelt() {
 
       fi
 
-      echo
-
-}
+      echo ; }
 
 
 
@@ -880,8 +863,8 @@ function _askrt() {
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
-  [[ "${rt_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
-  [[ "${rt_installed}" == "Yes" ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
+  [[ $rt_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
+# [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
     if [ $CODENAME = stretch ]; then
 
@@ -928,9 +911,7 @@ function _askrt() {
 
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -1014,9 +995,7 @@ function _asktr() {
 
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -1029,7 +1008,6 @@ function _askflex() {
 
   [[ "${flex_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
   read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
-
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
     [nN] | [nN][Oo] | "" ) flexget=No ;;
@@ -1037,14 +1015,10 @@ function _askflex() {
   esac
 
   if [ $flexget == "Yes" ]; then
-      echo "${bold}${baiqingse}Flexget${normal} ${bold}will be installed${normal}"
+      echo -e "${bold}${baiqingse}Flexget${normal} ${bold}will be installed${normal}\n"
   else
-      echo "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}"
-  fi
-
-  echo
-
-}
+      echo -e "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}\n"
+  fi ; }
 
 
 
@@ -1064,14 +1038,10 @@ function _askrclone() {
   esac
 
   if [ $rclone == "Yes" ]; then
-      echo "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}"
+      echo -e "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}\n"
   else
-      echo "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}"
-  fi
-
-  echo
-
-}
+      echo -e "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}\n"
+  fi ; }
 
 
 
@@ -1096,9 +1066,7 @@ function _askvnc() {
       echo "${baizise}VNC or wine will ${baihongse}not${baizise} be installed${normal}"
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -1124,9 +1092,7 @@ function _asktools() {
       echo "${baizise}Uploading Toolbox will ${baihongse}not${baizise} be configured${normal}"
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -1141,8 +1107,7 @@ if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
     bbrinuse=Yes
 else
     bbrinuse=No
-fi
-}
+fi ; }
 
 
 # 检查系统内核版本是否大于4.9
@@ -1151,8 +1116,7 @@ if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
     bbrkernel=Yes
 else
     bbrkernel=No
-fi
-}
+fi ; }
 
 
 # 询问是否安装BBR
@@ -1201,11 +1165,7 @@ function _askbbr() {
           echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
       fi
 
-  fi
-
-  echo
-
-}
+  fi ; echo ; }
 
 
 
@@ -1229,9 +1189,7 @@ function _asktweaks() {
       echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
   fi
 
-  echo
-
-}
+  echo ; }
 
 
 
@@ -1241,17 +1199,9 @@ function _asktweaks() {
 # --------------------- 装完后询问是否重启 --------------------- #
 
 function _askreboot() {
-
-  read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
-
-  if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
-      reboot
-  else
-      echo -e "${bold}Reboot has been canceled...${normal}"
-      echo
-  fi
-
-}
+read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
+if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then reboot
+else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
 
 
@@ -1287,9 +1237,7 @@ function _askcontinue() {
   echo ""
   echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
-  echo ""
-
-}
+  echo "" ; }
 
 
 
@@ -1379,9 +1327,7 @@ mkdir -p /var/www
 
 ln -s /etc/inexistence /var/www/inexistence
 ln -s /etc/inexistence /home/${ANUSER}/inexistence
-cp -f "${local_packages}"/script/* /usr/local/bin
-
-}
+cp -f "${local_packages}"/script/* /usr/local/bin ; }
 
 
 
@@ -1599,16 +1545,20 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       
       ./configure --prefix=/usr --disable-gui
       make -j${MAXCPUS}
-      dpkg -r qbittorrentnox
-      checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
+
+      if [[ "${qb_installed}" == "Yes" ]]; then
+          make install
+      else
+#         dpkg -r qbittorrentnox
+          checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
+      fi
+
       mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
 #     make install
       cd;rm -rf libtorrent qBittorrent
       echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
 
-  fi
-
-}
+  fi ; }
 
 
 
@@ -1729,9 +1679,7 @@ function _installde() {
 
   fi
 
-  echo -e "\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n"
-
-}
+  echo -e "\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n" ; }
 
 
 
@@ -1780,9 +1728,7 @@ function _setde() {
 #     systemctl enable {deluged,deluge-web}@${ANUSER}
 #     systemctl start {deluged,deluge-web}@${ANUSER}
 
-  fi
-
-}
+  fi ; }
 
 
 
@@ -1791,17 +1737,18 @@ function _setde() {
 
 function _installrt() {
 
-  wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
+wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
 
-  if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
-      export RTVERSION=0.9.4
-      bash rtsetup h5ai-ipv6
-  elif [[ "${RTVERSION}" == "0.9.4" ]]; then
-      bash rtsetup h5ai
-  else
-      bash rtsetup h5ai-ipv6
-  fi
+if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
+    export RTVERSION=0.9.4
+    bash rtsetup h5ai-ipv6
+elif [[ "${RTVERSION}" == "0.9.4" ]]; then
+    bash rtsetup h5ai
+else
+    bash rtsetup h5ai-ipv6
+fi
 
+# Installing RAR5
 wget --no-check-certificate --timeout=10 -q https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rarlinux-x64-5.5.0.tar.gz
 tar zxf rarlinux-x64-5.5.0.tar.gz 2>/dev/null
 chmod -R +x rar
@@ -1813,24 +1760,30 @@ apt-get install -y --allow-unauthenticated libncurses5-dev libncursesw5-dev
 sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
 sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
-  rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+if [[ $rt_installed == Yes ]]; then
+    rtupdate $RTVERSION
+else
+    rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+fi
+
 # rtwebmin
 
-sed -i "s/\"mkv\"/\"mkv\",\"m2ts\"/g" /var/www/rutorrent/plugins/screenshots/conf.php
+[[ ! ` grep m2ts /var/www/rutorrent/plugins/screenshots/conf.php ` ]] && sed -i "s/\"mkv\"/\"mkv\",\"m2ts\"/g" /var/www/rutorrent/plugins/screenshots/conf.php
 
-openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
+# openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
 ln -s /home/${ANUSER} /var/www/user.folder
-  
+
+# FTP Port
 # FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
 sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
-/etc/init.d/vsftpd start
+/etc/init.d/vsftpd restart
 
+# spectrogram
 apt-get install -y sox libsox-fmt-mp3
-
 cd /var/www/rutorrent/plugins
-wget --no-check-certificate https://github.com/Aniverse/rtinst/raw/master/spectrogram.tar.gz
+wget --no-check-certificate -O spectrogram.tar.gz https://github.com/Aniverse/rtinst/raw/master/spectrogram.tar.gz
 tar zxf spectrogram.tar.gz
 rm -rf spectrogram.tar.gz
 chown -R www-data:www-data spectrogram
@@ -1839,10 +1792,7 @@ cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 systemctl daemon-reload
 
-cd
-echo;echo;echo;echo;echo;echo "  RTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
-}
+cd ; echo -e "\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
@@ -1895,17 +1845,21 @@ else
     ./autogen.sh
     ./configure --prefix=/usr
     make -j${MAXCPUS}
-#   make install
-    dpkg -r transmission
-    checkinstall -y --pkgversion=$TRVERSION
+
+#   dpkg -r transmission
+    if [[ "${tr_installed}" == "Yes" ]]; then
+        make install
+    else
+        checkinstall -y --pkgversion=$TRVERSION
+    fi
+
     mv tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd; rm -rf transmission*
 
 fi
 
-echo;echo;echo;echo;echo;echo "  TR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+cd ; echo -e "\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
-}
 
 
 
@@ -1940,9 +1894,8 @@ if [ ! "${TRVERSION}" == "No" ]; then
 #   systemctl enable transmission@${ANUSER}
 #   systemctl start transmission@${ANUSER}
 
-fi
+fi ; }
 
-}
 
 
 
@@ -1973,9 +1926,8 @@ function _installflex() {
 # systemctl enable flexget@${ANPASS}
 # systemctl start flexget@${ANPASS}
 
-  echo;echo;echo;echo;echo;echo "  FLEXGET-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+  echo -e "\n\n\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
-}
 
 
 
@@ -2000,9 +1952,8 @@ function _installrclone() {
   cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
   cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
-  echo;echo;echo;echo;echo;echo "  RCLONE-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+  echo -e "\n\n\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
-}
 
 
 
@@ -2024,9 +1975,7 @@ cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
 
-echo;echo;echo;echo;echo;echo "  BBR-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
-}
+echo -e "\n\n\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
@@ -2180,10 +2129,8 @@ unzip -qq eac3to.zip
 rm -rf eac3to.zip
 cd
 
+echo -e "\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
-echo;echo;echo;echo;echo;echo "  UPTOOLBOX-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
-
-}
 
 
 
@@ -2315,7 +2262,7 @@ alias ll="ls -hAlvZ --color --group-directories-first"
 alias gclone="git clone --depth=1"
 
 alias cesu="echo;spdtest --share;echo"
-alias cesu2="echo;spdtest --shar*e --server"
+alias cesu2="echo;spdtest --share --server"
 alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
 alias ios="iostat -dxm 1"
 alias vms="vmstat 3 10"
@@ -2331,7 +2278,7 @@ alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && ec
 alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
 alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
 alias jiaobenrt1="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
-alias jiaobenrt2="clear && /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
+alias jiaobenrt2="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
 alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
 alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
 alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
@@ -2375,9 +2322,8 @@ sysctl -p
 # apt-get -y upgrade
 # apt-get -y autoremove
 
-fi
+fi ; }
 
-}
 
 
 
@@ -2461,14 +2407,11 @@ echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands (if you have enabled system tweaks):
 ${yellow}source /etc/profile"
 [[ $QBFAILED == 1 ]] && echo "jiaobenqb" ; [[ $DEFAILED == 1 ]] && echo "jiaobende" ; [[ $TRFAILED == 1 ]] && echo "jiaobentr"
-[[ $RTFAILED == 1 ]] && echo -e "jiaobenrt1\n jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
+[[ $RTFAILED == 1 ]] && echo -e "jiaobenrt1 jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
 echo -ne "${normal}"
 fi
 
-echo
-
-}
-
+echo ; }
 
 
 
