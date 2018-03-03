@@ -7,6 +7,7 @@
 INEXISTENCEVER=096
 INEXISTENCEDATE=20180303
 SYSTEMCHECK=1
+DISABLE=0
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -173,8 +174,31 @@ fi ; }
 
 
 
+if [[ $DISABLE == 1 ]]; then echo "
+${heibaise}${bold}                                                                   ${normal}
+${heibaise}${bold}        :iLKW######Ef:                       ,fDKKEDj;::           ${normal}
+${heibaise}${bold}  #KE####j           f######f        tDW###Wf          ,W#######   ${normal}
+${heibaise}${bold}  ####j                   t#########EW#f                   #####   ${normal}
+${heibaise}${bold}  LW##                      ######KE#W                      ##WK   ${normal}
+${heibaise}${bold}    WG                      i###KG###i                      ##     ${normal}
+${heibaise}${bold}    WK                      f#t    ;#i                      WE     ${normal}
+${heibaise}${bold}    i#                      ##      ##                      #.     ${normal}
+${heibaise}${bold}     W                     D#.      :#E                     W      ${normal}
+${heibaise}${bold}     KL                   DW;        f#i                   fL      ${normal}
+${heibaise}${bold}      W,                 GWi          tW:                  #       ${normal}
+${heibaise}${bold}      :KW              ,#W              W#                #,       ${normal}
+${heibaise}${bold}         WW#W:     ,K#Kj                  WWD.        ,#Kf         ${normal}
+${heibaise}${bold}             .:W#:,                           :ftGWEf;             ${normal}
+${heibaise}${bold}                                                                   ${normal}
 
-clear
+###################################################################
+#                                                                 #
+#                     ${green}${bold}TOO YOUNG TOO SIMPLE \!\!\! ${normal}                   #
+#                                                                 #
+#                   ${green}${bold}Please read README on GitHub${normal}                  #
+#                                                                 #
+###################################################################
+" ; exit 1 ; fi ; clear
 
 
 
