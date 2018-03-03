@@ -8,12 +8,6 @@
 -------------------
 # Inexistence
 
-#### 使用方法
-
-```
-无非就是 wget 和 bash，自己看着办吧  _(:з」∠)_  
-```
-
 #### 安装介绍
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
@@ -143,12 +137,6 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - 没有检查用户输入的账号、密码的有效性  
 
 
-  -------------------
-### Usage for Inexistence
-
-```
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
-```
 
 -------------------
 ## mingling
@@ -302,14 +290,16 @@ inexistence 自带 bluray，不过不包括它的软件库
   -------------------
 ### Something else
 
-有 bug 的话请告诉我 **但不保证能解决**  有意见或者改进也欢迎告知  
+1. 我拒绝回答 README 中已包含答案的问题  
+2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
+3. 有意见或者改进也欢迎告知  
 
 如需提交 bug ，请告诉我如下的信息：  
 1. 具体日志，日志的查看方法在最后安装出错后会有显示  
 2. 你使用的是什么盒子   
 3. 你具体碰到了什么问题  
 
-需要注意的是有些问题可能不是本脚本造成的  
+需要注意的是
 
 
 
