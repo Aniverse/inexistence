@@ -5,7 +5,7 @@
 #
 # --------------------------------------------------------------------------------
 INEXISTENCEVER=096
-INEXISTENCEDATE=20180301
+INEXISTENCEDATE=20180303
 SYSTEMCHECK=1
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
@@ -1382,6 +1382,8 @@ if [ ! $? = 0 ]; then
     kill -s TERM $TOP_PID
 fi
 
+# apt-get remove --purge -y libgnutls-deb0-28
+
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 # sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
 
@@ -1507,7 +1509,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
           apt-get purge -y libtorrent-rasterbar-dev
           apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall >> /dev/null
-          cd; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent
+          cd; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
 
@@ -2208,15 +2210,16 @@ alias tra="systemctl start transmission"
 alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
 alias trr="systemctl restart transmission"
-alias rta="systemctl start rtorrent@${ANUSER}"
-alias rtb="systemctl stop rtorrent@${ANUSER}"
-alias rtc="systemctl status rtorrent@${ANUSER}"
-alias rtr="systemctl restart rtorrent@${ANUSER}"
-alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
-alias irssia="systemctl start irssi@${ANUSER}"
-alias irssib="systemctl stop irssi@${ANUSER}"
-alias irssic="systemctl status irssi@${ANUSER}"
-alias irssir="systemctl restart irssi@${ANUSER}"
+alias rta="su ${ANUSER} -c 'rt start'"
+alias rtb="su ${ANUSER} -c 'rt stop'"
+alias rtc="su ${ANUSER} -c 'rt'"
+alias rtr="su ${ANUSER} -c 'rt restart'"
+alias rtscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent'"
+alias irssia="su ${ANUSER} -c 'rt -i start'"
+alias irssib="su ${ANUSER} -c 'rt -i stop'"
+alias irssic="su ${ANUSER} -c 'rt -i'"
+alias irssir="su ${ANUSER} -c 'rt -i restart'"
+alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
 alias fla="systemctl start flexget"
 alias flb="systemctl stop flexget"
 alias flc="flexget daemon status"
@@ -2267,6 +2270,9 @@ alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+
 alias ios="iostat -dxm 1"
 alias vms="vmstat 3 10"
 alias vns="vnstat -l -i $wangka"
+
+alias sousuo1="find / -name"
+alias sousuo2="find /home/${ANUSER} -name"
 
 alias cronr="/etc/init.d/cron restart"
 alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart"
@@ -2405,7 +2411,8 @@ fi
 if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands (if you have enabled system tweaks):
-${yellow}source /etc/profile"
+${yellow}source /etc/profile
+jiaobenxuanxiang"
 [[ $QBFAILED == 1 ]] && echo "jiaobenqb" ; [[ $DEFAILED == 1 ]] && echo "jiaobende" ; [[ $TRFAILED == 1 ]] && echo "jiaobentr"
 [[ $RTFAILED == 1 ]] && echo -e "jiaobenrt1 jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
 echo -ne "${normal}"
