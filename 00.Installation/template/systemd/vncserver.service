@@ -3,10 +3,10 @@ Description=VNCserver
 After=syslog.target network.target
 
 [Service]
-ExecStart=/usr/bin/sudo /usr/bin/vncserver :1 -geometry 1366x768
-ExecStop=/usr/bin/sudo /usr/bin/vncserver -kill :1
-ExecStartPre=-/usr/bin/sudo /usr/bin/vncserver -kill :1 > /dev/null 2>&1
+ExecStart=/usr/bin/vncserver :1 -geometry 1366x768
+ExecStop=/usr/bin/vncserver -kill :1
 Restart=always
+User=root
 Type=forking
 
 [Install]
