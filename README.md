@@ -125,6 +125,8 @@ wine 和 mono 可能也会加上
 - **检查安装完成后客户端是否正在运行**  
 - **MiMA**  
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent 的密码的脚本  
+- **加入脚本参数**  
+比如 `bash inexistence -u username -p password --d 1.3.15 --r 0.9.6 --q 4.0.3 --tr 2.93`  
 
 #### Under Consideration
 
