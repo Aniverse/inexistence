@@ -4,10 +4,11 @@
 # Author: Aniverse
 #
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=096
-INEXISTENCEDATE=20180303
 SYSTEMCHECK=1
 DISABLE=0
+DeBUG=0
+INEXISTENCEVER=097
+INEXISTENCEDATE=20180304
 # --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
@@ -71,7 +72,7 @@ function _check_install_1(){
   fi ; }
 
 function _check_install_2(){
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmepg mediainfo wget; do
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget; do
     client_name=$apps; _check_install_1
 done ; }
 
@@ -160,8 +161,8 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; ech
 ### 检查系统是否被支持 ###
 function _oscheck() {
 if [[ ! "$SysSupport" == 1 ]]; then
-    echo "Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script"
-    echo "Exiting..."
+    echo -e "\n${bold}${red}Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script${normal}"
+    echo -e "${bold}If you want to run this script on unsupported distro, please edit this script to skip system check\nExiting...${normal}\n"
     exit 1
 fi ; }
 
@@ -174,7 +175,7 @@ fi ; }
 
 
 
-if [[ $DISABLE == 1 ]]; then echo "
+if [[ $DISABLE == 1 ]]; then clear ; echo "
 ${heibaise}${bold}                                                                   ${normal}
 ${heibaise}${bold}        :iLKW######Ef:                       ,fDKKEDj;::           ${normal}
 ${heibaise}${bold}  #KE####j           f######f        tDW###Wf          ,W#######   ${normal}
@@ -193,13 +194,12 @@ ${heibaise}${bold}                                                              
 
 ###################################################################
 #                                                                 #
-#                     ${green}${bold}TOO YOUNG TOO SIMPLE \!\!\! ${normal}                   #
+#                       ${green}${bold}TOO YOUNG TOO SIMPLE  ${normal}                    #
 #                                                                 #
 #                   ${green}${bold}Please read README on GitHub${normal}                  #
 #                                                                 #
 ###################################################################
 " ; exit 1 ; fi ; clear
-
 
 
 
@@ -254,6 +254,8 @@ OPSYDE7=`echo $opsy | grep 'Debian' | grep '7'`        ; OPSYDE8=`echo $opsy | g
 [[ -n "$OPSYUB1604" ]] && RELEASE=16.04                     && DISTRO=Ubuntu && CODENAME=xenial     && SysSupport=1 && relno=16
 [[ -n   "$OPSYDE8"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=jessie     && SysSupport=1 && relno=8
 [[ -n   "$OPSYDE9"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=stretch    && SysSupport=1 && relno=9
+
+DISTROL=` echo $DISTRO | tr 'A-Z' 'a-z' `
 
 # echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "RELEASE=$RELEASE" && echo "relno=$relno" && echo "SysSupport=$SysSupport"
 
@@ -916,9 +918,6 @@ function _askrt() {
 
     fi
 
-
-
-
   if [ "${RTVERSION}" == "No" ]; then
 
       echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
@@ -1056,8 +1055,8 @@ function _askrclone() {
   read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
   case $responce in
-      [yY] | [yY][Ee][Ss]) rclone=Yes ;;
-      [nN] | [nN][Oo] | "" ) rclone=No ;;
+      [yY] | [yY][Ee][Ss]  ) rclone=Yes ;;
+      [nN] | [nN][Oo] | "" ) rclone=No  ;;
       *) rclone=No ;;
   esac
 
@@ -1071,23 +1070,51 @@ function _askrclone() {
 
 
 
-# --------------------- 询问是否需要安装 VNC --------------------- #
-# 目前不启用
+# --------------------- 询问是否需要安装 远程桌面 --------------------- #
 
-function _askvnc() {
+function _askrdp() {
 
-  read -ep "${bold}${yellow}Would you like to install VNC and wine? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -e "${green}01)${white} VNC  with xfce4"
+  echo -e "${green}02)${white} X2Go with xfce4"
+  echo -e   "${red}99)${white} Do not install remote desktop"
+  read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
-  case $responce in
-      [yY] | [yY][Ee][Ss]) vnc=Yes ;;
-      [nN] | [nN][Oo] | "" ) vnc=No ;;
-      *) vnc=No ;;
+  case $version in
+      01 | 1) InsRDP=VNC ;;
+      02 | 2) InsRDP=X2Go ;;
+      99    ) InsRDP=No ;;
+      "" | *) InsRDP=No ;;
   esac
 
-  if [ $tweaks == "Yes" ]; then
-      echo "${bold}${baiqingse}VNC${normal} and ${baiqingse}wine${normal} ${bold}will be installed${normal}"
+  if [[ $InsRDP == VNC ]]; then
+      echo "${bold}${baiqingse}VNC${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
+  elif [[ $InsRDP == X2Go ]]; then
+      echo "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
   else
-      echo "${baizise}VNC or wine will ${baihongse}not${baizise} be installed${normal}"
+      echo "${baizise}VNC or X2Go will ${baihongse}not${baizise} be installed${normal}"
+  fi
+
+  echo ; }
+
+
+
+
+# --------------------- 询问是否安装 wine 和 mono --------------------- #
+
+function _askwine() {
+
+  read -ep "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+
+  case $responce in
+      [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
+      [nN] | [nN][Oo] | "" ) InsWine=No  ;;
+      *) InsWine=No ;;
+  esac
+
+  if [[ $InsWine == Yes ]]; then
+      echo "${bold}${baiqingse}Wine${normal} and ${bold}${baiqingse}mono${normal} ${bold}will be installed${normal}"
+  else
+      echo "${baizise}Wine or mono will ${baihongse}not${baizise} be configured${normal}"
   fi
 
   echo ; }
@@ -1097,16 +1124,15 @@ function _askvnc() {
 
 
 # --------------------- 询问是否安装发种工具箱 --------------------- #
-# 目前不启用
 
 function _asktools() {
 
-  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, mediainfo ..."
+  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, mediainfo, ffmpeg ..."
   read -ep "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
   case $responce in
-      [yY] | [yY][Ee][Ss]) tools=Yes ;;
-      [nN] | [nN][Oo] | "" ) tools=No ;;
+      [yY] | [yY][Ee][Ss]  ) tools=Yes ;;
+      [nN] | [nN][Oo] | "" ) tools=No  ;;
       *) tools=No ;;
   esac
 
@@ -1247,8 +1273,8 @@ function _askcontinue() {
   echo -e "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
   echo -e "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
   echo -e "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
-# echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
-# echo -e "                  ${cyan}${bold}VNC${normal}           ${bold}${yellow}"${vnc}"${normal}"
+  echo -e "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
+  echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
   echo -e "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
   echo -e "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
   echo -e "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
@@ -1314,7 +1340,8 @@ RCLONEINSTALLED=${rclone}
 BBRINSTALLED=${bbr}
 USETWEAKS=${tweaks}
 UPLOADTOOLS=${tools}
-VNCINSTALLED=${vnc}
+RDP=${InsRDP}
+WINE=${InsWine}
 #################################
 EOF
 
@@ -1399,7 +1426,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -2007,21 +2034,12 @@ echo -e "\n\n\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
-# --------------------- 安装 VNC/wine --------------------- #
+# --------------------- 安装 VNC --------------------- #
 
 function _installvnc() {
 
-dpkg --add-architecture i386 
-wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
-apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
-add-apt-repository -y ppa:ubuntu-toolchain-r/test
-apt-get update
-apt-get install -y --install-recommends winehq-stable
-apt-get install -y fonts-noto
-apt-get install -y vnc4server
-apt-get install -y xfonts-intl-chinese-big fcitx xfonts-wqy
-apt-get install -y xfce4
-#apt-get install -y mate-desktop-environment-extras
+apt-get install -y vnc4server xfce4 fonts-noto xfonts-intl-chinese-big fcitx xfonts-wqy
+
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
 vncpasswd <<EOF
 $ANPASS
@@ -2029,110 +2047,141 @@ $ANPASS
 EOF
 vncserver && vncserver -kill :1
 cd; mkdir -p .vnc
-cp -f "${local_packages}"/template/xstartup.1 /root/.vnc/xstartup
+cp -f "${local_packages}"/template/xstartup.1.xfce4 /root/.vnc/xstartup
+chmod +x /root/.vnc/xstartup
 cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
 systemctl daemon-reload
 systemctl enable vncserver
 systemctl start vncserver
 
-#vncserver -geometry 1366x768
-
-}
+echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
 
 
-# --------------------- 安装 mkvtoolnix／wine／mktorrent／ffmpeg／mediainfo --------------------- #
-# 没写完，目前不会投入使用
+# --------------------- 安装 X2Go --------------------- #
+
+function _installx2go() {
+
+apt-get install -y xfce4
+echo -e "\n\n\n  xfce4  \n\n\n\n"
+
+if [[ $DISTRO == Ubuntu ]]; then
+	apt-get install -y software-properties-common firefox
+	apt-add-repository -y ppa:x2go/stable
+else
+    cat >/etc/apt/sources.list.d/x2go.list<<EOF
+# X2Go Repository (release builds)
+deb http://packages.x2go.org/debian ${CODENAME} main
+# X2Go Repository (sources of release builds)
+deb-src http://packages.x2go.org/debian ${CODENAME} main
+# X2Go Repository (nightly builds)
+#deb http://packages.x2go.org/debian ${CODENAME} heuler
+# X2Go Repository (sources of nightly builds)
+#deb-src http://packages.x2go.org/debian ${CODENAME} heuler
+EOF
+    apt-get -y update
+#   gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E
+#   gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1F958385BFE2B6E
+    apt-get -y update
+    apt-get -y install x2go-keyring iceweasel
+fi
+
+apt-get -y update
+apt-get -y install x2goserver x2goserver-xsession pulseaudio
+
+echo -e "\n\n\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+
+
+
+
+# --------------------- 安装 wine --------------------- #
+
+function _installwine() {
+
+# mono
+# http://www.mono-project.com/download/stable/#download-lin
+
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" | tee /etc/apt/sources.list.d/mono.list
+apt-get -y update
+apt-get install -y mono-complete ca-certificates-mono
+
+# wine
+# https://wiki.winehq.org/Debian
+
+if [[ $InsWine == Build ]]; then
+
+    #wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
+	cd ; git clone git://source.winehq.org/git/wine.git
+	cd wine
+	./configure
+	make -j${MAXCPUS}
+	make install
+    cd .. ; rm -rf wine
+
+elif [[ $InsWine == apt ]]; then
+
+	dpkg --add-architecture i386
+    wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
+
+	if [[ $DISTRO == Ubuntu ]]; then
+		apt-get install -y software-properties-common
+		apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+	elif [[ $DISTRO == Debian ]]; then
+    	echo "deb deb https://dl.winehq.org/wine-builds/$DISTROL/ $CODENAME main" | tee /etc/apt/sources.list.d/wine.list
+	fi
+
+    apt-get update -y
+    apt-get install -y --install-recommends winehq-stable
+
+fi
+
+wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x winetricks
+mv winetricks /usr/local/bin
+
+echo -e "\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+
+
+
+
+
+# --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
 function _installtools() {
 
-cd
+########## Blu-ray ##########
 
-# https://www.johnvansickle.com/ffmpeg
-# http://www.deb-multimedia.org
-# deb http://www.deb-multimedia.org jessie main non-free
-# deb http://www.deb-multimedia.org stretch main non-free
+wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
+chmod +x bluray
 
-########## 安装 ffmpeg x265 x264 yasm imagemagick ##########
+########## 安装 新版 ffmpeg ##########
 
-apt-get install -y imagemagick
+cd ; wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz
+tar xf ffmpeg-git-64bit-static.tar.xz
+rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
+cp -f ffmpeg-*-64bit-static/* /usr/bin
+chmod 777 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
+rm -rf ffmpeg{-git-64bit-static.tar.xz,-*-64bit-static}
 
-if [[ $DISTRO == Ubuntu ]]; then
-    apt-get -y install x265
-elif [[ $DISTRO == Debian ]]; then
-    apt-get -y install -t jessie-backports x265
-fi
+########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
-git clone --depth 1 https://github.com/FFmpeg/FFmpeg.git ffmpeg
-git clone --depth 1 git://github.com/yasm/yasm ffmpeg/yasm
-git clone --depth 1 https://github.com/yixia/x264 ffmpeg/x264
+wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
+echo "deb https://mkvtoolnix.download/$DISTROL/$CODENAME/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb-src https://mkvtoolnix.download/$DISTROL/$CODENAME/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
+apt-get -y update
 
-cd ffmpeg/yasm
-./autogen.sh
-./configure
-make -j${MAXCPUS}
-make install
-cd ../x264
-./configure --enable-static --enable-shared
-make -j${MAXCPUS}
-make install
-ldconfig
-
-cd ..
-export FC_CONFIG_DIR=/etc/fonts
-export FC_CONFIG_FILE=/etc/fonts/fonts.conf
-./configure --enable-libfreetype --enable-filter=drawtext --enable-fontconfig --disable-asm --enable-libx264 --enable-gpl
-make -j${MAXCPUS}
-make install
-cp -f /usr/local/bin/ffmpeg /usr/bin
-cp -f /usr/local/bin/ffprobe /usr/bin
-rm -rf /root/ffmpeg
-
-########## 安装 mkvtoolnix ##########
-
-apt-get install -y apt-transport-https
-wget --no-check-certificate -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-
-    if [ $CODENAME = stretch ]; then
-
-cat >>/etc/apt/sources.list<<EOF
-deb https://mkvtoolnix.download/debian/jessie/ ./
-deb-src https://mkvtoolnix.download/debian/jessie/ ./
-EOF
-
-    elif [ $CODENAME = jessie ]; then
-
-cat >>/etc/apt/sources.list<<EOF
-deb https://mkvtoolnix.download/debian/stretch/ ./
-deb-src https://mkvtoolnix.download/debian/stretch/ ./
-EOF
-
-    else
-
-cat >>/etc/apt/sources.list<<EOF
-deb https://mkvtoolnix.download/ubuntu/xenial/ ./
-deb-src https://mkvtoolnix.download/ubuntu/xenial/ ./
-EOF
-
-    fi
-
-apt-get update
-apt-get install -y mkvtoolnix mkvtoolnix-gui
-
-########### 安装 mediainfo ########## 
-# https://mediaarea.net/en/MediaInfo/Download/Debian
-
-# apt-get -y install apt-transport-https
-wget --no-check-certificate https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
+wget --no-check-certificate -qO- https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
 rm -rf repo-mediaarea_1.0-5_all.deb
-apt-get update
-apt-get -y install mediainfo
 
-########### 安装 mktorrent  ###########
+apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
+
+########### 编译安装 mktorrent 1.1  ###########
 
 # wget --no-check-certificate https://github.com/Rudde/mktorrent/archive/v1.1.tar.gz
 # tar zxf v1.1.tar.gz
@@ -2141,7 +2190,6 @@ apt-get -y install mediainfo
 # make install
 # cd ..
 # rm -rf mktorrent-1.1 v1.1.tar.gz
-apt-get install -y mktorrent
 
 mkdir -p /var/www/mktorrent
 cp -f "${local_packages}"/template/mktorrent.php /var/www/mktorrent/index.php
@@ -2152,8 +2200,7 @@ sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
 cd /etc/inexistence/02.Tools/eac3to
 wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
-rm -rf eac3to.zip
-cd
+rm -rf eac3to.zip ; cd
 
 echo -e "\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
@@ -2167,20 +2214,17 @@ function _tweaks() {
 
 if [ $tweaks == "Yes" ]; then
 
-
 # Oh my zsh
 #sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 #cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
-#wget -O ~/.zshrc https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/config/zshrc
 #wget -O ~/.oh-my-zsh/themes/agnosterzak.zsh-theme http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme
-
 #chsh -s /bin/zsh
 
 
 # PowerFonts
-#git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
-#cd fonts;./install.sh
-#cd; rm -rf fonts
+git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
+cd fonts;./install.sh
+cd; rm -rf fonts
 
 
 #修改时区
@@ -2363,14 +2407,11 @@ fi ; }
 function _end() {
 
 _check_install_2
-
 timeused=$(( $endtime - $starttime ))
 
-echo
 clear
 
-echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} "
-echo
+echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '-----------------------------------------------------------'
 
 if [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "Yes" ]]; then
@@ -2415,6 +2456,7 @@ fi
 
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
+[[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}${ANPASS}${normal}"
 
 echo '-----------------------------------------------------------'
 echo
@@ -2461,18 +2503,16 @@ _askdelt
 _askqbt
 _askrt
 _asktr
+[[ $DeBUG == 1 ]] && _askrdp
+[[ $DeBUG == 1 ]] && [[ ! $InsRDP == No ]] && _askwine
+[[ $DeBUG == 1 ]] && _asktools
 _askflex
 _askrclone
-# _askvnc
-# _asktools
 
 if [[ -d "/proc/vz" ]]; then
-    echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}"
-    echo
-    bbr='Not supported on OpenVZ'
-else
-    _askbbr
-fi
+echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
+bbr='Not supported on OpenVZ'
+else _askbbr ; fi
 
 _asktweaks
 _askcontinue | tee /etc/00.info.log
@@ -2492,62 +2532,92 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 
 
-if [ $bbr == "Yes" ]; then
-    echo -n "Configuring BBR ... ";echo;echo;echo; _installbbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+if [ $bbr == Yes ]; then
+    echo -ne "Configuring BBR ... \n\n\n" ; _installbbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
-    echo "Skip BBR installation";echo;echo;echo;echo;echo
+    echo -e "Skip BBR installation\n\n\n\n\n"
 fi
 
-if [ "${DEVERSION}" == "No" ]; then
-    echo "Skip Deluge installation";echo;echo;echo;echo;echo
+if [ "${DEVERSION}" == No ]; then
+    echo -e "Skip Deluge installation \n\n\n\n"
 else
-    echo -n "Installing Deluge ... ";echo;echo;echo; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
-    echo -n "Configuring Deluge ... ";echo;echo;echo; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
-fi
-
-
-if [ "${QBVERSION}" == "No" ]; then
-    echo "Skip qBittorrent installation";echo;echo;echo;echo;echo
-else
-    echo -n "Installing qBittorrent ... ";echo;echo;echo; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
-    echo -n "Configuring qBittorrent ... ";echo;echo;echo;  _setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
+    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
+    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
 fi
 
 
-if [ "${RTVERSION}" == "No" ]; then
-    echo "Skip rTorrent installation";echo;echo;echo;echo;echo
+if [ "${QBVERSION}" == No ]; then
+    echo -e "Skip qBittorrent installation\n\n\n\n"
 else
-    echo -n "Installing rTorrent ... ";echo;echo;echo; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
+    echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
+    echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
 fi
 
 
-if [ "${TRVERSION}" == "No" ]; then
-    echo "Skip Transmission installation";echo;echo;echo;echo;echo
+if [ "${RTVERSION}" == No ]; then
+    echo -e "Skip rTorrent installation\n\n\n"
 else
-    echo -n "Installing Transmission ... ";echo;echo;echo; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
-    echo -n "Configuring Transmission ... ";echo;echo;echo; _settr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/09.tr2.log
+    echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
 fi
 
 
-if [ $flexget == "No" ]; then
-    echo "Skip Flexget installation";echo;echo;echo;echo;echo
+if [ "${TRVERSION}" == No ]; then
+    echo -e "Skip Transmission installation\n\n\n\n"
 else
-    echo -n "Installing Flexget ... ";echo;echo;echo; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
+    echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
+    echo -ne "Configuring Transmission ... \n\n\n" ; _settr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/09.tr2.log
 fi
 
 
-if [ $rclone == "No" ]; then
-    echo "Skip rclone installation";echo;echo;echo;echo;echo
+if [ $flexget == No ]; then
+    echo -e "Skip Flexget installation\n\n\n\n"
 else
-    echo -n "Installing rclone ... ";echo;echo;echo; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
+    echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
 fi
+
+
+if [ $rclone == No ]; then
+    echo "Skip rclone installation\n\n\n\n"
+else
+    echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
+fi
+
+
+####################################
+
+if [[ $InsRDP == VNC ]]; then
+   echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+elif [[ $InsRDP == X2Go ]]; then
+   echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+else
+   echo "Skip RDP installation\n\n\n\n"
+fi
+
+
+if [[ $InsWine == No ]]; then
+   echo -ne "Installing Wine ... \n\n\n" ; _installrdp 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
+else
+   echo "Skip Wine installation\n\n\n\n"
+fi
+
+
+if [[ $tools == Yes ]]; then
+   echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
+else
+   echo "Skip Uploading Toolbox installation\n\n\n\n"
+fi
+
+####################################
 
 
 if [ $tweaks == "No" ]; then
-    echo "Skip System tweaks";echo;echo;echo;echo;echo
+    echo -e "Skip System tweaks\n\n\n\n"
 else
-    echo -n "Configuring system settings ... ";echo;echo;echo;_tweaks
+    echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
 fi
+
+
+
 
 
 endtime=$(date +%s)
