@@ -12,7 +12,7 @@ INEXISTENCEDATE=20180304
 # --------------------------------------------------------------------------------
 
 if [[ $DeBUG == 1 ]]; then
-    confirm_name=1
+    confirm_name=0
     ANUSER=aniverse
     localpass=12345678
 fi
@@ -470,7 +470,6 @@ function _askusername(){
 
 function _askpassword() {
 
-local localpass
 local exitvalue=0
 local password1
 local password2
@@ -2110,7 +2109,7 @@ function _installwine() {
 # http://www.mono-project.com/download/stable/#download-lin
 
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" | tee /etc/apt/sources.list.d/mono.list
+echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" > /etc/apt/sources.list.d/mono.list
 apt-get -y update
 apt-get install -y mono-complete ca-certificates-mono
 
@@ -2136,7 +2135,7 @@ elif [[ $InsWine == apt ]]; then
 		apt-get install -y software-properties-common
 		apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
 	elif [[ $DISTRO == Debian ]]; then
-    	echo "deb deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" | tee /etc/apt/sources.list.d/wine.list
+    	echo "deb deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
 	fi
 
     apt-get update -y
@@ -2178,6 +2177,7 @@ rm -rf ffmpeg{-git-64bit-static.tar.xz,-*-64bit-static}
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
+echo -n  > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
 apt-get -y update
@@ -2602,7 +2602,7 @@ fi
 
 
 if [[ $InsWine == Yes ]]; then
-   echo -ne "Installing Wine ... \n\n\n" ; _installrdp 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
+   echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
 else
    echo "Skip Wine installation\n\n\n\n"
 fi
