@@ -801,15 +801,15 @@ function _askdelt() {
 
       echo
 #     echo -e "${green}00)${white} libtorrent ${cyan}0.16.19${white}   (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent ${cyan}1.0.11${white}      (DO NOT USE IT)"
-      echo -e "${green}02)${white} libtorrent ${cyan}1.1.6${white}       (DO NOT USE IT)"
+      echo -e "${green}01)${white} libtorrent ${cyan}1.0.11${white}      "
+      echo -e "${green}02)${white} libtorrent ${cyan}1.1.6${white}       "
       echo -e "${green}30)${white} Select another version"
-      echo -e "${green}40)${white} libtorrent from ${cyan}repo${white}   (Default)"
+      echo -e "${green}40)${white} libtorrent from ${cyan}repo${white} (Default)"
       [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent from ${cyan}Deluge PPA${white}"
       [[ "${de_installed}" == "Yes" ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
-      echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
+#     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
 
       if [ $CODENAME = stretch ]; then
@@ -1078,6 +1078,7 @@ function _askrdp() {
   echo -e "${green}01)${white} VNC  with xfce4"
   echo -e "${green}02)${white} X2Go with xfce4"
   echo -e   "${red}99)${white} Do not install remote desktop"
+  echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
   read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " responce
 
   case $responce in
@@ -2040,7 +2041,8 @@ echo -e "\n\n\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 function _installvnc() {
 
 apt-get install -y vnc4server
-apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big fcitx xfonts-wqy xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
+apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy #fcitx
+apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
 
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
 vncpasswd <<EOF
@@ -2053,10 +2055,10 @@ cp -f "${local_packages}"/template/xstartup.1.xfce4 /root/.vnc/xstartup
 chmod +x /root/.vnc/xstartup
 cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
-#systemctl daemon-reload
-#systemctl enable vncserver
-#systemctl start vncserver
-#systemctl status vncserver
+systemctl daemon-reload
+systemctl enable vncserver
+systemctl start vncserver
+systemctl status vncserver
 
 echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
@@ -2182,7 +2184,6 @@ echo -e "${normal}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 function _installtools() {
 
-[[ $DeBUG == 1 ]] && echo "${DISTROL} ${CODENAME}"
 # DISTROL=debian ; CODENAME=jessie
 
 ########## Blu-ray ##########
@@ -2496,7 +2497,7 @@ fi
 
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
-[[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold} ` echo ${ANPASS} | cut -c1-8` ${normal}"
+# [[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 
 echo '-----------------------------------------------------------'
 echo
@@ -2543,9 +2544,9 @@ _askdeluge
 _askqbt
 _askrt
 _asktr
-[[ $DeBUG == 1 ]] && _askrdp
-[[ $DeBUG == 1 ]] && [[ ! $InsRDP == No ]] && _askwine
-[[ $DeBUG == 1 ]] && _asktools
+_askrdp
+_askwine
+_asktools
 _askflex
 _askrclone
 
