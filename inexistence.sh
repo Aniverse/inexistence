@@ -2136,7 +2136,7 @@ elif [[ $InsWineMode == apt ]]; then
 		apt-get install -y software-properties-common
 		apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
 	elif [[ $DISTRO == Debian ]]; then
-    	echo "deb deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
+    	echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
 	fi
 
     apt-get update -y
