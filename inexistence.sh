@@ -10,6 +10,13 @@ DeBUG=0
 INEXISTENCEVER=097
 INEXISTENCEDATE=20180304
 # --------------------------------------------------------------------------------
+
+if [[ $DeBUG == 1 ]]; then
+    confirm_name=1
+    ANUSER=aniverse
+    localpass=12345678
+fi
+
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -2050,6 +2057,7 @@ cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system
 systemctl daemon-reload
 systemctl enable vncserver
 systemctl start vncserver
+systemctl status vncserver
 
 echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
@@ -2151,15 +2159,16 @@ echo -e "\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 function _installtools() {
 
 [[ $DeBUG == 1 ]] && echo "${DISTROL} ${CODENAME}"
+# DISTROL=debian ; CODENAME=jessie
 
 ########## Blu-ray ##########
 
 wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
-chmod +x bluray
+chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
 
-cd ; wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz
+cd ; wget --no-check-certificate -q https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz
 tar xf ffmpeg-git-64bit-static.tar.xz
 rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
@@ -2169,11 +2178,11 @@ rm -rf ffmpeg{-git-64bit-static.tar.xz,-*-64bit-static}
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
 apt-get -y update
 
-wget --no-check-certificate -qO- https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
+wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
 rm -rf repo-mediaarea_1.0-5_all.deb
 
@@ -2497,7 +2506,7 @@ _askpassword
 _askaptsource
 _askmt
 _askdeluge
-[[ "${DEVERSION}" == "No" ]] && _askdelt
+[[ ! "${DEVERSION}" == No ]] && _askdelt
 _askqbt
 _askrt
 _asktr
@@ -2592,7 +2601,7 @@ else
 fi
 
 
-if [[ $InsWine == No ]]; then
+if [[ $InsWine == Yes ]]; then
    echo -ne "Installing Wine ... \n\n\n" ; _installrdp 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
 else
    echo "Skip Wine installation\n\n\n\n"
