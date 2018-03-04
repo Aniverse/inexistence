@@ -772,7 +772,7 @@ function _askdeluge() {
           echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
       fi
 
-  fi ; }
+  fi; echo ; }
 
 
 
@@ -784,17 +784,13 @@ function _askdelt() {
 
 # DELTVERSION=$(  curl -s "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
-  if [[ "${DEVERSION}" == "No" ]]; then
+  if [[ "${DEVERSION}" == "Install from repo" ]]; then
 
-      echo
-
-  elif [[ "${DEVERSION}" == "Install from repo" ]]; then
-
-      echo ; DELTVERSION='Install from repo'
+      DELTVERSION='Install from repo'
 
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
 
-      echo ; DELTVERSION='Install from PPA'
+      DELTVERSION='Install from PPA'
 
   else
 
@@ -1077,9 +1073,9 @@ function _askrdp() {
   echo -e "${green}01)${white} VNC  with xfce4"
   echo -e "${green}02)${white} X2Go with xfce4"
   echo -e   "${red}99)${white} Do not install remote desktop"
-  read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " responce
 
-  case $version in
+  case $responce in
       01 | 1) InsRDP=VNC ;;
       02 | 2) InsRDP=X2Go ;;
       99    ) InsRDP=No ;;
@@ -2106,7 +2102,7 @@ function _installwine() {
 # http://www.mono-project.com/download/stable/#download-lin
 
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" | tee /etc/apt/sources.list.d/mono.list
+echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" | tee /etc/apt/sources.list.d/mono.list
 apt-get -y update
 apt-get install -y mono-complete ca-certificates-mono
 
@@ -2132,7 +2128,7 @@ elif [[ $InsWine == apt ]]; then
 		apt-get install -y software-properties-common
 		apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
 	elif [[ $DISTRO == Debian ]]; then
-    	echo "deb deb https://dl.winehq.org/wine-builds/$DISTROL/ $CODENAME main" | tee /etc/apt/sources.list.d/wine.list
+    	echo "deb deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" | tee /etc/apt/sources.list.d/wine.list
 	fi
 
     apt-get update -y
@@ -2154,6 +2150,8 @@ echo -e "\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 function _installtools() {
 
+[[ $DeBUG == 1 ]] && echo "${DISTROL} ${CODENAME}"
+
 ########## Blu-ray ##########
 
 wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
@@ -2171,8 +2169,8 @@ rm -rf ffmpeg{-git-64bit-static.tar.xz,-*-64bit-static}
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-echo "deb https://mkvtoolnix.download/$DISTROL/$CODENAME/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb-src https://mkvtoolnix.download/$DISTROL/$CODENAME/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" > /etc/apt/sources.list.d/mkvtoolnix.list
 apt-get -y update
 
 wget --no-check-certificate -qO- https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
@@ -2499,7 +2497,7 @@ _askpassword
 _askaptsource
 _askmt
 _askdeluge
-_askdelt
+[[ "${DEVERSION}" == "No" ]] && _askdelt
 _askqbt
 _askrt
 _asktr
