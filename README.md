@@ -8,7 +8,6 @@
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
 如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
--------------------
 ## Inexistence
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
@@ -296,8 +295,12 @@ inexistence 自带 bluray，不过不包括它的软件库
 
 https://github.com/arakasi72/rtinst  
 https://github.com/QuickBox/QB  
+https://github.com/liaralabs/swizzin  
 https://github.com/qbittorrent/qBittorrent  
 https://flexget.com  
+https://wiki.winehq.org  
+https://wiki.x2go.org  
+http://www.mono-project.com  
 https://rclone.org/install  
 http://dev.deluge-torrent.org/wiki/UserGuide    
 https://mkvtoolnix.download/downloads.html  
