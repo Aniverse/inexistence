@@ -19,6 +19,80 @@
 
 
 
+
+
+
+
+
+
+### 2018.03.04
+
+`inexistence 0.9.7`  
+1. **Bump to 0.9.7**  
+2. **New Feature：安装 VNC**  
+搞了好几个小时了还是没搞定，某些情况下没问题某些情况下死活连不上，(╯‵□′)╯︵┻━┻  
+3. **New Feature：安装 X2Go**  
+还是 X2Go 简单，就决定是你了！
+4. **New Feature：安装 wine**  
+5. **New Feature：安装 mono**  
+6. **New Feature：Uploading ToolBox**  
+安装最新版 ffmpeg、mkvtoolnix、mediainfo、eac3to，以及 mktorrent  
+配合远程桌面就可以在盒子上做 Remux 了  
+7. **New Feature：DeBUG**  
+8. UI：系统不支持时提示字体改成粗体，DISABLE 界面去掉感叹号，deluge libtorrent 去掉一些提示  
+9. TuCAO：我下次想又想往前进一个版本号了……  
+
+
+
+
+
+### 2018.03.03
+
+`inexistence 0.9.6`  
+1. qBittorrent 的 libtorrent-rasterbar 若要编译，所用分支从 RC_1_0 改成了 libtorrent-1_0_11  
+2. 使用 rtinst 的 rt 脚本来管理 rt 和 irssi 的 alias 命令  
+3. 加入了搜索的 alias  
+4. 提示报错信息时加入了 jiaobenxuanxiang  
+5. **加入了 DISABLE=0，若启用的话则脚本无法正常运行**  
+目前不启用  
+
+`README 0.6.3`  
+1. 去除了 Usage  
+2. 去除了 bdjietu  
+3. 完善了其他的一些内容  
+
+
+
+
+
+### 2018.03.01
+
+`inexistence 0.9.6`  
+1. New Feature：如果 rtorrent 已经安装则使用 rtupdate 更换版本  
+2. 如果已经安装了 Transmission 或 qBittorrent，则本次安装采用 make install  
+3. 修复 cesu2 和 jiaobenet 的 alias  
+4. 网址检查设定了 6 秒的时限  
+5. 内部排版修改  
+
+`rtinst`  
+1. 从 GitHub 下载 xmlrpc  
+rtinst 作者指定的那个源这几天老是大姨妈，索性换了  
+
+
+
+
+
+### 2018.02.23
+
+`inexistence 0.9.6`  
+1. Bug Fix：修复 Deluge 选项不管怎么选都采用默认选项的问题  
+看来有的东西不能乱改  
+2. UI：提示 Flexget WebUI 的用户名是 flexget  
+
+
+
+
+
 ### 2018.02.22
 
 `inexistence 0.9.6`  
@@ -74,6 +148,10 @@
 
 `jiegua 1.0`  
 1. NEW：统计当前已挂载 ISO 数量，批量解除挂载  
+
+`rtinst`  
+1. 去掉了某些冗长且无用的输出信息  
+2. 同步原作者代码，去掉了对 python-software-properties 的安装  
 
 `README 0.6.3`  
 1. **更新了 jietu、guazai、jiegua 安装脚本的说明和截图**  
@@ -170,6 +248,7 @@
 
 `rtinst Aniverse Mod`  
 1. 修复 Ubuntu 16.04 下 Autodl-Irssi 安装不正确的问题  
+因为没安装 php-xml  
 
 `ChangeLOG 0.2.0`  
 1. 2017.12.07-2018.02.08  
