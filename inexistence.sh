@@ -459,7 +459,7 @@ function _askusername(){
 
     done
 
-    ANUSER=$addname ; }
+    [[ ! $DeBUG == 1 ]] && ANUSER=$addname ; }
 
 
 
@@ -2106,20 +2106,38 @@ function _installwine() {
 
 # mono
 # http://www.mono-project.com/download/stable/#download-lin
+# https://download.mono-project.com/sources/mono/
+# http://www.mono-project.com/docs/compiling-mono/compiling-from-git/
 
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" > /etc/apt/sources.list.d/mono.list
-apt-get -y update
-apt-get install -y mono-complete ca-certificates-mono
+InsMonoMode=apt
+
+if [[ $InsMonoMode == Building ]]; then
+
+    apt-get install -y git autoconf libtool automake build-essential mono-devel gettext cmake python libtool-bin
+    git clone --depth=1 -b mono-5.13.0.302 https://github.com/mono/mono
+	cd mono
+	./autogen.sh --prefix=/usr/local
+	make -j${MAXCPUS}
+	make install
+    cd .. ; rm -rf mono
+
+elif [[ $InsMonoMode == apt ]]; then
+
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" > /etc/apt/sources.list.d/mono.list
+    apt-get -y update
+    apt-get install -y mono-complete ca-certificates-mono
+
+fi
 
 # wine
 # https://wiki.winehq.org/Debian
 
 InsWineMode=apt
 
-if [[ $InsWineMode == Build ]]; then
+if [[ $InsWineMode == Building ]]; then
 
-    #wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
+    # wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
 	cd ; git clone git://source.winehq.org/git/wine.git
 	cd wine
 	./configure
@@ -2148,7 +2166,10 @@ wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetri
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
-echo -e "\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+echo -e "\n\n\nVersion"
+echo "${bold}${green}`wine --version`"
+echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
+echo -e "${normal}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
@@ -2181,12 +2202,12 @@ wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunku
 echo -n  > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
-apt-get -y update
 
 wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
 rm -rf repo-mediaarea_1.0-5_all.deb
 
+apt-get -y update
 apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
 
 ########### 编译安装 mktorrent 1.1  ###########
@@ -2213,11 +2234,11 @@ wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
-echo -e "\n\n\n Version${bold}${green}"
+echo -e "\n\n\nVersion${bold}${green}"
 mktorrent -h | head -n1
 mkvmerge --version
-echo " Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
-echo " ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
+echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
+echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
 echo -e "\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
