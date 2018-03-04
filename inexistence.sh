@@ -2039,7 +2039,8 @@ echo -e "\n\n\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 function _installvnc() {
 
-apt-get install -y vnc4server xfce4 fonts-noto xfonts-intl-chinese-big fcitx xfonts-wqy
+apt-get install -y vnc4server
+apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big fcitx xfonts-wqy xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
 
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
 vncpasswd <<EOF
@@ -2052,12 +2053,13 @@ cp -f "${local_packages}"/template/xstartup.1.xfce4 /root/.vnc/xstartup
 chmod +x /root/.vnc/xstartup
 cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
-systemctl daemon-reload
-systemctl enable vncserver
-systemctl start vncserver
-systemctl status vncserver
+#systemctl daemon-reload
+#systemctl enable vncserver
+#systemctl start vncserver
+#systemctl status vncserver
 
 echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+
 
 
 
@@ -2073,7 +2075,7 @@ echo -e "\n\n\n  xfce4  \n\n\n\n"
 if [[ $DISTRO == Ubuntu ]]; then
 	apt-get install -y software-properties-common firefox
 	apt-add-repository -y ppa:x2go/stable
-else
+elif [[ $DISTRO == Debian ]]; then
     cat >/etc/apt/sources.list.d/x2go.list<<EOF
 # X2Go Repository (release builds)
 deb http://packages.x2go.org/debian ${CODENAME} main
@@ -2084,7 +2086,6 @@ deb-src http://packages.x2go.org/debian ${CODENAME} main
 # X2Go Repository (sources of nightly builds)
 #deb-src http://packages.x2go.org/debian ${CODENAME} heuler
 EOF
-    apt-get -y update
 #   gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E
 #   gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1F958385BFE2B6E
@@ -2129,6 +2130,8 @@ elif [[ $InsMonoMode == apt ]]; then
     apt-get install -y mono-complete ca-certificates-mono
 
 fi
+
+echo -e "${normal}\n\n\n\n\n  MONO-INSTALLATION-COMPLETED  \n\n\n\n"
 
 # wine
 # https://wiki.winehq.org/Debian
@@ -2493,7 +2496,7 @@ fi
 
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
-[[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}${ANPASS}${normal}"
+[[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold} ` echo ${ANPASS} | cut -c1-8` ${normal}"
 
 echo '-----------------------------------------------------------'
 echo
@@ -2614,7 +2617,7 @@ fi
 
 
 if [ $rclone == No ]; then
-    echo "Skip rclone installation\n\n\n\n"
+    echo -e "Skip rclone installation\n\n\n\n"
 else
     echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
 fi
