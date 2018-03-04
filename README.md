@@ -80,20 +80,41 @@ Transmission 一般无论哪个版本PT站都支持，并且用起来没多大�
 11 和 12 这两个隐藏选项，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-9. **Flexget**  
+9. **Remote Desktop**  
+远程桌面选项，默认不安装  
+远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如做 BD-Remux，wine uTorrent  
+VNC 目前在某些情况下有 bug，建议用 X2Go  
+
+10. **wine 与 mono**  
+wine 可以实现在 Linux 上运行 Windows 程序  
+mono 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 都需要 mono 才能运行  
+这两个默认也是不安装的  
+
+11. **Some additional tools**  
+这里是安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
+有一些站点要求 mediainfo 是最新版，比如 HDBits  
+- mkvtoolnix 主要是用于做 BD-Remux  
+- ffmpeg 对于大多数盒子用户来说主要是拿来做视频截图用  
+- eac3to 需要 wine 来运行，做 remux 时用得上  
+- mktorrent 由于 1.1 版的实际表现不是很理想，因此选择从系统源安装 1.0 版本  
+- mktorrent WebUI 有 bug，所以虽然弄了但不会告诉你网址……  
+- BDinfoCLI 已经自带了，需要 mono 来运行  
+- bluray 脚本其实也自带，不过有的时候我会忘记同步这里的版本，所以还是更新下  
+
+12. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己设置  
 
-10. **rclone**  
+13. **rclone**  
 默认不安装。安装好后自己输入 rclone config 进行配置  
 
-11. **BBR**  
+14. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
 由于 BBR 需要 4.9 以上的内核，而更换内核或多或少是有点危险性的操作，因此需要考虑一下  
 不过针对常见的 Online.net 的独服我是准备了五个 firmware，应该没什么问题  
 BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
-12. **系统设置**  
+15. **系统设置**  
 默认启用，具体操作如下：  
 - 修改时区为 UTC+8  
 - 语言编码设置为 UTF-8  
@@ -101,7 +122,7 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 - 提高系统文件打开数  
 - 修改 screen 设置  
 
-13. **确认信息**  
+16. **确认信息**  
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 
 
@@ -116,13 +137,9 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### To Do List
 
-- **安装 VNC**  
-wine 和 mono 可能也会加上  
-- **发种相关**  
-安装新版本的 ffmepg、mediainfo、mkvtoolnix  
+- **检查安装完成后客户端是否正在运行**  
 - **Flexget 模板**  
 补充更多的站点预设  
-- **检查安装完成后客户端是否正在运行**  
 - **MiMA**  
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent 的密码的脚本  
 - **加入脚本参数**  
@@ -198,6 +215,7 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 
 用于配置 IPv6 的脚本  
 如果第一次运行不成功，可以试着再跑一遍  
+如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
 
 ``` 
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6
@@ -274,7 +292,7 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
 inexistence 自带 bluray，不过不包括它的软件库  
-
+（然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、image、mono、imagemagick）  
 
   -------------------
 
@@ -283,7 +301,7 @@ inexistence 自带 bluray，不过不包括它的软件库
   -------------------
 ### Something else
 
-1. 我拒绝回答 README 中已包含答案的问题  
+1. 我不想回答 README 中已包含答案的问题  
 2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
 3. 有意见或者改进也欢迎告知  
 
