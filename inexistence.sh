@@ -10,13 +10,12 @@ DeBUG=0
 INEXISTENCEVER=097
 INEXISTENCEDATE=20180304
 # --------------------------------------------------------------------------------
-
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
     ANUSER=aniverse
     localpass=12345678
 fi
-
+# --------------------------------------------------------------------------------
 local_packages=/etc/inexistence/00.Installation
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -441,7 +440,7 @@ function _askusername(){
     echo "${bold}${yellow}The script needs a username${white}"
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
-    confirm_name=1
+    [[ ! $DeBUG == 1 ]] && confirm_name=1
     while [[ $confirm_name = 1 ]]; do
 
         while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
@@ -1129,8 +1128,8 @@ function _askwine() {
 
 function _asktools() {
 
-  echo -e "mono, BDinfo, eac3to, MKVToolnix, mktorrent, mediainfo, ffmpeg ..."
-  read -ep "${bold}${yellow}Would you like to install the above additional softwares ? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
+  read -ep "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) tools=Yes ;;
@@ -1139,9 +1138,9 @@ function _asktools() {
   esac
 
   if [ $tools == "Yes" ]; then
-      echo "${bold}${baiqingse}Uploading Toolbox${normal} ${bold}will be installed${normal}"
+      echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
   else
-      echo "${baizise}Uploading Toolbox will ${baihongse}not${baizise} be configured${normal}"
+      echo "${baizise}These softwares will ${baihongse}not${baizise} be configured${normal}"
   fi
 
   echo ; }
@@ -2101,7 +2100,7 @@ echo -e "\n\n\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
 
-# --------------------- 安装 wine --------------------- #
+# --------------------- 安装 wine 与 mono --------------------- #
 
 function _installwine() {
 
@@ -2116,7 +2115,9 @@ apt-get install -y mono-complete ca-certificates-mono
 # wine
 # https://wiki.winehq.org/Debian
 
-if [[ $InsWine == Build ]]; then
+InsWineMode=apt
+
+if [[ $InsWineMode == Build ]]; then
 
     #wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
 	cd ; git clone git://source.winehq.org/git/wine.git
@@ -2126,7 +2127,7 @@ if [[ $InsWine == Build ]]; then
 	make install
     cd .. ; rm -rf wine
 
-elif [[ $InsWine == apt ]]; then
+elif [[ $InsWineMode == apt ]]; then
 
 	dpkg --add-architecture i386
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
@@ -2189,6 +2190,8 @@ rm -rf repo-mediaarea_1.0-5_all.deb
 apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
 
 ########### 编译安装 mktorrent 1.1  ###########
+# mktorrent 1.1 可以不用写 announce，支持了多线程，但是制作过程中没有进度条了
+# 并且据某位大佬说，他在 LT2016 上用 mktorrent 1.1 比 mktorrent 1.0 更慢，因此还是用系统源里的 1.0 算了
 
 # wget --no-check-certificate https://github.com/Rudde/mktorrent/archive/v1.1.tar.gz
 # tar zxf v1.1.tar.gz
@@ -2198,6 +2201,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
 # cd ..
 # rm -rf mktorrent-1.1 v1.1.tar.gz
 
+# MkTorrent WebUI，存在 bug 不可用，且就算能用好像也不是那么的实用，就算了
 mkdir -p /var/www/mktorrent
 cp -f "${local_packages}"/template/mktorrent.php /var/www/mktorrent/index.php
 sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
@@ -2209,6 +2213,11 @@ wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
+echo -e "\n\n\n Version${bold}${green}"
+mktorrent -h | head -n1
+mkvmerge --version
+echo " Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
+echo " ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
 echo -e "\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 
