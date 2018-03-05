@@ -1273,10 +1273,11 @@ function _askcontinue() {
   echo -e "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
   echo -e "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
   echo -e "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
+  echo -e "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
+  echo -e "                  ${cyan}${bold}Wine, mono${normal}    ${bold}${yellow}"${InsWine}"${normal}"
+  echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
   echo -e "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
   echo -e "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
-  echo -e "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
-  echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
   echo -e "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
   echo -e "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
   echo -e "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
@@ -1595,6 +1596,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           git config --global user.name "Your Name"
           git cherry-pick db3158c
           git cherry-pick b271fa9
+          git cherry-pick 1ce71fc #IO
           echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
       fi
       
@@ -2193,12 +2195,12 @@ chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
 
-cd ; wget --no-check-certificate -q https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz
-tar xf ffmpeg-git-64bit-static.tar.xz
+cd ; wget --no-check-certificate -O ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
+tar xf ffmpeg-3.4.2-64bit-static.tar.xz
 rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
 chmod 777 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
-rm -rf ffmpeg{-git-64bit-static.tar.xz,-*-64bit-static}
+rm -rf ffmpeg-*-64bit-static*
 
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
