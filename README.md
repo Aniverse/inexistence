@@ -82,24 +82,23 @@ Transmission 一般无论哪个版本PT站都支持，并且用起来没多大�
 
 9. **Remote Desktop**  
 远程桌面选项，默认不安装  
-远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如做 BD-Remux，wine uTorrent  
+远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
 VNC 目前在某些情况下有 bug，建议用 X2Go  
 
 10. **wine 与 mono**  
-wine 可以实现在 Linux 上运行 Windows 程序  
-mono 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 都需要 mono 才能运行  
 这两个默认也是不安装的  
+`wine` 可以实现在 Linux 上运行 Windows 程序  
+`mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 都需要 mono 才能运行  
 
 11. **Some additional tools**  
 这里是安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
-有一些站点要求 mediainfo 是最新版，比如 HDBits  
-- mkvtoolnix 主要是用于做 BD-Remux  
-- ffmpeg 对于大多数盒子用户来说主要是拿来做视频截图用  
-- eac3to 需要 wine 来运行，做 remux 时用得上  
-- mktorrent 由于 1.1 版的实际表现不是很理想，因此选择从系统源安装 1.0 版本  
-- mktorrent WebUI 有 bug，所以虽然弄了但不会告诉你网址……  
-- BDinfoCLI 已经自带了，需要 mono 来运行  
-- bluray 脚本其实也自带，不过有的时候我会忘记同步这里的版本，所以还是更新下  
+- `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
+- `mkvtoolnix` 主要是用于做 BD-Remux  
+- `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，采用 git 的 Static Builds  
+- `eac3to` 需要 wine 来运行，做 remux 时用得上  
+- `mktorrent` 由于 1.1 版的实际表现不是很理想，因此选择从系统源安装 1.0 版本  
+- `BDinfoCLI` 已经自带了，需要 mono 来运行  
+- `bluray` 其实也自带了，不过有的时候我会忘记同步这里的版本，所以还是更新下  
 
 12. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
@@ -144,6 +143,9 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent 的密码的脚本  
 - **加入脚本参数**  
 比如 `bash inexistence -u username -p password --d 1.3.15 --r 0.9.6 --q 4.0.3 --tr 2.93`  
+- **自写 BBR 部分的代码**  
+可以自定义内核，或者指定某些内核  
+BBR 本来也没几步，没必要用脚本  
 
 #### Under Consideration
 
@@ -152,6 +154,8 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### Known Issues
 
+- VNC 可能连不上  
+暂时无解  
 - 有时候 rTorrent 或 ruTorrent 会有一些问题  
 最糟的情况是 rTorrent 没装成功，稍好一点的情况是 rut 连不上 rt，再好一点的情况是某些插件不能使用  
 因为有的时候是怎么翻车的我也不是很清楚，再加上我水平菜，所以这问题我一时半会儿修不了
@@ -338,6 +342,7 @@ https://github.com/outime/ipv6-dhclient-script
 https://github.com/jxzy199306/ipv6_dhclient_online_net  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
 https://xxxxxx.org/forums/viewtopic?topicid=61434  
+https://github.com/superlukia/transmission-2.92_skiphashcheck  
 https://tieba.baidu.com/p/5536354634  
 https://tieba.baidu.com/p/5532509017  
 https://tieba.baidu.com/p/5158974574  
