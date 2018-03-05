@@ -16,10 +16,15 @@
 
 
 
+### 2018.03.05
 
+`inexistence 0.9.7`  
+1. **Bug Fix：更换 ffmpeg 的下载链接为 GitHub 的链接，增加 -O 参数，版本改为 3.4.2**  
+2. UI：确认信息处增加 mono 和 wine 的选项  
+3. qBittorrent 3.3.11 的修改版增加一个 IO 显示 的 cherry-pick  
 
-
-
+`README 0.6.9`  
+1. 小修小补  
 
 
 
@@ -42,6 +47,12 @@
 8. UI：系统不支持时提示字体改成粗体，DISABLE 界面去掉感叹号，deluge libtorrent 去掉一些提示  
 9. TuCAO：我下次想又想往前进一个版本号了……  
 
+`README 0.6.8`  
+1. **补充了三个新选项的介绍**  
+
+`WiKi`  
+1. 碎碎念 Ver 0.1  
+
 
 
 
@@ -56,7 +67,7 @@
 5. **加入了 DISABLE=0，若启用的话则脚本无法正常运行**  
 目前不启用  
 
-`README 0.6.3`  
+`README 0.6.5`  
 1. 去除了 Usage  
 2. 去除了 bdjietu  
 3. 完善了其他的一些内容  
