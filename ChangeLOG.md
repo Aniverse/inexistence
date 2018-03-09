@@ -14,6 +14,7 @@
 1. **New Feature：对于 Debian 7 和 Ubuntu 14.04，可以用脚本升级到 Debian 8 和 Ubuntu 16.04 **  
 2. 换行调整  
 3. 完善判断系统的代码  
+4. UI: rTorrent 的安装提示也会安装 ruTorrent, vsftpd, h5ai, autodl-irssi  
 
 
 
