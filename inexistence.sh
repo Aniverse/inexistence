@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
@@ -2698,5 +2698,6 @@ endtime=$(date +%s)
 _end 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/99.end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
+
 
 
