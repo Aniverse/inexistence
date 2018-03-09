@@ -926,6 +926,8 @@ function _askrt() {
           echo "${bold}${baiqingse}rTorrent "${RTVERSION}"${normal} ${bold}will be installed${normal}"
       fi
 
+      echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
+
   fi
 
   echo ; }
@@ -1466,7 +1468,7 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo "executing dist-upgrade"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
-echo -e "\n\n\n${shanshuo}${bailanse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+echo -e "\n\n\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
 reboot
 exit 0
 kill -s TERM $TOP_PID
