@@ -12,9 +12,10 @@
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
 
-检查是否 root，检查系统是不是 `Ubuntu 16.04、Debian 8、Debian 9`  
-如果没用 root 权限运行或者系统不是如上的三个，脚本会自动退出  
-你可以通过修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统的检查，不过嘛脚本能不能正常工作就是另一回事了  
+检查是否以 root 来运行脚本，检查系统是否受支持  
+`Ubuntu 16.04、Debian 8、Debian 9` 是直接支持的  
+对于 `Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统一概不支持  
+你可以通过修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统是否受支持的检查，不过嘛脚本能不能正常工作就是另一回事了  
 
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -23,15 +24,20 @@
 ![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
 
 
-1. **账号密码**  
+1. **是否升级系统**  
+如果你的系统是 Debian 7 或 Ubuntu 14.04，你可以用本脚本来升级到 Debian 8 或 Ubuntu 16.04  
+理论上整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
+升级完后会直接执行重启命令，重启完后你需要再次运行脚本来完成软件的安装  
+
+2. **账号密码**  
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
 用户名需要以字母开头，长度 4-16 位；密码最好同时包含字母和数字，长度至少 8 位
 恩，目前我话是这么说，但脚本里还没有检查账号密码是否合乎要求，所以还是自己注意点吧  
 
-2. **系统源**  
+3. **系统源**  
 其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
 
-3. **线程数量**    
+4. **线程数量**    
 编译时使用几个线程进行编译。一般来说独服用默认的选项，也就是全部线程都用于编译就行了  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 下面四大客户端的安装，指定版本的一般都是编译安装，安装速度相对较慢但可以任选版本  
@@ -39,13 +45,13 @@
 选择 `40` 是从 PPA 安装  **( 不支持 Debian 系统所以自动隐藏了 )**  同样无法指定版本不过一般软件都是最新版  
 选择 `50` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 
-4. **qBittorrent**  
+5. **qBittorrent**  
 在 `Debian 8` 下由于不满足依赖的要求，无法直接完成 4.0 及以后版本的编译  
 （解决办法也有就是我不太喜欢所以没加上）  
 新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-5. **Deluge**  
+6. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
@@ -56,11 +62,11 @@
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-6. **libtorrent-rasterbar**  
+7. **libtorrent-rasterbar**  
 如果你对这个不了解的话，敲回车选择默认的选项就可以了  
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
-7. **rTorrent**  
+8. **rTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的，默认选项为安装原版 0.9.4  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar  
 - 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
@@ -74,23 +80,23 @@
 - `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 
-8. **Transmission**  
+9. **Transmission**  
 Transmission 一般无论哪个版本PT站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
 此外还会安装修改版的 WebUI，更方便易用  
 11 和 12 这两个隐藏选项，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-9. **Remote Desktop**  
+10. **Remote Desktop**  
 远程桌面选项，默认不安装  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
 VNC 目前在某些情况下有 bug，建议用 X2Go  
 
-10. **wine 与 mono**  
+11. **wine 与 mono**  
 这两个默认也是不安装的  
 `wine` 可以实现在 Linux 上运行 Windows 程序  
 `mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 都需要 mono 才能运行  
 
-11. **Some additional tools**  
+12. **Some additional tools**  
 这里是安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
 - `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
 - `mkvtoolnix` 主要是用于做 BD-Remux  
@@ -100,28 +106,28 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 - `BDinfoCLI` 已经自带了，需要 mono 来运行  
 - `bluray` 其实也自带了，不过有的时候我会忘记同步这里的版本，所以还是更新下  
 
-12. **Flexget**  
+13. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己设置  
 
-13. **rclone**  
+14. **rclone**  
 默认不安装。安装好后自己输入 rclone config 进行配置  
 
-14. **BBR**  
+15. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装，高于 4.9 是默认启用BBR（不更换内核）  
 由于 BBR 需要 4.9 以上的内核，而更换内核或多或少是有点危险性的操作，因此需要考虑一下  
 不过针对常见的 Online.net 的独服我是准备了五个 firmware，应该没什么问题  
 BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内核  
 
-15. **系统设置**  
+16. **系统设置**  
 默认启用，具体操作如下：  
 - 修改时区为 UTC+8  
-- 语言编码设置为 UTF-8  
+- 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令  
 - 提高系统文件打开数  
 - 修改 screen 设置  
 
-16. **确认信息**  
+17. **确认信息**  
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 
 
