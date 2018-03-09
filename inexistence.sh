@@ -81,7 +81,7 @@ function _check_install_1(){
   fi ; }
 
 function _check_install_2(){
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget; do
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
     client_name=$apps; _check_install_1
 done ; }
 
@@ -158,13 +158,13 @@ echo ; }
 
 ### 输入自己想要的软件版本 ###
 function _inputversion() {
-echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version, or the installation will be FAILED${normal}"
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
 
 function _inputversionlt() {
-echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the right version number, otherwise the installation will be failed${normal}"
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version, or the installation will be FAILED${normal}"
 echo -e "${red}${bold} Here is a list of all the available versions${normal}\n"
-curl -s "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
 
 ### 检查系统是否被支持 ###
@@ -443,7 +443,7 @@ function _askusername(){
         done
 
         addname="${answerusername}"
-        echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o ? "
+        echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
         read answer
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
@@ -550,7 +550,7 @@ function _askmt() {
   echo -e "${green}04)${white} Use ${cyan}two${white} threads"
 # echo -e   "${red}99)${white} Do not compile, install softwares from repo"
 
-  echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
+# echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
 # read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
   echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
@@ -579,7 +579,7 @@ function _askmt() {
 
 function _askqbt() {
 
-# curl -s "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
+# wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
@@ -665,7 +665,7 @@ function _askqbt() {
 
 function _askdeluge() {
 
-# curl -s "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
+# wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
 
   echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
@@ -769,7 +769,7 @@ function _askdeluge() {
 
 function _askdelt() {
 
-# DELTVERSION=$(  curl -s "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+# DELTVERSION=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then
 
@@ -922,7 +922,7 @@ function _askrt() {
 
 function _asktr() {
 
-# curl -s "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+# wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
