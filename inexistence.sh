@@ -1466,8 +1466,10 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo "executing dist-upgrade"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
-echo -e "\n\n\n${shanshuo}${baihuangse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+echo -e "\n\n\n${shanshuo}${bailanse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
 reboot
+exit 0
+kill -s TERM $TOP_PID
 
 }
 
