@@ -231,8 +231,8 @@ SysSupport=0
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
 DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
-[[ $DISTRO == Ubuntu ]] && osversion=`grep -oE  "[0-9.]+" /etc/issue`
-[[ $DISTRO == Debian ]] && osversion=`cat /etc/debian_version`
+[[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
+[[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 [[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
 [[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "osversion=$osversion" && echo "SysSupport=$SysSupport"
@@ -241,7 +241,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
 # 检查本脚本是否支持当前系统，可以关闭此功能
-[[ $SYSTEMCHECK == 1 ]] && _oscheck
+[[ $SYSTEMCHECK == 1 ]] && [[ ! $distro_up == Yes ]] && _oscheck
 
 # 其实我也不知道 32位 系统行不行…… 也不知道这个能不能判断是不是 ARM
 # if [[ ! $lbit = 64 ]]; then
@@ -360,8 +360,8 @@ fi
 
 function _ask_distro_upgrade() {
 
-[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported"
-[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported"
+[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported by this script"
+[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported by this script"
 # read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
 echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " ; read -e responce
 
@@ -371,7 +371,7 @@ case $responce in
     *) distro_up=Yes ;;
 esac
 
-if [ $distro_up == "Yes" ]; then
+if [[ $distro_up == Yes ]]; then
     echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}\n"
     _distro_upgrade | tee /etc/00.distro_upgrade.log
 else
@@ -477,7 +477,7 @@ echo "or you can leave it blank to generate a random password"
 while [ -z $localpass ]
 do
 
-  echo -n "${bold}Enter the password: ${blue} "
+  echo -n "${bold}Enter the password: ${blue}"
   read -e password1
 
   if [ -z $password1 ]; then
@@ -493,7 +493,7 @@ do
   else
 
       while [[ $password2 = "" ]]; do
-          read -ep "${white}${bold}Enter the new password again :${blue} " password2
+          read -ep "${white}${bold}Enter the new password again: ${blue}" password2
       done
 
       if [ $password1 != $password2 ]; then
@@ -641,7 +641,7 @@ function _askqbt() {
       if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
           echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${white}"
           QBVERSION=3.3.16 && QBVERSION4=No
-          echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
+          echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
       fi
 
       echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
@@ -651,15 +651,8 @@ function _askqbt() {
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
-      echo -ne "${bold}qBittorrent will be installed from repository, and "
-
-      if [[ $CODENAME == stretch ]]; then
-          echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7${normal}"
-      elif [[ $CODENAME == jessie ]]; then
-          echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}qBittorrent 3.1.10${normal}"
-      elif [[ $CODENAME == xenial ]]; then
-          echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1${normal}"
-      fi
+      QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | head -n1 | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" `
+      echo "${bold}qBittorrent $QB_repo_ver will be installed from repository"
 
   fi
 
@@ -751,7 +744,7 @@ function _askdeluge() {
           echo -ne "Therefore "
           DEVERSION='Install from repo'
       else
-          echo "${bold}${baiqingse}Deluge 1.3.15 ${normal} ${bold}will be installed from PPA${normal}"
+          echo "${bold}${baiqingse}Deluge 1.3.15${normal} ${bold}will be installed from PPA${normal}"
       fi
 
   else
@@ -763,17 +756,10 @@ function _askdeluge() {
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
-      echo -ne "${bold}Deluge will be installed from repository,"
+      DE_repo_ver=` apt-cache policy deluged | grep -B1 http | head -n1 | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" `
+      echo "${bold}Deluge $DE_repo_ver will be installed from repository"
 
-      if [[ $CODENAME == stretch ]]; then
-          echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13${normal}"
-      elif [[ $CODENAME == jessie ]]; then
-          echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Deluge 1.3.10${normal}"
-      elif [[ $CODENAME == xenial ]]; then
-          echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
-      fi
-
-  fi; echo ; }
+  fi ; echo ; }
 
 
 
@@ -797,10 +783,10 @@ function _askdelt() {
 
       echo
 #     echo -e "${green}00)${white} libtorrent-rasterbar ${cyan}0.16.19${white} (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white} "
-      echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white}  (NOT recommended)"
+      echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white}"
+      echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white} (NOT recommended)"
       echo -e "${green}30)${white} Select another version"
-      echo -e "${green}40)${white} libtorrent-rasterbar from ${cyan}repo${white} (Default)"
+      echo -e "${green}40)${white} libtorrent-rasterbar from ${cyan}repo${white}"
       [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar from ${cyan}Deluge PPA${white}"
       [[ ${de_installed} == Yes ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
@@ -846,15 +832,8 @@ function _askdelt() {
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          echo "${bold}libtorrent-rasterbar will be installed from repository,"
-
-          if [[ $CODENAME == stretch ]]; then
-              echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.1.1${normal}"
-          elif [[ $CODENAME == jessie ]]; then
-              echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}${bold}libtorrent 0.16.18${normal}"
-          elif [[ $CODENAME == xenial ]]; then
-              echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.0.7${normal}"
-          fi
+          PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | head -n1 | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" `
+          echo "${bold}libtorrent-rasterbar $PYLT_repo_ver will be installed from repository"
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
@@ -1001,17 +980,11 @@ function _asktr() {
           fi
 
 
+
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
-              echo "${bold}Transmission will be installed from repository,"
-
-              if [[ $CODENAME == stretch ]]; then
-                  echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92${normal}"
-              elif [[ $CODENAME == jessie ]]; then
-                  echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
-              elif [[ $CODENAME == xenial ]]; then
-                  echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
-              fi
+              TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | head -n1 | grep -Eo "[23]\.[0-9.]+" `
+              echo "${bold}Transmission $TR_repo_ver will be installed from repository"
 
           fi
 
@@ -1264,6 +1237,29 @@ else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
 
 
+
+# --------------------- 输出所用时间 --------------------- #
+
+function _time() {
+endtime=$(date +%s)
+timeused=$(( $endtime - $starttime ))
+if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
+    timeusedmin=$(expr $timeused / 60)
+    timeusedsec=$(expr $timeused % 60)
+    echo -e "${baiqingse}${bold}The installation took about ${timeusedmin} min ${timeusedsec} sec${normal}"
+elif [[ $timeused -ge 3600 ]]; then
+    timeusedhour=$(expr $timeused / 3600)
+    timeusedmin=$(expr $(expr $timeused % 3600) / 60)
+    timeusedsec=$(expr $timeused % 60)
+    echo -e "The installation took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+else
+    echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
+fi ; }
+
+
+
+
+
 # --------------------- 询问是否继续 Type-B --------------------- #
 
 function _askcontinue() {
@@ -1455,6 +1451,8 @@ sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 
 function _distro_upgrade() {
 
+starttime=$(date +%s)
+
 apt-get remove apt-listchanges --assume-yes --force-yes
 
 #lib6c was an issue for me as it ignored the DEBIAN_FRONTEND environment variable and fired a prompt anyway. This should fix it
@@ -1479,7 +1477,9 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo "executing dist-upgrade"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
-echo -e "\n\n\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+echo -e "\n\n\n"
+_time
+echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
 reboot
 exit 0
 kill -s TERM $TOP_PID
@@ -2116,7 +2116,7 @@ echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
 
 function _installx2go() {
 
-apt-get install -y xfce4
+apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
 echo -e "\n\n\n  xfce4  \n\n\n\n"
 
 if [[ $DISTRO == Ubuntu ]]; then
@@ -2493,7 +2493,6 @@ fi ; }
 function _end() {
 
 _check_install_2
-timeused=$(( $endtime - $starttime ))
 
 clear
 
@@ -2532,7 +2531,7 @@ elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
 fi
 
 if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
-    echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 (Username for Flexget is ${underline}flexget${reset_underline})"
+    echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 ${bold}(username is ${underline}flexget${reset_underline}${normal})"
 elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
     FLFAILED=1 ; INSFAILED=1
@@ -2542,23 +2541,12 @@ fi
 
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
-# [[ $InsRDP == VNC ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
+[[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 
 echo '-----------------------------------------------------------'
 echo
 
-if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
-    timeusedmin=$(expr $timeused / 60)
-    timeusedsec=$(expr $timeused % 60)
-    echo -e "${baiqingse}${bold}The installation took about ${timeusedmin} min ${timeusedsec} sec${normal}"
-elif [[ $timeused -ge 3600 ]]; then
-    timeusedhour=$(expr $timeused / 3600)
-    timeusedmin=$(expr $(expr $timeused % 3600) / 60)
-    timeusedsec=$(expr $timeused % 60)
-    echo -e "The installation took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
-else
-    echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
-fi
+_time
 
 if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
@@ -2618,13 +2606,13 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 
 
-if [ $bbr == Yes ]; then
+if [[ $bbr == Yes ]]; then
     echo -ne "Configuring BBR ... \n\n\n" ; _installbbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
     echo -e "Skip BBR installation\n\n\n\n\n"
 fi
 
-if [ "${DEVERSION}" == No ]; then
+if [[ $DEVERSION == No ]]; then
     echo -e "Skip Deluge installation \n\n\n\n"
 else
     echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
@@ -2632,7 +2620,7 @@ else
 fi
 
 
-if [ "${QBVERSION}" == No ]; then
+if [[ $QBVERSION == No ]]; then
     echo -e "Skip qBittorrent installation\n\n\n\n"
 else
     echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
@@ -2640,14 +2628,14 @@ else
 fi
 
 
-if [ "${RTVERSION}" == No ]; then
+if [[ $RTVERSION == No ]]; then
     echo -e "Skip rTorrent installation\n\n\n"
 else
     echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
 fi
 
 
-if [ "${TRVERSION}" == No ]; then
+if [[ $TRVERSION == No ]]; then
     echo -e "Skip Transmission installation\n\n\n\n"
 else
     echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
@@ -2655,14 +2643,14 @@ else
 fi
 
 
-if [ $flexget == No ]; then
+if [[ $flexget == No ]]; then
     echo -e "Skip Flexget installation\n\n\n\n"
 else
     echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
 fi
 
 
-if [ $rclone == No ]; then
+if [[ $rclone == No ]]; then
     echo -e "Skip rclone installation\n\n\n\n"
 else
     echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
@@ -2696,7 +2684,7 @@ fi
 ####################################
 
 
-if [ $tweaks == "No" ]; then
+if [[ $tweaks == No ]]; then
     echo -e "Skip System tweaks\n\n\n\n"
 else
     echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
@@ -2706,10 +2694,9 @@ fi
 
 
 
-endtime=$(date +%s)
+
 _end 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/99.end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
-
 
 
