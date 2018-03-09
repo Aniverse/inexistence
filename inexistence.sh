@@ -579,9 +579,8 @@ function _askqbt() {
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
-  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.11${white} (Skip hash check)"
-  echo -e "${green}04)${white} qBittorrent ${cyan}3.3.14${white}"
-  echo -e "${green}05)${white} qBittorrent ${cyan}3.3.16${white}"
+  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.14${white}"
+  echo -e "${green}04)${white} qBittorrent ${cyan}3.3.16${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
@@ -596,12 +595,12 @@ function _askqbt() {
   case $version in
       01 | 1) QBVERSION=3.3.7 ;;
       02 | 2) QBVERSION=3.3.11 ;;
-      03 | 3) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
-      04 | 4) QBVERSION=3.3.14 ;;
-      05 | 5) QBVERSION=3.3.16 ;;
+      03 | 3) QBVERSION=3.3.14 ;;
+      04 | 4) QBVERSION=3.3.16 ;;
       11) QBVERSION=4.0.2 ;;
       12) QBVERSION=4.0.3 ;;
       13) QBVERSION=4.0.4 ;;
+      21) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
       30) _inputversion && QBVERSION="${inputversion}"  ;;
       40) QBVERSION='Install from repo' ;;
       50) QBVERSION='Install from PPA' ;;
@@ -630,7 +629,7 @@ function _askqbt() {
           echo -ne "Therefore "
           QBVERSION='Install from repo'
       else
-          echo "${bold}qBittorrent will be installed from Stable PPA, usually it will be ${cyan}the latest version${normal}"
+          echo "${bold}${baiqingse}qBittorrent 4.0.4 ${normal} ${bold}will be installed from Stable PPA${normal}"
       fi
 
   else
@@ -641,7 +640,7 @@ function _askqbt() {
           echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
       fi
 
-      echo "${bold}${baiqingse}qBittorrent "${QBVERSION}"${normal} ${bold}will be installed${normal}"
+      echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
 
   fi
 
@@ -748,7 +747,7 @@ function _askdeluge() {
           echo -ne "Therefore "
           DEVERSION='Install from repo'
       else
-          echo "${bold}Deluge will be installed from PPA, usually it will be ${cyan}the latest version${normal}"
+          echo "${bold}${baiqingse}Deluge 1.3.15 ${normal} ${bold}will be installed from PPA${normal}"
       fi
 
   else
@@ -793,12 +792,12 @@ function _askdelt() {
   else
 
       echo
-#     echo -e "${green}00)${white} libtorrent ${cyan}0.16.19${white}   (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent ${cyan}1.0.11${white}      "
-      echo -e "${green}02)${white} libtorrent ${cyan}1.1.6${white}       "
+#     echo -e "${green}00)${white} libtorrent-rasterbar ${cyan}0.16.19${white} (NOT recommended)"
+      echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white} "
+      echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white}  (NOT recommended)"
       echo -e "${green}30)${white} Select another version"
-      echo -e "${green}40)${white} libtorrent from ${cyan}repo${white} (Default)"
-      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent from ${cyan}Deluge PPA${white}"
+      echo -e "${green}40)${white} libtorrent-rasterbar from ${cyan}repo${white} (Default)"
+      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar from ${cyan}Deluge PPA${white}"
       [[ "${de_installed}" == "Yes" ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
@@ -855,15 +854,15 @@ function _askdelt() {
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
-          echo "${baiqingse}${bold}libtorrent 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
+          echo "${baiqingse}${bold}libtorrent-rasterbar 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
 
       elif [[ $DELTVERSION == "No" ]]; then
 
-          echo "${baiqingse}${bold}libtorrent ${delugelt_ver}${normal}${bold} will be used from system${normal}"
+          echo "${baiqingse}${bold}libtorrent-rasterbar ${delugelt_ver}${normal}${bold} will be used from system${normal}"
 
       else
 
-          echo "${baiqingse}${bold}libtorrent ${DELTPKG}${normal} ${bold}will be installed${normal}"
+          echo "${baiqingse}${bold}libtorrent-rasterbar ${DELTPKG}${normal} ${bold}will be installed${normal}"
 
       fi
 
@@ -988,7 +987,7 @@ function _asktr() {
                   echo -ne "Therefore "
                   TRVERSION='Install from repo'
               else
-                  echo "${bold}${white}Transmission will be installed from PPA, usually it will be the latest version${normal}"
+                  echo "${bold}${baiqingse}Transmission 2.93 ${normal} ${bold}will be installed from PPA${normal}"
               fi
 
           else
