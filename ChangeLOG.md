@@ -12,10 +12,18 @@
 
 `inexistence 0.9.7`  
 1. **New Feature：对于 Debian 7 和 Ubuntu 14.04，可以用脚本升级到 Debian 8 和 Ubuntu 16.04 **  
-2. 换行调整  
-3. 完善判断系统的代码  
-4. UI: rTorrent 的安装提示也会安装 ruTorrent, vsftpd, h5ai, autodl-irssi  
-
+采用无交互的方式升级系统，应该不会再碰到各类询问你要怎么办的问题了  
+升级完后显示所花费的时间，然后直接重启盒子，提示重启后再运行一次本脚本  
+2. **Bug Fix：修复一开始 !/bin/bash not found 的报错**  
+Linux 下 nano 粘贴上去再把脚本下回来就行，只是之前没有分段粘贴，整段粘贴内容太多塞不下，然后也有点偷懒就一直拖到现在；此外我以为 Windows 的 Notepad++ 编辑完后又会变回去，结果并不会，这下以后可以放心了  
+3. **完善判断系统的代码**  
+4. Code：换行调整，去掉一些双引号，一些单括号改成双括号  
+5. UI: rTorrent 的安装提示也会安装 ruTorrent, vsftpd, h5ai, autodl-irssi  
+6. **UI: 修正 SSH 客户端因为宽度不够导致一些文字畸形的问题**  
+真是蛋疼，为此又用回了以前的 `echo -ne;read respinse`  
+7. UI: 从 repo 安装软件时，版本号会从系统里自行判断  
+8. UI：对于 Ubuntu 16.04 安装了 VNC 的，会显示 8 位的 VNC 密码  
+9. UI：调整 VNC 可能翻车的错误提示，调整 libtorrent-rasterbar 处的选项名  
 
 
 
