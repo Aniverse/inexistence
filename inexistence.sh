@@ -8,7 +8,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=097
-INEXISTENCEDATE=20180304
+INEXISTENCEDATE=20180309
 # --------------------------------------------------------------------------------
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
@@ -16,7 +16,10 @@ if [[ $DeBUG == 1 ]]; then
     localpass=12345678
 fi
 # --------------------------------------------------------------------------------
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
 local_packages=/etc/inexistence/00.Installation
+# --------------------------------------------------------------------------------
 ### 颜色样式 ###
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -112,7 +115,7 @@ fi
 
 ### 第三方源的网址 ###
 rt_url="http://rtorrent.net/downloads/"
-xmlrpc_url="https://svn.code.sf.net/p/xmlrpc-c/code/stable"
+xmlrpc_url="https://github.com/Aniverse/xmlrpc-c"
 ru_url="https://github.com/Novik/ruTorrent"
 adl_url="https://github.com/autodl-community"
 inex_url="https://github.com/Aniverse/inexistence"
@@ -214,63 +217,33 @@ ${heibaise}${bold}                                                              
 # --------------------- 系统检查 --------------------- #
 function _intro() {
 
-  # 检查是否以 root 权限运行脚本
-
-  if [[ $EUID != 0 ]]; then
+# 检查是否以 root 权限运行脚本
+if [[ $EUID != 0 ]]; then
     echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
     echo ' Exiting...'
     exit 1
-  fi
+else
+    echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}"
+fi
 
-  echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}"
-
-
-  # 检查系统是否为支持的系统
-
-# cat /etc/os-release，刚发现这玩意儿，瞬间感觉我下面写的一堆东西和 SB 一样 ……
-# 先放着再说
-
-# ubosversion=`grep -oE  "[0-9.]+" /etc/issue`
-# deosversion=`cat /etc/debian_version`
-
-# 不是 Ubuntu 或 Debian 的就不管了，反正不支持……
-# DISTRO=`awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release`
-# CODENAME=`cat /etc/os-release | grep "(" | cut -d '(' -f2 | cut -d ')' -f1 | head -n1 | awk '{print $1}' | tr '[A-Z]' '[a-z]'`
-# [[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
-
-
-opsy=$( get_opsy )
-OPSYDEBIAN=`echo $opsy | egrep 'Ubuntu|Debian'`
-OPSYUB1404=`echo $opsy | grep 'Ubuntu' | grep '14.04'` ; OPSYUB1410=`echo $opsy | grep 'Ubuntu' | grep '14.10'`
-OPSYUB1504=`echo $opsy | grep 'Ubuntu' | grep '15.04'` ; OPSYUB1510=`echo $opsy | grep 'Ubuntu' | grep '15.10'`
-OPSYUB1604=`echo $opsy | grep 'Ubuntu' | grep '16.04'` ; OPSYUB1610=`echo $opsy | grep 'Ubuntu' | grep '16.10'`
-OPSYUB1704=`echo $opsy | grep 'Ubuntu' | grep '17.04'` ; OPSYUB1710=`echo $opsy | grep 'Ubuntu' | grep '17.10'` ; OPSYUB1804=`echo $opsy | grep 'Ubuntu' | grep '18.04'`
-OPSYDE7=`echo $opsy | grep 'Debian' | grep '7'`        ; OPSYDE8=`echo $opsy | grep 'Debian' | grep '8'`        ; OPSYDE9=`echo $opsy | grep 'Debian' | grep '9'`  
-
-[[ -n "$OPSYUB1404" ]] && RELEASE=14.04                     && DISTRO=Ubuntu && CODENAME=trusty
-[[ -n "$OPSYUB1410" ]] && RELEASE=14.10                     && DISTRO=Ubuntu && CODENAME=utopic
-[[ -n "$OPSYUB1504" ]] && RELEASE=15.04                     && DISTRO=Ubuntu && CODENAME=vivid
-[[ -n "$OPSYUB1510" ]] && RELEASE=15.10                     && DISTRO=Ubuntu && CODENAME=wily
-[[ -n "$OPSYUB1610" ]] && RELEASE=16.10                     && DISTRO=Ubuntu && CODENAME=yakkety
-[[ -n "$OPSYUB1704" ]] && RELEASE=17.04                     && DISTRO=Ubuntu && CODENAME=zesty
-[[ -n "$OPSYUB1710" ]] && RELEASE=17.10                     && DISTRO=Ubuntu && CODENAME=artful
-[[ -n "$OPSYUB1804" ]] && RELEASE=18.04                     && DISTRO=Ubuntu && CODENAME=bionic
-[[ -n   "$OPSYDE7"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=wheezy
-
-[[ -n "$OPSYUB1604" ]] && RELEASE=16.04                     && DISTRO=Ubuntu && CODENAME=xenial     && SysSupport=1 && relno=16
-[[ -n   "$OPSYDE8"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=jessie     && SysSupport=1 && relno=8
-[[ -n   "$OPSYDE9"  ]] && RELEASE=`cat /etc/debian_version` && DISTRO=Debian && CODENAME=stretch    && SysSupport=1 && relno=9
-
+# 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
+DISTRO=`awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release`
 DISTROL=` echo $DISTRO | tr 'A-Z' 'a-z' `
+CODENAME=`cat /etc/os-release | grep "(" | cut -d '(' -f2 | cut -d ')' -f1 | head -n1 | awk '{print $1}' | tr '[A-Z]' '[a-z]'`
+[[ $DISTRO == Ubuntu ]] && osversion=`grep -oE  "[0-9.]+" /etc/issue`
+[[ $DISTRO == Debian ]] && osversion=`cat /etc/debian_version`
+SysSupport=0
+[[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
+[[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
+[[ $DeBUG == 1 ]] && echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "osversion=$osversion" && echo "SysSupport=$SysSupport"
 
-# echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "RELEASE=$RELEASE" && echo "relno=$relno" && echo "SysSupport=$SysSupport"
-
+# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
+[[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && _oscheck
 
 # 其实我也不知道 32位 系统行不行…… 也不知道这个能不能判断是不是 ARM
-
 # if [[ ! $lbit = 64 ]]; then
 #   echo '${title}${bold}Naive! Only 64bits system is supported${normal}'
 #   echo ' Exiting...'
@@ -278,19 +251,14 @@ DISTROL=` echo $DISTRO | tr 'A-Z' 'a-z' `
 # fi
 
 
-  # 装 wget 以防万一，不屏蔽错误输出
 
+# 装 wget 以防万一，不屏蔽错误输出
 if [[ ! -n `command -v wget` ]]; then
     echo "${bold}Now the script is installing ${yellow}wget${white} ...${normal}"
     apt-get install -y wget >> /dev/null
 fi
-
 [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID
 
-
-# echo "${bold}Now the script is installing ${yellow}lsb-release${white} and ${yellow}virt-what${white} for server spec detection ...${normal}"
-# apt-get -y install lsb-release virt-what >> /dev/null 2>&1
-# [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n" && exit 1
 
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
@@ -306,6 +274,7 @@ fi
   serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
 # [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
 # wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+# wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n1 )
 
 
@@ -367,7 +336,7 @@ fi
   echo "  Cores   : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
   echo "  Mem     : ${cyan}$tram MB ($uram MB Used)${normal}"
   echo "  Disk    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-  echo "  OS      : ${cyan}$DISTRO $RELEASE $CODENAME ($arch) ${normal}"
+  echo "  OS      : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
   echo "  Kernel  : ${cyan}$kern${normal}"
   echo "  Script  : ${cyan}$INEXISTENCEDATE${normal}"
 
@@ -381,6 +350,34 @@ fi
   [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
 }
+
+
+
+
+
+
+# --------------------- 询问是否升级系统 --------------------- #
+
+function _ask_distro_upgrade() {
+
+[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "You are now running Debian 7, which is not supported"
+[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "You are now running Ubuntu 14.04, which is not supported"
+read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
+
+case $responce in
+    [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
+    [nN] | [nN][Oo]) distro_up=No ;;
+    *) distro_up=Yes ;;
+esac
+
+if [ $distro_up == "Yes" ]; then
+    echo "${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo "${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1248,7 +1245,7 @@ function _asktweaks() {
 
 
 
-# --------------------- 装完后询问是否重启 --------------------- #
+# --------------------- 询问是否重启 --------------------- #
 
 function _askreboot() {
 read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
@@ -1324,7 +1321,7 @@ CPU     : $cname"
 Cores   : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
 Mem     : $tram MB ($uram MB Used)"
 Disk    : $disk_total_size GB ($disk_used_size GB Used)
-OS      : $DISTRO $RELEASE $CODENAME ($arch)
+OS      : $DISTRO $osversion $CODENAME ($arch)
 Kernel  : $kern
 #################################
 INEXISTENCEVER=${INEXISTENCEVER}
@@ -1395,9 +1392,6 @@ function _setsources() {
 # rm -rf /var/lib/apt/lists/partial/*
 # apt-get -y upgrade
 
-# 关闭交互
-export DEBIAN_FRONTEND=noninteractive
-
 if [ $aptsources == "Yes" ]; then
 
     if [[ $DISTRO == Debian ]]; then
@@ -1429,7 +1423,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https dstat
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -1440,6 +1434,43 @@ fi
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 # sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
+
+}
+
+
+
+
+
+# --------------------- 升级系统 --------------------- #
+# https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade
+
+function _distro_upgrade() {
+
+apt-get remove apt-listchanges --assume-yes --force-yes
+
+#lib6c was an issue for me as it ignored the DEBIAN_FRONTEND environment variable and fired a prompt anyway. This should fix it
+echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
+
+echo "executing apt sources change"
+[[ $CODENAME == wheezy ]] && sed -i "s/wheezy/jessie/g" /etc/apt/sources.list
+[[ $CODENAME == trusty ]] && sed -i "s/trusty/xenial/g" /etc/apt/sources.list
+
+echo "executing autoremove"
+apt-get -fuy --force-yes autoremove
+
+echo "executing clean"
+apt-get --force-yes clean
+
+echo "executing update"
+apt-get update
+
+echo "executing upgrade"
+apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
+
+echo "executing dist-upgrade"
+apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
+
+_askreboot
 
 }
 
@@ -2077,8 +2108,8 @@ apt-get install -y xfce4
 echo -e "\n\n\n  xfce4  \n\n\n\n"
 
 if [[ $DISTRO == Ubuntu ]]; then
-	apt-get install -y software-properties-common firefox
-	apt-add-repository -y ppa:x2go/stable
+    apt-get install -y software-properties-common firefox
+    apt-add-repository -y ppa:x2go/stable
 elif [[ $DISTRO == Debian ]]; then
     cat >/etc/apt/sources.list.d/x2go.list<<EOF
 # X2Go Repository (release builds)
@@ -2120,10 +2151,10 @@ if [[ $InsMonoMode == Building ]]; then
 
     apt-get install -y git autoconf libtool automake build-essential mono-devel gettext cmake python libtool-bin
     git clone --depth=1 -b mono-5.13.0.302 https://github.com/mono/mono
-	cd mono
-	./autogen.sh --prefix=/usr/local
-	make -j${MAXCPUS}
-	make install
+    cd mono
+    ./autogen.sh --prefix=/usr/local
+    make -j${MAXCPUS}
+    make install
     cd .. ; rm -rf mono
 
 elif [[ $InsMonoMode == apt ]]; then
@@ -2145,24 +2176,24 @@ InsWineMode=apt
 if [[ $InsWineMode == Building ]]; then
 
     # wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
-	cd ; git clone git://source.winehq.org/git/wine.git
-	cd wine
-	./configure
-	make -j${MAXCPUS}
-	make install
+    cd ; git clone git://source.winehq.org/git/wine.git
+    cd wine
+    ./configure
+    make -j${MAXCPUS}
+    make install
     cd .. ; rm -rf wine
 
 elif [[ $InsWineMode == apt ]]; then
 
-	dpkg --add-architecture i386
+    dpkg --add-architecture i386
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 
-	if [[ $DISTRO == Ubuntu ]]; then
-		apt-get install -y software-properties-common
-		apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
-	elif [[ $DISTRO == Debian ]]; then
-    	echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
-	fi
+    if [[ $DISTRO == Ubuntu ]]; then
+        apt-get install -y software-properties-common
+        apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+    elif [[ $DISTRO == Debian ]]; then
+        echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
+    fi
 
     apt-get update -y
     apt-get install -y --install-recommends winehq-stable

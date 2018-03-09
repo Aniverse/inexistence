@@ -8,8 +8,12 @@
 
 
 
+### 2018.03.09
 
-
+`inexistence 0.9.7`  
+1. **New Feature：对于 Debian 7 和 Ubuntu 14.04，可以用脚本升级到 Debian 8 和 Ubuntu 16.04 **  
+2. 换行调整  
+3. 完善判断系统的代码  
 
 
 
@@ -25,6 +29,10 @@
 
 `README 0.6.9`  
 1. 小修小补  
+
+`WiKi`  
+1. 碎碎念 Ver 0.2  
+2. add Chinese title  
 
 
 
@@ -711,7 +719,7 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 
 `inexistence 0.8.9`  
 1. **Bump to 0.8.9**  
-2. alias xuanxiang，同时去掉了双引号（会显示在 cat里）  
+2. alias xuanxiang，同时去掉了双引号（会显示在 cat 里）  
 3. 输出文字大小写优化  
 4. 隐藏了 qb 3.12/13/15 的选项，Ubuntu 下 4.0.2 改成 4.0.3  
 5. **installed.lock 代替 /ect/profile 的安装信息注释**  
@@ -847,7 +855,7 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 ### 2017.12.15
 
 `inexistence 0.8.7`  
-1. **去掉 webmin 的安装**  
+1. **去掉安装 webmin 的安装**  
 2. **增加了修改时区的功能**  
 3. 完善 alias  
 4. **将最大的分区的保留空间设置为 0**  
@@ -868,7 +876,7 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 
 `inexistence 0.8.7`  
 1. **Bump to 0.8.7**  
-2. Bug Fix：tr 装完后可能无法启动的问题  
+2. Bug Fix：修复 tr 装完后可能无法启动的问题  
 3. 增加高版本内核需要的 frimware  
 4. **增加安装 vncserer 的功能，但不启用**  
 5. 增加对于客户端安装情况的检查  
