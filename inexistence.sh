@@ -360,8 +360,8 @@ fi
 
 function _ask_distro_upgrade() {
 
-[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "You are now running Debian 7, which is not supported"
-[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "You are now running Ubuntu 14.04, which is not supported"
+[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported"
+[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported"
 read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
 
 case $responce in
@@ -371,10 +371,10 @@ case $responce in
 esac
 
 if [ $distro_up == "Yes" ]; then
-    echo "${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}\n"
     _distro_upgrade | tee /etc/00.distro_upgrade.log
 else
-    echo "${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
 fi
 
 echo ; }
@@ -388,12 +388,8 @@ echo ; }
 function _warning() {
 
   echo
-  echo "${bold}${white}This script will try to do the following things"
+  echo "${bold}${white}This script will try to install some softwares"
   echo "but it couldn't work fine on every seedbox${blue}"
-  echo
-  echo " 1. Install qBittorrent, Deluge, rTorrent, Transmission"
-  echo " 2. Install Flexget, rclone, BBR and some other softwares"
-  echo " 3. Do some system tweaks"
   echo
   echo "${white}For more information, please refer the README on GitHub"
   echo "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue"
@@ -1470,7 +1466,8 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo "executing dist-upgrade"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
-_askreboot
+echo -e "\n\n\n${shanshuo}${baihuangse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+reboot
 
 }
 
