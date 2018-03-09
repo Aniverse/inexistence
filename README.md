@@ -6,7 +6,6 @@
 
 -------------------
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
-如果 `wget` 时出错，请先运行   `alias wget="wget --no-check-certificate"`  
 
 ## Inexistence
 
@@ -15,7 +14,7 @@
 检查是否以 root 来运行脚本，检查系统是否受支持  
 `Ubuntu 16.04、Debian 8、Debian 9` 是直接支持的  
 对于 `Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统一概不支持  
-你可以通过修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统是否受支持的检查，不过嘛脚本能不能正常工作就是另一回事了  
+你可以修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统是否受支持的检查，不过这种情况下脚本能不能正常工作我就不知道了  
 
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -25,7 +24,7 @@
 
 
 1. **是否升级系统**  
-如果你的系统是 Debian 7 或 Ubuntu 14.04，你可以用本脚本来升级到 Debian 8 或 Ubuntu 16.04  
+如果你的系统是 `Debian 7` 或 `Ubuntu 14.04`，你可以用本脚本来升级到 `Debian 8` 或 `Ubuntu 16.04`  
 理论上整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
 升级完后会直接执行重启命令，重启完后你需要再次运行脚本来完成软件的安装  
 

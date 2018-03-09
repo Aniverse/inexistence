@@ -25,6 +25,10 @@ Linux 下 nano 粘贴上去再把脚本下回来就行，只是之前没有分�
 8. UI：对于 Ubuntu 16.04 安装了 VNC 的，会显示 8 位的 VNC 密码  
 9. UI：调整 VNC 可能翻车的错误提示，调整 libtorrent-rasterbar 处的选项名  
 
+`README 0.7.0`  
+1. 增加对于升级系统选项的描述  
+2. 删除 `alias wget="wget --no-check-certificate"`  
+
 
 
 
