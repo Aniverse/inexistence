@@ -349,7 +349,8 @@ fi
 
   [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
-}
+echo -e "\n${white}For more information about this script, please refer the README on GitHub"
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
 
 
 
@@ -380,24 +381,6 @@ fi
 
 echo ; }
 
-
-
-
-
-# --------------------- 询问是否继续 Type-A --------------------- #
-
-function _warning() {
-
-  echo
-  echo "${bold}${white}This script will try to install some softwares"
-  echo "but it couldn't work fine on every seedbox${blue}"
-  echo
-  echo "${white}For more information, please refer the README on GitHub"
-  echo "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue"
-  read input
-# echo -ne "${guangbiao}"
-
-}
 
 
 
@@ -477,8 +460,8 @@ echo "or you can leave it blank to generate a random password"
 while [ -z $localpass ]
 do
 
-  echo -n "${bold}Enter the password: ${blue}"
-  read -e password1
+# echo -n "${bold}Enter the password: ${blue}" ; read -e password1
+  read -ep "${bold}Enter the password: ${blue}" password1
 
   if [ -z $password1 ]; then
 
@@ -652,7 +635,7 @@ function _askqbt() {
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
       QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | head -n1 | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" `
-      echo "${bold}qBittorrent $QB_repo_ver will be installed from repository"
+      echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}will be installed from repository"
 
   fi
 
@@ -757,9 +740,11 @@ function _askdeluge() {
   if [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
       DE_repo_ver=` apt-cache policy deluged | grep -B1 http | head -n1 | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" `
-      echo "${bold}Deluge $DE_repo_ver will be installed from repository"
+      echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository"
 
-  fi ; echo ; }
+  fi
+
+  echo ; }
 
 
 
@@ -833,7 +818,7 @@ function _askdelt() {
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
           PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | head -n1 | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" `
-          echo "${bold}libtorrent-rasterbar $PYLT_repo_ver will be installed from repository"
+          echo "${bold}${baiqingse}libtorrent-rasterbar $PYLT_repo_ver${normal} ${bold}will be installed from repository"
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
@@ -975,7 +960,7 @@ function _asktr() {
 
           else
 
-              echo "${bold}${baiqingse}Transmission "${TRVERSION}"${normal} ${bold}will be installed${normal}"
+              echo "${bold}${baiqingse}Transmission ${TRVERSION}${normal} ${bold}will be installed${normal}"
 
           fi
 
@@ -984,7 +969,7 @@ function _asktr() {
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
               TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | head -n1 | grep -Eo "[23]\.[0-9.]+" `
-              echo "${bold}Transmission $TR_repo_ver will be installed from repository"
+              echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository"
 
           fi
 
@@ -1260,7 +1245,7 @@ fi ; }
 
 
 
-# --------------------- 询问是否继续 Type-B --------------------- #
+# --------------------- 询问是否继续 --------------------- #
 
 function _askcontinue() {
 
@@ -1268,31 +1253,28 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  echo -e "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
-  echo -e "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
+  echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
+  echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
   echo
-  echo -e "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}"${QBVERSION}"${normal}"
-  echo -e "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
-  echo -e "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
-  echo -e "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
-  echo -e "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
-  echo -e "                  ${cyan}${bold}Wine, mono${normal}    ${bold}${yellow}"${InsWine}"${normal}"
-  echo -e "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
-  echo -e "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
-  echo -e "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
-  echo -e "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
-  echo -e "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
-  echo -e "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
-  echo -e "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}"${aptsources}"${normal}"
+  echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}"${QBVERSION}"${normal}"
+  echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
+  echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
+  echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
+  echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
+  echo "                  ${cyan}${bold}Wine and mono${normal} ${bold}${yellow}"${InsWine}"${normal}"
+  echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
+  echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
+  echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
+  echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
+  echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
+  echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
+  echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}"${aptsources}"${normal}"
   echo
   echo '####################################################################'
   echo
-  echo -e "${bold}If you want to stop or correct some selections, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}"
-  read input
-  echo ""
-  echo "${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
-  echo "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}"
-  echo "" ; }
+  echo "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input
+  echo -e "\n${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
+  echo -e "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}\n" ; }
 
 
 
@@ -2567,7 +2549,6 @@ echo ; }
 # --------------------- 结构 --------------------- #
 
 _intro
-_warning
 _askusername
 _askpassword
 _askaptsource
@@ -2698,5 +2679,7 @@ fi
 _end 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/99.end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
+
+
 
 
