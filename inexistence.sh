@@ -227,12 +227,12 @@ else
 fi
 
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
-DISTRO=`awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release`
-DISTROL=` echo $DISTRO | tr 'A-Z' 'a-z' `
-CODENAME=`cat /etc/os-release | grep "(" | cut -d '(' -f2 | cut -d ')' -f1 | head -n1 | awk '{print $1}' | tr '[A-Z]' '[a-z]'`
+SysSupport=0
+DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
+DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
+CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
 [[ $DISTRO == Ubuntu ]] && osversion=`grep -oE  "[0-9.]+" /etc/issue`
 [[ $DISTRO == Debian ]] && osversion=`cat /etc/debian_version`
-SysSupport=0
 [[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
 [[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "osversion=$osversion" && echo "SysSupport=$SysSupport"
