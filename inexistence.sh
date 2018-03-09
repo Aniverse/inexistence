@@ -362,7 +362,8 @@ function _ask_distro_upgrade() {
 
 [[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported"
 [[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported"
-read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
+# read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
+echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " ; read -e responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
@@ -470,12 +471,13 @@ exec 3>&1 >/dev/tty
 
 echo
 echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
-echo "The password must consist of characters and numbers and at least 8 chars"
+echo "The password must consist of characters and numbers and at least 8 chars,"
+echo "or you can leave it blank to generate a random password"
 
 while [ -z $localpass ]
 do
 
-  echo -n "${bold}Enter the password, or leave blank to generate a random one${blue} "
+  echo -n "${bold}Enter the password: ${blue} "
   read -e password1
 
   if [ -z $password1 ]; then
@@ -491,7 +493,7 @@ do
   else
 
       while [[ $password2 = "" ]]; do
-          read -ep "${white}${bold}Enter the new password again${blue} " password2
+          read -ep "${white}${bold}Enter the new password again :${blue} " password2
       done
 
       if [ $password1 != $password2 ]; then
@@ -517,7 +519,8 @@ return $exitvalue ; }
 
 function _askaptsource() {
 
-  read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " responce
+# read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " responce
+  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
@@ -525,7 +528,7 @@ function _askaptsource() {
       *) aptsources=Yes ;;
   esac
 
-  if [ $aptsources == "Yes" ]; then
+  if [[ $aptsources == Yes ]]; then
       echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
   else
       echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
@@ -548,9 +551,10 @@ function _askmt() {
 # echo -e   "${red}99)${white} Do not compile, install softwares from repo"
 
   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
-  read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+# read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+  echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
-  case $version in
+  case $responce in
       01 | 1 | "") MAXCPUS=$(nproc) ;;
       02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
       03 | 3) MAXCPUS=1 ;;
@@ -559,7 +563,7 @@ function _askmt() {
       *) MAXCPUS=$(nproc) ;;
   esac
 
-  if [ $MAXCPUS == "No" ]; then
+  if [[ $MAXCPUS == No ]]; then
       echo "${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
   else
       echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
@@ -614,7 +618,7 @@ function _askqbt() {
       QBVERSION4=No
   fi
 
-  if [ "${QBVERSION}" == "No" ]; then
+  if [[ "${QBVERSION}" == No ]]; then
 
       echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
 
@@ -625,7 +629,7 @@ function _askqbt() {
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
 
       if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
           echo -ne "Therefore "
           QBVERSION='Install from repo'
       else
@@ -634,8 +638,8 @@ function _askqbt() {
 
   else
 
-      if [ $CODENAME = jessie ] && [ "${QBVERSION4}" == "Yes" ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}Building qBittorrent 4 doesn't work on ${cyan}Debian 8${white}"
+      if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
+          echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${white}"
           QBVERSION=3.3.16 && QBVERSION4=No
           echo "${bold}The script will use qBittorrent "${QBVERSION}" instead"
       fi
@@ -649,12 +653,12 @@ function _askqbt() {
 
       echo -ne "${bold}qBittorrent will be installed from repository, and "
 
-      if [ $CODENAME = stretch ]; then
-          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7${normal}"
-      elif [ $CODENAME = jessie ]; then
-          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}qBittorrent 3.1.10${normal}"
-      elif [ $CODENAME = xenial ]; then
-          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1${normal}"
+      if [[ $CODENAME == stretch ]]; then
+          echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.7${normal}"
+      elif [[ $CODENAME == jessie ]]; then
+          echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}qBittorrent 3.1.10${normal}"
+      elif [[ $CODENAME == xenial ]]; then
+          echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}qBittorrent 3.3.1${normal}"
       fi
 
   fi
@@ -681,7 +685,7 @@ function _askdeluge() {
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Deluge"
 
-  [[ "${de_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
+  [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
   [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
   [[ $DISTRO == Debian ]] && dedefaultnum=05
   read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
@@ -732,7 +736,7 @@ function _askdeluge() {
 
   [[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
 
-  if [ "${DEVERSION}" == "No" ]; then
+  if [[ "${DEVERSION}" == No ]]; then
 
       echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
 
@@ -759,14 +763,14 @@ function _askdeluge() {
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
-      echo -ne "${bold}Deluge will be installed from repository, and "
+      echo -ne "${bold}Deluge will be installed from repository,"
 
-      if [ $CODENAME = stretch ]; then
-          echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13${normal}"
-      elif [ $CODENAME = jessie ]; then
-          echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Deluge 1.3.10${normal}"
-      elif [ $CODENAME = xenial ]; then
-          echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
+      if [[ $CODENAME == stretch ]]; then
+          echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Deluge 1.3.13${normal}"
+      elif [[ $CODENAME == jessie ]]; then
+          echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Deluge 1.3.10${normal}"
+      elif [[ $CODENAME == xenial ]]; then
+          echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Deluge 1.3.12${normal}"
       fi
 
   fi; echo ; }
@@ -798,13 +802,13 @@ function _askdelt() {
       echo -e "${green}30)${white} Select another version"
       echo -e "${green}40)${white} libtorrent-rasterbar from ${cyan}repo${white} (Default)"
       [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar from ${cyan}Deluge PPA${white}"
-      [[ "${de_installed}" == "Yes" ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
+      [[ ${de_installed} == Yes ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
 #     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
 
-      if [ $CODENAME = stretch ]; then
+      if [[ $CODENAME == stretch ]]; then
 
           read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
 
@@ -842,21 +846,21 @@ function _askdelt() {
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          echo -ne "${bold}libtorrent-rasterbar will be installed from repository, and "
+          echo "${bold}libtorrent-rasterbar will be installed from repository,"
 
-          if [ $CODENAME = stretch ]; then
-              echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.1.1${normal}"
-          elif [ $CODENAME = jessie ]; then
-              echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}${bold}libtorrent 0.16.18${normal}"
-          elif [ $CODENAME = xenial ]; then
-              echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.0.7${normal}"
+          if [[ $CODENAME == stretch ]]; then
+              echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.1.1${normal}"
+          elif [[ $CODENAME == jessie ]]; then
+              echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}${bold}libtorrent 0.16.18${normal}"
+          elif [[ $CODENAME == xenial ]]; then
+              echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}${bold}libtorrent 1.0.7${normal}"
           fi
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
           echo "${baiqingse}${bold}libtorrent-rasterbar 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
 
-      elif [[ $DELTVERSION == "No" ]]; then
+      elif [[ $DELTVERSION == No ]]; then
 
           echo "${baiqingse}${bold}libtorrent-rasterbar ${delugelt_ver}${normal}${bold} will be used from system${normal}"
 
@@ -885,7 +889,7 @@ function _askrt() {
   [[ $rt_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 # [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
-    if [ $CODENAME = stretch ]; then
+    if [[ $CODENAME == stretch ]]; then
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
         read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
@@ -911,15 +915,15 @@ function _askrt() {
 
     fi
 
-  if [ "${RTVERSION}" == "No" ]; then
+  if [[ "${RTVERSION}" == "No" ]]; then
 
       echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
 
   else
 
-      if [ "${RTVERSION}" == "0.9.4 ipv6 supported" ]; then
+      if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
           echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
-      elif [ "${RTVERSION}" == "0.9.6" ]; then
+      elif [[ "${RTVERSION}" == "0.9.6" ]]; then
           echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
       else
           echo "${bold}${baiqingse}rTorrent "${RTVERSION}"${normal} ${bold}will be installed${normal}"
@@ -951,7 +955,7 @@ function _asktr() {
   [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Transmission"
 
-  [[ "${tr_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
+  [[ $tr_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
   read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
   case $version in
@@ -970,7 +974,7 @@ function _asktr() {
       "" | *) TRVERSION='Install from repo';;
   esac
 
-  if [ "${TRVERSION}" == "No" ]; then
+  if [[ "${TRVERSION}" == "No" ]]; then
 
       echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
 
@@ -999,14 +1003,14 @@ function _asktr() {
 
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
-              echo -ne "${bold}Transmission will be installed from repository, and "
+              echo "${bold}Transmission will be installed from repository,"
 
-              if [ "$CODENAME" = "stretch" ]; then
-                  echo "${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92${normal}"
-              elif [ "$CODENAME" = "jessie" ]; then
-                  echo "${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
-              elif [ "$CODENAME" = "xenial" ]; then
-                  echo "${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
+              if [[ $CODENAME == stretch ]]; then
+                  echo "and ${green}${bold}Debian 9${normal} ${bold}will use ${baiqingse}Transmission 2.92${normal}"
+              elif [[ $CODENAME == jessie ]]; then
+                  echo "and ${green}${bold}Debian 8${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
+              elif [[ $CODENAME == xenial ]]; then
+                  echo "and ${green}${bold}Ubuntu 16.04${normal} ${bold}will use ${baiqingse}Transmission 2.84${normal}"
               fi
 
           fi
@@ -1024,8 +1028,9 @@ function _asktr() {
 
 function _askflex() {
 
-  [[ "${flex_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
-  read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
+# read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
     [nN] | [nN][Oo] | "" ) flexget=No ;;
@@ -1046,8 +1051,9 @@ function _askflex() {
 
 function _askrclone() {
 
-  [[ "${rclone_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
-  read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
+# read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) rclone=Yes ;;
@@ -1055,7 +1061,7 @@ function _askrclone() {
       *) rclone=No ;;
   esac
 
-  if [ $rclone == "Yes" ]; then
+  if [[ $rclone == Yes ]]; then
       echo -e "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}\n"
   else
       echo -e "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}\n"
@@ -1069,11 +1075,12 @@ function _askrclone() {
 
 function _askrdp() {
 
-  echo -e "${green}01)${white} VNC  with xfce4"
+  echo -e "${green}01)${white} VNC  with xfce4 (may have some issues)"
   echo -e "${green}02)${white} X2Go with xfce4"
   echo -e   "${red}99)${white} Do not install remote desktop"
-  echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
-  read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " responce
+# echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
+# read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " responce
+  echo -ne "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " ; read -e responce
 
   case $responce in
       01 | 1) InsRDP=VNC ;;
@@ -1099,7 +1106,8 @@ function _askrdp() {
 
 function _askwine() {
 
-  read -ep "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+# read -ep "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
@@ -1124,7 +1132,8 @@ function _askwine() {
 function _asktools() {
 
   echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
-  read -ep "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+# read -ep "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) tools=Yes ;;
@@ -1132,7 +1141,7 @@ function _asktools() {
       *) tools=No ;;
   esac
 
-  if [ $tools == "Yes" ]; then
+  if [[ $tools == Yes ]]; then
       echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
   else
       echo "${baizise}These softwares will ${baihongse}not${baizise} be configured${normal}"
@@ -1195,7 +1204,8 @@ function _askbbr() {
           echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
           echo -e "A latest kernel will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
-          read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        # read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+          echo -ne "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
           case $responce in
               [yY] | [yY][Ee][Ss]) bbr=Yes ;;
@@ -1221,7 +1231,8 @@ function _askbbr() {
 
 function _asktweaks() {
 
-  read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+# read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+  echo -ne "${bold}${yellow}Would you like to do some system tweaks? ${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
@@ -1245,7 +1256,8 @@ function _asktweaks() {
 # --------------------- 询问是否重启 --------------------- #
 
 function _askreboot() {
-read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
+# read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
+echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " ; read -e is_reboot
 if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then reboot
 else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
