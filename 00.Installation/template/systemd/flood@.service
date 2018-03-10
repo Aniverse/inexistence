@@ -1,0 +1,12 @@
+[Unit]
+Description=Flood rTorrent Web UI
+After=network.target
+
+[Service]
+User=%I
+Group=%I
+WorkingDirectory=/srv/flood
+ExecStart=/usr/bin/npm start /srv/flood
+
+[Install]
+WantedBy=multi-user.target
