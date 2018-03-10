@@ -270,6 +270,7 @@ fi
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 
+
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
 
   serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
@@ -1933,6 +1934,7 @@ npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 npm run build
 
+cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
 systemctl enable flood
 
@@ -2623,7 +2625,7 @@ _askdeluge
 [[ ! "${DEVERSION}" == No ]] && _askdelt
 _askqbt
 _askrt
-[[ $DeBUG == 1 ]] && [[ ! "${RTVERSION}" == No ]] && _askflood
+[[ ! "${RTVERSION}" == No ]] && _askflood
 _asktr
 _askrdp
 _askwine
