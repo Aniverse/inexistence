@@ -11,9 +11,9 @@
 ### 2018.03.10
 
 `inexistence 0.9.7`  
-1. **New Feature：Flood Installation **  
+1. **New Feature：Flood Installation**  
 DeBUG 阶段  
-2. **UI：de/qb/tr 的选项，显示来自 repo 的具体版本号 **  
+2. **UI：de/qb/tr 的选项，显示来自 repo 的具体版本号**  
 从 PPA  安装时也能显示最新的版本号（查询得来）  
 由于要查版本号所以上个选项答完了以后会卡一下  
 3. Bug Fix：换了个 IPv6 检测的网站  
