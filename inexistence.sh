@@ -8,7 +8,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=097
-INEXISTENCEDATE=20180309
+INEXISTENCEDATE=20180310
 # --------------------------------------------------------------------------------
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
@@ -766,7 +766,6 @@ function _askdelt() {
 
   else
 
-      echo
 #     echo -e "${green}00)${white} libtorrent-rasterbar ${cyan}0.16.19${white} (NOT recommended)"
       echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white}"
       echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white} (NOT recommended)"
@@ -898,6 +897,33 @@ function _askrt() {
   fi
 
   echo ; }
+
+
+
+
+
+
+# --------------------- 询问是否安装 flood --------------------- #
+
+function _askflood() {
+
+# read -ep "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+
+  case $responce in
+      [yY] | [yY][Ee][Ss]  ) InsFlood=Yes ;;
+      [nN] | [nN][Oo] | "" ) InsFlood=No  ;;
+      *) InsFlood=No ;;
+  esac
+
+  if [[ $InsFlood == Yes ]]; then
+      echo "${bold}${baiqingse}Flood${normal} ${bold}will be installed${normal}"
+  else
+      echo "${baizise}Flood will ${baihongse}not${baizise} be installed${normal}"
+  fi
+
+  echo ; }
+
 
 
 
@@ -1076,7 +1102,7 @@ function _askwine() {
   if [[ $InsWine == Yes ]]; then
       echo "${bold}${baiqingse}Wine${normal} and ${bold}${baiqingse}mono${normal} ${bold}will be installed${normal}"
   else
-      echo "${baizise}Wine or mono will ${baihongse}not${baizise} be configured${normal}"
+      echo "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}"
   fi
 
   echo ; }
@@ -1102,7 +1128,7 @@ function _asktools() {
   if [[ $tools == Yes ]]; then
       echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
   else
-      echo "${baizise}These softwares will ${baihongse}not${baizise} be configured${normal}"
+      echo "${baizise}These softwares will ${baihongse}not${baizise} be installed${normal}"
   fi
 
   echo ; }
@@ -1410,7 +1436,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https dstat
+apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https dstat iperf3 
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -1815,7 +1841,7 @@ function _setde() {
 
 
 
-# --------------------- 使用修改版 rtinst 安装 rTorrent，h5ai --------------------- #
+# --------------------- 使用修改版 rtinst 安装 rTorrent, ruTorrent，h5ai --------------------- #
 
 function _installrt() {
 
@@ -1875,6 +1901,31 @@ cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/ir
 systemctl daemon-reload
 
 cd ; echo -e "\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+
+
+
+
+
+
+# --------------------- 安装 Nodejs 与 flood --------------------- #
+
+function _installflood() {
+
+bash <(curl -sL https://deb.nodesource.com/setup_9.x)
+apt-get install -y nodejs build-essential python-dev
+npm install -g node-gyp
+git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
+cd /srv/flood
+cp config.template.js config.js
+npm install
+sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
+npm run build
+
+systemctl start flood
+systemctl enable flood
+
+cd ; echo -e "\n\n\n\n\n  FLOOD-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+
 
 
 
@@ -2410,6 +2461,8 @@ alias vns="vnstat -l -i $wangka"
 alias sousuo1="find / -name"
 alias sousuo2="find /home/${ANUSER} -name"
 
+
+alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
 alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart"
 
@@ -2505,6 +2558,7 @@ fi
 if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
+    [[ $InsFlood == Yes ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
@@ -2557,6 +2611,7 @@ _askdeluge
 [[ ! "${DEVERSION}" == No ]] && _askdelt
 _askqbt
 _askrt
+[[ $DeBUG == 1 ]] && [[ ! "${RTVERSION}" == No ]] && _askflood
 _asktr
 _askrdp
 _askwine
@@ -2613,6 +2668,7 @@ if [[ $RTVERSION == No ]]; then
     echo -e "Skip rTorrent installation\n\n\n"
 else
     echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
+    [[ $InsFlood == Yes ]] && echo -ne "Installing Flood ... \n\n\n" ; _installflood 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.flood.log
 fi
 
 
