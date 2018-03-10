@@ -634,7 +634,7 @@ function _askqbt() {
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
-      QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | head -n1 | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" `
+      QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
       echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}will be installed from repository"
 
   fi
@@ -739,7 +739,7 @@ function _askdeluge() {
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
-      DE_repo_ver=` apt-cache policy deluged | grep -B1 http | head -n1 | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" `
+      DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
       echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository"
 
   fi
@@ -816,7 +816,7 @@ function _askdelt() {
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | head -n1 | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" `
+          PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | head -n1 `
           echo "${bold}${baiqingse}libtorrent-rasterbar $PYLT_repo_ver${normal} ${bold}will be installed from repository"
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
@@ -994,7 +994,7 @@ function _asktr() {
 
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
-              TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | head -n1 | grep -Eo "[23]\.[0-9.]+" `
+              TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
               echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository"
 
           fi
