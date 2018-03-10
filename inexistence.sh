@@ -563,6 +563,9 @@ function _askmt() {
 function _askqbt() {
 
 # wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
+  QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
+  QB_latest_ver=` wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 `
+# QB_latest_ver=4.0.4
 
   echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
@@ -572,8 +575,8 @@ function _askqbt() {
   [[ ! $CODENAME = jessie ]] && echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
   [[ ! $CODENAME = jessie ]] && echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
   echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} qBittorrent from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent from ${cyan}PPA${white}"
+  echo -e "${green}40)${white} qBittorrent ${cyan}$QB_repo_ver${white} from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent ${cyan}$QB_latest_ver${white} from ${cyan}Stable PPA${white}"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
   [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -634,7 +637,6 @@ function _askqbt() {
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
-      QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
       echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}will be installed from repository"
 
   fi
@@ -649,6 +651,9 @@ function _askqbt() {
 function _askdeluge() {
 
 # wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
+  DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
+# DE_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
+  DE_latest_ver=1.3.15
 
   echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
   echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
@@ -657,8 +662,8 @@ function _askdeluge() {
   echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
 # echo -e "${green}21)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
   echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} Deluge from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge from ${cyan}PPA${white}"
+  echo -e "${green}40)${white} Deluge ${cyan}$DE_repo_ver${white} from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge ${cyan}$DE_latest_ver${white} from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
@@ -739,7 +744,6 @@ function _askdeluge() {
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
-      DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
       echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository"
 
   fi
@@ -755,6 +759,8 @@ function _askdeluge() {
 function _askdelt() {
 
 # DELTVERSION=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+  PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | head -n1 `
+  DELT_PPA_ver=1.0.11
 
   if [[ "${DEVERSION}" == "Install from repo" ]]; then
 
@@ -770,8 +776,8 @@ function _askdelt() {
       echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white}"
       echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white} (NOT recommended)"
       echo -e "${green}30)${white} Select another version"
-      echo -e "${green}40)${white} libtorrent-rasterbar from ${cyan}repo${white}"
-      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar from ${cyan}Deluge PPA${white}"
+      echo -e "${green}40)${white} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${white} from ${cyan}repo${white}"
+      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${white} from ${cyan}Deluge PPA${white}"
       [[ ${de_installed} == Yes ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
@@ -816,7 +822,6 @@ function _askdelt() {
 
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | head -n1 `
           echo "${bold}${baiqingse}libtorrent-rasterbar $PYLT_repo_ver${normal} ${bold}will be installed from repository"
 
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
@@ -934,6 +939,9 @@ function _askflood() {
 function _asktr() {
 
 # wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+  TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
+# TR_latest_ver=` wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -n1 `
+  TR_latest_ver=2.93
 
   echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
   echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
@@ -941,8 +949,8 @@ function _asktr() {
   echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
   echo -e "${green}05)${white} Transmission ${cyan}2.93${white}"
   echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} Transmission from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission from ${cyan}PPA${white}"
+  echo -e "${green}40)${white} Transmission ${cyan}$TR_repo_ver${white} from ${cyan}repo${white}"
+  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission ${cyan}$TR_latest_ver${white} from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Transmission"
 
   [[ $tr_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -994,8 +1002,7 @@ function _asktr() {
 
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
-              TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
-              echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository"
+              echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository${normal}"
 
           fi
 
