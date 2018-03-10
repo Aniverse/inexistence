@@ -14,7 +14,7 @@
 检查是否以 root 来运行脚本，检查系统是否受支持  
 `Ubuntu 16.04、Debian 8、Debian 9` 是直接支持的  
 对于 `Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统一概不支持  
-你可以修改脚本第⑨行的 SYSTEMCHECK=1 来关闭对于系统是否受支持的检查，不过这种情况下脚本能不能正常工作我就不知道了  
+修改脚本第⑨行的 SYSTEMCHECK=1 可以关闭对于系统是否支持的检查，不过这种情况下脚本能不能正常工作我就不知道了  
 
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
 
@@ -326,6 +326,7 @@ https://github.com/arakasi72/rtinst
 https://github.com/QuickBox/QB  
 https://github.com/liaralabs/swizzin  
 https://github.com/qbittorrent/qBittorrent  
+https://github.com/jfurrow/flood  
 https://flexget.com  
 https://wiki.winehq.org  
 https://wiki.x2go.org  
