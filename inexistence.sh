@@ -21,6 +21,7 @@ export APT_LISTCHANGES_FRONTEND=none
 local_packages=/etc/inexistence/00.Installation
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
+function _colors() {
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
 on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
@@ -30,7 +31,8 @@ reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
 heibaise=${black}${on_white};
-shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
+_colors
 # --------------------------------------------------------------------------------
 # 用于退出脚本
 export TOP_PID=$$
@@ -370,7 +372,7 @@ fi
 
   [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
-echo -e "\n${white}For more information about this script, please refer the README on GitHub"
+echo -e "\n${bold}For more information about this script, please refer the README on GitHub"
 echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
 
 
@@ -735,6 +737,7 @@ function _askdeluge() {
   if [[ "${DEVERSION}" == No ]]; then
 
       echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
+      DELTVERSION=NoDeluge
 
   elif [[ "${DEVERSION}" == "Install from repo" ]]; then 
 
@@ -808,7 +811,7 @@ function _askdelt() {
               30) _inputversionlt && DELTVERSION="${inputversion}" ;;
               40) DELTVERSION='Install from repo' ;;
               50) DELTVERSION='Install from PPA' ;;
-              99) DELTVERSION='No' ;;
+              99) DELTVERSION=No ;;
               * | "") DELTVERSION=libtorrent-1_0_11 ;;
           esac
 
@@ -823,7 +826,7 @@ function _askdelt() {
               30) _inputversionlt && DELTVERSION="${inputversion}" ;;
               40) DELTVERSION='Install from repo' ;;
               50) DELTVERSION='Install from PPA' ;;
-              99) DELTVERSION='No' ;;
+              99) DELTVERSION=No ;;
               * | "") DELTVERSION='Install from repo' ;;
           esac
 
@@ -899,6 +902,7 @@ function _askrt() {
   if [[ "${RTVERSION}" == "No" ]]; then
 
       echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
+      InsFlood=NoRtorrent
 
   else
 
@@ -1301,7 +1305,9 @@ function _askcontinue() {
   echo
   echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}"${QBVERSION}"${normal}"
   echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
+[[ ! $DEVERSION == No ]] &&   echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}"${DELTVERSION}"${normal}"
   echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
+[[ ! $RTVERSION == No ]] && echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}"${InsFlood}"${normal}"
   echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
   echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
   echo "                  ${cyan}${bold}Wine and mono${normal} ${bold}${yellow}"${InsWine}"${normal}"
@@ -1372,6 +1378,7 @@ USETWEAKS=${tweaks}
 UPLOADTOOLS=${tools}
 RDP=${InsRDP}
 WINE=${InsWine}
+FLOOD=${InsFlood}
 #################################
 EOF
 
@@ -1681,7 +1688,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
 #     make install
       cd;rm -rf libtorrent qBittorrent
-      echo;echo;echo;echo;echo;echo "  QBITTORRENT-INSTALLATION-COMPLETED  ";echo;echo;echo;echo;echo
+      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
   fi ; }
 
@@ -1758,7 +1765,7 @@ function _installde() {
       # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent >> /dev/null
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent > /dev/null
 
       # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
@@ -1766,19 +1773,20 @@ function _installde() {
           apt-get install -y software-properties-common python-software-properties
           add-apt-repository -y ppa:deluge-team/ppa
           apt-get update
-          apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
+          apt-get install -y --allow-downgrades libtorrent-rasterbar8
+          apt-get install -y --allow-downgrades python-libtorrent
           apt-mark hold libtorrent-rasterbar8 python-libtorrent
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako > /dev/null
 
       # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
-      elif [[ $DELTVERSION == "No" ]]; then
+      elif [[ $DELTVERSION == No ]]; then
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako > /dev/null
 
       # 编译安装 libtorrent-rasterbar
       else
 
-          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf >> /dev/null
+          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf > /dev/null
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
@@ -1788,7 +1796,7 @@ function _installde() {
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
           mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
-          echo;echo;echo;echo;echo;echo "  DE-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
+          echo -e "\n\n\n\n\n  DE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n\n\n"
 
       fi
 
@@ -1813,14 +1821,14 @@ function _installde() {
           echo -e "\n\nSSL FIX (FOR LOG)\n\n"
       fi
 
-      python setup.py build >> /dev/null 
-      python setup.py install --install-layout=deb >> /dev/null
+      python setup.py build > /dev/null 
+      python setup.py install --install-layout=deb > /dev/null
 #     python setup.py install_data
       cd; rm -rf deluge* libtorrent
 
   fi
 
-  echo -e "\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n" ; }
+  echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
 
 
 
@@ -1933,7 +1941,7 @@ cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 systemctl daemon-reload
 
-cd ; echo -e "\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
 
@@ -1958,7 +1966,7 @@ cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flo
 systemctl start flood
 systemctl enable flood
 
-cd ; echo -e "\n\n\n\n\n  FLOOD-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+cd ; echo -e "${baihongse}\n\n\n\n\n  FLOOD-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
 
@@ -2025,7 +2033,7 @@ else
 
 fi
 
-cd ; echo -e "\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+cd ; echo -e "${baizise}\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
 
@@ -2093,7 +2101,7 @@ function _installflex() {
 # systemctl enable flexget@${ANPASS}
 # systemctl start flexget@${ANPASS}
 
-  echo -e "\n\n\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+  echo -e "${bailvse}\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2119,7 +2127,7 @@ function _installrclone() {
   cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
   cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
-  echo -e "\n\n\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+  echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2142,7 +2150,7 @@ cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
 
-echo -e "\n\n\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2172,7 +2180,7 @@ systemctl enable vncserver
 systemctl start vncserver
 systemctl status vncserver
 
-echo -e "\n\n\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+echo -e "${bailvse}\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2210,7 +2218,7 @@ fi
 apt-get -y update
 apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
-echo -e "\n\n\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+echo -e "${bailvse}\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2246,7 +2254,7 @@ elif [[ $InsMonoMode == apt ]]; then
 
 fi
 
-echo -e "${normal}\n\n\n\n\n  MONO-INSTALLATION-COMPLETED  \n\n\n\n"
+echo -e "${bailanse}\n\n\n\n\n  MONO-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
 # wine
 # https://wiki.winehq.org/Debian
@@ -2284,10 +2292,10 @@ wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetri
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
-echo -e "\n\n\nVersion"
+echo -e "\n\n\n{bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
-echo -e "${normal}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n" ; }
+echo -e "${bailanse}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
 
@@ -2351,13 +2359,12 @@ wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
-echo -e "\n\n\nVersion${bold}${green}"
+echo -e "\n\n\n{bailvse}Version${normal}${bold}${green}"
 mktorrent -h | head -n1
 mkvmerge --version
 echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
 echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
-echo -e "\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n" ; }
-
+echo -e "${bailanse}\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
 
@@ -2404,7 +2411,20 @@ EOF
 cat>>/etc/profile<<EOF
 ################## Seedbox Script Mod Start ##################
 
-wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+function setcolors() {
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
+blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
+on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
+on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
+dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
+reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
+baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
+heibaise=${black}${on_white};
+shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
+
+#wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
 ulimit -SHn 666666
 
@@ -2495,7 +2515,6 @@ alias vns="vnstat -l -i $wangka"
 
 alias sousuo1="find / -name"
 alias sousuo2="find /home/${ANUSER} -name"
-
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
@@ -2623,10 +2642,12 @@ _time
 if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands (if you have enabled system tweaks):
-${yellow}source /etc/profile
-jiaobenxuanxiang"
-[[ $QBFAILED == 1 ]] && echo "jiaobenqb" ; [[ $DEFAILED == 1 ]] && echo "jiaobende" ; [[ $TRFAILED == 1 ]] && echo "jiaobentr"
-[[ $RTFAILED == 1 ]] && echo -e "jiaobenrt1 jiaobenrt2" ; [[ $FLFAILED == 1 ]] && echo "jiaobentr"
+${yellow}cat /etc/inexistence/01.Log/installed.log"
+[[ $QBFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log"
+[[ $DEFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log"
+[[ $TRFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
+[[ $RTFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ $FLFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
 fi
 
