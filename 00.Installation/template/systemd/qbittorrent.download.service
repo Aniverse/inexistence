@@ -1,0 +1,12 @@
+[Unit]
+Description=qBittorrent Daemon Service
+After=network.target
+
+[Service]
+User=root
+LimitNOFILE=100000
+ExecStart=screen -dmS qBittorrent /bin/bash -c 'export LD_LIBRARY_PATH=/etc/iFeral/qb:$LD_LIBRARY_PATH; /etc/iFeral/app/qbittorrent-nox.VERSION'
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
