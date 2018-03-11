@@ -4,6 +4,12 @@
 
 
 
+### 2018.03.11
+
+`inexistence 0.9.7`  
+1. UI：Flexget Webpass 若设置失败则提示手动设置  
+2. UI：在一开始就检查系统源和网站上的软件版本，免得之后会卡一会儿  
+
 
 
 
@@ -12,7 +18,6 @@
 
 `inexistence 0.9.7`  
 1. **New Feature：Flood Installation**  
-DeBUG 阶段  
 2. **UI：de/qb/tr 的选项，显示来自 repo 的具体版本号**  
 从 PPA  安装时也能显示最新的版本号（查询得来）  
 由于要查版本号所以上个选项答完了以后会卡一下  
