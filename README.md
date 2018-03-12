@@ -146,7 +146,6 @@ BBR 的安装调用了秋水逸冰菊苣的脚本，会安装最新版本的内�
 
 #### To Do List
 
-- **检查安装完成后客户端是否正在运行**  
 - **Flexget 模板**  
 补充更多的站点预设  
 - **MiMA**  
@@ -159,6 +158,7 @@ BBR 本来也没几步，没必要用脚本
 
 #### Under Consideration
 
+- **检查安装完成后客户端是否正在运行**  
 - **不使用 root 运行**  
 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
 
@@ -198,13 +198,9 @@ mingling
 ![mingling.08](https://github.com/Aniverse/filesss/raw/master/Images/mingling.08.png)
 
 #### Known Issues
-- rTorrent 的操作很可能没啥卵用  
 
 #### To Do List
 - 完善说明文档  
-- 添加 AutoDL-Irssi 的开关  
-- 添加锐速的开关与状态检测  
-- 完成脚本菜单的功能  
 
  -------------------
 ## BDinfo
@@ -214,7 +210,7 @@ mingling
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
 
-如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bdupload` 脚本安装需要的软件  
+如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bluray` 或者 `inexistence` 脚本安装需要的软件  
 
 ![bdinfo运行过程](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.02.png)
 
@@ -346,7 +342,9 @@ https://sometimesnaive.org
 https://www.94ish.me  
 https://blog.gloriousdays.pw  
 http://wilywx.com  
+http://xiaofd.win/onekey-ruisu.html  
 https://github.com/teddysun/across  
+https://github.com/FunctionClub/ZBench  
 https://github.com/oooldking/script  
 https://github.com/gutenye/systemd-units  
 https://github.com/outime/ipv6-dhclient-script  
