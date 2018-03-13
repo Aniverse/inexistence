@@ -7,8 +7,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=097
-INEXISTENCEDATE=20180310
+INEXISTENCEVER=098
+INEXISTENCEDATE=20180313
 # --------------------------------------------------------------------------------
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
@@ -372,8 +372,9 @@ fi
 
   [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
-echo -e "\n${bold}For more information about this script, please refer the README on GitHub"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
+echo
+echo -e "${bold}For more information about this script, please refer the README on GitHub"
+echo -ne "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue  " ; read input ; }
 
 
 
@@ -1460,7 +1461,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https dstat iperf3 uuid
+apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -2382,6 +2383,11 @@ if [ $tweaks == "Yes" ]; then
 #chsh -s /bin/zsh
 
 
+
+apt-get autoremove -y
+
+
+
 # PowerFonts
 git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
 cd fonts;./install.sh
@@ -2408,22 +2414,9 @@ EOF
 
 
 #设置编码与alias
-cat>>/etc/profile<<EOF
+cat>>/etc/bash.bashrc<<EOF
 ################## Seedbox Script Mod Start ##################
 
-function setcolors() {
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
-blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
-on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
-dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
-reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
-baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white};
-shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
-
-#wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
 ulimit -SHn 666666
