@@ -2453,9 +2453,10 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,112!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,117!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
+
 
 ################## Inexistence Mod Start ##################
 
@@ -2498,11 +2499,16 @@ alias irssic="su ${ANUSER} -c 'rt -i'"
 alias irssir="su ${ANUSER} -c 'rt -i restart'"
 alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
 alias fla="systemctl start flexget"
+alias flaa="flexget daemon start --daemonize"
 alias flb="systemctl stop flexget"
-alias flc="flexget daemon status"
+alias flc="systemctl status flexget"
+alias flcc="flexget daemon status"
 alias flr="systemctl restart flexget"
+alias flrr="flexget daemon reload-config"
 alias fll="echo ; tail -n100 /root/.config/flexget/flexget.log ; echo"
 alias fls="nano /root/.config/flexget/config.yml"
+alias flcheck="flexget check"
+alias fle="flexget execute"
 alias ssa="/etc/init.d/shadowsocks-r start"
 alias ssb="/etc/init.d/shadowsocks-r stop"
 alias ssc="/etc/init.d/shadowsocks-r status"
