@@ -1212,7 +1212,7 @@ function _askbbr() {
 
       else
 
-          echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
+        # echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
           echo -e "A new kernel (4.11.12) will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
         # read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
@@ -1613,7 +1613,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev >> /dev/null
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
 
           echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
@@ -1624,7 +1624,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
       elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev >> /dev/null
+          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev # > /dev/null
 
           echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
 
@@ -1645,7 +1645,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       else
 
           apt-get purge -y libtorrent-rasterbar-dev
-          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall >> /dev/null
+          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
           cd; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
@@ -1773,7 +1773,7 @@ function _installde() {
       # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent > /dev/null
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent # > /dev/null
 
       # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
@@ -1784,17 +1784,17 @@ function _installde() {
           apt-get install -y --allow-downgrades libtorrent-rasterbar8
           apt-get install -y --allow-downgrades python-libtorrent
           apt-mark hold libtorrent-rasterbar8 python-libtorrent
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako > /dev/null
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
 
       # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
       elif [[ $DELTVERSION == No ]]; then
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako > /dev/null
+          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
 
       # 编译安装 libtorrent-rasterbar
       else
 
-          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf > /dev/null
+          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf # > /dev/null
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
@@ -1829,8 +1829,8 @@ function _installde() {
           echo -e "\n\nSSL FIX (FOR LOG)\n\n"
       fi
 
-      python setup.py build > /dev/null 
-      python setup.py install --install-layout=deb > /dev/null
+      python setup.py build # > /dev/null
+      python setup.py install --install-layout=deb # > /dev/null
 #     python setup.py install_data
       cd; rm -rf deluge* libtorrent
 
@@ -2004,9 +2004,9 @@ elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
 
 else
 
-    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git >> /dev/null
+    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
-    [[ "$CODENAME" = "stretch" ]] && apt-get install -y libssl1.0-dev
+    [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
     cd; wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xvf release-2.1.8-stable.tar.gz
     mv libevent-release-2.1.8-stable libevent
@@ -2728,8 +2728,8 @@ _setuser 2>&1 | tee /etc/01.setuser.log
 
 mv /etc/00.info.log /etc/inexistence/01.Log/INSTALLATION/00.info.log
 mv /etc/00.setsources.log /etc/inexistence/01.Log/INSTALLATION/00.setsources.log
-mv /etc/00.checkrepo1.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo1.log
-mv /etc/00.checkrepo2.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo2.log
+# mv /etc/00.checkrepo1.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo1.log
+# mv /etc/00.checkrepo2.log /etc/inexistence/01.Log/INSTALLATION/00.checkrepo2.log
 mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 # --------------------- 安装 --------------------- #
