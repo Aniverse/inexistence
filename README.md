@@ -98,10 +98,10 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 12. **wine 与 mono**  
 这两个默认也是不安装的  
 `wine` 可以实现在 Linux 上运行 Windows 程序  
-`mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 都需要 mono 才能运行  
+`mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
 
 13. **Some additional tools**  
-这里是安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
+安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
 - `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
 - `mkvtoolnix` 主要是用于做 BD-Remux  
 - `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，采用 git 的 Static Builds  
