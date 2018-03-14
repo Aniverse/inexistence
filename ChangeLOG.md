@@ -4,7 +4,24 @@
 
 
 
-/etc/bash
+
+## 2018.03.14
+
+`inexistence 0.9.8`  
+1. **alias 部分从 `/etc/profile` 改到 `/etc/bash.bashrc`  
+解决了非登录式 shell 下 alias 不可用的问题  
+2. apt-get -y autoremove  
+3. 修改了 locks 的位置，补全 locks  
+
+`mingling 0.8.1`  
+1. 同步 `inexistence` 的改动，修改了判断方式  
+
+`README 0.7.2`  
+1. 小改  
+
+
+
+
 
 
 ## 2018.03.12
@@ -12,6 +29,7 @@
 `inexistence 0.9.8`  
 1. **Bump to 0.9.8**  
 2. 增加 `debconf-get-selections`、`debconf-set-selections`、`besttrace`、`uuid` 的安装  
+3. 增加 lock 文件，以后用于判断是否安装了某些软件/功能  
 
 `mingling 0.8.0`  
 1. **Bump to 0.8.0**  
@@ -20,7 +38,7 @@
 5. **UI：取消了隐藏光标的设定**  
 老是有人以为卡死了，尴尬，取消了算了……  
 4. **Usage：更新了部分 Usage 的说明**  
-5. **Clients：使用 rtinst 的 rt 脚本代替 systemd，并加入了 irssi 开关**  
+5. **Clients：使用 rtinst 的 rt 脚本代替了 rTorrent 的 systemd，并加入了 irssi 开关**  
 6. **Clients：选项增加到 24 个**  
 7. **Scripts：大致做了个样子，更正了写法，更新了一些内容**  
 To be completed ...  
@@ -33,7 +51,8 @@ To be completed ...
 `ChangeLOG 0.2.1`  
 1. 2017.12.07-2018.03.12  
 2. 201710XX-20171015  
-3. 三级标题改成二级标题
+3. **三级标题改成二级标题**  
+然后 GitHub 的 Markdown 会加上一个分隔线  
 
 
 
