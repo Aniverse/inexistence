@@ -244,16 +244,17 @@ echo -e " ${green}cesu ${white} = 进行网速测试，Speedtest            ${gr
 echo -e " ${green}cesu2${white} = 指定节点进行网速测试                    ${green}top${white} = 查看系统运行状况，按 q 退出"
 echo -e " ${green}cesu3${white} = 显示延迟最低的30个测速节点              ${green}ios${white} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
 echo
-echo -e " ${blue}mingling${white}  盒子操作脚本，也就是你现在正在用的这个脚本"
-echo
+# echo -e " ${blue}mingling${white}  盒子操作脚本，也就是你现在正在用的这个脚本"
+# echo
 echo -e " ${blue}xiansu${white}    限制盒子全局上传速度的脚本，适用于保证带宽有限的盒子"
-echo
-echo -e " ${blue}bluray${white}    转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
 echo
 echo -e " ${blue}jiegua${white}    解除挂载当前所有已挂载的 ISO 文件"
 echo
+echo -e " ${blue}bluray${white}    转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
+echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
+echo
 echo -e " ${blue}guazai${white}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
-echo -e "           ${yellow}guazai ${underline}\"/root/Downloads/Jumanji.Welcome.to.the.Jungle.2017.BluRay.1080p.AVC.DTS-HD.MA5.1-CHDBits.iso\"${reset_underline}"
+echo -e "           ${yellow}guazai ${underline}\"/root/Pitch.Perfect.3.2017.BluRay.1080p.AVC.DTS-HD.MA7.1-CHDBits.iso\"${reset_underline}"
 echo
 echo -e " ${blue}bdinfo${white}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
 echo -e "           ${yellow}bdinfo ${underline}\"/mnt/Looper.2012.1080p.POL.Blu-ray.AVC.DTS-HD.MA.5.1-DVDSEED\"${reset_underline}"
@@ -262,9 +263,9 @@ echo -e " ${blue}zuozhong${white}  单独用于制作种子的脚本，需要填
 echo -e "           ${yellow}zuozhong ${underline}\"/media/md9/kuro/private/deluge/Cessez.Le.Feu.2016.FRENCH.COMPLETE.BLURAY\"${reset_underline}"
 echo
 echo -e " ${blue}jietu${white}     用于截图和生成 mediainfo 的脚本，需要输入文件路径，可以自定义分辨率"
-echo -e "           ${yellow}jietu ${underline}\"/home/shiro/Frantz 2016 720p BluRay DD 5.1 x264-GrupoHDS.mkv\"${reset_underline} ${underline}1280x720${reset_underline}"
+echo -e "           ${yellow}jietu  ${underline}\"/home/shiro/Frantz 2016 720p BluRay DD 5.1 x264-GrupoHDS.mkv\"${reset_underline}  ${underline}1280x720${reset_underline}"
 echo -e " ${blue}     ${white}     也可以只输入文件夹，脚本会选择其中最大的文件进行截图，并自动计算及使用 DAR 后的分辨率"
-echo -e "           ${yellow}jietu ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
+echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
 echo -e " ${normal}"
                                                                                     else
 echo -e "${bold}由于你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
