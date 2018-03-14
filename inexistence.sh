@@ -255,10 +255,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 
 # 装 wget 以防万一，不屏蔽错误输出
-if [[ ! -n `command -v wget` ]]; then
-    echo "${bold}Now the script is installing ${yellow}wget${white} ...${normal}"
-    apt-get install -y wget >> /dev/null
-fi
+if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing ${yellow}wget${white} ...${normal}" ; apt-get install -y wget >> /dev/null ; fi
 [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID
 
 
@@ -272,7 +269,6 @@ fi
   isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 
-
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
 
   serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
@@ -282,7 +278,6 @@ fi
 # wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 # wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n1 )
-
 
 
   echo "${bold}Checking your server's specification ...${normal}"
@@ -1354,6 +1349,7 @@ fi
 export TZ="/usr/share/zoneinfo/Asia/Shanghai"
 
 cat>>/etc/inexistence/01.Log/installed.log<<EOF
+如果要截图请截完整点，包含下面所有信息
 CPU     : $cname"
 Cores   : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
 Mem     : $tram MB ($uram MB Used)"
@@ -1383,13 +1379,10 @@ FLOOD=${InsFlood}
 #################################
 EOF
 
-sed -i '/^INEXISTEN*/'d /etc/profile
-sed -i '/^ANUSER/'d /etc/profile
-sed -i '/^USETWEAKS/'d /etc/profile
-sed -i '/^#####\ U.*/'d /etc/profile
+mkdir -p /etc/inexistence/01.Log/lock
+touch /etc/inexistence/01.Log/lock/username.$ANUSER.lock
 
-cat>>/etc/profile<<EOF
-
+cat>/etc/inexistence/01.Log/lock/inexistence.lock<<EOF
 ##### Used for future script determination #####
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
@@ -1399,10 +1392,12 @@ ANUSER=${ANUSER}
 ##### U ########################################
 EOF
 
-source /etc/profile
 
 # 脚本设置
+mkdir -p /etc/inexistence/00.Installation
+mkdir -p /etc/inexistence/01.Log
 mkdir -p /etc/inexistence/02.Tools/eac3to
+mkdir -p /etc/inexistence/03.Files
 mkdir -p /etc/inexistence/04.Upload
 mkdir -p /etc/inexistence/05.Output
 mkdir -p /etc/inexistence/06.BluRay
@@ -1738,7 +1733,7 @@ function _setqbt() {
 #     systemctl enable qbittorrent@${ANUSER}
 #     systemctl start qbittorrent@${ANUSER}
 
-}
+      touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 
 
@@ -1878,6 +1873,8 @@ function _setde() {
 #     systemctl enable {deluged,deluge-web}@${ANUSER}
 #     systemctl start {deluged,deluge-web}@${ANUSER}
 
+      touch /etc/inexistence/01.Log/lock/deluge.lock
+
   fi ; }
 
 
@@ -1942,6 +1939,8 @@ cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 systemctl daemon-reload
 
+touch /etc/inexistence/01.Log/lock/rtorrent.lock
+
 cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
@@ -1966,6 +1965,8 @@ npm run build
 cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
 systemctl enable flood
+
+touch /etc/inexistence/01.Log/lock/flood.lock
 
 cd ; echo -e "${baihongse}\n\n\n\n\n  FLOOD-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
@@ -2070,6 +2071,8 @@ if [ ! "${TRVERSION}" == "No" ]; then
 #   systemctl enable transmission@${ANUSER}
 #   systemctl start transmission@${ANUSER}
 
+    touch /etc/inexistence/01.Log/lock/transmission.lock
+
 fi ; }
 
 
@@ -2102,6 +2105,7 @@ function _installflex() {
 # systemctl enable flexget@${ANPASS}
 # systemctl start flexget@${ANPASS}
 
+  touch /etc/inexistence/01.Log/lock/flexget.lock
   echo -e "${bailvse}\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
@@ -2111,24 +2115,24 @@ function _installflex() {
 # --------------------- 安装 rclone --------------------- #
 
 function _installrclone() {
-
-  apt-get install -y nload htop fuse p7zip-full
-  [[ "$lbit" == '32' ]] && KernelBitVer='i386'
-  [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
-  [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
-  cd; wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
-  unzip rclone-current-linux-$KernelBitVer.zip
-  cd rclone-*-linux-$KernelBitVer
-  cp rclone /usr/bin/
-  chown root:root /usr/bin/rclone
-  chmod 755 /usr/bin/rclone
-  mkdir -p /usr/local/share/man/man1
-  cp rclone.1 /usr/local/share/man/man1
-  mandb
-  cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
-  cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
+apt-get install -y nload htop fuse p7zip-full
+[[ "$lbit" == '32' ]] && KernelBitVer='i386'
+[[ "$lbit" == '64' ]] && KernelBitVer='amd64'
+[[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
+cd; wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
+unzip rclone-current-linux-$KernelBitVer.zip
+cd rclone-*-linux-$KernelBitVer
+cp rclone /usr/bin/
+chown root:root /usr/bin/rclone
+chmod 755 /usr/bin/rclone
+mkdir -p /usr/local/share/man/man1
+cp rclone.1 /usr/local/share/man/man1
+mandb
+cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
+cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
-  echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+touch /etc/inexistence/01.Log/lock/rclone.lock
+echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 
 
@@ -2150,6 +2154,8 @@ cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bn
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
 cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
+
+touch /etc/inexistence/01.Log/lock/bbr.lock
 
 echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
@@ -2180,6 +2186,8 @@ systemctl daemon-reload
 systemctl enable vncserver
 systemctl start vncserver
 systemctl status vncserver
+
+touch /etc/inexistence/01.Log/lock/vnc.lock
 
 echo -e "${bailvse}\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
@@ -2218,6 +2226,8 @@ fi
 
 apt-get -y update
 apt-get -y install x2goserver x2goserver-xsession pulseaudio
+
+touch /etc/inexistence/01.Log/lock/x2go.lock
 
 echo -e "${bailvse}\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
@@ -2293,6 +2303,8 @@ wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetri
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
+touch /etc/inexistence/01.Log/lock/winemono.lock
+
 echo -e "\n\n\n{bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
@@ -2360,6 +2372,8 @@ wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
+touch /etc/inexistence/01.Log/lock/tools.lock
+
 echo -e "\n\n\n{bailvse}Version${normal}${bold}${green}"
 mktorrent -h | head -n1
 mkvmerge --version
@@ -2381,11 +2395,6 @@ if [ $tweaks == "Yes" ]; then
 #cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
 #wget -O ~/.oh-my-zsh/themes/agnosterzak.zsh-theme http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme
 #chsh -s /bin/zsh
-
-
-
-apt-get autoremove -y
-
 
 
 # PowerFonts
@@ -2414,8 +2423,14 @@ EOF
 
 
 #设置编码与alias
+
+# sed -i '$d' /etc/bash.bashrc
+
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,112!{P;N;D;};N;ba' /etc/bash.bashrc
+
 cat>>/etc/bash.bashrc<<EOF
-################## Seedbox Script Mod Start ##################
+
+################## Inexistence Mod Start ##################
 
 wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
@@ -2481,7 +2496,7 @@ alias cdrt="cd /home/${ANUSER}/rtorrent/download"
 alias cdtr="cd /home/${ANUSER}/transmission/download"
 
 alias shanchu="rm -rf"
-alias xiugai="nano /etc/profile && source /etc/profile"
+alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
 alias quanxian="chmod -R 777"
 alias anzhuang="apt-get install"
 alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
@@ -2525,7 +2540,7 @@ alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log &&
 alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
 alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
 
-################## Seedbox Script Mod END ##################
+################## Inexistence Mod END ##################
 EOF
 
 
@@ -2559,10 +2574,12 @@ tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 locale-gen en_US.UTF-8
 locale
 sysctl -p
-# source /etc/profile
+# source /etc/bash.bashrc
 
 # apt-get -y upgrade
-# apt-get -y autoremove
+apt-get -y autoremove
+
+touch /etc/inexistence/01.Log/lock/tweaks.lock
 
 fi ; }
 
