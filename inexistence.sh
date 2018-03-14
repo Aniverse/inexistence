@@ -2107,7 +2107,8 @@ function _installflex() {
 # chmod -R 777 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
-  flexget web passwd ${ANPASS} || FlexPassFail=1
+  flexget web passwd ${ANPASS} > /tmp/flex.pass.output
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && FlexPassFail=1 && echo -e "Failed to set flexget webui password"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2675,7 +2676,7 @@ fi
 echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
-[[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} set Flexget WebUI password by typing \n${bold}${underline}flexget web passwd  <new password>{reset_underline}${normal}"
+[[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
 
 echo '-----------------------------------------------------------'
 echo
