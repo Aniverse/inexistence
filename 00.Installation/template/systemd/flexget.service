@@ -5,6 +5,8 @@ After=network.target
 [Service]
 User=root
 ExecStart=/usr/local/bin/flexget daemon start
+ExecStartPre=/bin/rm -f /root/.config/flexget/.config-lock
+ExecStop=/usr/local/bin/flexget daemon stop
 Restart=on-failure
 
 [Install]
