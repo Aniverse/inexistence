@@ -151,9 +151,6 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent 的密码的脚本  
 - **加入脚本参数**  
 比如 `bash inexistence -u username -p password --d 1.3.15 --r 0.9.6 --q 4.0.3 --tr 2.93`  
-- **自写 BBR 部分的代码**  
-可以自定义内核，或者指定某些内核  
-BBR 本来也没几步，没必要用脚本  
 
 #### Under Consideration
 
@@ -163,24 +160,25 @@ BBR 本来也没几步，没必要用脚本
 
 #### Known Issues
 
-- VNC 可能连不上  
-暂时无解  
-- 有时候 rTorrent 或 ruTorrent 会有一些问题  
+- **VNC 可能连不上**  
+求大佬们赐教  
+- **有时候 rTorrent 或 ruTorrent 会有一些问题**  
 最糟的情况是 rTorrent 没装成功，稍好一点的情况是 rut 连不上 rt，再好一点的情况是某些插件不能使用  
 因为有的时候是怎么翻车的我也不是很清楚，再加上我水平菜，所以这问题我一时半会儿修不了
-- 没有检查用户输入的账号、密码的有效性  
+- **没有检查用户输入的账号、密码的有效性**  
+什么时候学好了正则再说  
 
 
-
--------------------
 ## mingling
 
-#### 运行
+#### Usage
 ```
-mingling
+wget -qO /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling  
+chmod +x /usr/local/bin/mingling  
+mingling  
 ```
 
-#### 介绍
+#### Intro
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
 此外有些功能还没做完  
@@ -201,7 +199,7 @@ mingling
 #### To Do List
 - 完善说明文档  
 
- -------------------
+
 ## BDinfo
 
 这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本  
@@ -219,7 +217,7 @@ mingling
  
 BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
-  -------------------
+
 ## IPv6
 
 用于配置 IPv6 的脚本  
@@ -227,7 +225,7 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
 
 ``` 
-wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6
+wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
 bash ipv6  
 bash ipv6 [interface] [address] [subnet] [DUID]  
 bash ipv6 enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
@@ -235,7 +233,7 @@ bash ipv6 enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26
 
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
 
-  -------------------
+
 ## xiansu
 
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
@@ -251,7 +249,6 @@ xiansu eth0 300
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
 
 
-  -------------------
 ## jietu
 
 用于截图和生成 mediainfo 的脚本，适合非原盘类的视频  
@@ -269,7 +266,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
 
 
-  -------------------
 ## guazai
 
 用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此需要 root 权限才能运行  
@@ -286,7 +282,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 直接输入 `guazai`，会在当前目录下寻找 ISO 挂载  
 
 
-  -------------------
 ## jiegua
 
 解除挂载用的脚本，会把能检测到的所有已挂载的 ISO 全部解除挂载
@@ -296,19 +291,16 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 `guazai` + `jietu` + `jiegua` 三连
 
 
-  -------------------
 ## Blu-ray
 
 关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
 inexistence 自带 bluray，不过不包括它的软件库  
 （然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、image、mono、imagemagick）  
 
-  -------------------
 
 还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 
-  -------------------
-### Something else
+## Something else
 
 1. 我不想回答 README 中已包含答案的问题  
 2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
@@ -319,8 +311,7 @@ inexistence 自带 bluray，不过不包括它的软件库
 2. 你使用的是什么盒子  
 3. 你具体碰到了什么问题  
 
-  -------------------
-### Some references
+## Some references
 
 https://github.com/arakasi72/rtinst  
 https://github.com/QuickBox/QB  
