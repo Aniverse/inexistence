@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-mingling=0.8.0
-UPDATE=2018.03.12
+mingling=0.8.1
+UPDATE=2018.03.14
 
 # --------------------------------
 # echo $de_installed $rt_installed $qb_installed $tr_installed $flex_installed $rclone_installed $virtwhat_installed $lsb_installed $smartctl_installed
@@ -69,6 +69,12 @@ elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then faxingban="centos"
 elif cat /proc/version | grep -Eqi "debian"; then faxingban="debian"
 elif cat /proc/version | grep -Eqi "ubuntu"; then faxingban="ubuntu"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then faxingban="centos" ; fi
+
+DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
+DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
+CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
+[[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
+[[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 
 # 颜色 -----------------------------------------------------------------------------------
 
@@ -135,10 +141,10 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-inexistence=`cat /etc/profile | grep INEXISTENCEinstalled | cut -c22-`
-INEXISTENCEVER=`cat /etc/profile | grep INEXISTENCEVER | cut -c16-`
-INEXISTENCEDATE=`cat /etc/profile | grep INEXISTENCEDATE | cut -c17-`
-tweaks=`cat /etc/profile | grep USETWEAKS | cut -c11-`
+inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
+INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
+INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
+tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
 
 #更多的检测
 # --------------------------------------------------------------------------------
