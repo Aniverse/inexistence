@@ -587,15 +587,18 @@ function _askqbt() {
   echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
   echo -e "${green}03)${white} qBittorrent ${cyan}3.3.14${white}"
   echo -e "${green}04)${white} qBittorrent ${cyan}3.3.16${white}"
-  [[ ! $CODENAME = jessie ]] && echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}"
-  [[ ! $CODENAME = jessie ]] && echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}"
-  [[ ! $CODENAME = jessie ]] && echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
+  [[ ! $CODENAME = jessie ]] &&
+  echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}" && 
+  echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}" && 
+  echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} qBittorrent ${cyan}$QB_repo_ver${white} from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} qBittorrent ${cyan}$QB_latest_ver${white} from ${cyan}Stable PPA${white}"
+  [[ $DISTRO == Ubuntu ]] &&
+  echo -e "${green}50)${white} qBittorrent ${cyan}$QB_latest_ver${white} from ${cyan}Stable PPA${white}"
   echo -e   "${red}99)${white} Do not install qBittorrent"
 
-  [[ "${qb_installed}" == "Yes" ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
+  [[ $qb_installed == Yes ]] &&
+  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
   read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
 
   case $version in
@@ -676,7 +679,8 @@ function _askdeluge() {
 # echo -e "${green}21)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Deluge ${cyan}$DE_repo_ver${white} from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Deluge ${cyan}$DE_latest_ver${white} from ${cyan}PPA${white}"
+  [[ $DISTRO == Ubuntu ]] &&
+  echo -e "${green}50)${white} Deluge ${cyan}$DE_latest_ver${white} from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Deluge"
 
   [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
@@ -789,8 +793,10 @@ function _askdelt() {
       echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white} (NOT recommended)"
       echo -e "${green}30)${white} Select another version"
       echo -e "${green}40)${white} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${white} from ${cyan}repo${white}"
-      [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${white} from ${cyan}Deluge PPA${white}"
-      [[ ${de_installed} == Yes ]] && echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
+      [[ $DISTRO == Ubuntu ]] &&
+      echo -e "${green}50)${white} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${white} from ${cyan}Deluge PPA${white}"
+      [[ $de_installed == Yes ]] &&
+      echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
       echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
 #     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
@@ -860,13 +866,15 @@ function _askdelt() {
 
 function _askrt() {
 
-  [[ ! $CODENAME == stretch ]] && echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}"
-  [[ ! $CODENAME == stretch ]] && echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}"
-  [[ ! $CODENAME == stretch ]] && echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
+  [[ ! $CODENAME == stretch ]] &&
+  echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}" &&
+  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}" &&
+  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
   echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
   echo -e   "${red}99)${white} Do not install rTorrent"
 
-  [[ $rt_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
+  [[ $rt_installed == Yes ]] &&
+  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 # [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
     if [[ $CODENAME == stretch ]]; then
@@ -960,10 +968,12 @@ function _asktr() {
   echo -e "${green}05)${white} Transmission ${cyan}2.93${white}"
   echo -e "${green}30)${white} Select another version"
   echo -e "${green}40)${white} Transmission ${cyan}$TR_repo_ver${white} from ${cyan}repo${white}"
-  [[ $DISTRO == Ubuntu ]] && echo -e "${green}50)${white} Transmission ${cyan}$TR_latest_ver${white} from ${cyan}PPA${white}"
+  [[ $DISTRO == Ubuntu ]] &&
+  echo -e "${green}50)${white} Transmission ${cyan}$TR_latest_ver${white} from ${cyan}PPA${white}"
   echo -e   "${red}99)${white} Do not install Transmission"
 
-  [[ $tr_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
+  [[ $tr_installed == Yes ]] &&
+  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
   read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
   case $version in
@@ -1009,7 +1019,6 @@ function _asktr() {
           fi
 
 
-
           if [[ "${TRVERSION}" == "Install from repo" ]]; then 
 
               echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository${normal}"
@@ -1032,6 +1041,7 @@ function _askflex() {
   [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
 # read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
   echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+
   case $responce in
     [yY] | [yY][Ee][Ss]) flexget=Yes ;;
     [nN] | [nN][Oo] | "" ) flexget=No ;;
@@ -1168,7 +1178,7 @@ fi ; }
 
 # 检查系统内核版本是否大于4.9
 function check_kernel_version() {
-if [[ ${kv1} -ge 4 ]] && [[ ${kv2} -ge 9 ]]; then
+if [[ $kv1 -ge 4 ]] && [[ $kv2 -ge 9 ]]; then
     bbrkernel=Yes
 else
     bbrkernel=No
@@ -1180,7 +1190,7 @@ function _askbbr() {
 
   check_bbr_status
 
-  if [[ "${bbrinuse}" == "Yes" ]]; then
+  if [[ $bbrinuse == Yes ]]; then
 
       echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
       bbr=Already\ Installed
@@ -1189,13 +1199,13 @@ function _askbbr() {
 
       check_kernel_version
 
-      if [[ "${bbrkernel}" == "Yes" ]]; then
+      if [[ $bbrkernel == Yes ]]; then
 
           echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
           read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
 
           case $responce in
-              [yY] | [yY][Ee][Ss] | "" ) bbr=Yes ;;
+              [yY] | [yY][Ee][Ss] | "" ) bbr=To\ be\ enabled ;;
               [nN] | [nN][Oo]) bbr=No ;;
               *) bbr=Yes ;;
           esac
@@ -1203,7 +1213,7 @@ function _askbbr() {
       else
 
           echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
-          echo -e "A latest kernel will be installed if BBR is to be installed"
+          echo -e "A new kernel (4.11.12) will be installed if BBR is to be installed"
           echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
         # read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
           echo -ne "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
@@ -1216,7 +1226,7 @@ function _askbbr() {
 
       fi
 
-      if [ "${bbr}" == "Yes" ]; then
+      if [[ $bbr == Yes ]] || [[ $bbr == To\ be\ enabled ]]; then
           echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be installed${normal}"
       else
           echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
@@ -1301,9 +1311,11 @@ function _askcontinue() {
   echo
   echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}"${QBVERSION}"${normal}"
   echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
-[[ ! $DEVERSION == No ]] &&   echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}"${DELTVERSION}"${normal}"
+[[ ! $DEVERSION == No ]] &&
+  echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}"${DELTVERSION}"${normal}"
   echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
-[[ ! $RTVERSION == No ]] && echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}"${InsFlood}"${normal}"
+[[ ! $RTVERSION == No ]] &&
+  echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}"${InsFlood}"${normal}"
   echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
   echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
   echo "                  ${cyan}${bold}Wine and mono${normal} ${bold}${yellow}"${InsWine}"${normal}"
@@ -2141,26 +2153,41 @@ echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 # --------------------- 安装 BBR --------------------- #
 
-function _installbbr() {
-
-cd
-bash "${local_packages}"/script/dalao/bbr1.sh
-mv install_bbr.log /etc/inexistence/01.Log/install_bbr.log
-
-# 下边增加固件是为了解决 Online.net 服务器安装 BBR 后无法开机的问题
-mkdir -p /lib/firmware/bnx2
-cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-06-6.2.3.fw /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
-cp -f /etc/inexistence/03.Files/firmware/bnx2-mips-09-6.2.1b.fw /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
-cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
-cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
-cp -f /etc/inexistence/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
-
-touch /etc/inexistence/01.Log/lock/bbr.lock
-
+function _install_bbr() {
+_online_ubuntu_bbr_firmware
+_bbr_kernel_4_11_12
+_enable_bbr
 echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
+# 安装 4.11.12 的内核
+function _bbr_kernel_4_11_12() {
+wget --no-check-certificate -qO 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
+wget --no-check-certificate -qO 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
+wget --no-check-certificate -qO 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
+dpkg -i [123].deb
+rm -rf [123].deb
+update-grub ; }
 
 
+# 开启 BBR
+function _enable_bbr() {
+bbrname=bbr
+sed -i '/net.core.default_qdisc.*/d' /etc/sysctl.conf
+sed -i '/net.ipv4.tcp_congestion_control.*/d' /etc/sysctl.conf
+echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
+sysctl -p
+touch /etc/inexistence/01.Log/lock/bbr.lock ; }
+
+
+# Online.net 独服补充固件（For BBR）
+function _online_ubuntu_bbr_firmware() {
+mkdir -p /lib/firmware/bnx2
+wget -qO /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-mips-06-6.2.3.fw
+wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-mips-09-6.2.1b.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw ; }
 
 
 # --------------------- 安装 VNC --------------------- #
@@ -2708,9 +2735,10 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 # --------------------- 安装 --------------------- #
 
 
-
 if [[ $bbr == Yes ]]; then
-    echo -ne "Configuring BBR ... \n\n\n" ; _installbbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+    echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+elif [[ $bbr == To\ be\ enabled ]]; then
+    echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
     echo -e "Skip BBR installation\n\n\n\n\n"
 fi
