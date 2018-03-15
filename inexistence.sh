@@ -39,6 +39,7 @@ _colors
 # 用于退出脚本
 export TOP_PID=$$
 trap 'exit 1' TERM
+
 ### 硬盘计算 ###
 calc_disk() {
     local total_size=0
@@ -220,6 +221,8 @@ ${heibaise}${bold}                                                              
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
+
+export $TOP_PID_2=$$
 
 # 检查是否以 root 权限运行脚本
 if [[ $EUID != 0 ]]; then
@@ -1320,7 +1323,7 @@ function _askcontinue() {
   echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}"${InsFlood}"${normal}"
   echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
   echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
-  echo "                  ${cyan}${bold}Wine and mono${normal} ${bold}${yellow}"${InsWine}"${normal}"
+  echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}"${InsWine}"${normal}"
   echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
   echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
   echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
@@ -1523,8 +1526,9 @@ _time
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
-exit 0
-kill -s TERM $TOP_PID ; }
+kill -s TERM $TOP_PID
+kill -s TERM $TOP_PID_2
+exit 0 ; }
 
 
 
