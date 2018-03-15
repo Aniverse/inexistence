@@ -1468,7 +1468,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk
+apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -2560,7 +2560,7 @@ alias sousuo2="find /home/${ANUSER} -name"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
-alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart"
+alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 ; echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
