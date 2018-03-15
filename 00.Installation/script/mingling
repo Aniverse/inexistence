@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-mingling=0.8.1
-UPDATE=2018.03.14
+mingling=0.8.2
+UPDATE=2018.03.15
 
 # --------------------------------
 # echo $de_installed $rt_installed $qb_installed $tr_installed $flex_installed $rclone_installed $virtwhat_installed $lsb_installed $smartctl_installed
@@ -498,14 +498,14 @@ function _show_scripts_menu() { clear ; echo
   echo -e " ${black}${on_white}${bold}                                       07. 运行其他一键脚本                                         ${normal} "
   echo -e " ${bold}"
   echo -e "  ${green}(01) ${white}安装 inexistence"
-  echo -e "  ${green}(02) ${white}安装 BBR"
-  echo -e "  ${green}(03) ${white}安装 锐速"
-  echo -e "  ${green}(04) ${white}安装 ShadowSocks"
+  echo -e "  ${green}(02) ${white}安装 BBR 或 魔改版 BBR 或 锐速"
+  echo -e "  ${green}(03) ${white}安装 Shadowsocks"
+  echo -e "  ${green}(04) ${white}安装 V2Ray"
   echo -e "  ${green}(05) ${white}重装 系统 "
   echo -e "  ${green}(06) ${white}运行 Bench"
   echo -e "  ${green}(07) ${white}运行 UnixBench"
   echo -e "  ${green}(08) ${white}配置 IPv6"
-# echo -e "  ${green}(09) ${white}广告位招租"
+  echo -e "  ${green}(09) ${white}更改 终端语言为中文"
   echo -e "  ${green}(10) ${white}返回 main menu"
   echo -e "  ${normal}"
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
@@ -517,14 +517,16 @@ read response
 case $response in
     01 |  1) # 安装 inexistence
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh )" ;;
-    02 |  2) # 安装 BBR
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/bbrinsatll.sh )" ;;
-    03 |  3) # 安装 锐速
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/serverspeederinsatll.sh )" ;;
-    04 |  4) # 安装 ShadowSocks
+    02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
+             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/TrCtrlProToc0l/master/TrCtrlProToc0l.sh )" ;;
+    03 |  3) # 安装 Shadowsocks
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh )" ;;
+    04 |  4) # 安装 V2Ray
+             clear ; echo -e "安装 V2Ray ...\n"
+             bash -c "$( curl -fsSL https://raw.githubusercontent.com/tracyone/v2ray.fun/master/install.sh )" ;;
     05 |  5) # 重装 系统
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh )" ;;
+           # bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh )"
+             echo -e "\n施工中 ...\n" ; _main_menu ; _xunwen1; _scripts_menu_response ;;
     06 |  6) # 运行 Bench
              clear ; echo -e "运行 Bench ...\n"
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
@@ -533,6 +535,9 @@ case $response in
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/across/master/unixbench.sh )" ;;
     08 |  8) # 配置 IPv6
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/ipv6 )" ;;
+    09 |  9) # 更改 Linux 服务器终端显示语言为中文的脚本
+             clear ; echo -e "更改 Linux 服务器终端显示语言为中文 ...\n"
+             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/LocaleCN/master/LocaleCN.sh )" ;;
     10 | "") # 返回主菜单
              echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
           *) # 返回主菜单
