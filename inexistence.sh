@@ -32,7 +32,7 @@ dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=
 reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white};
+heibaise=${black}${on_white}; jiacu=${normal}${bold}
 shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
 _colors
 # --------------------------------------------------------------------------------
@@ -374,7 +374,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
-echo -ne "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue  " ; read input ; }
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
 
 
 
@@ -1526,8 +1526,8 @@ _time
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
+sleep 15
 kill -s TERM $TOP_PID
-kill -s TERM $TOP_PID_2
 exit 0 ; }
 
 
@@ -2337,7 +2337,7 @@ mv winetricks /usr/local/bin
 
 touch /etc/inexistence/01.Log/lock/winemono.lock
 
-echo -e "\n\n\n{bailvse}Version${normal}"
+echo -e "\n\n\n${bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
 echo -e "${bailanse}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
@@ -2406,7 +2406,7 @@ rm -rf eac3to.zip ; cd
 
 touch /etc/inexistence/01.Log/lock/tools.lock
 
-echo -e "\n\n\n{bailvse}Version${normal}${bold}${green}"
+echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
 mktorrent -h | head -n1
 mkvmerge --version
 echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
