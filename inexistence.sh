@@ -10,10 +10,12 @@ DeBUG=0
 INEXISTENCEVER=098
 INEXISTENCEDATE=20180313
 # --------------------------------------------------------------------------------
+[[ $1 == -d ]] && DeBUG=1
+
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
     ANUSER=aniverse
-    localpass=12345678
+    localpass=blackshiro233
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -1495,36 +1497,34 @@ starttime=$(date +%s)
 
 apt-get remove apt-listchanges --assume-yes --force-yes
 
-#lib6c was an issue for me as it ignored the DEBIAN_FRONTEND environment variable and fired a prompt anyway. This should fix it
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
 
-echo "executing apt sources change"
+echo -e "\n\n\n${baihongse}executing apt sources change${normal}\n\n\n"
 [[ $CODENAME == wheezy ]] && sed -i "s/wheezy/jessie/g" /etc/apt/sources.list
 [[ $CODENAME == trusty ]] && sed -i "s/trusty/xenial/g" /etc/apt/sources.list
 
-echo "executing autoremove"
+echo -e "\n\n\n${baihongse}executing autoremove${normal}\n\n\n"
 apt-get -fuy --force-yes autoremove
 
-echo "executing clean"
+echo -e "\n\n\n${baihongse}executing clean${normal}\n\n\n"
 apt-get --force-yes clean
 
-echo "executing update"
+echo -e "\n\n\n${baihongse}executing update${normal}\n\n\n"
 apt-get update
 
-echo "executing upgrade"
+echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
 
-echo "executing dist-upgrade"
+echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
 echo -e "\n\n\n"
 _time
-echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
-reboot
-exit 0
-kill -s TERM $TOP_PID
 
-}
+[[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
+
+exit 0
+kill -s TERM $TOP_PID ; }
 
 
 
@@ -2184,11 +2184,11 @@ touch /etc/inexistence/01.Log/lock/bbr.lock ; }
 # Online.net 独服补充固件（For BBR）
 function _online_ubuntu_bbr_firmware() {
 mkdir -p /lib/firmware/bnx2
-wget -qO /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-mips-06-6.2.3.fw
-wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-mips-09-6.2.1b.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-09ax-6.0.17.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-09-6.0.17.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/inexistence/raw/master/03.Files/firmware/bnx2-rv2p-06-6.0.15.fw ; }
+wget -qO /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-mips-06-6.2.3.fw
+wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-mips-09-6.2.1b.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09ax-6.0.17.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09-6.0.17.fw
+wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-06-6.0.15.fw ; }
 
 
 # --------------------- 安装 VNC --------------------- #
