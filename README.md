@@ -119,7 +119,7 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 
 16. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认 直接启用BBR（不更换内核）  
-据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配南琴浪以外版的魔改 BBR，因此采用了 4.11.12 内核  
+据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配南琴浪版以外的魔改 BBR，因此采用了 4.11.12 内核  
 注意：更换内核或多或少是有点危险性的操作，有时候会导致无法正常启动系统  
 不过针对常见的 Online／OP 的独服我是准备了五个 firmware，应该没什么问题  
 
@@ -335,7 +335,7 @@ https://blog.gloriousdays.pw
 http://wilywx.com  
 http://xiaofd.win/onekey-ruisu.html  
 https://github.com/teddysun/across  
-https://github.com/FunctionClub/ZBench  
+https://github.com/FunctionClub  
 https://github.com/oooldking/script  
 https://github.com/gutenye/systemd-units  
 https://github.com/outime/ipv6-dhclient-script  
