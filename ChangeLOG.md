@@ -3,6 +3,24 @@
 
 
 
+## 2018.03.15
+
+`inexistence 0.9.8`  
+1. 增加对于 `rsync` 与 `build-essential` 的安装  
+2. alias：修改 `sshr` 的输出  
+3. **-d 参数**  
+-d：开启 DeBUG 模式。同时 DeBUG 下升级系统后不重启，方便跑 TCP 脚本  
+4. 修改了 firmware 的下载地址  
+5. UI：优化了升级系统时的一些提示的显示效果  
+
+`mingling 0.8.2`  
+1. 同步 `TCP` 脚本的修改  
+
+`TrCtrlProToc0l 0.8.0-1.0.3`  
+1. 改了太多东西，懒得写了……  
+
+
+
 
 
 ## 2018.03.14
@@ -10,12 +28,17 @@
 `inexistence 0.9.8`  
 1. **alias 部分从 `/etc/profile` 改到 `/etc/bash.bashrc`  
 解决了非登录式 shell 下 alias 不可用的问题  
+此外追加了一些 alias，添加了删除之前写入的内容的命令，只不过根据行的数量来删除，可能会有误删除的情况  
+我在想是不是用 for 之类的来检查比较好？或者把 alias、export 带头的全删了之类的？  
 2. apt-get -y autoremove  
 3. 修改了 locks 的位置，补全 locks  
 4. **BBR 不使用脚本安装**  
 本来也没几步，就自己写了  
 内核固定为 4.11.12，方便之后安装魔改版 BBR  
 5. UI：不屏蔽 apt 安装时的输出  
+6. Bug Fix：修复 Flexget WebUI 密码没有设置好时没有提示的问题  
+用 || 也没用，不返回 1，似乎只能根据输出内容判断了  
+此外还有个问题，deluge auth 的密码太简单也不行，似乎不生效，然后 flexget 配置文件检查就失败了，就导致 flexget 没法正常运行，真是蛋疼……    
 
 `mingling 0.8.1`  
 1. 同步 `inexistence` 的改动，修改了判断方式  
