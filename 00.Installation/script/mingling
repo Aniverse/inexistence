@@ -518,7 +518,7 @@ case $response in
     01 |  1) # 安装 inexistence
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh )" ;;
     02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/TrCtrlProToc0l/master/TrCtrlProToc0l.sh )" ;;
+             bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A)" ;;
     03 |  3) # 安装 Shadowsocks
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh )" ;;
     04 |  4) # 安装 V2Ray
