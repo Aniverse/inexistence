@@ -3,9 +3,10 @@ Description=Transmission Service
 After=network.target
 
 [Service]
-LimitNOFILE=100000
+LimitNOFILE=666666
 User=root
 ExecStart=/usr/bin/transmission-daemon --log-error -f
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/transmission-daemon
 
 [Install]
 WantedBy=multi-user.target
