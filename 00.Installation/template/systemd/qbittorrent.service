@@ -3,7 +3,7 @@ Description=qBittorrent Daemon Service
 After=network.target
 [Service]
 User=root
-LimitNOFILE=100000
+LimitNOFILE=666666
 ExecStart=/usr/bin/qbittorrent-nox --webui-port=2017
 ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
 Restart=on-failure
