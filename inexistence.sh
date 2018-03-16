@@ -222,8 +222,6 @@ ${heibaise}${bold}                                                              
 # --------------------- 系统检查 --------------------- #
 function _intro() {
 
-export $TOP_PID_2=$$
-
 # 检查是否以 root 权限运行脚本
 if [[ $EUID != 0 ]]; then
     echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
