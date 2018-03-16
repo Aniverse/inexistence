@@ -10,10 +10,10 @@
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
 
 ![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
+![升级系统](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
 
 检查是否以 root 来运行脚本，检查系统是否受支持  
-`Ubuntu 16.04、Debian 8、Debian 9` 是直接支持的  
-对于 `Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统一概不支持  
+支持 `Ubuntu 16.04、Debian 8、Debian 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
 修改脚本第⑨行的 SYSTEMCHECK=1 可以关闭对于系统是否支持的检查，不过这种情况下脚本能不能正常工作我就不知道了  
 
 ![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
