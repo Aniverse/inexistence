@@ -8,12 +8,12 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=098
-INEXISTENCEDATE=20180313
+INEXISTENCEDATE=20180318
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; ANPASS=blackshiro233 ; SYSTEMCHECK=0
+    ANUSER=aniverse ; ANPASS=blackshiro233 ; SYSTEMCHECK=0 ; UseTweaks=Yes
     aptsources=Yes ; MAXCPUS=$(nproc) ; InsBBR=No
 fi
 # --------------------------------------------------------------------------------
@@ -438,7 +438,7 @@ function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Z
 
 function _askusername(){ clear
 
-while [[ $ANUSER = "" ]]; do
+if [[ $ANUSER = "" ]]; then
 
     echo "${bold}${yellow}The script needs a username${jiacu}"
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
@@ -464,7 +464,11 @@ while [[ $ANUSER = "" ]]; do
 
     done
 
-done ; }
+else
+
+    echo -e "${bold}Username sets to ${blue}$ANUSER${normal}\n"
+
+fi ; }
 
 
 
@@ -482,7 +486,7 @@ exec 3>&1 >/dev/tty
 
 if [[ $ANPASS = "" ]]; then
 
-    echo -e "\n${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
+    echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
     echo "The password must consist of characters and numbers and at least 8 chars,"
     echo "or you can leave it blank to generate a random password"
 
@@ -524,7 +528,7 @@ if [[ $ANPASS = "" ]]; then
 
 else
 
-    echo -e "\n${bold}Password sets to ${blue}$ANPASS${normal}\n"
+    echo -e "${bold}Password sets to ${blue}$ANPASS${normal}\n"
 
 fi ; }
 
@@ -1320,7 +1324,7 @@ while [[ $InsBBR = "" ]]; do
 
 done
 
-if [ $UseTweaks == Yes ]; then
+if [[ $UseTweaks == Yes ]]; then
     echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
 else
     echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
@@ -2830,7 +2834,7 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 # --------------------- 安装 --------------------- #
 
 
-if [[ $InsBBR == Yes ]]; then
+if   [[ $InsBBR == Yes ]]; then
     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 elif [[ $InsBBR == To\ be\ enabled ]]; then
     echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
@@ -2854,7 +2858,7 @@ else
 fi
 
 
-if [[ $RTVERSION == No ]]; then
+if  [[ $RTVERSION == No ]]; then
     echo -e "Skip rTorrent installation\n\n\n"
 else
     echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
@@ -2862,7 +2866,7 @@ else
 fi
 
 
-if [[ $TRVERSION == No ]]; then
+if  [[ $TRVERSION == No ]]; then
     echo -e "Skip Transmission installation\n\n\n\n"
 else
     echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
@@ -2870,23 +2874,23 @@ else
 fi
 
 
-if [[ $InsFlex == No ]]; then
-    echo -e "Skip Flexget installation\n\n\n\n"
-else
+if  [[ $InsFlex == Yes ]]; then
     echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
+else
+    echo -e "Skip Flexget installation\n\n\n\n"
 fi
 
 
-if [[ $InsRclone == No ]]; then
-    echo -e "Skip rclone installation\n\n\n\n"
-else
+if  [[ $InsRclone == Yes ]]; then
     echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
+else
+    echo -e "Skip rclone installation\n\n\n\n"
 fi
 
 
 ####################################
 
-if [[ $InsRDP == VNC ]]; then
+if   [[ $InsRDP == VNC ]]; then
    echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
 elif [[ $InsRDP == X2Go ]]; then
    echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
@@ -2911,10 +2915,10 @@ fi
 ####################################
 
 
-if [[ $UseTweaks == No ]]; then
-    echo -e "Skip System tweaks\n\n\n\n"
-else
+if [[ $UseTweaks == Yes ]]; then
     echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
+else
+    echo -e "Skip System tweaks\n\n\n\n"
 fi
 
 
