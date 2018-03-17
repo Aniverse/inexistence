@@ -14,8 +14,8 @@ INEXISTENCEDATE=20180313
 
 if [[ $DeBUG == 1 ]]; then
     confirm_name=0
-    ANUSER=aniverse
-    localpass=blackshiro233
+    ANUSER=aniverse ; localpass=blackshiro233
+    aptsources=Yes ; MAXCPUS=$(nproc)
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -531,22 +531,26 @@ return $exitvalue ; }
 
 function _askaptsource() {
 
-# read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+while [[ $aptsources = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
-      [nN] | [nN][Oo]) aptsources=No ;;
-      *) aptsources=Yes ;;
-  esac
+#   read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " responce
+    echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
-  if [[ $aptsources == Yes ]]; then
-      echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
-  else
-      echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
-  fi
+    case $responce in
+        [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
+        [nN] | [nN][Oo]) aptsources=No ;;
+        *) aptsources=Yes ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $aptsources == Yes ]]; then
+    echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
+else
+    echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
+fi
+
+echo ; }
 
 
 
@@ -556,32 +560,36 @@ function _askaptsource() {
 
 function _askmt() {
 
-  echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
-  echo -e "${green}02)${normal} Use ${cyan}half${normal} of available threads"
-  echo -e "${green}03)${normal} Use ${cyan}one${normal} thread"
-  echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
-# echo -e   "${red}99)${normal} Do not compile, install softwares from repo"
+while [[ $MAXCPUS = "" ]]; do
 
-# echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
-# read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
-  echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " ; read -e responce
+    echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
+    echo -e "${green}02)${normal} Use ${cyan}half${normal} of available threads"
+    echo -e "${green}03)${normal} Use ${cyan}one${normal} thread"
+    echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
+#   echo -e   "${red}99)${normal} Do not compile, install softwares from repo"
 
-  case $responce in
-      01 | 1 | "") MAXCPUS=$(nproc) ;;
-      02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
-      03 | 3) MAXCPUS=1 ;;
-      04 | 4) MAXCPUS=2 ;;
-      05 | 5) MAXCPUS=No ;;
-      *) MAXCPUS=$(nproc) ;;
-  esac
+#   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
+#   read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+    echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
-  if [[ $MAXCPUS == No ]]; then
-      echo "${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
-  else
-      echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
-  fi
+    case $responce in
+        01 | 1 | "") MAXCPUS=$(nproc) ;;
+        02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
+        03 | 3) MAXCPUS=1 ;;
+        04 | 4) MAXCPUS=2 ;;
+        05 | 5) MAXCPUS=No ;;
+        *) MAXCPUS=$(nproc) ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $MAXCPUS == No ]]; then
+    echo "${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
+else
+    echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
+fi
+
+echo ; }
 
 
 
