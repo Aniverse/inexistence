@@ -13,8 +13,8 @@ INEXISTENCEDATE=20180313
 [[ $1 == -d ]] && DeBUG=1
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; ANPASS=blackshiro233
-    aptsources=Yes ; MAXCPUS=$(nproc)
+    ANUSER=aniverse ; ANPASS=blackshiro233 ; SYSTEMCHECK=0
+    aptsources=Yes ; MAXCPUS=$(nproc) ; InsBBR=No
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -448,16 +448,19 @@ while [[ $ANUSER = "" ]]; do
 
         while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
             reinput_name=0
-            read -ep "${bold}Enter username: ${blue}" ANUSER
+            read -ep "${bold}Enter username: ${blue}" answerusername
         done
 
+        addname="${answerusername}"
         echo -n "${normal}${bold}Confirm that username is ${blue}${answerusername}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
-        read answer
+        read  answer
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
                         [nN] | [nN][Oo] ) reinput_name=1 ;;
                         * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
         esac
+
+        ANUSER=$addname
 
     done
 
