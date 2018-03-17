@@ -251,6 +251,15 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
+
+
+
+### if [[ ! $distro_up == Yes ]]; then
+
+
+
+
+
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && [[ ! $distro_up == Yes ]] && _oscheck
 
@@ -378,7 +387,13 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input
+
+
+### fi
+
+
+}
 
 
 
@@ -1576,14 +1591,11 @@ echo -e "\n\n\n${baihongse}executing apt sources change${normal}\n\n\n"
 [[ $CODENAME == wheezy ]] && sed -i "s/wheezy/jessie/g" /etc/apt/sources.list
 [[ $CODENAME == trusty ]] && sed -i "s/trusty/xenial/g" /etc/apt/sources.list
 
-echo -e "\n\n\n${baihongse}executing autoremove${normal}\n\n\n"
-apt-get -fuy --force-yes autoremove
+echo -e "\n\n\n${baihongse}executing autoremove${normal}\n\n\n" ; apt-get -fuy --force-yes autoremove
 
-echo -e "\n\n\n${baihongse}executing clean${normal}\n\n\n"
-apt-get --force-yes clean
+echo -e "\n\n\n${baihongse}executing clean${normal}\n\n\n" ; apt-get --force-yes clean
 
-echo -e "\n\n\n${baihongse}executing update${normal}\n\n\n"
-apt-get update
+echo -e "\n\n\n${baihongse}executing update${normal}\n\n\n" ; apt-get update
 
 echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
@@ -1591,12 +1603,12 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
-echo -e "\n\n\n"
-_time
+echo -e "\n\n\n" ; _time
+
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
-sleep 15
+sleep 30
 kill -s TERM $TOP_PID
 exit 0 ; }
 
@@ -1611,7 +1623,7 @@ function _installqbt() {
 # libtorrent-rasterbar 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent-rasterbar；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
 
 # 好吧，先检查下系统源里的 libtorrent-rasterbar-dev 版本是多少压压惊
-SysLTDEVer0=`apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"`
+SysLTDEVer0=`  apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"  `
 SysLTDEVer1=`echo $SysLTDEVer0 | awk '{print $1}'`
 SysLTDEVer2=`echo $SysLTDEVer0 | awk '{print $2}'`
 SysLTDEVer3=`echo $SysLTDEVer0 | awk '{print $3}'`
@@ -1640,7 +1652,7 @@ BuildedLTVer3=`echo $BuildedLTVer0 | awk '{print $3}'`
 [[ $BuildedLT ]] && BuildedLTVer4=`echo ${BuildedLTVer1}.${BuildedLTVer2}.${BuildedLTVer3}`
 
 # 检查当前 Deluge 用的 libtorrent-rasterbar 版本（当之前安装 Deluge 是编译 libtorrent 的时候，这里的版本可能和 python-libtorrent 不一样）
-if [[ -a $( command -v deluged ) ]]; then
+if [[ $( command -v deluged ) ]] && [[ ` deluged --version 2>/dev/null | grep libtorrent ` ]]; then
     DeLTVer0=`deluged --version 2>/dev/null | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
     DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
     DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
@@ -1648,15 +1660,13 @@ if [[ -a $( command -v deluged ) ]]; then
     [[ $DeLTVer0 ]] && DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
 fi
 
-[[ "${SysLTDEVer1}" == 0 ]] && SysQbLT=No
-[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 0 ]] && [[ "${SysLTDEVer3}" -lt 6 ]] && SysQbLT=No
+SysQbLT=No
 [[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 0 ]] && [[ "${SysLTDEVer3}" -ge 6 ]] && SysQbLT=Yes
 [[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 1 ]] && [[ "${SysLTDEVer3}" -ge 2 ]] && SysQbLT=Yes
-[[ "${DeLTVer1}" == 0 ]] && DeLT=7 && DeQbLT=No
+
+DeQbLT=No
 [[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 0 ]] && [[ "${DeLTVer3}" -ge 6 ]] && DeLT=8 && DeQbLT=Yes
-[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 0 ]] && [[ "${DeLTVer3}" -lt 6 ]] && DeLT=8 && DeQbLT=No
 [[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 1 ]] && [[ "${DeLTVer3}" -ge 2 ]] && DeLT=9 && DeQbLT=Yes
-# libtorrent 1.2.0 这种 beta 的东西就不管了
 
 # DeLT 表示 libtorrent-ratserbar几，比如 0.16.18 对应 7，1.0.11 对应 8，1.1.6 对应 9
 
@@ -1665,15 +1675,21 @@ fi
 
 # 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
 
-# 测试用的，在 Log 里也可以看
-if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; fi
+# DeBUG 用的，在 Log 里也可以看
+# if [[ $DeBUG == 1 ]]; then  ; fi
+echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; echo -e "\n\n\n${normal}"
 
 # [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && echo 123
+
+
+
+
 
 
   if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
       apt-get install -y qbittorrent-nox
+      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
 
@@ -1681,6 +1697,7 @@ if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo De
       add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
       apt-get update
       apt-get install -y qbittorrent-nox
+      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
   else
 
@@ -1697,6 +1714,7 @@ if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo De
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
 
+          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
           echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
       # 2. 需要安装 libtorrent-rasterbar-dev
@@ -1709,6 +1727,7 @@ if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo De
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev # > /dev/null
 
+          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
           echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
 
       # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
@@ -1739,13 +1758,19 @@ if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo De
               ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
           fi
 
+          [[ $tram -le 1900 ]] && _use_swap
+
           make clean
           make -j${MAXCPUS}
           make install
+
+          [[ $tram -le 1900 ]] && _disable_swap
+
 #         checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
           ldconfig
           echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
+          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
           echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
 
       fi
@@ -1876,22 +1901,30 @@ function _installde() {
 
           apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
           touch /etc/inexistence/01.Log/lock/deluge.libtorrent.no.lock
+          echo -e "${bailanse}\n\n\n\n  DELUGE-DEPENDENCY-COMPLETED  \n\n\n${normal}"
 
       # 编译安装 libtorrent-rasterbar
       else
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf # > /dev/null
+          echo -e "${bailanse}\n\n\n\n  DE-DEPENDENCY-COMPLETED  \n\n\n${normal}"
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system
+          ./configure --enable-python-binding --with-libiconv #--with-libgeoip=system
+
+          [[ $tram -le 1900 ]] && _use_swap
+
           make -j${MAXCPUS}
           dpkg -r libtorrentde
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
+
+          [[ $tram -le 1900 ]] && _disable_swap
+
           mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
           touch /etc/inexistence/01.Log/lock/deluge.libtorrent.compile.lock
-          echo -e "\n\n\n\n\n  DE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n\n\n"
+          echo -e "${bailanse}\n\n\n\n  DELUGE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n${normal}"
 
       fi
 
@@ -1916,8 +1949,8 @@ function _installde() {
           echo -e "\n\nSSL FIX (FOR LOG)\n\n"
       fi
 
-      python setup.py build # > /dev/null
-      python setup.py install --install-layout=deb # > /dev/null
+      python setup.py build  > /dev/null
+      python setup.py install --install-layout=deb  > /dev/null
 #     python setup.py install_data
       cd; rm -rf deluge* libtorrent
 
@@ -2799,10 +2832,12 @@ _askpassword
 _askaptsource
 _askmt
 _askdeluge
-[[ ! $DEVERSION == No ]] && _askdelt
+[[ ! $DEVERSION == No ]] && 
+_askdelt
 _askqbt
 _askrt
-[[ ! $RTVERSION == No ]] && _askflood
+[[ ! $RTVERSION == No ]] && 
+_askflood
 _asktr
 _askrdp
 _askwine
