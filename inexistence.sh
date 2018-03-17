@@ -1506,7 +1506,7 @@ function _setsources() {
 # rm -rf /var/lib/apt/lists/partial/*
 # apt-get -y upgrade
 
-if [ $aptsources == "Yes" ]; then
+if [[ $aptsources == Yes ]]; then
 
     if [[ $DISTRO == Debian ]]; then
 
@@ -1654,13 +1654,16 @@ fi
 [[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 1 ]] && [[ "${DeLTVer3}" -ge 2 ]] && DeLT=9 && DeQbLT=Yes
 # libtorrent 1.2.0 这种 beta 的东西就不管了
 
-# 其实这个 same 并不严谨，有可能不是同一个版本，但我懒得管了。。。
-[[ "${SysLTDEVer4}" == "${DeLTVer4}" ]] && SameLT=Yes
+# DeLT 表示 libtorrent-ratserbar几，比如 0.16.18 对应 7，1.0.11 对应 8，1.1.6 对应 9
+
+# 检测 deluge 用的 libtorrent 是不是来自于 python-libtorrent 这个包（其实这个 same 并不严谨，有可能不是同一个版本，但我懒得管了...）
+[[ $SysLTDEVer4 == $DeLTVer4 ]] && SameLT=Yes
 
 # 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
 
 # 测试用的，在 Log 里也可以看
-echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4
+if [[ $DeBUG == 1 ]]; then echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; fi
+
 # [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && echo 123
 
 
@@ -1682,6 +1685,7 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
       # 1. 不需要再安装 libtorrent-rasterbar
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
       #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
+
       #### 2018.03.17 Debian 9 下 qBittorrent 4.0 似乎不需要 C++11，所以用 Deluge 编译的 libtorrent 应该是可以的
       #### 而如果用 Ubuntu 16.04 一般也不会有人去选择编译（如果编译了的话那么 xenial 下无法完成 qb 4.0 的编译）
 
@@ -1692,7 +1696,8 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
           echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
       # 2. 需要安装 libtorrent-rasterbar-dev
-      #### Ubuntu 16.04 ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本，且需要装的 qBittorrent 版本不是 4.0 的
+      #### 第一个情况，Ubuntu 16.04（$SysQbLT = yes） ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本（$SameLT = Yes），且需要装的 qBittorrent 版本不是 4.0 的
+
       ################ 还有一个情况，Ubuntu 16.04 或者 Debian 9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再用第三个方案编译一次算了……
       # 2018.02.01 这个情况一般不会出现了，因为我又隐藏了 libtorrent-rasterbar 0.16 分支的选项……
 
@@ -1848,6 +1853,7 @@ function _installde() {
       if [[ $DELTVERSION == "Install from repo" ]]; then
 
           apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent # > /dev/null
+          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.python.lock
 
       # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
       elif [[ $DELTVERSION == "Install from PPA" ]]; then
@@ -1859,11 +1865,13 @@ function _installde() {
           apt-get install -y --allow-downgrades python-libtorrent
           apt-mark hold libtorrent-rasterbar8 python-libtorrent
           apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
+          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.ppa.lock
 
       # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
       elif [[ $DELTVERSION == No ]]; then
 
           apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
+          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.no.lock
 
       # 编译安装 libtorrent-rasterbar
       else
@@ -1878,6 +1886,7 @@ function _installde() {
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
           mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
+          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.compile.lock
           echo -e "\n\n\n\n\n  DE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n\n\n"
 
       fi
