@@ -3,13 +3,52 @@
 
 
 
+
+
+
+
+
+
+## 2018.03.17
+
+`inexistence 0.9.8.17`  
+1. **New Feature：询问问题询问前使用 while**  
+为以后使用参数，以及 DeBUG 模式作准备  
+写完了以后我才意识到为什么我要用 while 呢，用 if 不是也可以么……  
+2. **Bug Fix：修复 Debian 9 下 Deluge 和 qBittorrent 一起安装时 libtorrent 冲突的问题**  
+3. **Bug Fix：安装 flood 时若系统总内存小于 1900MB 则使用 swap**  
+4. Bug Fix：修复 Deluge PPA libtorrent 版本判断不正确的问题  
+5. UI：闪烁提示 libtorrent-rasterbar 不要乱选  
+6. **Code：换行、去除双引号**  
+从行数上来说这次行数变动很大  
+
+
+
+
+
+## 2018.03.16
+
+`inexistence 0.9.8.11`  
+1. remove `export $TOP_PID_2=$$`  
+
+`README 0.7.6`  
+1. 增加升级系统的图  
+
+`TrCtrlProToc0l 0.8.0-1.0.7`  
+1. 界面调整  
+2. 修复安装 BBR 没有成功安装固件的问题  
+
+
+
+
+
 ## 2018.03.15
 
-`inexistence 0.9.8`  
-1. 增加对于 `rsync` 与 `build-essential` 的安装  
-2. alias：修改 `sshr` 的输出  
-3. **-d 参数**  
+`inexistence 0.9.8.10`  
+1. **New Feature：-d 参数**  
 -d：开启 DeBUG 模式。同时 DeBUG 下升级系统后不重启，方便跑 TCP 脚本  
+2. alias：修改 `sshr` 的输出  
+3. 增加对于 `rsync` 与 `build-essential` 的安装  
 4. 修改了 firmware 的下载地址  
 5. UI：优化了升级系统时的一些提示的显示效果  
 
@@ -25,16 +64,15 @@
 
 ## 2018.03.14
 
-`inexistence 0.9.8`  
+`inexistence 0.9.8.6`  
 1. **alias 部分从 `/etc/profile` 改到 `/etc/bash.bashrc`  
 解决了非登录式 shell 下 alias 不可用的问题  
 此外追加了一些 alias，添加了删除之前写入的内容的命令，只不过根据行的数量来删除，可能会有误删除的情况  
 我在想是不是用 for 之类的来检查比较好？或者把 alias、export 带头的全删了之类的？  
-2. apt-get -y autoremove  
+2. `apt-get -y autoremove`  
 3. 修改了 locks 的位置，补全 locks  
 4. **BBR 不使用脚本安装**  
-本来也没几步，就自己写了  
-内核固定为 4.11.12，方便之后安装魔改版 BBR  
+本来也没几步，就自己写了；内核固定为 4.11.12，方便之后安装魔改版 BBR  
 5. UI：不屏蔽 apt 安装时的输出  
 6. Bug Fix：修复 Flexget WebUI 密码没有设置好时没有提示的问题  
 用 || 也没用，不返回 1，似乎只能根据输出内容判断了  
