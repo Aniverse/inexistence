@@ -13,8 +13,7 @@ INEXISTENCEDATE=20180313
 [[ $1 == -d ]] && DeBUG=1
 
 if [[ $DeBUG == 1 ]]; then
-    confirm_name=0
-    ANUSER=aniverse ; localpass=blackshiro233
+    ANUSER=aniverse ; ANPASS=blackshiro233
     aptsources=Yes ; MAXCPUS=$(nproc)
 fi
 # --------------------------------------------------------------------------------
@@ -333,7 +332,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | head -n1 `
 # DELT_PPA_ver=1.0.11
 
-  DELT_PPA_ver=` wget -qO- https://launchpad.net/~deluge-team/+archive/ubuntu/ppa | grep -B1 xenial | head -n1 `
+  DELT_PPA_ver=` wget -qO- https://launchpad.net/~deluge-team/+archive/ubuntu/ppa | grep -B1 xenial | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | tail -n1 `
 
   TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
   TR_latest_ver=` wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -n1 `
@@ -375,7 +374,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 #     echo "${cyan}No Virt${normal}"
 # fi
 
-  [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
+[[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
@@ -432,30 +431,27 @@ done ; }
 
 # 生成随机密码，genln=密码长度
 
-function genpasswd() {
-local genln=$1
-[ -z "$genln" ] && genln=12
-tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
+function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 
 
 # 询问用户名。检查用户名是否有效的功能以后再做
 
-function _askusername(){
+function _askusername(){ clear
 
-    clear
+while [[ $ANUSER = "" ]]; do
+
     echo "${bold}${yellow}The script needs a username${jiacu}"
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
-    [[ ! $DeBUG == 1 ]] && confirm_name=1
+    confirm_name=1
     while [[ $confirm_name = 1 ]]; do
 
         while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
             reinput_name=0
-            read -ep "${bold}Enter username: ${blue}" answerusername
+            read -ep "${bold}Enter username: ${blue}" ANUSER
         done
 
-        addname="${answerusername}"
-        echo -n "${normal}${bold}Confirm that username is ${blue}"${answerusername}"${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+        echo -n "${normal}${bold}Confirm that username is ${blue}${answerusername}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
         read answer
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
@@ -465,7 +461,7 @@ function _askusername(){
 
     done
 
-    [[ ! $DeBUG == 1 ]] && ANUSER=$addname ; }
+done ; }
 
 
 
@@ -475,53 +471,59 @@ function _askusername(){
 
 function _askpassword() {
 
-local exitvalue=0
+#local exitvalue=0
 local password1
 local password2
 
 exec 3>&1 >/dev/tty
 
-echo
-echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
-echo "The password must consist of characters and numbers and at least 8 chars,"
-echo "or you can leave it blank to generate a random password"
+if [[ $ANPASS = "" ]]; then
 
-while [ -z $localpass ]
-do
+    echo -e "\n${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
+    echo "The password must consist of characters and numbers and at least 8 chars,"
+    echo "or you can leave it blank to generate a random password"
 
-# echo -n "${bold}Enter the password: ${blue}" ; read -e password1
-  read -ep "Enter the password: ${blue}" password1
+    while [ -z $localpass ]; do
 
-  if [ -z $password1 ]; then
+      # echo -n "${bold}Enter the password: ${blue}" ; read -e password1
+        read -ep "Enter the password: ${blue}" password1
 
-      exitvalue=1
-      localpass=$(genpasswd)
-      echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
+        if [ -z $password1 ]; then
 
-  elif [ ${#password1} -lt 8 ]; then
+          # exitvalue=1
+            localpass=$(genpasswd)
+            echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
 
-      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
+        elif [ ${#password1} -lt 8 ]; then
 
-  else
+            echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
 
-      while [[ $password2 = "" ]]; do
-          read -ep "${jiacu}Enter the new password again: ${blue}" password2
-      done
+        else
 
-      if [ $password1 != $password2 ]; then
-          echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
-      else
-          localpass=$password1
-      fi
+            while [[ $password2 = "" ]]; do
+                read -ep "${jiacu}Enter the new password again: ${blue}" password2
+            done
 
-  fi
+            if [ $password1 != $password2 ]; then
+                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
+            else
+                localpass=$password1
+            fi
 
-done
+        fi
 
-ANPASS=$localpass
-exec >&3-
-echo
-return $exitvalue ; }
+    done
+
+    ANPASS=$localpass
+    exec >&3-
+    echo
+  # return $exitvalue
+
+else
+
+    echo -e "\n${bold}Password sets to ${blue}$ANPASS${normal}\n"
+
+fi ; }
 
 
 
@@ -596,191 +598,199 @@ echo ; }
 
 
 # --------------------- 询问需要安装的 qBittorrent 的版本 --------------------- #
+# wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
 
 function _askqbt() {
 
-# wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
+while [[ $QBVERSION = "" ]]; do
 
-  echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.7${normal}"
-  echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.11${normal}"
-  echo -e "${green}03)${normal} qBittorrent ${cyan}3.3.14${normal}"
-  echo -e "${green}04)${normal} qBittorrent ${cyan}3.3.16${normal}"
-  [[ ! $CODENAME = jessie ]] &&
-  echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}" && 
-  echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}" && 
-  echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
-  echo -e "${green}30)${normal} Select another version"
-  echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
-  [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${normal} qBittorrent ${cyan}$QB_latest_ver${normal} from ${cyan}Stable PPA${normal}"
-  echo -e   "${red}99)${normal} Do not install qBittorrent"
+    echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.7${normal}"
+    echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.11${normal}"
+    echo -e "${green}03)${normal} qBittorrent ${cyan}3.3.14${normal}"
+    echo -e "${green}04)${normal} qBittorrent ${cyan}3.3.16${normal}"
+    [[ ! $CODENAME = jessie ]] &&
+    echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}" && 
+    echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}" && 
+    echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
+    echo -e "${green}30)${normal} Select another version"
+    echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
+    [[ $DISTRO == Ubuntu ]] &&
+    echo -e "${green}50)${normal} qBittorrent ${cyan}$QB_latest_ver${normal} from ${cyan}Stable PPA${normal}"
+    echo -e   "${red}99)${normal} Do not install qBittorrent"
 
-  [[ $qb_installed == Yes ]] &&
-  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+    [[ $qb_installed == Yes ]] &&
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
+    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
 
-  case $version in
-      01 | 1) QBVERSION=3.3.7 ;;
-      02 | 2) QBVERSION=3.3.11 ;;
-      03 | 3) QBVERSION=3.3.14 ;;
-      04 | 4) QBVERSION=3.3.16 ;;
-      11) QBVERSION=4.0.2 ;;
-      12) QBVERSION=4.0.3 ;;
-      13) QBVERSION=4.0.4 ;;
-      21) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
-      30) _inputversion && QBVERSION="${inputversion}"  ;;
-      40) QBVERSION='Install from repo' ;;
-      50) QBVERSION='Install from PPA' ;;
-      99) QBVERSION=No ;;
-      * | "") QBVERSION=3.3.11 ;;
-  esac
+    case $version in
+        01 | 1) QBVERSION=3.3.7 ;;
+        02 | 2) QBVERSION=3.3.11 ;;
+        03 | 3) QBVERSION=3.3.14 ;;
+        04 | 4) QBVERSION=3.3.16 ;;
+        11) QBVERSION=4.0.2 ;;
+        12) QBVERSION=4.0.3 ;;
+        13) QBVERSION=4.0.4 ;;
+        21) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
+        30) _inputversion && QBVERSION="${inputversion}"  ;;
+        40) QBVERSION='Install from repo' ;;
+        50) QBVERSION='Install from PPA' ;;
+        99) QBVERSION=No ;;
+        * | "") QBVERSION=3.3.11 ;;
+    esac
 
-  if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
-      QBVERSION4=Yes
-  else
-      QBVERSION4=No
-  fi
-
-  if [[ "${QBVERSION}" == No ]]; then
-
-      echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
-
-  elif [[ "${QBVERSION}" == "Install from repo" ]]; then
-
-      sleep 0
-
-  elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
-
-      if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-          echo -ne "Therefore "
-          QBVERSION='Install from repo'
-      else
-          echo "${bold}${baiqingse}qBittorrent 4.0.4 ${normal} ${bold}will be installed from Stable PPA${normal}"
-      fi
-
-  else
-
-      if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
-          echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
-          QBVERSION=3.3.16 && QBVERSION4=No
-          echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
-      fi
-
-      echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
-
-  fi
+done
 
 
-  if [[ "${QBVERSION}" == "Install from repo" ]]; then
+if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
+    QBVERSION4=Yes
+else
+    QBVERSION4=No
+fi
 
-      echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}will be installed from repository"
 
-  fi
+if [[ $QBVERSION == No ]]; then
 
-  echo ; }
+    echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
+
+elif [[ $QBVERSION == "Install from repo" ]]; then
+
+    sleep 0
+
+elif [[ $QBVERSION == "Install from PPA" ]]; then
+
+    if [[ $DISTRO == Debian ]]; then
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
+        echo -ne "Therefore "
+        QBVERSION='Install from repo'
+    else
+        echo "${bold}${baiqingse}qBittorrent $QB_latest_ver ${normal} ${bold}will be installed from Stable PPA${normal}"
+    fi
+
+else
+
+    if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
+        echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
+        QBVERSION=3.3.16 && QBVERSION4=No
+        echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
+    fi
+
+    echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
+
+fi
+
+if [[ $QBVERSION == "Install from repo" ]]; then
+
+    echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}will be installed from repository${normal}"
+
+fi
+
+echo ; }
 
 
 
 
 # --------------------- 询问需要安装的 Deluge 版本 --------------------- #
+# wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
 
 function _askdeluge() {
 
-# wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
+while [[ $DEVERSION = "" ]]; do
 
-  echo -e "${green}01)${normal} Deluge ${cyan}1.3.11${normal}"
-  echo -e "${green}02)${normal} Deluge ${cyan}1.3.12${normal}"
-  echo -e "${green}03)${normal} Deluge ${cyan}1.3.13${normal}"
-  echo -e "${green}04)${normal} Deluge ${cyan}1.3.14${normal}"
-  echo -e "${green}05)${normal} Deluge ${cyan}1.3.15${normal}"
-# echo -e "${green}21)${normal} Deluge ${cyan}1.3.15 (Skip hash check)${normal}"
-  echo -e "${green}30)${normal} Select another version"
-  echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
-  [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
-  echo -e   "${red}99)${normal} Do not install Deluge"
+    echo -e "${green}01)${normal} Deluge ${cyan}1.3.11${normal}"
+    echo -e "${green}02)${normal} Deluge ${cyan}1.3.12${normal}"
+    echo -e "${green}03)${normal} Deluge ${cyan}1.3.13${normal}"
+    echo -e "${green}04)${normal} Deluge ${cyan}1.3.14${normal}"
+    echo -e "${green}05)${normal} Deluge ${cyan}1.3.15${normal}"
+#   echo -e "${green}21)${normal} Deluge ${cyan}1.3.15 (Skip hash check)${normal}"
+    echo -e "${green}30)${normal} Select another version"
+    echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
+    [[ $DISTRO == Ubuntu ]] &&
+    echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
+    echo -e   "${red}99)${normal} Do not install Deluge"
 
-  [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
-  [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
-  [[ $DISTRO == Debian ]] && dedefaultnum=05
-  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
+    [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
+    [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
+    [[ $DISTRO == Debian ]] && dedefaultnum=05
+    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
-  if [[ $DISTRO == Ubuntu ]]; then
+    if [[ $DISTRO == Ubuntu ]]; then
 
-      case $version in
-          01 | 1) DEVERSION=1.3.11 ;;
-          02 | 2) DEVERSION=1.3.12 ;;
-          03 | 3) DEVERSION=1.3.13 ;;
-          04 | 4) DEVERSION=1.3.14 ;;
-          05 | 5) DEVERSION=1.3.15 ;;
-          11) DEVERSION=1.3.5 ;;
-          12) DEVERSION=1.3.6 ;;
-          13) DEVERSION=1.3.7 ;;
-          14) DEVERSION=1.3.8 ;;
-          15) DEVERSION=1.3.9 ;;
-          21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
-          30) _inputversion && DEVERSION="${inputversion}"  ;;
-          40) DEVERSION='Install from repo' ;;
-          50) DEVERSION='Install from PPA' ;;
-          99) DEVERSION=No ;;
-          * | "") DEVERSION='Install from PPA' ;;
-      esac
+        case $version in
+            01 | 1) DEVERSION=1.3.11 ;;
+            02 | 2) DEVERSION=1.3.12 ;;
+            03 | 3) DEVERSION=1.3.13 ;;
+            04 | 4) DEVERSION=1.3.14 ;;
+            05 | 5) DEVERSION=1.3.15 ;;
+            11) DEVERSION=1.3.5 ;;
+            12) DEVERSION=1.3.6 ;;
+            13) DEVERSION=1.3.7 ;;
+            14) DEVERSION=1.3.8 ;;
+            15) DEVERSION=1.3.9 ;;
+            21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
+            30) _inputversion && DEVERSION="${inputversion}"  ;;
+            40) DEVERSION='Install from repo' ;;
+            50) DEVERSION='Install from PPA' ;;
+            99) DEVERSION=No ;;
+            * | "") DEVERSION='Install from PPA' ;;
+        esac
 
-  elif [[ $DISTRO == Debian ]]; then
+    elif [[ $DISTRO == Debian ]]; then
 
-      case $version in
-          01 | 1) DEVERSION=1.3.11 ;;
-          02 | 2) DEVERSION=1.3.12 ;;
-          03 | 3) DEVERSION=1.3.13 ;;
-          04 | 4) DEVERSION=1.3.14 ;;
-          05 | 5) DEVERSION=1.3.15 ;;
-          11) DEVERSION=1.3.5 ;;
-          12) DEVERSION=1.3.6 ;;
-          13) DEVERSION=1.3.7 ;;
-          14) DEVERSION=1.3.8 ;;
-          15) DEVERSION=1.3.9 ;;
-          21) DEVERSION='1.3.15 (Skip hash check)' && DESKIP=Yes ;;
-          30) _inputversion && DEVERSION="${inputversion}"  ;;
-          40) DEVERSION='Install from repo' ;;
-          50) DEVERSION='Install from PPA' ;;
-          99) DEVERSION=No ;;
-          * | "") DEVERSION=1.3.15 ;;
-      esac
+        case $version in
+            01 | 1) DEVERSION=1.3.11 ;;
+            02 | 2) DEVERSION=1.3.12 ;;
+            03 | 3) DEVERSION=1.3.13 ;;
+            04 | 4) DEVERSION=1.3.14 ;;
+            05 | 5) DEVERSION=1.3.15 ;;
+            11) DEVERSION=1.3.5 ;;
+            12) DEVERSION=1.3.6 ;;
+            13) DEVERSION=1.3.7 ;;
+            14) DEVERSION=1.3.8 ;;
+            15) DEVERSION=1.3.9 ;;
+            21) DEVERSION='1.3.15 (Skip hash check)' && DESKIP=Yes ;;
+            30) _inputversion && DEVERSION="${inputversion}"  ;;
+            40) DEVERSION='Install from repo' ;;
+            50) DEVERSION='Install from PPA' ;;
+            99) DEVERSION=No ;;
+            * | "") DEVERSION=1.3.15 ;;
+        esac
 
-  fi
+    fi
 
-  [[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
+done
 
-  if [[ "${DEVERSION}" == No ]]; then
+[[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
+
+
+  if [[ $DEVERSION == No ]]; then
 
       echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
       DELTVERSION=NoDeluge
 
-  elif [[ "${DEVERSION}" == "Install from repo" ]]; then 
+  elif [[ $DEVERSION == "Install from repo" ]]; then 
 
       sleep 0
 
-  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+  elif [[ $DEVERSION == "Install from PPA" ]]; then
 
       if [[ $DISTRO == Debian ]]; then
           echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
           echo -ne "Therefore "
           DEVERSION='Install from repo'
       else
-          echo "${bold}${baiqingse}Deluge 1.3.15${normal} ${bold}will be installed from PPA${normal}"
+          echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}will be installed from PPA${normal}"
       fi
 
   else
 
-      echo "${bold}${baiqingse}Deluge "${DEVERSION}"${normal} ${bold}will be installed${normal}"
+      echo "${bold}${baiqingse}Deluge ${DEVERSION}${normal} ${bold}will be installed${normal}"
 
   fi
 
 
-  if [[ "${DEVERSION}" == "Install from repo" ]]; then 
+  if [[ $DEVERSION == "Install from repo" ]]; then 
 
-      echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository"
+      echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository${normal}"
 
   fi
 
@@ -791,90 +801,93 @@ function _askdeluge() {
 
 
 # --------------------- 询问需要安装的 Deluge libtorrent 版本 --------------------- #
+# DELTVERSION=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
 function _askdelt() {
 
-# DELTVERSION=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+while [[ $DELTVERSION = "" ]]; do
 
-  if [[ "${DEVERSION}" == "Install from repo" ]]; then
+    if [[ $DEVERSION == "Install from repo" ]]; then
 
-      DELTVERSION='Install from repo'
+        DELTVERSION='Install from repo'
 
-  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+    elif [[ $DEVERSION == "Install from PPA" ]]; then
 
-      DELTVERSION='Install from PPA'
+        DELTVERSION='Install from PPA'
 
-  else
+    else
 
-#     echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
-      echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
-      echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.6 ${normal} (NOT recommended)"
-      echo -e "${green}30)${normal} Select another version"
-      echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
-      [[ $DISTRO == Ubuntu ]] &&
-      echo -e "${green}50)${normal} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${normal} from ${cyan}Deluge PPA${normal}"
-      [[ $de_installed == Yes ]] &&
-      echo -e "${red}99)${normal} Do not install libtorrent-rasterbar AGAIN"
+#       echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
+        echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
+        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.6 ${normal} (NOT recommended)"
+        echo -e "${green}30)${normal} Select another version"
+        echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
+        [[ $DISTRO == Ubuntu ]] &&
+        echo -e "${green}50)${normal} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${normal} from ${cyan}Deluge PPA${normal}"
+        [[ $de_installed == Yes ]] &&
+        echo -e "${red}99)${normal} Do not install libtorrent-rasterbar AGAIN"
 
-      echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
-#     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
+        echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
+#       echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
 
-      if [[ $CODENAME == stretch ]]; then
+        if [[ $CODENAME == stretch ]]; then
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+            read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
 
-          case $version in
-              00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-              01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-              02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
-              30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-              40) DELTVERSION='Install from repo' ;;
-              50) DELTVERSION='Install from PPA' ;;
-              99) DELTVERSION=No ;;
-              "" | *) DELTVERSION=libtorrent-1_0_11 ;;
-          esac
+            case $version in
+                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+                  40) DELTVERSION='Install from repo' ;;
+                  50) DELTVERSION='Install from PPA' ;;
+                  99) DELTVERSION=No ;;
+                  "" | *) DELTVERSION=libtorrent-1_0_11 ;;
+            esac
 
-      else
+        else
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+            read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
-          case $version in
-              00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-              01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-              02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
-              30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-              40 | "") DELTVERSION='Install from repo' ;;
-              50) DELTVERSION='Install from PPA' ;;
-              99) DELTVERSION=No ;;
-              *) DELTVERSION='Install from repo' ;;
-          esac
+            case $version in
+                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+                  40 | "") DELTVERSION='Install from repo' ;;
+                  50) DELTVERSION='Install from PPA' ;;
+                  99) DELTVERSION=No ;;
+                  *) DELTVERSION='Install from repo' ;;
+            esac
 
-      fi
+        fi
 
-  fi
+    fi
 
-      DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
+done
 
-      if [[ $DELTVERSION == "Install from repo" ]]; then
+DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
 
-          echo "${bold}${baiqingse}libtorrent-rasterbar $PYLT_repo_ver${normal} ${bold}will be installed from repository"
+    if [[ $DELTVERSION == "Install from repo" ]]; then
 
-      elif [[ $DELTVERSION == "Install from PPA" ]]; then
+       echo "${bold}${baiqingse}libtorrent-rasterbar $PYLT_repo_ver${normal} ${bold}will be installed from repository${normal}"
 
-          echo "${baiqingse}${bold}libtorrent-rasterbar 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
+    elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
-      elif [[ $DELTVERSION == No ]]; then
+        echo "${baiqingse}${bold}libtorrent-rasterbar 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
 
-          echo "${baiqingse}${bold}libtorrent-rasterbar ${delugelt_ver}${normal}${bold} will be used from system${normal}"
+    elif [[ $DELTVERSION == No ]]; then
 
-      else
+        echo "${baiqingse}${bold}libtorrent-rasterbar ${delugelt_ver}${normal}${bold} will be used from system${normal}"
 
-          echo "${baiqingse}${bold}libtorrent-rasterbar ${DELTPKG}${normal} ${bold}will be installed${normal}"
+    else
 
-      fi
+        echo "${baiqingse}${bold}libtorrent-rasterbar ${DELTPKG}${normal} ${bold}will be installed${normal}"
 
-      echo ; }
+    fi
+
+echo ; }
 
 
 
@@ -884,16 +897,18 @@ function _askdelt() {
 
 function _askrt() {
 
-  [[ ! $CODENAME == stretch ]] &&
-  echo -e "${green}01)${normal} rTorrent ${cyan}0.9.3${normal}" &&
-  echo -e "${green}02)${normal} rTorrent ${cyan}0.9.4${normal}" &&
-  echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-  echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
-  echo -e   "${red}99)${normal} Do not install rTorrent"
+while [[ $RTVERSION = "" ]]; do
 
-  [[ $rt_installed == Yes ]] &&
-  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
-# [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
+    [[ ! $CODENAME == stretch ]] &&
+    echo -e "${green}01)${normal} rTorrent ${cyan}0.9.3${normal}" &&
+    echo -e "${green}02)${normal} rTorrent ${cyan}0.9.4${normal}" &&
+    echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
+    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+    echo -e   "${red}99)${normal} Do not install rTorrent"
+
+    [[ $rt_installed == Yes ]] &&
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
+#   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
     if [[ $CODENAME == stretch ]]; then
 
@@ -921,26 +936,34 @@ function _askrt() {
 
     fi
 
-  if [[ "${RTVERSION}" == "No" ]]; then
+done
 
-      echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
-      InsFlood=NoRtorrent
+if [[ $RTVERSION == No ]]; then
 
-  else
+    echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
+    InsFlood='No rTorrent'
 
-      if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
-          echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
-      elif [[ "${RTVERSION}" == "0.9.6" ]]; then
-          echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
-      else
-          echo "${bold}${baiqingse}rTorrent "${RTVERSION}"${normal} ${bold}will be installed${normal}"
-      fi
+else
 
-      echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
+    if [[ $RTVERSION == "0.9.4 IPv6 supported" ]]; then
 
-  fi
+        echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
 
-  echo ; }
+    elif [[ $RTVERSION == 0.9.6 ]]; then
+
+        echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
+
+    else
+
+        echo "${bold}${baiqingse}rTorrent ${RTVERSION}${normal} ${bold}will be installed${normal}"
+    fi
+
+
+    echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
+
+fi
+
+echo ; }
 
 
 
@@ -951,22 +974,26 @@ function _askrt() {
 
 function _askflood() {
 
-# read -ep "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+while [[ $InsFlood = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss]  ) InsFlood=Yes ;;
-      [nN] | [nN][Oo] | "" ) InsFlood=No  ;;
-      *) InsFlood=No ;;
-  esac
+#   read -ep "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+    echo -ne "${bold}${yellow}Would you like to install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-  if [[ $InsFlood == Yes ]]; then
-      echo "${bold}${baiqingse}Flood${normal} ${bold}will be installed${normal}"
-  else
-      echo "${baizise}Flood will ${baihongse}not${baizise} be installed${normal}"
-  fi
+    case $responce in
+        [yY] | [yY][Ee][Ss]  ) InsFlood=Yes ;;
+        [nN] | [nN][Oo] | "" ) InsFlood=No  ;;
+        *) InsFlood=No ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $InsFlood == Yes ]]; then
+    echo "${bold}${baiqingse}Flood${normal} ${bold}will be installed${normal}"
+else
+    echo "${baizise}Flood will ${baihongse}not${baizise} be installed${normal}"
+fi
+
+echo ; }
 
 
 
@@ -974,78 +1001,86 @@ function _askflood() {
 
 
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
+# wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 
 function _asktr() {
 
-# wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+while [[ $TRVERSION = "" ]]; do
 
-  echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}"
-  echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}"
-  echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
-  echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
-  echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
-  echo -e "${green}30)${normal} Select another version"
-  echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
-  [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${normal} Transmission ${cyan}$TR_latest_ver${normal} from ${cyan}PPA${normal}"
-  echo -e   "${red}99)${normal} Do not install Transmission"
+    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}"
+    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}"
+    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
+    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
+    echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
+    echo -e "${green}30)${normal} Select another version"
+    echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
+    [[ $DISTRO == Ubuntu ]] &&
+    echo -e "${green}50)${normal} Transmission ${cyan}$TR_latest_ver${normal} from ${cyan}PPA${normal}"
+    echo -e   "${red}99)${normal} Do not install Transmission"
 
-  [[ $tr_installed == Yes ]] &&
-  echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
-  read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+    [[ $tr_installed == Yes ]] &&
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
+    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
-  case $version in
-      01 | 1) TRVERSION=2.77 ;;
-      02 | 2) TRVERSION=2.82 ;;
-      03 | 3) TRVERSION=2.84 ;;
-      04 | 4) TRVERSION=2.92 ;;
-      05 | 5) TRVERSION=2.93 ;;
-      11) TRVERSION=2.92 && TRdefault=No ;;
-      12) TRVERSION=2.93 && TRdefault=No ;;
-      30) _inputversion && TRVERSION="${inputversion}" ;;
-      31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
-      40) TRVERSION='Install from repo' ;;
-      50) TRVERSION='Install from PPA' ;;
-      99) TRVERSION=No ;;
-      "" | *) TRVERSION='Install from repo';;
-  esac
+    case $version in
+            01 | 1) TRVERSION=2.77 ;;
+            02 | 2) TRVERSION=2.82 ;;
+            03 | 3) TRVERSION=2.84 ;;
+            04 | 4) TRVERSION=2.92 ;;
+            05 | 5) TRVERSION=2.93 ;;
+            11) TRVERSION=2.92 && TRdefault=No ;;
+            12) TRVERSION=2.93 && TRdefault=No ;;
+            30) _inputversion && TRVERSION="${inputversion}" ;;
+            31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
+            40) TRVERSION='Install from repo' ;;
+            50) TRVERSION='Install from PPA' ;;
+            99) TRVERSION=No ;;
+            "" | *) TRVERSION='Install from repo';;
+    esac
 
-  if [[ "${TRVERSION}" == "No" ]]; then
-
-      echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
-
-  else
-
-          if [[ "${TRVERSION}" == "Install from repo" ]]; then 
-
-              sleep 0
-
-          elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
-
-              if [[ $DISTRO == Debian ]]; then
-                  echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-                  echo -ne "Therefore "
-                  TRVERSION='Install from repo'
-              else
-                  echo "${bold}${baiqingse}Transmission 2.93 ${normal} ${bold}will be installed from PPA${normal}"
-              fi
-
-          else
-
-              echo "${bold}${baiqingse}Transmission ${TRVERSION}${normal} ${bold}will be installed${normal}"
-
-          fi
+done
 
 
-          if [[ "${TRVERSION}" == "Install from repo" ]]; then 
+if [[ $TRVERSION == No ]]; then
 
-              echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository${normal}"
+    echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
 
-          fi
+else
 
-  fi
+    if [[ $TRVERSION == "Install from repo" ]]; then 
 
-  echo ; }
+        sleep 0
+
+    elif [[ $TRVERSION == "Install from PPA" ]]; then
+
+        if [[ $DISTRO == Debian ]]; then
+
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
+          echo -ne "Therefore "
+          TRVERSION='Install from repo'
+
+        else
+
+          echo "${bold}${baiqingse}Transmission $TR_latest_ver ${normal} ${bold}will be installed from PPA${normal}"
+
+        fi
+
+    else
+
+        echo "${bold}${baiqingse}Transmission ${TRVERSION}${normal} ${bold}will be installed${normal}"
+
+    fi
+
+
+    if [[ $TRVERSION == "Install from repo" ]]; then 
+
+        echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}will be installed from repository${normal}"
+
+    fi
+
+fi
+
+echo ; }
 
 
 
@@ -1056,21 +1091,25 @@ function _asktr() {
 
 function _askflex() {
 
-  [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
-# read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+while [[ $InsFlex = "" ]]; do
 
-  case $responce in
-    [yY] | [yY][Ee][Ss]) flexget=Yes ;;
-    [nN] | [nN][Oo] | "" ) flexget=No ;;
-    *) flexget=No ;;
-  esac
+    [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
+#   read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+    echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-  if [ $flexget == "Yes" ]; then
-      echo -e "${bold}${baiqingse}Flexget${normal} ${bold}will be installed${normal}\n"
-  else
-      echo -e "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}\n"
-  fi ; }
+    case $responce in
+        [yY] | [yY][Ee][Ss]) InsFlex=Yes ;;
+        [nN] | [nN][Oo] | "" ) InsFlex=No ;;
+        *) InsFlex=No ;;
+    esac
+
+done
+
+if [ $InsFlex == Yes ]; then
+    echo -e "${bold}${baiqingse}Flexget${normal} ${bold}will be installed${normal}\n"
+else
+    echo -e "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}\n"
+fi ; }
 
 
 
@@ -1080,21 +1119,25 @@ function _askflex() {
 
 function _askrclone() {
 
-  [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
-# read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+while [[ $InsRclone = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss]  ) rclone=Yes ;;
-      [nN] | [nN][Oo] | "" ) rclone=No  ;;
-      *) rclone=No ;;
-  esac
+    [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
+#   read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+    echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-  if [[ $rclone == Yes ]]; then
-      echo -e "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}\n"
-  else
-      echo -e "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}\n"
-  fi ; }
+    case $responce in
+        [yY] | [yY][Ee][Ss]  ) InsRclone=Yes ;;
+        [nN] | [nN][Oo] | "" ) InsRclone=No  ;;
+        *) InsRclone=No ;;
+    esac
+
+done
+
+if [[ $InsRclone == Yes ]]; then
+    echo -e "${bold}${baiqingse}rclone${normal} ${bold}will be installed${normal}\n"
+else
+    echo -e "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}\n"
+fi ; }
 
 
 
@@ -1104,29 +1147,33 @@ function _askrclone() {
 
 function _askrdp() {
 
-  echo -e "${green}01)${normal} VNC  with xfce4 (may have some issues)"
-  echo -e "${green}02)${normal} X2Go with xfce4"
-  echo -e   "${red}99)${normal} Do not install remote desktop"
-# echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
-# read -ep "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
-  echo -ne "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " ; read -e responce
+while [[ $InsRDP = "" ]]; do
 
-  case $responce in
-      01 | 1) InsRDP=VNC ;;
-      02 | 2) InsRDP=X2Go ;;
-      99    ) InsRDP=No ;;
-      "" | *) InsRDP=No ;;
-  esac
+    echo -e "${green}01)${normal} VNC  with xfce4 (may have some issues)"
+    echo -e "${green}02)${normal} X2Go with xfce4"
+    echo -e   "${red}99)${normal} Do not install remote desktop"
+#   echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
+#   read -ep "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
+    echo -ne "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " ; read -e responce
 
-  if [[ $InsRDP == VNC ]]; then
-      echo "${bold}${baiqingse}VNC${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
-  elif [[ $InsRDP == X2Go ]]; then
-      echo "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
-  else
-      echo "${baizise}VNC or X2Go will ${baihongse}not${baizise} be installed${normal}"
-  fi
+    case $responce in
+        01 | 1) InsRDP=VNC ;;
+        02 | 2) InsRDP=X2Go ;;
+        99    ) InsRDP=No ;;
+        "" | *) InsRDP=No ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $InsRDP == VNC ]]; then
+    echo "${bold}${baiqingse}VNC${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
+elif [[ $InsRDP == X2Go ]]; then
+    echo "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
+else
+    echo "${baizise}VNC or X2Go will ${baihongse}not${baizise} be installed${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1135,22 +1182,26 @@ function _askrdp() {
 
 function _askwine() {
 
-# read -ep "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+while [[ $InsWine = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
-      [nN] | [nN][Oo] | "" ) InsWine=No  ;;
-      *) InsWine=No ;;
-  esac
+#   read -ep "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+    echo -ne "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-  if [[ $InsWine == Yes ]]; then
-      echo "${bold}${baiqingse}Wine${normal} and ${bold}${baiqingse}mono${normal} ${bold}will be installed${normal}"
-  else
-      echo "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}"
-  fi
+    case $responce in
+        [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
+        [nN] | [nN][Oo] | "" ) InsWine=No  ;;
+        *) InsWine=No ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $InsWine == Yes ]]; then
+    echo "${bold}${baiqingse}Wine${normal} and ${bold}${baiqingse}mono${normal} ${bold}will be installed${normal}"
+else
+    echo "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1160,23 +1211,27 @@ function _askwine() {
 
 function _asktools() {
 
-  echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
-# read -ep "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+while [[ $InsTools = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss]  ) tools=Yes ;;
-      [nN] | [nN][Oo] | "" ) tools=No  ;;
-      *) tools=No ;;
-  esac
+    echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
+#   read -ep "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+    echo -ne "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-  if [[ $tools == Yes ]]; then
-      echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
-  else
-      echo "${baizise}These softwares will ${baihongse}not${baizise} be installed${normal}"
-  fi
+    case $responce in
+        [yY] | [yY][Ee][Ss]  ) InsTools=Yes ;;
+        [nN] | [nN][Oo] | "" ) InsTools=No  ;;
+       *) InsTools=No ;;
+    esac
 
-  echo ; }
+done
+
+if [[ $InsTools == Yes ]]; then
+    echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
+else
+    echo "${baizise}These softwares will ${baihongse}not${baizise} be installed${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1185,50 +1240,37 @@ function _asktools() {
 # --------------------- BBR 相关 --------------------- #
 
 # 检查是否已经启用BBR、BBR 魔改版
-function check_bbr_status() {
-export bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
-if [[ "${bbrstatus}" =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then
-    bbrinuse=Yes
-else
-    bbrinuse=No
-fi ; }
-
+function check_bbr_status() { bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}') ; if [[ $bbrstatus =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then bbrinuse=Yes ; else bbrinuse=No ; fi ; }
 
 # 检查系统内核版本是否大于4.9
-function check_kernel_version() {
-if [[ $kv1 -ge 4 ]] && [[ $kv2 -ge 9 ]]; then
-    bbrkernel=Yes
-else
-    bbrkernel=No
-fi ; }
-
+function check_kernel_version() { if [[ $kv1 -ge 4 ]] && [[ $kv2 -ge 9 ]]; then bbrkernel=Yes ; else bbrkernel=No ; fi ; }
 
 # 询问是否安装BBR
-function _askbbr() {
+function _askbbr() { check_bbr_status
 
-  check_bbr_status
+if [[ $bbrinuse == Yes ]]; then
 
-  if [[ $bbrinuse == Yes ]]; then
+    echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
+    InsBBR=Already\ Installed
 
-      echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
-      bbr=Already\ Installed
+else
 
-  else
+    check_kernel_version
 
-      check_kernel_version
+    while [[ $InsBBR = "" ]]; do
 
-      if [[ $bbrkernel == Yes ]]; then
+        if [[ $bbrkernel == Yes ]]; then
 
           echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
           read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
 
           case $responce in
-              [yY] | [yY][Ee][Ss] | "" ) bbr=To\ be\ enabled ;;
-              [nN] | [nN][Oo]) bbr=No ;;
-              *) bbr=Yes ;;
+                [yY] | [yY][Ee][Ss] | "" ) InsBBR=To\ be\ enabled ;;
+                [nN] | [nN][Oo]) InsBBR=No ;;
+                *) InsBBR=Yes ;;
           esac
 
-      else
+        else
 
         # echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
           echo -e "A new kernel (4.11.12) will be installed if BBR is to be installed"
@@ -1237,20 +1279,22 @@ function _askbbr() {
           echo -ne "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
           case $responce in
-              [yY] | [yY][Ee][Ss]) bbr=Yes ;;
-              [nN] | [nN][Oo] | "" ) bbr=No ;;
-              *) bbr=No ;;
+                [yY] | [yY][Ee][Ss]) InsBBR=Yes ;;
+                [nN] | [nN][Oo] | "" ) InsBBR=No ;;
+                *) InsBBR=No ;;
           esac
 
-      fi
+        fi
 
-      if [[ $bbr == Yes ]] || [[ $bbr == To\ be\ enabled ]]; then
-          echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be installed${normal}"
-      else
-          echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
-      fi
+    done
 
-  fi ; echo ; }
+    if [[ $InsBBR == Yes ]] || [[ $InsBBR == To\ be\ enabled ]]; then
+        echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be installed${normal}"
+    else
+        echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
+    fi
+
+fi ; echo ; }
 
 
 
@@ -1260,22 +1304,26 @@ function _askbbr() {
 
 function _asktweaks() {
 
-# read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
-  echo -ne "${bold}${yellow}Would you like to do some system tweaks? ${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+while [[ $InsBBR = "" ]]; do
 
-  case $responce in
-      [yY] | [yY][Ee][Ss] | "" ) tweaks=Yes ;;
-      [nN] | [nN][Oo]) tweaks=No ;;
-      *) tweaks=Yes ;;
-  esac
+#   read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+    echo -ne "${bold}${yellow}Would you like to do some system tweaks? ${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
-  if [ $tweaks == "Yes" ]; then
-      echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
-  else
-      echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
-  fi
+    case $responce in
+        [yY] | [yY][Ee][Ss] | "" ) UseTweaks=Yes ;;
+        [nN] | [nN][Oo]) UseTweaks=No ;;
+        *) UseTweaks=Yes ;;
+    esac
 
-  echo ; }
+done
+
+if [ $UseTweaks == Yes ]; then
+    echo "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}"
+else
+    echo "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1327,27 +1375,27 @@ function _askcontinue() {
   echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
   echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
   echo
-  echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}"${QBVERSION}"${normal}"
-  echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}"${DEVERSION}"${normal}"
-[[ ! $DEVERSION == No ]] &&
-  echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}"${DELTVERSION}"${normal}"
-  echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}"${RTVERSION}"${normal}"
-[[ ! $RTVERSION == No ]] &&
-  echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}"${InsFlood}"${normal}"
-  echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}"${TRVERSION}"${normal}"
-  echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}"${InsRDP}"${normal}"
-  echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}"${InsWine}"${normal}"
-  echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}"${tools}"${normal}"
-  echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}"${flexget}"${normal}"
-  echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}"${rclone}"${normal}"
-  echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}"${bbr}"${normal}"
-  echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}"${tweaks}"${normal}"
-  echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}"${MAXCPUS}"${normal}"
-  echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}"${aptsources}"${normal}"
+  echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${QBVERSION}${normal}"
+  echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${DEVERSION}${normal}"
+  [[ ! $DEVERSION == No ]] &&
+  echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${DELTVERSION}${normal}"
+  echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${RTVERSION}${normal}"
+  [[ ! $RTVERSION == No ]] &&
+  echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
+  echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${TRVERSION}${normal}"
+  echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}${InsRDP}${normal}"
+  echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}${InsWine}${normal}"
+  echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
+  echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
+  echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
+  echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
+  echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
+  echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
+  echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
   echo
   echo '####################################################################'
   echo
-  echo "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input
+  echo -e "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input
   echo -e "\n${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo -e "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}\n" ; }
 
@@ -1398,11 +1446,11 @@ DEVERSION=${DEVERSION}
 DELTVERSION=${DELTVERSION}
 RTVERSION=${RTVERSION}
 TRVERSION=${TRVERSION}
-FLEXGETINSTALLED=${flexget}
-RCLONEINSTALLED=${rclone}
-BBRINSTALLED=${bbr}
-USETWEAKS=${tweaks}
-UPLOADTOOLS=${tools}
+FLEXGET=${InsFlex}
+RCLONE=${InsRclone}
+BBR=${InsBBR}
+USETWEAKS=${UseTweaks}
+UPLOADTOOLS=${InsTools}
 RDP=${InsRDP}
 WINE=${InsWine}
 FLOOD=${InsFlood}
@@ -1417,7 +1465,7 @@ cat>/etc/inexistence/01.Log/lock/inexistence.lock<<EOF
 INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
-USETWEAKS=${tweaks}
+USETWEAKS=${UseTweaks}
 ANUSER=${ANUSER}
 ##### U ########################################
 EOF
@@ -2444,8 +2492,6 @@ echo -e "${bailanse}\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n${norm
 # --------------------- 一些设置修改 --------------------- #
 function _tweaks() {
 
-if [ $tweaks == "Yes" ]; then
-
 # Oh my zsh
 #sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 #cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
@@ -2641,9 +2687,7 @@ sysctl -p
 # apt-get -y upgrade
 apt-get -y autoremove
 
-touch /etc/inexistence/01.Log/lock/tweaks.lock
-
-fi ; }
+touch /etc/inexistence/01.Log/lock/tweaks.lock ; }
 
 
 
@@ -2660,48 +2704,49 @@ clear
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '-----------------------------------------------------------'
 
-if [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "Yes" ]]; then
+if [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
-elif [[ ! "${QBVERSION}" == "No" ]] && [[ "${qb_installed}" == "No" ]]; then
+elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
 fi
 
-if [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "Yes" ]]; then
+if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
-elif [[ ! "${DEVERSION}" == "No" ]] && [[ "${de_installed}" == "No" ]]; then
+elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
 fi
 
-if [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "Yes" ]]; then
+if [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
-elif [[ ! "${TRVERSION}" == "No" ]] && [[ "${tr_installed}" == "No" ]]; then
+elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Transmission installation FAILED${normal}"
     TRFAILED=1 ; INSFAILED=1
 fi
 
-if [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "Yes" ]]; then
+if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
     [[ $InsFlood == Yes ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
-elif [[ ! "${RTVERSION}" == "No" ]] && [[ "${rt_installed}" == "No" ]]; then
+elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
 fi
 
-if [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "Yes" ]]; then
+if [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
     echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 ${bold}(username is ${underline}flexget${reset_underline}${normal})"
-elif [[ ! $flexget == "No" ]] && [[ "${flex_installed}" == "No" ]]; then
+elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
     FLFAILED=1 ; INSFAILED=1
 fi
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
 
-echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
+echo
+echo -e " ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 [[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
@@ -2712,7 +2757,7 @@ echo
 
 _time
 
-if [[ $INSFAILED == 1 ]]; then
+    if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands:
 ${yellow}cat /etc/inexistence/01.Log/installed.log"
@@ -2722,7 +2767,7 @@ ${yellow}cat /etc/inexistence/01.Log/installed.log"
 [[ $RTFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
 [[ $FLFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
-fi
+    fi
 
 echo ; }
 
@@ -2738,10 +2783,10 @@ _askpassword
 _askaptsource
 _askmt
 _askdeluge
-[[ ! "${DEVERSION}" == No ]] && _askdelt
+[[ ! $DEVERSION == No ]] && _askdelt
 _askqbt
 _askrt
-[[ ! "${RTVERSION}" == No ]] && _askflood
+[[ ! $RTVERSION == No ]] && _askflood
 _asktr
 _askrdp
 _askwine
@@ -2749,10 +2794,12 @@ _asktools
 _askflex
 _askrclone
 
-if [[ -d "/proc/vz" ]]; then
-echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
-bbr='Not supported on OpenVZ'
-else _askbbr ; fi
+if [[ -d /proc/vz ]]; then
+    echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
+    InsBBR='Not supported on OpenVZ'
+else
+    _askbbr
+fi
 
 _asktweaks
 _askcontinue | tee /etc/00.info.log
@@ -2771,9 +2818,9 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 # --------------------- 安装 --------------------- #
 
 
-if [[ $bbr == Yes ]]; then
+if [[ $InsBBR == Yes ]]; then
     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
-elif [[ $bbr == To\ be\ enabled ]]; then
+elif [[ $InsBBR == To\ be\ enabled ]]; then
     echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
     echo -e "Skip BBR installation\n\n\n\n\n"
@@ -2811,14 +2858,14 @@ else
 fi
 
 
-if [[ $flexget == No ]]; then
+if [[ $InsFlex == No ]]; then
     echo -e "Skip Flexget installation\n\n\n\n"
 else
     echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
 fi
 
 
-if [[ $rclone == No ]]; then
+if [[ $InsRclone == No ]]; then
     echo -e "Skip rclone installation\n\n\n\n"
 else
     echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
@@ -2843,7 +2890,7 @@ else
 fi
 
 
-if [[ $tools == Yes ]]; then
+if [[ $InsTools == Yes ]]; then
    echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
 else
    echo "Skip Uploading Toolbox installation\n\n\n\n"
@@ -2852,7 +2899,7 @@ fi
 ####################################
 
 
-if [[ $tweaks == No ]]; then
+if [[ $UseTweaks == No ]]; then
     echo -e "Skip System tweaks\n\n\n\n"
 else
     echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
