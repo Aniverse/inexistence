@@ -32,10 +32,17 @@ dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=
 reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; jiacu=${normal}${bold}
+heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}
+jiacu=${normal}${bold}
 shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
 _colors
 # --------------------------------------------------------------------------------
+# 增加 swap
+function _use_swap() { dd if=/dev/zero of=/root/.swapfile bs=1M count=1024  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
+
+# 关掉之前开的 swap
+function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /.swapfile  ;  }
+
 # 用于退出脚本
 export TOP_PID=$$
 trap 'exit 1' TERM
@@ -801,23 +808,23 @@ function _askdelt() {
       [[ $de_installed == Yes ]] &&
       echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
 
-      echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE DEFAULT OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
+      echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
 #     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
 
       if [[ $CODENAME == stretch ]]; then
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
 
           case $version in
               00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
               01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
               02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
               30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-              40) DELTVERSION='Install from repo' ;;
+              40 | "") DELTVERSION='Install from repo' ;;
               50) DELTVERSION='Install from PPA' ;;
               99) DELTVERSION=No ;;
-              * | "") DELTVERSION=libtorrent-1_0_11 ;;
+              *) DELTVERSION='Install from repo' ;;
           esac
 
       else
@@ -829,10 +836,10 @@ function _askdelt() {
               01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
               02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
               30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-              40) DELTVERSION='Install from repo' ;;
+              40 | "") DELTVERSION='Install from repo' ;;
               50) DELTVERSION='Install from PPA' ;;
               99) DELTVERSION=No ;;
-              * | "") DELTVERSION='Install from repo' ;;
+              *) DELTVERSION='Install from repo' ;;
           esac
 
       fi
@@ -1089,7 +1096,7 @@ function _askrclone() {
 
 function _askrdp() {
 
-  echo -e "${green}01)${white} VNC  with xfce4 (may have some issues)"
+  echo -e "${green}01)${white} VNC  with xfce4 ${shanshuo}(may have some issues)${normal}"
   echo -e "${green}02)${white} X2Go with xfce4"
   echo -e   "${red}99)${white} Do not install remote desktop"
 # echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
@@ -1609,11 +1616,15 @@ echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo Bui
 
   else
 
+      # 2018.03.17 我真的是被 qBittorrent 这个依赖给搞烦起来了，索性以后用 iFeral 的方法算了？
+
       # 1. 不需要再安装 libtorrent-rasterbar
       #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
       #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
+      #### 2018.03.17 Debian 9 下 qBittorrent 4.0 似乎不需要 C++11，所以用 Deluge 编译的 libtorrent 应该是可以的
+      #### 而如果用 Ubuntu 16.04 一般也不会有人去选择编译（如果编译了的话那么 xenial 下无法完成 qb 4.0 的编译）
 
-      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && [[ $QBVERSION4 == No ]]; then
+      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
 
           apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
 
@@ -1962,9 +1973,11 @@ cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${norma
 
 
 
-# --------------------- 安装 Nodejs 与 flood --------------------- #
+# --------------------- 安装 Node.js 与 flood --------------------- #
 
 function _installflood() {
+
+[[ $tram -le 1900 ]] && _use_swap
 
 bash <(curl -sL https://deb.nodesource.com/setup_9.x)
 apt-get install -y nodejs build-essential python-dev
@@ -1975,6 +1988,8 @@ cp config.template.js config.js
 npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 npm run build
+
+[[ $tram -le 1900 ]] && _disable_swap
 
 cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
@@ -2109,8 +2124,9 @@ function _installflex() {
 # chmod -R 777 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
-  flexget web passwd ${ANPASS} > /tmp/flex.pass.output
+  flexget web passwd ${ANPASS} > /tmp/flex.pass.output 2>&1
   [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && FlexPassFail=1 && echo -e "Failed to set flexget webui password"
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && FlexConfFail=1 && echo -e "Failed to set flexget webui password"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2679,6 +2695,7 @@ echo -e "\n ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 [[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
+[[ $FlexConfFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file, maybe your password is too young too simple?${normal}"
 
 echo '-----------------------------------------------------------'
 echo
@@ -2687,7 +2704,7 @@ _time
 
 if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
-Check log by typing these commands (if you have enabled system tweaks):
+Check log by typing these commands:
 ${yellow}cat /etc/inexistence/01.Log/installed.log"
 [[ $QBFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log"
 [[ $DEFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log"
