@@ -265,7 +265,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 
 # 装 wget 以防万一，不屏蔽错误输出
-if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing ${yellow}wget${white} ...${normal}" ; apt-get install -y wget >> /dev/null ; fi
+if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget >> /dev/null ; fi
 [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID
 
 
@@ -276,7 +276,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${white}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
@@ -379,7 +379,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${white}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input ; }
 
 
 
@@ -392,8 +392,8 @@ function _ask_distro_upgrade() {
 
 [[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported by this script"
 [[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported by this script"
-# read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " responce
-echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${white}]es or [N]o: " ; read -e responce
+# read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " responce
+echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
@@ -443,7 +443,7 @@ tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 function _askusername(){
 
     clear
-    echo "${bold}${yellow}The script needs a username${white}"
+    echo "${bold}${yellow}The script needs a username${jiacu}"
     echo "This will be your primary user. It can be an existing user or a new user ${normal}"
 
     [[ ! $DeBUG == 1 ]] && confirm_name=1
@@ -451,7 +451,7 @@ function _askusername(){
 
         while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
             reinput_name=0
-            read -ep "${white}${bold}Enter username: ${blue}" answerusername
+            read -ep "${bold}Enter username: ${blue}" answerusername
         done
 
         addname="${answerusername}"
@@ -482,7 +482,7 @@ local password2
 exec 3>&1 >/dev/tty
 
 echo
-echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${white} "
+echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
 echo "The password must consist of characters and numbers and at least 8 chars,"
 echo "or you can leave it blank to generate a random password"
 
@@ -490,22 +490,22 @@ while [ -z $localpass ]
 do
 
 # echo -n "${bold}Enter the password: ${blue}" ; read -e password1
-  read -ep "${bold}Enter the password: ${blue}" password1
+  read -ep "Enter the password: ${blue}" password1
 
   if [ -z $password1 ]; then
 
       exitvalue=1
       localpass=$(genpasswd)
-      echo "${bold}${white}Random password sets to ${blue}$localpass${normal}"
+      echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
 
   elif [ ${#password1} -lt 8 ]; then
 
-      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${on_yellow}[8]${normal}${bold} chars long${normal}" && continue
+      echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
 
   else
 
       while [[ $password2 = "" ]]; do
-          read -ep "${white}${bold}Enter the new password again: ${blue}" password2
+          read -ep "${jiacu}Enter the new password again: ${blue}" password2
       done
 
       if [ $password1 != $password2 ]; then
@@ -531,8 +531,8 @@ return $exitvalue ; }
 
 function _askaptsource() {
 
-# read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " responce
-  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${white}]es or [N]o: " ; read -e responce
+# read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " responce
+  echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
@@ -556,11 +556,11 @@ function _askaptsource() {
 
 function _askmt() {
 
-  echo -e "${green}01)${white} Use ${cyan}all${white} available threads (Default)"
-  echo -e "${green}02)${white} Use ${cyan}half${white} of available threads"
-  echo -e "${green}03)${white} Use ${cyan}one${white} thread"
-  echo -e "${green}04)${white} Use ${cyan}two${white} threads"
-# echo -e   "${red}99)${white} Do not compile, install softwares from repo"
+  echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
+  echo -e "${green}02)${normal} Use ${cyan}half${normal} of available threads"
+  echo -e "${green}03)${normal} Use ${cyan}one${normal} thread"
+  echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
+# echo -e   "${red}99)${normal} Do not compile, install softwares from repo"
 
 # echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
 # read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
@@ -593,19 +593,19 @@ function _askqbt() {
 
 # wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
 
-  echo -e "${green}01)${white} qBittorrent ${cyan}3.3.7${white}"
-  echo -e "${green}02)${white} qBittorrent ${cyan}3.3.11${white}"
-  echo -e "${green}03)${white} qBittorrent ${cyan}3.3.14${white}"
-  echo -e "${green}04)${white} qBittorrent ${cyan}3.3.16${white}"
+  echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.7${normal}"
+  echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.11${normal}"
+  echo -e "${green}03)${normal} qBittorrent ${cyan}3.3.14${normal}"
+  echo -e "${green}04)${normal} qBittorrent ${cyan}3.3.16${normal}"
   [[ ! $CODENAME = jessie ]] &&
-  echo -e "${green}11)${white} qBittorrent ${cyan}4.0.2${white}" && 
-  echo -e "${green}12)${white} qBittorrent ${cyan}4.0.3${white}" && 
-  echo -e "${green}13)${white} qBittorrent ${cyan}4.0.4${white}"
-  echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} qBittorrent ${cyan}$QB_repo_ver${white} from ${cyan}repo${white}"
+  echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}" && 
+  echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}" && 
+  echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
+  echo -e "${green}30)${normal} Select another version"
+  echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
   [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${white} qBittorrent ${cyan}$QB_latest_ver${white} from ${cyan}Stable PPA${white}"
-  echo -e   "${red}99)${white} Do not install qBittorrent"
+  echo -e "${green}50)${normal} qBittorrent ${cyan}$QB_latest_ver${normal} from ${cyan}Stable PPA${normal}"
+  echo -e   "${red}99)${normal} Do not install qBittorrent"
 
   [[ $qb_installed == Yes ]] &&
   echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -644,7 +644,7 @@ function _askqbt() {
   elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
 
       if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
           echo -ne "Therefore "
           QBVERSION='Install from repo'
       else
@@ -654,7 +654,7 @@ function _askqbt() {
   else
 
       if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
-          echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${white}"
+          echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
           QBVERSION=3.3.16 && QBVERSION4=No
           echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
       fi
@@ -681,17 +681,17 @@ function _askdeluge() {
 
 # wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
 
-  echo -e "${green}01)${white} Deluge ${cyan}1.3.11${white}"
-  echo -e "${green}02)${white} Deluge ${cyan}1.3.12${white}"
-  echo -e "${green}03)${white} Deluge ${cyan}1.3.13${white}"
-  echo -e "${green}04)${white} Deluge ${cyan}1.3.14${white}"
-  echo -e "${green}05)${white} Deluge ${cyan}1.3.15${white}"
-# echo -e "${green}21)${white} Deluge ${cyan}1.3.15 (Skip hash check)${white}"
-  echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} Deluge ${cyan}$DE_repo_ver${white} from ${cyan}repo${white}"
+  echo -e "${green}01)${normal} Deluge ${cyan}1.3.11${normal}"
+  echo -e "${green}02)${normal} Deluge ${cyan}1.3.12${normal}"
+  echo -e "${green}03)${normal} Deluge ${cyan}1.3.13${normal}"
+  echo -e "${green}04)${normal} Deluge ${cyan}1.3.14${normal}"
+  echo -e "${green}05)${normal} Deluge ${cyan}1.3.15${normal}"
+# echo -e "${green}21)${normal} Deluge ${cyan}1.3.15 (Skip hash check)${normal}"
+  echo -e "${green}30)${normal} Select another version"
+  echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
   [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${white} Deluge ${cyan}$DE_latest_ver${white} from ${cyan}PPA${white}"
-  echo -e   "${red}99)${white} Do not install Deluge"
+  echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
+  echo -e   "${red}99)${normal} Do not install Deluge"
 
   [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
   [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
@@ -756,7 +756,7 @@ function _askdeluge() {
   elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
 
       if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
           echo -ne "Therefore "
           DEVERSION='Install from repo'
       else
@@ -798,15 +798,15 @@ function _askdelt() {
 
   else
 
-#     echo -e "${green}00)${white} libtorrent-rasterbar ${cyan}0.16.19${white} (NOT recommended)"
-      echo -e "${green}01)${white} libtorrent-rasterbar ${cyan}1.0.11${white}"
-      echo -e "${green}02)${white} libtorrent-rasterbar ${cyan}1.1.6${white} (NOT recommended)"
-      echo -e "${green}30)${white} Select another version"
-      echo -e "${green}40)${white} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${white} from ${cyan}repo${white}"
+#     echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
+      echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
+      echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.6 ${normal} (NOT recommended)"
+      echo -e "${green}30)${normal} Select another version"
+      echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
       [[ $DISTRO == Ubuntu ]] &&
-      echo -e "${green}50)${white} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${white} from ${cyan}Deluge PPA${white}"
+      echo -e "${green}50)${normal} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${normal} from ${cyan}Deluge PPA${normal}"
       [[ $de_installed == Yes ]] &&
-      echo -e "${red}99)${white} Do not install libtorrent-rasterbar AGAIN"
+      echo -e "${red}99)${normal} Do not install libtorrent-rasterbar AGAIN"
 
       echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
 #     echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
@@ -814,17 +814,17 @@ function _askdelt() {
 
       if [[ $CODENAME == stretch ]]; then
 
-          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+          read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
 
           case $version in
               00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
               01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
               02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
               30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-              40 | "") DELTVERSION='Install from repo' ;;
+              40) DELTVERSION='Install from repo' ;;
               50) DELTVERSION='Install from PPA' ;;
               99) DELTVERSION=No ;;
-              *) DELTVERSION='Install from repo' ;;
+              "" | *) DELTVERSION=libtorrent-1_0_11 ;;
           esac
 
       else
@@ -877,11 +877,11 @@ function _askdelt() {
 function _askrt() {
 
   [[ ! $CODENAME == stretch ]] &&
-  echo -e "${green}01)${white} rTorrent ${cyan}0.9.3${white}" &&
-  echo -e "${green}02)${white} rTorrent ${cyan}0.9.4${white}" &&
-  echo -e "${green}03)${white} rTorrent ${cyan}0.9.4${white} (with IPv6 support)"
-  echo -e "${green}04)${white} rTorrent ${cyan}0.9.6${white} (with IPv6 support)"
-  echo -e   "${red}99)${white} Do not install rTorrent"
+  echo -e "${green}01)${normal} rTorrent ${cyan}0.9.3${normal}" &&
+  echo -e "${green}02)${normal} rTorrent ${cyan}0.9.4${normal}" &&
+  echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
+  echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+  echo -e   "${red}99)${normal} Do not install rTorrent"
 
   [[ $rt_installed == Yes ]] &&
   echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
@@ -971,16 +971,16 @@ function _asktr() {
 
 # wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 
-  echo -e "${green}01)${white} Transmission ${cyan}2.77${white}"
-  echo -e "${green}02)${white} Transmission ${cyan}2.82${white}"
-  echo -e "${green}03)${white} Transmission ${cyan}2.84${white}"
-  echo -e "${green}04)${white} Transmission ${cyan}2.92${white}"
-  echo -e "${green}05)${white} Transmission ${cyan}2.93${white}"
-  echo -e "${green}30)${white} Select another version"
-  echo -e "${green}40)${white} Transmission ${cyan}$TR_repo_ver${white} from ${cyan}repo${white}"
+  echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}"
+  echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}"
+  echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
+  echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
+  echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
+  echo -e "${green}30)${normal} Select another version"
+  echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
   [[ $DISTRO == Ubuntu ]] &&
-  echo -e "${green}50)${white} Transmission ${cyan}$TR_latest_ver${white} from ${cyan}PPA${white}"
-  echo -e   "${red}99)${white} Do not install Transmission"
+  echo -e "${green}50)${normal} Transmission ${cyan}$TR_latest_ver${normal} from ${cyan}PPA${normal}"
+  echo -e   "${red}99)${normal} Do not install Transmission"
 
   [[ $tr_installed == Yes ]] &&
   echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -1015,7 +1015,7 @@ function _asktr() {
           elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
 
               if [[ $DISTRO == Debian ]]; then
-                  echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${white}, which is not supported by ${green}Ubuntu${white} PPA"
+                  echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
                   echo -ne "Therefore "
                   TRVERSION='Install from repo'
               else
@@ -1096,12 +1096,12 @@ function _askrclone() {
 
 function _askrdp() {
 
-  echo -e "${green}01)${white} VNC  with xfce4 ${shanshuo}(may have some issues)${normal}"
-  echo -e "${green}02)${white} X2Go with xfce4"
-  echo -e   "${red}99)${white} Do not install remote desktop"
+  echo -e "${green}01)${normal} VNC  with xfce4 (may have some issues)"
+  echo -e "${green}02)${normal} X2Go with xfce4"
+  echo -e   "${red}99)${normal} Do not install remote desktop"
 # echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
-# read -ep "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " responce
-  echo -ne "${bold}${yellow}Would you like to install remote desktop? ${normal} (Default ${cyan}99${normal}): " ; read -e responce
+# read -ep "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
+  echo -ne "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " ; read -e responce
 
   case $responce in
       01 | 1) InsRDP=VNC ;;
@@ -1127,8 +1127,8 @@ function _askrdp() {
 
 function _askwine() {
 
-# read -ep "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install wine and mono? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+# read -ep "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
@@ -1153,8 +1153,8 @@ function _askwine() {
 function _asktools() {
 
   echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
-# read -ep "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
-  echo -ne "${bold}${yellow}Would you like to install the above additional softwares? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+# read -ep "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+  echo -ne "${bold}${yellow}Would you like to install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
   case $responce in
       [yY] | [yY][Ee][Ss]  ) tools=Yes ;;
@@ -1484,6 +1484,8 @@ if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
     kill -s TERM $TOP_PID
 fi
+
+echo -e "${bailvse}\n\n\n  STEP-ONE-COMPLETED  \n\n${normal}"
 
 # apt-get remove --purge -y libgnutls-deb0-28
 
@@ -2125,8 +2127,8 @@ function _installflex() {
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
   flexget web passwd ${ANPASS} > /tmp/flex.pass.output 2>&1
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && FlexPassFail=1 && echo -e "Failed to set flexget webui password"
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && FlexConfFail=1 && echo -e "Failed to set flexget webui password"
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "Failed to set flexget webui password"
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "Failed to set flexget webui password"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
