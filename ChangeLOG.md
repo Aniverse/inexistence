@@ -4,6 +4,24 @@
 
 
 
+## 2018.03.18
+
+`inexistence 0.9.9`  
+1. **Bump to 0.9.9**  
+2. UI：把一些安装完成的步骤改得更明显，然后 deluge 的日志还是去掉了  
+3. Code：换行、排版、去除双引号  
+部分 while 改成 if  
+4. **Bug Fix：编译安装 libtorrent-rasterbar 时若系统总内存小于 1900MB 则使用 swap**
+5. **Bug Fix：修复 Debian 9 下 Deluge 和 qBittorrent 一起安装时 libtorrent 冲突的问题**  
+首先发现 VPS 编译 libtorrent-rasterbar 可能出现内存不足的情况，先加了 swap  
+然后发现其实以前写的 DeQbLT 之类的判断逻辑不太对，应该先全部认定是 No，再把 Yes 的情况写出来  
+然后这样子总算是解决了  
+忍不住再吐槽一次，真是麻烦…… 用编译好的多省事啊……  
+6. **New Feature：内存较小时默认使用 swap**  
+7. **Code：竟然有 3000+ 行了……**  
+虽说好多是注释和空格，不过感觉也不少了……  
+8. **Interactive：Deluge libtorrent 没选择默认选项的话弹出警告，要求用户再次确认**  
+9. UI：询问版本时，which version of deluge，完整点  
 
 
 
@@ -16,11 +34,13 @@
 为以后使用参数，以及 DeBUG 模式作准备  
 写完了以后我才意识到为什么我要用 while 呢，用 if 不是也可以么……  
 2. **Bug Fix：修复 Debian 9 下 Deluge 和 qBittorrent 一起安装时 libtorrent 冲突的问题**  
+其实并没有修复成功←_←  
 3. **Bug Fix：安装 flood 时若系统总内存小于 1900MB 则使用 swap**  
 4. Bug Fix：修复 Deluge PPA libtorrent 版本判断不正确的问题  
 5. UI：闪烁提示 libtorrent-rasterbar 不要乱选  
 6. **Code：换行、去除双引号**  
-从行数上来说这次行数变动很大  
+从行数上来说这次行数变动很大 lol  
+去除了所有的 ${white}，这下在白底黑字的情况下终于正常了  
 
 
 
@@ -158,7 +178,7 @@ To be completed ...
 ## 2018.03.09
 
 `inexistence 0.9.7.6`  
-1. **New Feature：对于 Debian 7 和 Ubuntu 14.04，可以用脚本升级到 Debian 8 和 Ubuntu 16.04 **  
+1. **New Feature：对于 Debian 7 和 Ubuntu 14.04，可以用脚本升级到 Debian 8 和 Ubuntu 16.04**  
 采用无交互的方式升级系统，应该不会再碰到各类询问你要怎么办的问题了  
 升级完后显示所花费的时间，然后直接重启盒子，提示重启后再运行一次本脚本  
 2. **Bug Fix：修复一开始 !/bin/bash not found 的报错**  
