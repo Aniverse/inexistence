@@ -186,6 +186,48 @@ if [[ ! "$SysSupport" == 1 ]]; then
     exit 1
 fi ; }
 
+# Virt-what
+cat >/usr/local/bin/whatvirt<<EOF
+set -u ; root='' ; skip_qemu_kvm=false ; VERSION="1.14"
+function fail { echo "virt-what: \$1" >&2 ; exit 1 ; }
+function usage { echo "virt-what [options]" ; echo "Options:" ; echo "  --help          Display this help" ; echo "  --version       Display version and exit" ; exit 0 ; }
+TEMP=\$(getopt -o v --long help --long version --long test-root: -n 'virt-what' -- "\$@")
+if [ \$? != 0 ]; then exit 1; fi
+eval set -- "\$TEMP"
+while true; do case "\$1" in --help) usage ;; --test-root) root="\$2"; shift 2; ;; -v|--version) echo "\$VERSION"; exit 0 ;; --) shift; break ;; *) fail "internal error (\$1)" ;; esac; done
+prefix=/usr ; exec_prefix=\${prefix} ; PATH="\${root}\${prefix}/lib/virt-what:\${root}/sbin:\${root}/usr/sbin:\${PATH}"
+if [ "x\$root" = "x" ] && [ "\$EUID" -ne 0 ]; then fail "this script must be run as root" ; fi
+cpuid=\$(virt-what-cpuid-helper) ; dmi=\$(LANG=C dmidecode 2>&1) ; arch=\$(uname -p)
+if [ "\$cpuid" = "VMwareVMware" ]; then echo vmware
+elif echo "\$dmi" | grep -q 'Manufacturer: VMware'; then echo vmware ; fi
+if [ "\$cpuid" = "Microsoft Hv" ]; then echo hyperv ; fi
+if [ "\$cpuid" != "Microsoft Hv" ] && echo "\$dmi" | grep -q 'Manufacturer: Microsoft Corporation'; then echo virtualpc ; fi
+if echo "\$dmi" | grep -q 'Manufacturer: innotek GmbH'; then echo VirtualBox ; fi
+if [ -d "\${root}/proc/vz" -a ! -d "\${root}/proc/bc" ]; then echo OpenVZ ; fi
+if [ -e "\${root}/proc/1/environ" ] && cat "\${root}/proc/1/environ" | tr '\000' '\n' | grep -Eiq '^container='; then echo lxc ; fi
+if cat "\${root}/proc/self/status" | grep -q "VxID: [0-9]*"; then echo linux_vserver
+if grep -q "VxID: 0\$" "\${root}/proc/self/status"; then echo linux_vserver-host ; else echo linux_vserver-guest ; fi ; fi
+if grep -q 'UML' "\${root}/proc/cpuinfo"; then echo uml ; fi
+if grep -q '^vendor_id.*PowerVM Lx86' "\${root}/proc/cpuinfo"; then echo powervm_lx86 ; fi
+if echo "\$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "\$dmi" | grep -q 'Product.* LPAR'; then echo virtage ; fi
+if grep -q '^vendor_id.*IBM/S390' "\${root}/proc/cpuinfo"; then echo ibm_systemz
+if [ -f "\${root}/proc/sysinfo" ]; then if grep -q 'VM.*Control Program.*z/VM' "\${root}/proc/sysinfo"; then echo ibm_systemz-zvm
+elif grep -q '^LPAR' "\${root}/proc/sysinfo"; then echo ibm_systemz-lpar
+else echo ibm_systemz-direct ; fi ; fi ; fi
+if echo "\$dmi" | grep -q 'Vendor: Parallels'; then echo parallels ; skip_qemu_kvm=true ; fi
+if [ "\$cpuid" = "XenVMMXenVMM" ]; then echo xen-hvm ; skip_qemu_kvm=true
+elif [ -d "\${root}/proc/xen" ]; then
+if grep -q "control_d" "\${root}/proc/xen/capabilities" 2>/dev/null; then echo xen-dom0
+else echo xen-domU ; fi ; skip_qemu_kvm=true
+elif [ -f "\${root}/sys/hypervisor/type" ] && grep -q "xen" "\${root}/sys/hypervisor/type"; then echo xen
+elif [ "\$arch" = "ia64" ]; then
+if [ -d "\${root}/sys/bus/xen" -a ! -d "\${root}/sys/bus/xen-backend" ]; then echo xen-hvm
+else virt-what-ia64-xen-rdtsc-test > /dev/null 2>&1
+case "\$?" in 0) ;;  1)  echo virt; esac ; fi ; fi
+if ! "\$skip_qemu_kvm"; then if [ "\$cpuid" = "KVMKVMKVM" ]; then echo KVM
+else if grep -q 'QEMU' "\${root}/proc/cpuinfo"; then echo QEMU ; fi ; fi ; fi
+EOF
+chmod +x /usr/local/bin/whatvirt
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -319,7 +361,8 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   _check_install_2
   _client_version_check
 
-# virtua=$(virt-what) 2>/dev/null
+  virtua=$(whatvirt) 2>/dev/null
+
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
   cpucores=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
@@ -376,12 +419,12 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   echo "  Kernel  : ${cyan}$kern${normal}"
   echo "  Script  : ${cyan}$INEXISTENCEDATE${normal}"
 
-# echo -ne "  Virt    : "
-# if [[ "${virtua}" ]]; then
-#     echo "${cyan}$virtua${normal}"
-# else
-#     echo "${cyan}No Virt${normal}"
-# fi
+  echo -ne "  Virt    : "
+  if [[ "${virtua}" ]]; then
+      echo "${cyan}$virtua${normal}"
+  else
+      echo "${cyan}No Virtualization Detected${normal}"
+  fi
 
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. Note that this script may not work on unsupported system${normal}"
 
@@ -915,7 +958,7 @@ while [[ $DELTVERSION = "" ]]; do
         else
 
            #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}01${normal}): " ; read -e version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}40${normal}): " ; read -e version
 
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
@@ -1675,7 +1718,7 @@ echo -e "\n\n\n" ; _time
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
-sleep 30
+sleep 20
 kill -s TERM $TOP_PID
 exit 0 ; }
 
@@ -2647,12 +2690,30 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,117!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,137!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
 
 
 ################## Inexistence Mod Start ##################
+
+function _colors() {
+black=\$(tput setaf 0); red=\$(tput setaf 1); green=\$(tput setaf 2); yellow=\$(tput setaf 3);
+blue=\$(tput setaf 4); magenta=\$(tput setaf 5); cyan=\$(tput setaf 6); white=\$(tput setaf 7);
+on_red=\$(tput setab 1); on_green=\$(tput setab 2); on_yellow=\$(tput setab 3); on_blue=\$(tput setab 4);
+on_magenta=\$(tput setab 5); on_cyan=\$(tput setab 6); on_white=\$(tput setab 7); bold=\$(tput bold);
+dim=\$(tput dim); underline=\$(tput smul); reset_underline=\$(tput rmul); standout=\$(tput smso);
+reset_standout=\$(tput rmso); normal=\$(tput sgr0); alert=\${white}\${on_red}; title=\${standout};
+baihuangse=\${white}\${on_yellow}; bailanse=\${white}\${on_blue}; bailvse=\${white}\${on_green};
+baiqingse=\${white}\${on_cyan}; baihongse=\${white}\${on_red}; baizise=\${white}\${on_magenta};
+heibaise=\${black}\${on_white}; heihuangse=\${on_yellow}\${black}
+jiacu=\${normal}\${bold}
+shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; }
+_colors
+
+io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
+iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘I/O (第一次测试) : \${yellow}\$io1\${normal}"
+io2=\$( io_test ) ; echo -e "\${bold}硬盘I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
 
 wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
@@ -2768,6 +2829,8 @@ alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.lo
 alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
 
 ################## Inexistence Mod END ##################
+
+
 EOF
 
 
