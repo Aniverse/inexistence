@@ -926,13 +926,14 @@ while [[ $DELTVERSION = "" ]]; do
 
     if [[ ! $DeLTDefault == 1 ]]; then
 
-        echo -e "\n${bailanse}${bold} 注意！${normal} ${blue}${bold}不要老是想着搞个大新闻，不用默认选项很有可能出现 bug！"
-        echo -e "即使如此你还是要选 ${yellow}$DELTVERSION${blue} 这个选项么？${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e confirm
+        echo -e  "\n${bailanse}${bold} 注意！${normal} ${blue}${bold}不要老是想着搞个大新闻，不用默认选项很可能引发 bug！"
+        echo -e  "只有某些特殊情况下才需要选择非默认选项，不然我都想把这个极容易导致翻车的问题直接去除改成强制选择默认的了 ……"
+        echo -ne "${yellow}即使如此你还是要选 ${blue}$DELTVERSION${jiacu} 这个选项么？${yellow} [Y]es or [${cyan}N${normal}]o: " ; read -e confirm
 
         case $confirm in
-              [yY] | [yY][Ee][Ss]  ) Zuosi=Yes && echo -e "\n${bold}丑话说前头了，翻车了别来汇报 bug，这个本来就是这样的 (╯‵□′)╯︵┻━┻ ${normal}\n" ;;
+              [yY] | [yY][Ee][Ss]  ) Zuosi=Yes && echo -e "\n${bold}作死成功，翻车了别来汇报 bug，这个本来就是这样的 (╯‵□′)╯︵┻━┻ ${normal}\n" ;;
               [nN] | [nN][Oo] | "" ) Zuosi=No  && echo -e "\n${bold}那我再问你一次，这次你自己看着办吧${normal}\n" && unset DELTVERSION ;;
-              *) Zuosi=No && unset DELTVERSION && echo -e "\n${bold}那我再问你一遍吧，你自己看着办${normal}\n" ;;
+              *) Zuosi=No && unset DELTVERSION && echo -e "\n${bold}那我还是再问你一遍吧，这次你自己看着办${normal}\n" ;;
         esac
 
     fi
@@ -987,7 +988,8 @@ while [[ $RTVERSION = "" ]]; do
     if [[ $CODENAME == stretch ]]; then
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
-        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
+       #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
+        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}04${normal}): " ; read -e version
 
         case $version in
             04 | 4) RTVERSION=0.9.6 ;;
@@ -997,7 +999,8 @@ while [[ $RTVERSION = "" ]]; do
 
     else
 
-        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+       #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
 
         case $version in
             01 | 1) RTVERSION=0.9.3 ;;
@@ -1094,7 +1097,9 @@ while [[ $TRVERSION = "" ]]; do
 
     [[ $tr_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+
+   #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+    echo -ne "${bold}${yellow}Which version of Transmission do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
 
     case $version in
             01 | 1) TRVERSION=2.77 ;;
@@ -1172,7 +1177,7 @@ while [[ $InsFlex = "" ]]; do
     echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
     case $responce in
-        [yY] | [yY][Ee][Ss]) InsFlex=Yes ;;
+        [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
         [nN] | [nN][Oo] | "" ) InsFlex=No ;;
         *) InsFlex=No ;;
     esac
@@ -1231,10 +1236,10 @@ while [[ $InsRDP = "" ]]; do
     echo -ne "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " ; read -e responce
 
     case $responce in
-        01 | 1) InsRDP=VNC ;;
+        01 | 1) InsRDP=VNC  ;;
         02 | 2) InsRDP=X2Go ;;
-        99    ) InsRDP=No ;;
-        "" | *) InsRDP=No ;;
+        99    ) InsRDP=No   ;;
+        "" | *) InsRDP=No   ;;
     esac
 
 done
@@ -1335,28 +1340,28 @@ else
 
         if [[ $bbrkernel == Yes ]]; then
 
-          echo -e "${bold}Your kernel version is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
-          read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+            echo -e "${bold}Your kernel is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
+            read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
 
-          case $responce in
+            case $responce in
                 [yY] | [yY][Ee][Ss] | "" ) InsBBR=To\ be\ enabled ;;
-                [nN] | [nN][Oo]) InsBBR=No ;;
-                *) InsBBR=Yes ;;
-          esac
+                [nN] | [nN][Oo]          ) InsBBR=No ;;
+                *                        ) InsBBR=Yes ;;
+            esac
 
         else
 
-        # echo -e "${bold}Your kernel version is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
-          echo -e "A new kernel (4.11.12) will be installed if BBR is to be installed"
-          echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
-        # read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
-          echo -ne "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+        #   echo -e "${bold}Your kernel is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
+            echo -e "A new kernel (4.11.12) will be installed if BBR is to be installed"
+            echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
+        #   read -ep "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+            echo -ne "${bold}${yellow}Would you like to install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
-          case $responce in
-                [yY] | [yY][Ee][Ss]) InsBBR=Yes ;;
+            case $responce in
+                [yY] | [yY][Ee][Ss]  ) InsBBR=Yes ;;
                 [nN] | [nN][Oo] | "" ) InsBBR=No ;;
-                *) InsBBR=No ;;
-          esac
+                *                    ) InsBBR=No ;;
+            esac
 
         fi
 
