@@ -1761,7 +1761,7 @@ echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo D
           [[ $tram -le 1900 ]] && _use_swap
 
           make clean
-          make -j${MAXCPUS}
+          make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
           make install
 
           [[ $tram -le 1900 ]] && _disable_swap
@@ -1792,10 +1792,11 @@ echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo D
       fi
       
       ./configure --prefix=/usr --disable-gui
-      make -j${MAXCPUS}
 
-      if [[ "${qb_installed}" == "Yes" ]]; then
-          make install
+      make -j${MAXCPUS} && QBCFail=0 || export QBCFail=1
+
+      if [[ $qb_installed == Yes ]]; then
+          make install && QBCFail=0 || export QBCFail=1
       else
 #         dpkg -r qbittorrentnox
           checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
@@ -1911,11 +1912,11 @@ function _installde() {
           cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
           cd libtorrent
           ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv #--with-libgeoip=system
+          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system #这个是qb的参数
 
           [[ $tram -le 1900 ]] && _use_swap
 
-          make -j${MAXCPUS}
+          make -j${MAXCPUS} && DELTCFail=0 || export DELTCFail=1
           dpkg -r libtorrentde
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
 
@@ -2094,7 +2095,8 @@ cd /srv/flood
 cp config.template.js config.js
 npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
-npm run build
+
+npm run build && FloodFail=0 || export FloodFail=1
 
 [[ $tram -le 1900 ]] && _disable_swap
 
@@ -2231,9 +2233,9 @@ function _installflex() {
 # chmod -R 777 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
-  flexget web passwd ${ANPASS} > /tmp/flex.pass.output 2>&1
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "Failed to set flexget webui password"
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "Failed to set flexget webui password"
+  flexget web passwd ${ANPASS} 2>&1 | tee /tmp/flex.pass.output 
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "\nFailed to set flexget webui password\n"
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "\nFailed to set flexget config and webui password\n"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2753,12 +2755,14 @@ clear
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '-----------------------------------------------------------'
 
+
 if [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
 elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
 fi
+
 
 if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
@@ -2767,6 +2771,7 @@ elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
     DEFAILED=1 ; INSFAILED=1
 fi
 
+
 if [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
 elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
@@ -2774,10 +2779,12 @@ elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
     TRFAILED=1 ; INSFAILED=1
 fi
 
+
 if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
-    [[ $InsFlood == Yes ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
+    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
+    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] && echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flood installation FAILED${normal}"
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
@@ -2785,12 +2792,14 @@ elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     RTFAILED=1 ; INSFAILED=1
 fi
 
+
 if [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
     echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 ${bold}(username is ${underline}flexget${reset_underline}${normal})"
 elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
     FLFAILED=1 ; INSFAILED=1
 fi
+
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
 
@@ -2810,10 +2819,11 @@ _time
 echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands:
 ${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ $QBFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log"
-[[ $DEFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log"
+[[ $QBFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" && echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ $DEFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
 [[ $TRFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
 [[ $RTFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ $FloodFail == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
 [[ $FLFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
