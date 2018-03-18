@@ -98,7 +98,7 @@ done ; }
 
 function _client_version_check(){
 [[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
-[[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'`
+[[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`  deluged --version | grep libtorrent | grep -Eo "[01].[0-9]+.[0-9]+"  `
 [[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
 [[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; }
 
@@ -246,7 +246,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 [[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
 [[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
-[[ $DeBUG == 1 ]] && echo "DISTRO=$DISTRO" && echo "CODENAME=$CODENAME" && echo "osversion=$osversion" && echo "SysSupport=$SysSupport"
+[[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
@@ -411,8 +411,8 @@ echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DIS
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
-    [nN] | [nN][Oo]) distro_up=No ;;
-    *) distro_up=Yes ;;
+    [nN] | [nN][Oo]          ) distro_up=No  ;;
+    *                        ) distro_up=Yes ;;
 esac
 
 if [[ $distro_up == Yes ]]; then
@@ -478,6 +478,8 @@ if [[ $ANUSER = "" ]]; then
         ANUSER=$addname
 
     done
+
+    echo
 
 else
 
@@ -673,7 +675,8 @@ while [[ $QBVERSION = "" ]]; do
     echo -e   "${red}99)${normal} Do not install qBittorrent"
 
     [[ $qb_installed == Yes ]] &&
-    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
+
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
     echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
 
@@ -763,7 +766,9 @@ while [[ $DEVERSION = "" ]]; do
     echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
     echo -e   "${red}99)${normal} Do not install Deluge"
 
-    [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
+    [[ $de_installed == Yes ]] &&
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
+
     [[ $DISTRO == Ubuntu ]] && dedefaultnum=50 ; [[ $DISTRO == Debian ]] && dedefaultnum=05
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
@@ -874,7 +879,7 @@ while [[ $DELTVERSION = "" ]]; do
 
     else
 
-#       echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
+      # echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
         echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
         echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.6 ${normal} (NOT recommended)"
         echo -e "${green}30)${normal} Select another version"
@@ -884,13 +889,16 @@ while [[ $DELTVERSION = "" ]]; do
         [[ $de_installed == Yes ]] &&
         echo -e "${red}99)${normal} Do not install libtorrent-rasterbar AGAIN"
 
+        [[ $delugelt_ver ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}libtorrent-rasterbar ${delugelt_ver}${reset_underline}${normal}"
+
         echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
-#       echo -e "${bailanse}${bold} 注意!!! ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
+      # echo -e "${bailanse}${bold} 注意！ ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
 
         if [[ $CODENAME == stretch ]]; then
 
-           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+          # read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
             echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
             case $version in
@@ -927,8 +935,8 @@ while [[ $DELTVERSION = "" ]]; do
     if [[ ! $DeLTDefault == 1 ]]; then
 
         echo -e  "\n${bailanse}${bold} 注意！${normal} ${blue}${bold}不要老是想着搞个大新闻，不用默认选项很可能引发 bug！"
-        echo -e  "只有某些特殊情况下才需要选择非默认选项，不然我都想把这个极容易导致翻车的问题直接去除改成强制选择默认的了 ……"
-        echo -ne "${yellow}即使如此你还是要选 ${blue}$DELTVERSION${jiacu} 这个选项么？${yellow} [Y]es or [${cyan}N${normal}]o: " ; read -e confirm
+        echo -e  "只有某些特殊情况下才需要选择非默认选项，比如之前已经安装过了\n不然我都想把这个极容易导致翻车的选项直接去除改成强制选择默认的了 ……"
+        echo -ne "${yellow}即使如此你还是要选 ${blue}$DELTVERSION${jiacu} 这个选项么？${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e confirm
 
         case $confirm in
               [yY] | [yY][Ee][Ss]  ) Zuosi=Yes && echo -e "\n${bold}作死成功，翻车了别来汇报 bug，这个本来就是这样的 (╯‵□′)╯︵┻━┻ ${normal}\n" ;;
@@ -941,8 +949,8 @@ while [[ $DELTVERSION = "" ]]; do
 done
 
 
-
 DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
+
 
     if [[ $DELTVERSION == "Install from repo" ]]; then
 
@@ -982,7 +990,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
-    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 #   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
     if [[ $CODENAME == stretch ]]; then
@@ -1096,7 +1104,7 @@ while [[ $TRVERSION = "" ]]; do
     echo -e   "${red}99)${normal} Do not install Transmission"
 
     [[ $tr_installed == Yes ]] &&
-    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Transmission ${trd_ver}${normal}"
+    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Transmission ${trd_ver}${normal}"
 
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
     echo -ne "${bold}${yellow}Which version of Transmission do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
@@ -1172,7 +1180,7 @@ function _askflex() {
 
 while [[ $InsFlex = "" ]]; do
 
-    [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed flexget${normal}"
+    [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed flexget${normal}"
 #   read -ep "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
     echo -ne "${bold}${yellow}Would you like to install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
@@ -1200,7 +1208,7 @@ function _askrclone() {
 
 while [[ $InsRclone = "" ]]; do
 
-    [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed rclone${normal}"
+    [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed rclone${normal}"
 #   read -ep "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
     echo -ne "${bold}${yellow}Would you like to install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
 
@@ -1642,19 +1650,20 @@ function _distro_upgrade() {
 
 starttime=$(date +%s)
 
+echo -e "${baihongse}executing apt-listchanges remove${normal}\n"
 apt-get remove apt-listchanges --assume-yes --force-yes
 
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
 
-echo -e "\n\n\n${baihongse}executing apt sources change${normal}\n\n\n"
+echo -e "${baihongse}executing apt sources change${normal}\n"
 [[ $CODENAME == wheezy ]] && sed -i "s/wheezy/jessie/g" /etc/apt/sources.list
 [[ $CODENAME == trusty ]] && sed -i "s/trusty/xenial/g" /etc/apt/sources.list
 
-echo -e "\n\n\n${baihongse}executing autoremove${normal}\n\n\n" ; apt-get -fuy --force-yes autoremove
+echo -e "${baihongse}executing autoremove${normal}\n" ; apt-get -fuy --force-yes autoremove
 
-echo -e "\n\n\n${baihongse}executing clean${normal}\n\n\n" ; apt-get --force-yes clean
+echo -e "${baihongse}executing clean${normal}\n" ; apt-get --force-yes clean
 
-echo -e "\n\n\n${baihongse}executing update${normal}\n\n\n" ; apt-get update
+echo -e "${baihongse}executing update${normal}\n" ; apt-get update
 
 echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
@@ -1663,7 +1672,6 @@ echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
 echo -e "\n\n\n" ; _time
-
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
@@ -2017,6 +2025,7 @@ function _installde() {
   fi
 
   echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
+
 
 
 
