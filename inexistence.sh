@@ -7,7 +7,7 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=098
+INEXISTENCEVER=099
 INEXISTENCEDATE=20180318
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
@@ -626,7 +626,7 @@ function _askswap() {
 
 if [[ $USESWAP = "" ]] && [[ $tram -le 1926 ]]; then
 
-    echo -e  "${bold}${red}Note that${normal} ${bold}Your RAM is below 1926MB, memory may got exhausted when compiling${normal}"
+    echo -e  "${bold}${red}Note that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
 #   read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
     echo -ne "${bold}${yellow}Would you like to use swap to +1s when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
@@ -674,7 +674,8 @@ while [[ $QBVERSION = "" ]]; do
 
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+   #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+    echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
 
     case $version in
         01 | 1) QBVERSION=3.3.7 ;;
@@ -763,9 +764,10 @@ while [[ $DEVERSION = "" ]]; do
     echo -e   "${red}99)${normal} Do not install Deluge"
 
     [[ $de_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}It seems you have already installed ${underline}Deluge ${deluged_ver}${reset_underline} with ${underline}libtorrent ${delugelt_ver}${normal}"
-    [[ $DISTRO == Ubuntu ]] && dedefaultnum=50
-    [[ $DISTRO == Debian ]] && dedefaultnum=05
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
+    [[ $DISTRO == Ubuntu ]] && dedefaultnum=50 ; [[ $DISTRO == Debian ]] && dedefaultnum=05
+   #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
+
+    echo -ne "${bold}${yellow}Which version of Deluge do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " ; read -e version
 
     if [[ $DISTRO == Ubuntu ]]; then
 
@@ -812,6 +814,7 @@ while [[ $DEVERSION = "" ]]; do
     fi
 
 done
+
 
 [[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
 
@@ -887,39 +890,56 @@ while [[ $DELTVERSION = "" ]]; do
 
         if [[ $CODENAME == stretch ]]; then
 
-            read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+                  01 | 1) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40) DELTVERSION='Install from repo' ;;
                   50) DELTVERSION='Install from PPA' ;;
                   99) DELTVERSION=No ;;
-                  "" | *) DELTVERSION=libtorrent-1_0_11 ;;
+                  "" | *) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
             esac
 
         else
 
-            read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40 | "") DELTVERSION='Install from repo' ;;
+                  40 | "") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
                   50) DELTVERSION='Install from PPA' ;;
                   99) DELTVERSION=No ;;
-                  *) DELTVERSION='Install from repo' ;;
+                  *) DELTVERSION='Install from repo' && DeLTDefault=1 ;;
             esac
 
         fi
 
     fi
 
+    if [[ ! $DeLTDefault == 1 ]]; then
+
+        echo -e "\n${bailanse}${bold} 注意！${normal} ${blue}${bold}不要老是想着搞个大新闻，不用默认选项很有可能出现 bug！"
+        echo -e "即使如此你还是要选 ${yellow}$DELTVERSION${blue} 这个选项么？${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e confirm
+
+        case $confirm in
+              [yY] | [yY][Ee][Ss]  ) Zuosi=Yes && echo -e "\n${bold}丑话说前头了，翻车了别来汇报 bug，这个本来就是这样的 (╯‵□′)╯︵┻━┻ ${normal}\n" ;;
+              [nN] | [nN][Oo] | "" ) Zuosi=No  && echo -e "\n${bold}那我再问你一次，这次你自己看着办吧${normal}\n" && unset DELTVERSION ;;
+              *) Zuosi=No && unset DELTVERSION && echo -e "\n${bold}那我再问你一遍吧，你自己看着办${normal}\n" ;;
+        esac
+
+    fi
+
 done
+
+
 
 DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
 
