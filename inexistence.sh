@@ -592,7 +592,7 @@ while [[ $MAXCPUS = "" ]]; do
     echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
 #   echo -e   "${red}99)${normal} Do not compile, install softwares from repo"
 
-#   echo -e "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
+#   echo -e  "${bold}${red}Note that${normal} ${bold}using more than one thread to compile may cause failure in some cases${normal}"
 #   read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
     echo -ne "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
@@ -608,12 +608,44 @@ while [[ $MAXCPUS = "" ]]; do
 done
 
 if [[ $MAXCPUS == No ]]; then
-    echo "${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
+    echo -e "${bold}${baiqingse}Deluge/qBittorrent/Transmission will be installed from repo${normal}"
 else
     echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
 fi
 
 echo ; }
+
+
+
+
+
+
+# --------------------- 询问是否使用 swap --------------------- #
+
+function _askswap() {
+
+if [[ $USESWAP = "" ]] && [[ $tram -le 1926 ]]; then
+
+    echo -e  "${bold}${red}Note that${normal} ${bold}Your RAM is below 1926MB, memory may got exhausted when compiling${normal}"
+#   read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+    echo -ne "${bold}${yellow}Would you like to use swap to +1s when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+
+    case $responce in
+        [yY] | [yY][Ee][Ss] | "") USESWAP=Yes ;;
+        [nN] | [nN][Oo]         ) USESWAP=No  ;;
+        *) USESWAP=Yes ;;
+    esac
+
+    if [[ $USESWAP == Yes ]]; then
+        echo -e "${bold}${baiqingse}1GB Swap${normal} will be used"
+    else
+        echo -e "${bold}Swap will not be used${normal}"
+    fi
+
+echo
+
+fi ; }
+
 
 
 
@@ -1525,6 +1557,8 @@ function _setsources() {
 # rm -rf /var/lib/apt/lists/partial/*
 # apt-get -y upgrade
 
+[[ $USESWAP == Yes ]] && _use_swap
+
 if [[ $aptsources == Yes ]]; then
 
     if [[ $DISTRO == Debian ]]; then
@@ -1758,13 +1792,13 @@ echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo D
               ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
           fi
 
-          [[ $tram -le 1900 ]] && _use_swap
+        # [[ $tram -le 1900 ]] && _use_swap
 
           make clean
           make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
           make install
 
-          [[ $tram -le 1900 ]] && _disable_swap
+        # [[ $tram -le 1900 ]] && _disable_swap
 
 #         checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
           ldconfig
@@ -1914,13 +1948,13 @@ function _installde() {
           ./autotool.sh
           ./configure --enable-python-binding --with-libiconv --with-libgeoip=system #这个是qb的参数
 
-          [[ $tram -le 1900 ]] && _use_swap
+        # [[ $tram -le 1900 ]] && _use_swap
 
           make -j${MAXCPUS} && DELTCFail=0 || export DELTCFail=1
           dpkg -r libtorrentde
           checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
 
-          [[ $tram -le 1900 ]] && _disable_swap
+        # [[ $tram -le 1900 ]] && _disable_swap
 
           mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
@@ -2085,7 +2119,7 @@ cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${norma
 
 function _installflood() {
 
-[[ $tram -le 1900 ]] && _use_swap
+# [[ $tram -le 1900 ]] && _use_swap
 
 bash <(curl -sL https://deb.nodesource.com/setup_9.x)
 apt-get install -y nodejs build-essential python-dev
@@ -2098,7 +2132,7 @@ sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
 npm run build && FloodFail=0 || export FloodFail=1
 
-[[ $tram -le 1900 ]] && _disable_swap
+# [[ $tram -le 1900 ]] && _disable_swap
 
 cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
@@ -2748,6 +2782,8 @@ touch /etc/inexistence/01.Log/lock/tweaks.lock ; }
 
 function _end() {
 
+[[ $USESWAP == Yes ]] && _disable_swap
+
 _check_install_2
 
 clear
@@ -2841,6 +2877,7 @@ _askusername
 _askpassword
 _askaptsource
 _askmt
+_askswap
 _askdeluge
 [[ ! $DEVERSION == No ]] && 
 _askdelt
