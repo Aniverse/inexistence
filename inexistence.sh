@@ -329,7 +329,11 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
-  cpucores=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
+  cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
+  cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
+  cpucores=$( expr $cpucores_single \* $cpunumbers )
+  [[ $cpunumbers == 2 ]] && $CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && $CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && $CPUNum='Octa '
+
   disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
   disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
   disk_total_size=$( calc_disk ${disk_size1[@]} )
@@ -375,7 +379,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
       echo "${cyan}No IPv6 Address Found${normal}"
   fi
 
-  echo "  CPU     : ${cyan}$cname${normal}"
+  echo "  CPU     : ${cyan}$CPUNum$cname${normal}"
   echo "  Cores   : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
   echo "  Mem     : ${cyan}$tram MB ($uram MB Used)${normal}"
   echo "  Disk    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
