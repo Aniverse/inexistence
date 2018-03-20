@@ -333,7 +333,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
   cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
   cpucores=$( expr $cpucores_single \* $cpunumbers )
-  [[ $cpunumbers == 2 ]] && $CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && $CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && $CPUNum='Octa '
+  [[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
 
   disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
   disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
