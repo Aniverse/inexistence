@@ -100,15 +100,15 @@ arch=$(uname -p)
 # cpuid check added by Chetan Loke.
 
 if [ "$cpuid" = "VMwareVMware" ]; then
-    echo vmware
+    echo VMWare
 elif echo "$dmi" | grep -q 'Manufacturer: VMware'; then
-    echo vmware
+    echo VMWare
 fi
 
 # Check for Hyper-V.
 # http://blogs.msdn.com/b/sqlosteam/archive/2010/10/30/is-this-real-the-metaphysics-of-hardware-virtualization.aspx
 if [ "$cpuid" = "Microsoft Hv" ]; then
-    echo hyperv
+    echo Hyper-V
 fi
 
 # Check for VirtualPC.
@@ -116,13 +116,13 @@ fi
 # which also has the same manufacturer string in the SM-BIOS data.
 if [ "$cpuid" != "Microsoft Hv" ] &&
     echo "$dmi" | grep -q 'Manufacturer: Microsoft Corporation'; then
-    echo virtualpc
+    echo VirtualPC
 fi
 
 # Check for VirtualBox.
 # Added by Laurent Léonard.
 if echo "$dmi" | grep -q 'Manufacturer: innotek GmbH'; then
-    echo virtualbox
+    echo VirtualBox
 fi
 
 # Check for OpenVZ / Virtuozzo.
@@ -132,7 +132,7 @@ fi
 # /proc/bc - exists on node, but not inside container.
 
 if [ -d "${root}/proc/vz" -a ! -d "${root}/proc/bc" ]; then
-    echo openvz
+    echo OpenVZ
 fi
 
 # Check for LXC containers
@@ -141,7 +141,7 @@ fi
 
 if [ -e "${root}/proc/1/environ" ] &&
     cat "${root}/proc/1/environ" | tr '\000' '\n' | grep -Eiq '^container='; then
-    echo lxc
+    echo LXC
 fi
 
 # Check for Linux-VServer
@@ -237,14 +237,14 @@ fi
 
 if ! "$skip_qemu_kvm"; then
     if [ "$cpuid" = "KVMKVMKVM" ]; then
-	echo kvm
+	echo KVM
     else
         # XXX This is known to fail for qemu with the explicit -cpu
         # option, since /proc/cpuinfo will not contain the QEMU
         # string.  The long term fix for this would be to export
         # another CPUID leaf for non-accelerated qemu.
         if grep -q 'QEMU' "${root}/proc/cpuinfo"; then
-	    echo qemu
+	    echo QEMU
 	fi
     fi
 fi
