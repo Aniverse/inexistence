@@ -1434,7 +1434,7 @@ fi ; echo ; }
 
 function _asktweaks() {
 
-while [[ $InsBBR = "" ]]; do
+while [[ $UseTweaks = "" ]]; do
 
 #   read -ep "${bold}${yellow}Would you like to configure some system settings? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
     echo -ne "${bold}${yellow}Would you like to do some system tweaks? ${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
@@ -2915,9 +2915,11 @@ fi
 
 if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
     echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
-    echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
+
     [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
     [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] && echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flood installation FAILED${normal}"
+
+    echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
 #   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
