@@ -3,12 +3,21 @@
 
 
 
+## 2018.03.18
+
+`inexistence 0.9.9`  
+1. Bug Fix：修复 UseTweaks 选项直接跳过的问题  
+
+
+
+
+
 
 ## 2018.03.18
 
 `inexistence 0.9.9`  
 1. **Bump to 0.9.9**  
-2. UI：把一些安装完成的步骤改得更明显，然后 deluge 的日志还是去掉了  
+2. UI：把一些安装完成的步骤改得更明显，然后 deluge 的编译日志还是去掉了  
 3. Code：换行、排版、去除双引号  
 部分 while 改成 if  
 4. **Bug Fix：编译安装 libtorrent-rasterbar 时若系统总内存小于 1900MB 则使用 swap**
@@ -22,6 +31,9 @@
 虽说好多是注释和空格，不过感觉也不少了……  
 8. **Interactive：Deluge libtorrent 没选择默认选项的话弹出警告，要求用户再次确认**  
 9. UI：询问版本时，which version of deluge，完整点  
+10. 添加 rclone.service  
+11. bash.bashrc：颜色设置、`iotest` 命令  
+12. **用 cat 添加 `Virt-what` 并用于检测虚拟化技术**  
 
 
 
@@ -85,7 +97,7 @@
 ## 2018.03.14
 
 `inexistence 0.9.8.6`  
-1. **alias 部分从 `/etc/profile` 改到 `/etc/bash.bashrc`  
+1. **alias 部分从 `/etc/profile` 改到 `/etc/bash.bashrc`**  
 解决了非登录式 shell 下 alias 不可用的问题  
 此外追加了一些 alias，添加了删除之前写入的内容的命令，只不过根据行的数量来删除，可能会有误删除的情况  
 我在想是不是用 for 之类的来检查比较好？或者把 alias、export 带头的全删了之类的？  
