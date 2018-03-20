@@ -8,7 +8,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180318
+INEXISTENCEDATE=20180320
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
@@ -190,7 +190,7 @@ fi ; }
 wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
 mkdir -p /usr/lib/virt-what
 wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
-chmod +x /usr/local/bin/whatvirt /usr/lib/virt-what/virt-what-cpuid-helper
+chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
 
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
