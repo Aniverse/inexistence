@@ -21,6 +21,15 @@ export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 local_packages=/etc/inexistence/00.Installation
 # --------------------------------------------------------------------------------
+# 检查是否以 root 权限运行脚本
+if [[ $EUID != 0 ]]; then
+    echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
+    echo ' Exiting...'
+    exit 1
+else
+    echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}"
+fi
+# --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -186,12 +195,6 @@ if [[ ! "$SysSupport" == 1 ]]; then
     exit 1
 fi ; }
 
-# Virt-what
-wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
-mkdir -p /usr/lib/virt-what
-wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
-chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
-
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -234,15 +237,6 @@ ${heibaise}${bold}                                                              
 # --------------------- 系统检查 --------------------- #
 function _intro() {
 
-# 检查是否以 root 权限运行脚本
-if [[ $EUID != 0 ]]; then
-    echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
-    echo ' Exiting...'
-    exit 1
-else
-    echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}"
-fi
-
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
 SysSupport=0
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
@@ -256,6 +250,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
+
 
 
 
@@ -321,6 +316,12 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   kv4=$(uname -r | cut  -d- -f1)
   kv5=$(uname -r | cut  -d- -f2)
   kv6=$(uname -r | cut  -d- -f3)
+
+# Virt-what
+  wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
+  mkdir -p /usr/lib/virt-what
+  wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
+  chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
 
   _check_install_2
   _client_version_check
