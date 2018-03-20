@@ -187,47 +187,11 @@ if [[ ! "$SysSupport" == 1 ]]; then
 fi ; }
 
 # Virt-what
-cat >/usr/local/bin/whatvirt<<EOF
-set -u ; root='' ; skip_qemu_kvm=false ; VERSION="1.14"
-function fail { echo "virt-what: \$1" >&2 ; exit 1 ; }
-function usage { echo "virt-what [options]" ; echo "Options:" ; echo "  --help          Display this help" ; echo "  --version       Display version and exit" ; exit 0 ; }
-TEMP=\$(getopt -o v --long help --long version --long test-root: -n 'virt-what' -- "\$@")
-if [ \$? != 0 ]; then exit 1; fi
-eval set -- "\$TEMP"
-while true; do case "\$1" in --help) usage ;; --test-root) root="\$2"; shift 2; ;; -v|--version) echo "\$VERSION"; exit 0 ;; --) shift; break ;; *) fail "internal error (\$1)" ;; esac; done
-prefix=/usr ; exec_prefix=\${prefix} ; PATH="\${root}\${prefix}/lib/virt-what:\${root}/sbin:\${root}/usr/sbin:\${PATH}"
-if [ "x\$root" = "x" ] && [ "\$EUID" -ne 0 ]; then fail "this script must be run as root" ; fi
-cpuid=\$(virt-what-cpuid-helper) ; dmi=\$(LANG=C dmidecode 2>&1) ; arch=\$(uname -p)
-if [ "\$cpuid" = "VMwareVMware" ]; then echo vmware
-elif echo "\$dmi" | grep -q 'Manufacturer: VMware'; then echo vmware ; fi
-if [ "\$cpuid" = "Microsoft Hv" ]; then echo hyperv ; fi
-if [ "\$cpuid" != "Microsoft Hv" ] && echo "\$dmi" | grep -q 'Manufacturer: Microsoft Corporation'; then echo virtualpc ; fi
-if echo "\$dmi" | grep -q 'Manufacturer: innotek GmbH'; then echo VirtualBox ; fi
-if [ -d "\${root}/proc/vz" -a ! -d "\${root}/proc/bc" ]; then echo OpenVZ ; fi
-if [ -e "\${root}/proc/1/environ" ] && cat "\${root}/proc/1/environ" | tr '\000' '\n' | grep -Eiq '^container='; then echo lxc ; fi
-if cat "\${root}/proc/self/status" | grep -q "VxID: [0-9]*"; then echo linux_vserver
-if grep -q "VxID: 0\$" "\${root}/proc/self/status"; then echo linux_vserver-host ; else echo linux_vserver-guest ; fi ; fi
-if grep -q 'UML' "\${root}/proc/cpuinfo"; then echo uml ; fi
-if grep -q '^vendor_id.*PowerVM Lx86' "\${root}/proc/cpuinfo"; then echo powervm_lx86 ; fi
-if echo "\$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "\$dmi" | grep -q 'Product.* LPAR'; then echo virtage ; fi
-if grep -q '^vendor_id.*IBM/S390' "\${root}/proc/cpuinfo"; then echo ibm_systemz
-if [ -f "\${root}/proc/sysinfo" ]; then if grep -q 'VM.*Control Program.*z/VM' "\${root}/proc/sysinfo"; then echo ibm_systemz-zvm
-elif grep -q '^LPAR' "\${root}/proc/sysinfo"; then echo ibm_systemz-lpar
-else echo ibm_systemz-direct ; fi ; fi ; fi
-if echo "\$dmi" | grep -q 'Vendor: Parallels'; then echo parallels ; skip_qemu_kvm=true ; fi
-if [ "\$cpuid" = "XenVMMXenVMM" ]; then echo xen-hvm ; skip_qemu_kvm=true
-elif [ -d "\${root}/proc/xen" ]; then
-if grep -q "control_d" "\${root}/proc/xen/capabilities" 2>/dev/null; then echo xen-dom0
-else echo xen-domU ; fi ; skip_qemu_kvm=true
-elif [ -f "\${root}/sys/hypervisor/type" ] && grep -q "xen" "\${root}/sys/hypervisor/type"; then echo xen
-elif [ "\$arch" = "ia64" ]; then
-if [ -d "\${root}/sys/bus/xen" -a ! -d "\${root}/sys/bus/xen-backend" ]; then echo xen-hvm
-else virt-what-ia64-xen-rdtsc-test > /dev/null 2>&1
-case "\$?" in 0) ;;  1)  echo virt; esac ; fi ; fi
-if ! "\$skip_qemu_kvm"; then if [ "\$cpuid" = "KVMKVMKVM" ]; then echo KVM
-else if grep -q 'QEMU' "\${root}/proc/cpuinfo"; then echo QEMU ; fi ; fi ; fi
-EOF
-chmod +x /usr/local/bin/whatvirt
+wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
+mkdir -p /usr/lib/virt-what
+wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
+chmod +x /usr/local/bin/whatvirt /usr/lib/virt-what/virt-what-cpuid-helper
+
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -361,7 +325,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   _check_install_2
   _client_version_check
 
-  virtua=$(whatvirt) 2>/dev/null
+  virtua=$(virt-what) 2>/dev/null
 
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
