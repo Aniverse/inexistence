@@ -237,7 +237,7 @@ fi
 
 if ! "$skip_qemu_kvm"; then
     if [ "$cpuid" = "KVMKVMKVM" ]; then
-	echo KVM
+	echo "Kernel-based Virtual Machine (KVM)"
     else
         # XXX This is known to fail for qemu with the explicit -cpu
         # option, since /proc/cpuinfo will not contain the QEMU
