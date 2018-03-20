@@ -1796,128 +1796,128 @@ echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo D
 
 
 
-  if [[ "${QBVERSION}" == "Install from repo" ]]; then
+if [[ "${QBVERSION}" == "Install from repo" ]]; then
 
-      apt-get install -y qbittorrent-nox
-      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    apt-get install -y qbittorrent-nox
+    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
-  elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
+elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
 
-      apt-get install -y software-properties-common python-software-properties
-      add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
-      apt-get update
-      apt-get install -y qbittorrent-nox
-      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    apt-get install -y software-properties-common python-software-properties
+    add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
+    apt-get update
+    apt-get install -y qbittorrent-nox
+    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
-  else
+else
 
-      # 2018.03.17 我真的是被 qBittorrent 这个依赖给搞烦起来了，索性以后用 iFeral 的方法算了？
+    # 2018.03.17 我真的是被 qBittorrent 这个依赖给搞烦起来了，索性以后用 iFeral 的方法算了？
 
-      # 1. 不需要再安装 libtorrent-rasterbar
-      #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
-      #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
+    # 1. 不需要再安装 libtorrent-rasterbar
+    #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
+    #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
 
-      #### 2018.03.17 Debian 9 下 qBittorrent 4.0 似乎不需要 C++11，所以用 Deluge 编译的 libtorrent 应该是可以的
-      #### 而如果用 Ubuntu 16.04 一般也不会有人去选择编译（如果编译了的话那么 xenial 下无法完成 qb 4.0 的编译）
+    #### 2018.03.17 Debian 9 下 qBittorrent 4.0 似乎不需要 C++11，所以用 Deluge 编译的 libtorrent 应该是可以的
+    #### 而如果用 Ubuntu 16.04 一般也不会有人去选择编译（如果编译了的话那么 xenial 下无法完成 qb 4.0 的编译）
 
-      if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
+    if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
+        apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
 
-          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-          echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
+        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+        echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
 
-      # 2. 需要安装 libtorrent-rasterbar-dev
-      #### 第一个情况，Ubuntu 16.04（$SysQbLT = yes） ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本（$SameLT = Yes），且需要装的 qBittorrent 版本不是 4.0 的
+    # 2. 需要安装 libtorrent-rasterbar-dev
+    #### 第一个情况，Ubuntu 16.04（$SysQbLT = yes） ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本（$SameLT = Yes），且需要装的 qBittorrent 版本不是 4.0 的
 
-      ################ 还有一个情况，Ubuntu 16.04 或者 Debian 9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再用第三个方案编译一次算了……
-      # 2018.02.01 这个情况一般不会出现了，因为我又隐藏了 libtorrent-rasterbar 0.16 分支的选项……
+    ################ 还有一个情况，Ubuntu 16.04 或者 Debian 9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再用第三个方案编译一次算了……
+    # 2018.02.01 这个情况一般不会出现了，因为我又隐藏了 libtorrent-rasterbar 0.16 分支的选项……
 
-      elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
+    elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
 
-          apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev # > /dev/null
+        apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev # > /dev/null
 
-          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-          echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
+        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+        echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
 
-      # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
-      #### Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
-      #### elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
-      #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
+    # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
+    #### Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
+    #### elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
+    #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
 
-      #### 2018.01.26：今天我非常蛋疼地发现，Debian 9 自带的 libtorrent 1.1.1 可能编译 qb 的时候会出问题，所以 Debian 9 还是指定来编译 1.0 的 libtorrent 算了
-      #### 也就是说现在 libtorrent 版本需要是 1.0.6-1.0.11，或 1.1.2 及以上 （？？？）
-      #### https://github.com/qbittorrent/qBittorrent/issues/6197
+    #### 2018.01.26：今天我非常蛋疼地发现，Debian 9 自带的 libtorrent 1.1.1 可能编译 qb 的时候会出问题，所以 Debian 9 还是指定来编译 1.0 的 libtorrent 算了
+    #### 也就是说现在 libtorrent 版本需要是 1.0.6-1.0.11，或 1.1.2 及以上 （？？？）
+    #### https://github.com/qbittorrent/qBittorrent/issues/6197
 
-      #### 2018.02.01：再补充一个需要安装的情况：Ubuntu 16.04 如果想要安装 qb 4.0 及以后的版本，repo 或 Deluge PPA 的 lt 都不行，必须在 C++11 模式下编译 lt
-      #### https://github.com/qbittorrent/qBittorrent/issues/7863
+    #### 2018.02.01：再补充一个需要安装的情况：Ubuntu 16.04 如果想要安装 qb 4.0 及以后的版本，repo 或 Deluge PPA 的 lt 都不行，必须在 C++11 模式下编译 lt
+    #### https://github.com/qbittorrent/qBittorrent/issues/7863
 
-      #### 2018.02.05：如果之前 Deluge 用的是编译的 libtorrent-rasterbar，这里再编译一次的话似乎会冲突……
+    #### 2018.02.05：如果之前 Deluge 用的是编译的 libtorrent-rasterbar，这里再编译一次的话似乎会冲突……
 
-      else
+    else
 
-          apt-get purge -y libtorrent-rasterbar-dev
-          apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
-          cd; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
-          cd libtorrent
-          ./autotool.sh
+        apt-get purge -y libtorrent-rasterbar-dev
+        apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
+        cd; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
+        cd libtorrent
+        ./autotool.sh
 
-          if [[ "$CODENAME" =~ ("jessie"|"stretch") ]]; then
-              ./configure --disable-debug --enable-encryption --with-libgeoip=system
-          else
-              ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
-          fi
+        if [[ "$CODENAME" =~ ("jessie"|"stretch") ]]; then
+          ./configure --disable-debug --enable-encryption --with-libgeoip=system
+        else
+          ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
+        fi
 
-        # [[ $tram -le 1900 ]] && _use_swap
+      # [[ $tram -le 1900 ]] && _use_swap
 
-          make clean
-          make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
-          make install
+        make clean
+        make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
+        make install
 
-        # [[ $tram -le 1900 ]] && _disable_swap
+      # [[ $tram -le 1900 ]] && _disable_swap
 
-#         checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
-          ldconfig
-          echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
+      # checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
+        ldconfig
+        echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
-          echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-          echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
+        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+        echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
 
-      fi
+    fi
 
-      cd; git clone https://github.com/qbittorrent/qBittorrent
-      cd qBittorrent
+    cd; git clone https://github.com/qbittorrent/qBittorrent
+    cd qBittorrent
 
-#     [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
-      QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
-      git checkout release-${QBVERSION}
+#   [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
+    QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
+    git checkout release-${QBVERSION}
 
-      if [[ "${QBPATCH}" == "Yes" ]]; then
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git cherry-pick db3158c
-          git cherry-pick b271fa9
-          git cherry-pick 1ce71fc #IO
-          echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
-      fi
-      
-      ./configure --prefix=/usr --disable-gui
+    if [[ "${QBPATCH}" == "Yes" ]]; then
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git cherry-pick db3158c
+        git cherry-pick b271fa9
+        git cherry-pick 1ce71fc #IO
+        echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
+    fi
+    
+    ./configure --prefix=/usr --disable-gui
 
-      make -j${MAXCPUS} && QBCFail=0 || export QBCFail=1
+    make -j${MAXCPUS} && QBCFail=0 || export QBCFail=1
 
-      if [[ $qb_installed == Yes ]]; then
-          make install && QBCFail=0 || export QBCFail=1
-      else
-#         dpkg -r qbittorrentnox
-          checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
-      fi
+    if [[ $qb_installed == Yes ]]; then
+        make install && QBCFail=0 || export QBCFail=1
+    else
+#       dpkg -r qbittorrentnox
+        checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
+    fi
 
-      mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
+    mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
 #     make install
-      cd;rm -rf libtorrent qBittorrent
-      echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    cd;rm -rf libtorrent qBittorrent
+    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
-  fi ; }
+fi ; }
 
 
 
@@ -1937,34 +1937,35 @@ function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral
 
 function _setqbt() {
 
-      [[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
-#     [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qBittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
-      mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
-      chmod -R 777 /home/${ANUSER}/qbittorrent
-      chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
-      chmod -R 777 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
-      ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
+[[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
+# [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qBittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
+mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
+chmod -R 777 /home/${ANUSER}/qbittorrent
+chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
+chmod -R 777 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
+rm -rf /var/www/qbittorrent.download
+ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
 
-      cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
-      QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
-      sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
-      sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
+sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 
-      if [[ $qb_download == Yes ]]; then
-          cp -f "${local_packages}"/template/systemd/qbittorrent.download.service /etc/systemd/system/qbittorrent.service
-          sed -i "s/VERSION/$QBVERSION/" /etc/systemd/system/qbittorrent.service
-      else
-         #cp -f "${local_packages}"/template/systemd/qbittorrent@.service /etc/systemd/system/qbittorrent@.service
-          cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
-      fi
+if [[ $qb_download == Yes ]]; then
+cp -f "${local_packages}"/template/systemd/qbittorrent.download.service /etc/systemd/system/qbittorrent.service
+sed -i "s/VERSION/$QBVERSION/" /etc/systemd/system/qbittorrent.service
+else
+#cp -f "${local_packages}"/template/systemd/qbittorrent@.service /etc/systemd/system/qbittorrent@.service
+cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
+fi
 
-      systemctl daemon-reload
-      systemctl enable qbittorrent
-      systemctl start qbittorrent
-#     systemctl enable qbittorrent@${ANUSER}
-#     systemctl start qbittorrent@${ANUSER}
+systemctl daemon-reload
+systemctl enable qbittorrent
+systemctl start qbittorrent
+# systemctl enable qbittorrent@${ANUSER}
+# systemctl start qbittorrent@${ANUSER}
 
-      touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
+touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 
 
@@ -2077,49 +2078,47 @@ function _installde() {
 
 function _setde() {
 
-  if [[ ! "${DEVERSION}" == "No" ]]; then
+# [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
+mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
+rm -rf /var/www/transmission.download
+ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
+chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
-#     [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
-      mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
-      ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
-      chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
-      chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
+chmod -R 777 /etc/inexistence/01.Log
 
-      touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
-      chmod -R 777 /etc/inexistence/01.Log
+# mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
+# cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
+mkdir -p /root/.config && cd /root/.config
+[[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
+cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
+tar zxf deluge.config.tar.gz
+chmod -R 777 /root/.config
+rm -rf deluge.config.tar.gz; cd
 
-#     mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
-#     cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
-      mkdir -p /root/.config && cd /root/.config
-      [[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
-      cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
-      tar zxf deluge.config.tar.gz
-      chmod -R 777 /root/.config
-      rm -rf deluge.config.tar.gz; cd
+DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
+echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
+sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf  #/home/${ANUSER}/.config/deluge/core.conf
+sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
+sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
 
-      DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-      DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
-      echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
-      sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf  #/home/${ANUSER}/.config/deluge/core.conf
-      sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
-      sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
+cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
+cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
+# cp -f "${local_packages}"/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
+# cp -f "${local_packages}"/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
 
-      cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
-      cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
-#     cp -f "${local_packages}"/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
-#     cp -f "${local_packages}"/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
+systemctl daemon-reload
+systemctl enable /etc/systemd/system/deluge-web.service
+systemctl enable /etc/systemd/system/deluged.service
+systemctl start deluged
+systemctl start deluge-web
+# systemctl enable {deluged,deluge-web}@${ANUSER}
+# systemctl start {deluged,deluge-web}@${ANUSER}
 
-      systemctl daemon-reload
-      systemctl enable /etc/systemd/system/deluge-web.service
-      systemctl enable /etc/systemd/system/deluged.service
-      systemctl start deluged
-      systemctl start deluge-web
-#     systemctl enable {deluged,deluge-web}@${ANUSER}
-#     systemctl start {deluged,deluge-web}@${ANUSER}
+touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
-      touch /etc/inexistence/01.Log/lock/deluge.lock
-
-  fi ; }
 
 
 
@@ -2294,35 +2293,32 @@ cd ; echo -e "${baizise}\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n${normal}
 
 function _settr() {
 
-if [ ! "${TRVERSION}" == "No" ]; then
+wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
 
-    wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
+# [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
+[[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-#   [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
-    [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
+mkdir -p /home/${ANUSER}/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
+chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+rm -rf /var/www/transmission.download
+ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
 
-    mkdir -p /home/${ANUSER}/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
-    chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
-    chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
-    ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
+cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
+cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
+# cp -f "${local_packages}"/template/systemd/transmission@.service /etc/systemd/system/transmission@.service
+[[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
 
-    cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
-    cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
-#   cp -f "${local_packages}"/template/systemd/transmission@.service /etc/systemd/system/transmission@.service
-    [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
-    
-    sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
-    sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
+sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
+sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
 
-    systemctl daemon-reload
-    systemctl enable transmission
-    systemctl start transmission
-#   systemctl enable transmission@${ANUSER}
-#   systemctl start transmission@${ANUSER}
+systemctl daemon-reload
+systemctl enable transmission
+systemctl start transmission
+# systemctl enable transmission@${ANUSER}
+# systemctl start transmission@${ANUSER}
 
-    touch /etc/inexistence/01.Log/lock/transmission.lock
-
-fi ; }
+touch /etc/inexistence/01.Log/lock/transmission.lock ; }
 
 
 
