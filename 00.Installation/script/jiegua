@@ -2,14 +2,14 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.02.19
+# 2018.03.21
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 disknumber=` df -lh | grep -c "/dev/loop" `
 
 if [[ $disknumber == 0 ]]; then
-    echo -e "\n${red}${bold}错误${white} 看起来你当前并没有挂载什么 ISO 文件${normal}\n"
+    echo -e "\n${red}${bold}错误${jiacu} 看起来你当前并没有挂载什么 ISO 文件${normal}\n"
 else
     echo -e "\n${bold}检测到你当前正挂载着 ${green}${disknumber}${normal}${bold} 张原盘，脚本将会把它们全部解除挂载 ${normal}\n"
     for disk in ` df -lh | grep -Eo "/dev/loop[0-9]+" ` ; do
@@ -18,4 +18,3 @@ else
     done
     echo -e "\n${bold}${green}${disknumber}${normal}${bold} 张原盘已全部解除挂载 ${normal}\n"
 fi
-
