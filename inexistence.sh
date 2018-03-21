@@ -8,7 +8,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180320
+INEXISTENCEDATE=20180321
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
@@ -20,15 +20,6 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 local_packages=/etc/inexistence/00.Installation
-# --------------------------------------------------------------------------------
-# 检查是否以 root 权限运行脚本
-if [[ $EUID != 0 ]]; then
-    echo '${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}'
-    echo ' Exiting...'
-    exit 1
-else
-    echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}"
-fi
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
@@ -237,6 +228,10 @@ ${heibaise}${bold}                                                              
 # --------------------- 系统检查 --------------------- #
 function _intro() {
 
+# 检查是否以 root 权限运行脚本
+if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo "${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}" ; exit 1
+else echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
+
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
 SysSupport=0
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
@@ -322,11 +317,10 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   mkdir -p /usr/lib/virt-what
   wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
   chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
+  virtua=$(virt-what) 2>/dev/null
 
   _check_install_2
   _client_version_check
-
-  virtua=$(virt-what) 2>/dev/null
 
   cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
   cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
@@ -416,10 +410,10 @@ echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailv
 
 function _ask_distro_upgrade() {
 
-[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running Debian 7, which is not supported by this script"
-[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running Ubuntu 14.04, which is not supported by this script"
+[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running ${blue}Debian 7${normal}, which is not supported by this script"
+[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running ${blue}Ubuntu 14.04${normal}, which is not supported by this script"
 # read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+echo -ne "${bold}${yellow}Would you like to upgrade your system to ${green}${UPGRADE_DISTRO}${jiacu}?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
@@ -428,7 +422,7 @@ case $responce in
 esac
 
 if [[ $distro_up == Yes ]]; then
-    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}\n"
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
     _distro_upgrade | tee /etc/00.distro_upgrade.log
 else
     echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
