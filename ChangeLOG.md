@@ -5,12 +5,80 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2018.03.21
 
 `inexistence 0.9.9`  
 1. Code：root 检查在 DeBUG 模式下会跳过，同时修复了非 root 时提示语没有应用色彩样式的问题  
 2. UI：询问是否升级系统处，彩色化系统文字部分  
+3. DeBUG 模式下，跳过对于 root 的检查  
+4. 在 BDinfo 文件夹下创建到 wine DVDFab10 BDinfo 的软链  
 
+`Blu-ray 2.3.3.3`  
+1. **New Feature：检查 pathtostuff 下是否有 ISO 存在**  
+主要应对首发原盘的情况  
+2. DeBUG Mode：补充了一些输出信息，调整界面  
+3. **UI：${white}→${jiacu}**  
+4. 有多余文件的情况下默认选择不复制  
+5. Bug Fix：优化判断 main_m2ts 的逻辑，只选择 m2ts 文件  
+因为发现如果是 MGVC 的 BDISO，挂载了以后最大的可能是 bin 文件而不是 m2ts  
+6. Bug Fix：file_title_clean 去除斜杠，同时修复 BDinfo 命名问题  
+
+### Blu-ray MGVC
+这次对于比较少见的 MGVC 做了下测试，做个“测评报告”  
+1. 首先发现了之前判断 main_m2ts 的逻辑有问题，已修复  
+2. BDinfoCLI 扫出来的信息总体和 DVDFab 一致，只是 DiscSize 那边大概是两倍左右的体积（不过 DVDFab 其实是扫直接扫 BDISO 而不是 BDMV 的）  
+3. DVDFab 也不会显示 MGVC 相关的特殊信息，可能只有松下的机器才能认出来？  
+4. 是否需要考虑针对 MGVC 原盘，默认选择不重新做种？（靠检测里面是否有 KDM 文件夹？）  
+
+`MinGLiNG 0.8.5`  
+1. **UI：${white}→${jiacu}**  
+2. 对于多个 CPU 可以显示正确的核心数量，并显示是双路、四路还是八路  
+3. Code：去掉部分变量用到的双引号和大括号  
+4. TuCao：其实都是同步 `inexistence` 的改动而已  
+5. DeBUG，还没正式写入，只是先复制粘贴一下  
+
+`BDjieTU`  
+1. 其实这个已经不用了，不过顺手更新下也不难  
+2. UI：${white}→${jiacu}  
+3. 增加署名  
+4. Bug Fix：优化判断 main_m2ts 的逻辑，只选择 m2ts 文件  
+5. Bug Fix：file_title_clean 去除斜杠  
+6. Code：简化写法  
+7. New Feature：自动根据时长确定截图时间间隔  
+8. 分辨率还是用以前的 1920x1080 算了  
+
+`TCP 1.1.0`  
+1. **New Feature：可安装自定义内核及其头文件**  
+不过似乎 4.15 的头文件装不上……  
+2. UI：调整  
+
+`BDinfo`  
+1. UI：${white}→${jiacu}  
+2. Author & Date  
+3. Bug Fix：file_title_clean 去除斜杠，同时修复 BDinfo 命名问题  
+
+`xianSu`  
+1. UI：${white}→${jiacu}  
+2. Author & Date  
+
+`GuaZAI`  
+1. UI：${white}→${jiacu}  
+
+`JiEGuA`  
+1. UI：${white}→${jiacu}  
 
 
 
@@ -26,7 +94,6 @@
 同时修改了下 virt-what 脚本的输出  
 3. Code：提前了 root 检查部分，以及缩进调整  
 4. 对于多个 CPU 可以显示正确的核心数量，并显示是双路、四路还是八路  
-
 
 
 
