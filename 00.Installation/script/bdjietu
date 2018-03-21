@@ -1,42 +1,52 @@
 #!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+# 2018.03.21
+
 # Only used for 1080p BDMV screenshots
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
-magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
+magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0) ; jiacu=${normal}${bold}
 bdmvpath=`echo "$1"`
 
-if [[ "$bdmvpath" == "" ]]; then
-    echo; echo "${red}${bold}WARNING${white} You must input the path to BDMV with double quotes"; echo
-    exit 1
-fi
+[[ "$bdmvpath" == "" ]] && { echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to BDMV with double quotes\n" ; exit 1 ; }
+[[ ! -d "$bdmvpath"  ]] && { echo -e "\n${red}${bold}WARNING${jiacu} Only BDMV is supported. If you want to take screenshots from a BDISO, you need to mount that ISO to a folder first\n" ; exit 1 ; }
 
-if [[ ! -d "$bdmvpath" ]]; then
-    echo; echo "${red}${bold}WARNING${white} Only BDMV is supported. If you want to take screenshots from BDISO, you should mount the ISO to a folder first"; echo
-    exit 1
-fi
 
 fenbianlv=1920x1080
-tempvar=$(find "$bdmvpath" -type f -print0 | xargs -0 ls -1S)
-main_m2ts_path=$(echo "$tempvar" | head -n 1)
+main_m2ts_path=$(  find "$bdpath" -name "*.m2ts" -print0 | xargs -0 ls -1S | head -n1  )
 file_title=`basename "$bdmvpath"`
 file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
+file_title_clean="`   echo "$file_title_clean" | sed 's/\//\./'   `"
+
+duration1=$(  ffmpeg -i "$main_m2ts_path" 2>&1 | egrep '(Duration:)' | cut -d ' ' -f4 | cut -c1-8  )
+duration2=`  date -u -d "1970-01-01 $duration1" +%s  `
+
+# 确定截图时间间隔
+if [[ "${duration2}" -ge 3600 ]]; then
+    timestampsetting=331
+elif [[ "${duration2}" -ge 1500 && "${duration2}" -lt 3600 ]]; then
+    timestampsetting=121
+elif [[ "${duration2}" -ge 600 && "${duration2}" -lt 1500 ]]; then
+    timestampsetting=71
+elif [[ "${duration2}" -lt 600 ]]; then
+    timestampsetting=21
+fi
 
 mkdir -p "/etc/inexistence/07.Screenshots"
 outputpath="/etc/inexistence/07.Screenshots"
 echo
 
 # 截图
-for c in {01..10}
-    do
-    i=`expr $i + 66`
+for c in {01..10}; do
+    i=`expr $i + $timestampsetting`
     timestamp=`date -u -d @$i +%H:%M:%S`
-    ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
+    ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
     echo "Writing ${cyan}${file_title_clean}.scr${c}.png${white} from timestamp ${cyan}${timestamp}${white}"
 done
 
-echo
-echo -e "${bold}Done. The screenshots are stored in ${yellow}\"${outputpath}\"${normal}"
-echo
+echo -e "\n${bold}Done. The screenshots are stored in ${yellow}\"${outputpath}\"${normal}\n"
