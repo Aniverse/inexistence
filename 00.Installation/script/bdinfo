@@ -1,7 +1,9 @@
 #!/bin/bash
+# Aniverse
+# 2018.03.21
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
-magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
+magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0) ; jiacu=${normal}${bold}
 
 [[ -e `command -v lolcat` ]] && lolcat=Yes
 [[ -e `command -v mono` ]] && mono=Yes
@@ -17,12 +19,12 @@ if [[ ! -e $bdinfocli_path ]]; then
 fi
 
 if [[ ! $mono == Yes  ]]; then
-    echo; echo "${bold}${red}警告 ${white}未检测到 mono，因此无法扫描 BDinfo ...${normal}"; echo
+    echo; echo "${bold}${red}警告 ${jiacu}未检测到 mono，因此无法扫描 BDinfo ...${normal}"; echo
     exit 1
 fi
 
 if [[ $1 == ""  ]] || [[ ! -d $1 ]]; then
-    echo; echo "${bold}${red}警告 ${white}你必须输入一个到 BDMV 的路径。如果路径里带空格的话还需要加上双引号${normal}"; echo
+    echo; echo "${bold}${red}警告 ${jiacu}你必须输入一个到 BDMV 的路径。如果路径里带空格的话还需要加上双引号${normal}"; echo
     exit 1
 fi
 
@@ -32,6 +34,7 @@ file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
+file_title_clean="`   echo "$file_title_clean" | sed 's/\//\./'   `"
 
 echo;echo
 mono $bdinfocli_path "$bdmvpath" $outputpath
@@ -53,7 +56,7 @@ mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/${file_title_clean}.b
 clear
 echo -e "${bold}扫描完成。生成的 BDinfo 报告存放在 ${blue}\"${outputpath}\"${normal}"
 echo
-echo -ne "${yellow}${bold}是否需要在 SSH 上显示 BDinfo Quick Summary ? 你可以直接从 SSH 上复制 BDinfo，无需下载回本地 ${white} [${green}Y${white}]es or [N]o: ${normal}"; read responce
+echo -ne "${yellow}${bold}是否需要在 SSH 上显示 BDinfo Quick Summary ? 你可以直接从 SSH 上复制 BDinfo，无需下载回本地 ${normal} [${green}Y${normal}]es or [N]o: ${normal}"; read responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) showbdinfo=Yes ;;
