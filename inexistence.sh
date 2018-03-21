@@ -410,10 +410,10 @@ echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailv
 
 function _ask_distro_upgrade() {
 
-[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running ${blue}Debian 7${normal}, which is not supported by this script"
-[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running ${blue}Ubuntu 14.04${normal}, which is not supported by this script"
+[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running ${cyan}${bold}Debian 7${normal}, which is not supported by this script"
+[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running ${cyan}${bold}Ubuntu 14.04${normal}, which is not supported by this script"
 # read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-echo -ne "${bold}${yellow}Would you like to upgrade your system to ${green}${UPGRADE_DISTRO}${jiacu}?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}? ${normal}[${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
