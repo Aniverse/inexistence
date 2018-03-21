@@ -2,9 +2,9 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.02.19
+# 2018.03.21
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 # 名称转换、挂载
 function _file() {
@@ -17,7 +17,7 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 mkdir -p "/etc/inexistence/06.BluRay/$file_title_clean"
 bdpath="/etc/inexistence/06.BluRay/$file_title_clean"
 mount -o loop "$bdisopath" "$bdpath" >/dev/null 2>&1
-echo -e "${white}已将 ${cyan}$disk${white} 以只读模式挂载到 ${cyan}$bdpath${white}" ; }
+echo -e "${normal}已将 ${cyan}$disk${normal} 以只读模式挂载到 ${cyan}$bdpath${normal}" ; }
 
 
 # 多文件的操作
@@ -25,7 +25,7 @@ function _multi() {
 ALLISO=` ls | tr " " "\n" | grep -Eo ".*\.[Ii][Ss][Oo]\>" `
 ISONum=` ls | tr " " "\n" | grep -c ".*\.[Ii][Ss][Oo]\>" `
 if [[ $ISONum == 0 ]]; then
-    echo -e "${bold}${red}错误${white} ${words}路径下不存在 ISO 文件，退出脚本 ...${normal}\n"
+    echo -e "${bold}${red}错误${jiacu} ${words}路径下不存在 ISO 文件，退出脚本 ...${normal}\n"
     exit 1
 else
 echo -e "${bold}${words}路径下有 ${green}${ISONum}${normal}${bold} 个 ISO 文件，开始挂载 ...${normal}\n"
@@ -49,7 +49,7 @@ elif [[ -e "$1" ]] && [[ ! -d "$1" ]]; then
     bdisopath=`echo "$1"` ; disk=`echo "$1"`
     _file && echo
 elif [[ ! -e "$1" ]]; then
-    echo -e "\n${bold}${red}错误${white} 该文件或路径不存在，请重新输入！${normal}\n"
+    echo -e "\n${bold}${red}错误${jiacu} 该文件或路径不存在，请重新输入！${normal}\n"
     exit 0
 fi
 
