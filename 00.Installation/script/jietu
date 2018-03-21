@@ -2,7 +2,7 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.02.19
+# 2018.03.21
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -14,15 +14,15 @@ OUTPUT="/replace/here/with/your/output/path"
 
 
 # Colors
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul)
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 mediapath=`echo "$1"`; fenbianlv=`echo "$2"`
 
-[[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${white} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
-[[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${white} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
-[[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${white} Please edit this script to set output path first\n${normal}" && exit 1
+[[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
 
-[[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${white} You must input the path to your file with double quotes\n${normal}" && exit 1
+[[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
 [[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` && echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nThat file is ${underline}${mediapath}${reset_underline}\n${normal}"
 file_title=`basename "$mediapath"`
 file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
@@ -66,13 +66,13 @@ fi
 # Screenshots
 for c in {01..10} ; do
     i=`expr $i + $timestampsetting` ; timestamp=`date -u -d @$i +%H:%M:%S`
-    echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${white} from timestamp ${blue}${timestamp}${white} ...  "
+    echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${normal} from timestamp ${blue}${timestamp}${normal} ...  "
     ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
     echo -e "${green}DONE${normal}"
 done
 
 # mediainfo
-echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${white} ...  "
+echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo -e "${green}DONE${normal}"
