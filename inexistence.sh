@@ -1580,6 +1580,10 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 mkdir -p /var/www
 
+# For Wine DVDFab10
+mkdir -p /root/Documents/DVDFab10/BDInfo
+ln -s /root/Documents/DVDFab10/BDInfo /etc/inexistence/08.BDinfo/DVDFab
+
 ln -s /etc/inexistence /var/www/inexistence
 ln -s /etc/inexistence /home/${ANUSER}/inexistence
 cp -f "${local_packages}"/script/* /usr/local/bin ; }
