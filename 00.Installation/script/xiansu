@@ -1,5 +1,7 @@
 #!/bin/bash
-# Aniverse
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
 # 2018.03.21
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3)
