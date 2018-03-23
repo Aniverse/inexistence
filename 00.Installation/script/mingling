@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-mingling=0.8.5
-UPDATE=2018.03.22
+mingling=0.8.6
+UPDATE=2018.03.23
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -109,7 +109,7 @@ echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}检查公网 IPv4 地址失败，使用内网地址代替 ...${normal}" ; serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ; }
 
   serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
 # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
@@ -227,7 +227,7 @@ esac ; }
 # 01. 查看 SSH 命令
 function _usage() { 
 clear ; echo
-                                                        if [[ $inexistence == Yes ]] && [[ $tweaks == Yes ]]; then
+                                                                if [[ $inexistence == Yes ]] && [[ $tweaks == Yes ]]; then
 echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
 echo -e " ${bold}"
 echo -e " ${green}qba${jiacu} = 运行 qBittorrent-nox  ${green}dea${jiacu} = 运行 Deluged  ${green}dewa${jiacu} = 运行 Deluge WebUI  ${green}rta${jiacu} = 运行 rTorrent"
@@ -245,9 +245,11 @@ echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录  
 echo -e " ${green}cdrt${jiacu}  = 切换目录到   rTorrent   的下载目录   ${green}ruisuc${jiacu} = 检查锐速   ${green}shanchu${jiacu}  = rm -rf，删除     "
 echo -e " ${green}cdtr${jiacu}  = 切换目录到 Transmission 的下载目录   ${green}ruisur${jiacu} = 重启锐速   ${green}quanxian${jiacu} = 递归赋予 777 权限"
 echo
-echo -e " ${green}cesu ${jiacu} = 进行网速测试，Speedtest            ${green}anzhuang${jiacu} = apt-get install ，安装"
-echo -e " ${green}cesu2${jiacu} = 指定节点进行网速测试                    ${green}top${jiacu} = 查看系统运行状况，按 q 退出"
-echo -e " ${green}cesu3${jiacu} = 显示延迟最低的30个测速节点              ${green}ios${jiacu} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
+echo -e " ${green}cesu ${jiacu} = 进行网速测试，Speedtest              ${green}yongle${jiacu} = 后接一个目录，查看该目录用了多少硬盘空间"
+echo -e " ${green}cesu2${jiacu} = 指定节点进行网速测试                 ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能，按 q 退出"
+echo -e " ${green}cesu3${jiacu} = 显示离本机最近的30个测速节点            ${green}ios${jiacu} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
+echo -e " ${green}sshr ${jiacu} = 开启 SSH root 登陆                      ${green}vns${jiacu} = 查看当前网速情况，按 Ctrl+C 退出"
+echo -e " ${green}cronr${jiacu} = 重启 cron                               ${green}vms${jiacu} = 查看当前内存、CPU、IO 状况"
 echo
 # echo -e " ${blue}mingling${jiacu}  盒子操作脚本，也就是你现在正在用的这个脚本"
 # echo
@@ -255,11 +257,11 @@ echo -e " ${blue}xiansu${jiacu}    限制盒子全局上传速度的脚本，适
 echo
 echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
 echo
-echo -e " ${blue}bluray${jiacu}    转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
-echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
-echo
 echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
 echo -e "           ${yellow}guazai ${underline}\"/root/Pitch.Perfect.3.2017.BluRay.1080p.AVC.DTS-HD.MA7.1-CHDBits.iso\"${reset_underline}"
+echo
+echo -e " ${blue}bluray${jiacu}    转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
+echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
 echo
 echo -e " ${blue}bdinfo${jiacu}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
 echo -e "           ${yellow}bdinfo ${underline}\"/mnt/Looper.2012.1080p.POL.Blu-ray.AVC.DTS-HD.MA.5.1-DVDSEED\"${reset_underline}"
@@ -272,7 +274,7 @@ echo -e "           ${yellow}jietu  ${underline}\"/home/shiro/Frantz 2016 720p B
 echo -e " ${blue}     ${jiacu}     也可以只输入文件夹，脚本会选择其中最大的文件进行截图，并自动计算及使用 DAR 后的分辨率"
 echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
 echo -e " ${normal}"
-                                                                                    else
+                                                                                            else
 echo -e "${bold}由于你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
 echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
 echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
@@ -286,11 +288,11 @@ function _showurl() { clear ; echo
 if [[ $inexistence == Yes ]]; then
     echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal}\n"
     echo -e "${bold}---------------------------------------------------------------------------------------------------\n"
-    [[ ! "${qb_installed}" == "No" ]] && echo -e " ${cyan}qBittorrent WebUI${jiacu}    http://${serveripv4}:2017"
-    [[ ! "${de_installed}" == "No" ]] && echo -e " ${cyan}Deluge WebUI${jiacu}         http://${serveripv4}:8112"
-    [[ ! "${tr_installed}" == "No" ]] && echo -e " ${cyan}Transmission WebUI${jiacu}   http://${serveripv4}:9099"
-    [[ ! "${rt_installed}" == "No" ]] && echo -e " ${cyan}RuTorrent${jiacu}            https://${serveripv4}/rutorrent"
-    [[ ! "${flex_installed}" == "No" ]] && echo -e " ${cyan}Flexget WebUI${jiacu}        http://${serveripv4}:6566"
+    [[ ! $qb_installed == No ]] && echo -e " ${cyan}qBittorrent WebUI${jiacu}    http://${serveripv4}:2017"
+    [[ ! $de_installed == No ]] && echo -e " ${cyan}Deluge WebUI${jiacu}         http://${serveripv4}:8112"
+    [[ ! $tr_installed == No ]] && echo -e " ${cyan}Transmission WebUI${jiacu}   http://${serveripv4}:9099"
+    [[ ! $rt_installed == No ]] && echo -e " ${cyan}RuTorrent${jiacu}            https://${serveripv4}/rutorrent"
+    [[ ! $flex_installed == No ]] && echo -e " ${cyan}Flexget WebUI${jiacu}        http://${serveripv4}:6566"
 #   echo -e " ${cyan}MkTorrent WebUI${jiacu}      https://${serveripv4}/mktorrent"
     echo -e "\n---------------------------------------------------------------------------------------------------${normal}"
 else
@@ -323,7 +325,7 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
   echo -e  "${bold}  CPU 型号    : ${cyan}$CPUNum$cname${normal}"
   echo -e  "${bold}  CPU 核心    : ${cyan}${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
   echo -e  "${bold}  CPU 状态    : ${cyan}${freq} MHz, ${cpu_percent}% Utilization${normal}"
-  echo -e  "${bold}  硬盘大小    : ${cyan}$disk_total_size GB ($disk_used_size GB Used) ($root_usage)${normal}"
+  echo -e  "${bold}  硬盘大小    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
 
   [[ $disk_time ]] &&
   echo -e  "${bold}  硬盘通电    : ${cyan}$disk_time Hours${normal}"
@@ -339,7 +341,7 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
   if [[ $virtua ]]; then
       echo -e "${cyan}$virtua${normal}"
   else
-      echo -e "${cyan}无虚拟化 (比如独服)${normal}"
+      echo -e "${cyan}未检测到虚拟化${normal}"
   fi
 
   echo -e  "${bold}  IPv4 地址   : ${cyan}$serveripv4${normal}"
@@ -531,8 +533,8 @@ case $response in
              clear ; echo -e "安装 V2Ray ...\n"
              bash -c "$( curl -fsSL https://raw.githubusercontent.com/tracyone/v2ray.fun/master/install.sh )" ;;
     05 |  5) # 重装 系统
-           # bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh )"
-             echo -e "\n施工中 ...\n" ; _main_menu ; _xunwen1; _scripts_menu_response ;;
+             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh )" ;;
+#            echo -e "\n施工中 ...\n" ; _main_menu ; _xunwen1; _scripts_menu_response ;;
     06 |  6) # 运行 Bench
              clear ; echo -e "运行 Bench ...\n"
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
