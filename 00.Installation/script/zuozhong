@@ -1,14 +1,17 @@
 #!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+# 2018.03.23
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
-magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0)
+magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); jiacu=${normal}${bold}
 
 if [[ $1 == ""  ]]; then
-    echo; echo "${red}${bold}WARNING${white} You must input the path to your file with double quotes${normal}"; echo
+    echo; echo "${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes${normal}"; echo
     exit 1
 fi
 
-starttime=$(date +%s)
 outputpath="/etc/inexistence/09.Torrents"
 mkdir -p $outputpath
 
@@ -18,6 +21,37 @@ file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
+file_title_clean="`   echo "$file_title_clean" | sed 's/\//\./'   `"
+
+# 询问 Tracker
+echo -e "
+01) ${cyan}Create a new torrent with empty announce${normal}
+02) ${cyan}Create a new torrent and specify an announce${normal}
+03) ${cyan}Create a new torrent for HD-Torrents${normal}
+04) ${cyan}Create a new torrent for public trackers${normal}"
+echo -ne "${yellow}${bold}Which tracker would you like to use?${normal} (Default: ${cyan}01${normal}) "; read -e responce
+
+case $responce in
+    01 | 1 ) newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ;;
+    02 | 2 ) newtorrent=Yes2 ; _input_announce ;;
+    03 | 3 ) newtorrent=Yes3 ; ANNOUNCE="-a http://hdts-announce.ru/announce.php" ;;
+    04 | 4 ) newtorrent=Yes8 ;;
+    "" | * ) newtorrent=Yes; ANNOUNCE="-a \"\"" ;;
+esac
+
+if [[ $newtorrent == Yes1 ]]; then
+    newtorrent=Yes ; echo -e "The script will create a new torrent with empty announce"
+elif [[ $newtorrent == Yes2 ]]; then
+    newtorrent=Yes ; echo -e "The script will create a new torrent with the announce you input"
+elif [[ $newtorrent == Yes3 ]]; then
+    newtorrent=Yes ; echo -e "The script will create a new torrent with HD-Torrents' announce"
+elif [[ $newtorrent == Yes8 ]]; then
+    newtorrent=Yes ; echo -e "The script will create a new torrent with public trackers' announce"
+    ANNOUNCE="-a udp://tracker.coppersurfer.tk:6969/announce -a http://open.kickasstracker.com:80/announce -a http://bt.dl1234.com:80/announce  -a udp://tracker.safe.moe:6969/announce -a udp://9.rarbg.to:2710/announce -a udp://tracker.piratepublic.com:1337/announce -a http://tracker.opentrackr.org:1337/announce -a http://retracker.telecom.by:80/announce -a https://open.acgnxtracker.com:443/announce -a udp://tracker.xku.tv:6969/announce -a udp://thetracker.org:80/announce -a udp://bt.xxx-tracker.com:2710/announce -a http://0d.kebhana.mx:443/announce -a http://share.camoe.cn:8080/announce -a udp://inferno.demonoid.pw:3418/announce -a udp://tracker.cypherpunks.ru:6969/announce"
+fi
+
+echo
+starttime=$(date +%s)
 
 mktorrent -v -p -l 24 -a "" -o "${outputpath}/$file_title_clean.torrent" "$filepath"
 if [ ! $? -eq 0 ];then exit 1; else
