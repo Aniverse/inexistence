@@ -149,19 +149,22 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 - **Flexget 模板**  
 补充更多的站点预设  
 - **MiMA**  
-修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent 的密码的脚本  
+修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 的密码的脚本  
 - **加入脚本参数**  
 比如 `bash inexistence -u username -p password --d 1.3.15 --r 0.9.6 --q 4.0.3 --tr 2.93`  
+- **检查安装完成后客户端是否正在运行**  
 
 #### Under Consideration
 
-- **检查安装完成后客户端是否正在运行**  
+- **Timer**  
+定时器？  
 - **不使用 root 运行**  
 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
 
+
 #### Known Issues
 
-- **VNC 可能连不上**  
+- **Debian 下 VNC 可能连不上**  
 求大佬们赐教  
 - **有时候 rTorrent 或 ruTorrent 会有一些问题**  
 最糟的情况是 rTorrent 没装成功，稍好一点的情况是 rut 连不上 rt，再好一点的情况是某些插件不能使用  
@@ -171,15 +174,6 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 
 
 ## mingling
-
-#### Usage
-```
-wget -qO /usr/local/bin/mingling https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/mingling  
-chmod +x /usr/local/bin/mingling  
-mingling  
-```
-
-#### Intro
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
 此外有些功能还没做完  
@@ -296,12 +290,11 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
 inexistence 自带 bluray，不过不包括它的软件库  
-（然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、image、mono、imagemagick）  
-
-
-还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
+（然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、mono、imagemagick）  
 
 ## Something else
+
+还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 
 1. 我不想回答 README 中已包含答案的问题  
 2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
