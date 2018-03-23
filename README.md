@@ -173,6 +173,17 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 什么时候学好了正则再说  
 
 
+
+
+
+
+
+
+
+
+
+
+
 ## mingling
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
@@ -192,7 +203,21 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 #### Known Issues
 
 #### To Do List
-- 完善说明文档  
+- **自动检查脚本是否存在更新？**  
+考虑到新版本和老版本可能不适配，这个不一定会做  
+- **完善说明文档**  
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## BDinfo
@@ -213,6 +238,11 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
 
+
+
+
+
+
 ## IPv6
 
 用于配置 IPv6 的脚本  
@@ -229,6 +259,12 @@ bash ipv6 enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
 
 
+
+
+
+
+
+
 ## xiansu
 
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
@@ -242,6 +278,12 @@ xiansu eth0 300
 ```
 
 ![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
+
+
+
+
+
+
 
 
 ## jietu
@@ -261,6 +303,12 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
 
 
+
+
+
+
+
+
 ## guazai
 
 用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此需要 root 权限才能运行  
@@ -277,6 +325,11 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 直接输入 `guazai`，会在当前目录下寻找 ISO 挂载  
 
 
+
+
+
+
+
 ## jiegua
 
 解除挂载用的脚本，会把能检测到的所有已挂载的 ISO 全部解除挂载
@@ -286,11 +339,23 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 `guazai` + `jietu` + `jiegua` 三连
 
 
+
+
+
+
+
+
 ## Blu-ray
 
 关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
 inexistence 自带 bluray，不过不包括它的软件库  
 （然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、mono、imagemagick）  
+
+
+
+
+
+
 
 ## Something else
 
