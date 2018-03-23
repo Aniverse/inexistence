@@ -8,13 +8,13 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180321
+INEXISTENCEDATE=20180323
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; ANPASS=blackshiro233 ; SYSTEMCHECK=0 ; UseTweaks=Yes
-    aptsources=Yes ; MAXCPUS=$(nproc) ; InsBBR=No
+    ANUSER=aniverse ; ANPASS=blackshiro ; SYSTEMCHECK=0 ; UseTweaks=Yes
+    aptsources=Yes  ; MAXCPUS=$(nproc)  ; InsBBR=No
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -280,7 +280,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" && serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ; }
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
@@ -301,8 +301,8 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # RELEASE=$(lsb_release -rs)
 # CODENAME=$(lsb_release -cs)
 # SETNAME=$(lsb_release -rc)
-  arch=$( uname -m )
-  lbit=$( getconf LONG_BIT )
+  arch=$( uname -m ) # 架构，可以识别 ARM
+  lbit=$( getconf LONG_BIT ) # 只显示多少位，无法识别 ARM
 # relno=$(lsb_release -sr | cut -d. -f1)
   kern=$( uname -r )
   kv1=$(uname -r | cut  -d. -f1)
@@ -636,16 +636,16 @@ if [[ $USESWAP = "" ]] && [[ $tram -le 1926 ]]; then
 
     echo -e  "${bold}${red}Note that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
 #   read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
-    echo -ne "${bold}${yellow}Would you like to use swap to +1s when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+    echo -ne "${bold}${yellow}Would you like to use swap when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
     case $responce in
         [yY] | [yY][Ee][Ss] | "") USESWAP=Yes ;;
         [nN] | [nN][Oo]         ) USESWAP=No  ;;
-        *) USESWAP=Yes ;;
+        *                       ) USESWAP=Yes ;;
     esac
 
     if [[ $USESWAP == Yes ]]; then
-        echo -e "${bold}${baiqingse}1GB Swap${normal} will be used"
+        echo -e "${bold}${baiqingse} 1GB Swap ${normal} will be used"
     else
         echo -e "${bold}Swap will not be used${normal}"
     fi
@@ -1443,14 +1443,14 @@ timeused=$(( $endtime - $starttime ))
 if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
     timeusedmin=$(expr $timeused / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "${baiqingse}${bold}The installation took about ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "${baiqingse}${bold}The $timeWORK took about ${timeusedmin} min ${timeusedsec} sec${normal}"
 elif [[ $timeused -ge 3600 ]]; then
     timeusedhour=$(expr $timeused / 3600)
     timeusedmin=$(expr $(expr $timeused % 3600) / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "The installation took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "The $timeWORK took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
-    echo -e "${baiqingse}${bold}The installation took about ${timeused} sec${normal}"
+    echo -e "${baiqingse}${bold}The $timeWORK took about ${timeused} sec${normal}"
 fi ; }
 
 
@@ -1681,6 +1681,7 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
+timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
 [[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
@@ -2769,7 +2770,7 @@ alias cesu="echo;spdtest --share;echo"
 alias cesu2="echo;spdtest --share --server"
 alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
 alias ios="iostat -dxm 1"
-alias vms="vmstat 3 10"
+alias vms="vmstat 1 10"
 alias vns="vnstat -l -i $wangka"
 
 alias sousuo1="find / -name"
@@ -2911,6 +2912,7 @@ echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 echo '-----------------------------------------------------------'
 echo
 
+timeWORK=installation
 _time
 
     if [[ $INSFAILED == 1 ]]; then
