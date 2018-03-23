@@ -18,6 +18,62 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2018.03.23
+
+`inexistence 0.9.9`  
+1. Code：DeBUG 密码、其他微调  
+2. Bug fix：修复公网 IPv4 地址未检测到那边 `||` 和 `&&` 没用对的情况  
+虽然我还从来没碰到过会触发这个 bug 的情况  
+3. Output：升级的话显示 upgradation 花了多少时间，而不是 installation  
+4. Alias：`vms` 改成 1 秒更新 1 次  
+
+`MinGLiNG 0.8.6`  
+1. 启用 systemreinstall  
+虽然我还没写好……    
+2. Usage：更新部分 alias
+vns, iotest, vms, yongle, sshr, cronr  
+3. Code：写法微调  
+
+`README 0.7.9`  
+1. Under Consideration 那一块  
+2. 去掉 mingling 的 usage  
+4. 加了一堆空格，写的时候看上去舒服点，GitHub 上也看不出来因为会吞掉  
+3. 其他微调  
+
+`zuozhong`  
+1. 增加署名  
+2. 从 `bluray` 那同步关于 tracker 的代码  
+
+
+
+
+
 ## 2018.03.21
 
 `inexistence 0.9.9`  
@@ -37,7 +93,7 @@
 6. Bug Fix：file_title_clean 去除斜杠，同时修复 BDinfo 命名问题  
 
 ### Blu-ray MGVC
-这次对于比较少见的 MGVC 做了下测试，做个“测评报告”  
+这次对于比较少见的 MGVC 做了下测试，在此做个“测评报告”  
 1. 首先发现了之前判断 main_m2ts 的逻辑有问题，已修复  
 2. BDinfoCLI 扫出来的信息总体和 DVDFab 一致，只是 DiscSize 那边大概是两倍左右的体积（不过 DVDFab 其实是扫直接扫 BDISO 而不是 BDMV 的）  
 3. DVDFab 也不会显示 MGVC 相关的特殊信息，可能只有松下的机器才能认出来？  
