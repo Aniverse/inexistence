@@ -3,12 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
+#PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+#export PATH
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180323
+INEXISTENCEDATE=20180324
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
@@ -2067,7 +2069,7 @@ rm -rf deluge.config.tar.gz; cd
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
-echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
+echo "${ANUSER}:${ANPASS}:10" >> /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
 sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf  #/home/${ANUSER}/.config/deluge/core.conf
 sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
 sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
