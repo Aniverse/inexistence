@@ -95,7 +95,7 @@ function _check_install_1(){
 
 function _check_install_2(){
 for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
-    client_name=$apps; _check_install_1
+    client_name=$apps ; _check_install_1
 done ; }
 
 function _client_version_check(){
@@ -989,6 +989,8 @@ echo ; }
 function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
+
+    echo "暂时不要用本脚本装rt，我正在改，你现在用不了的"
 
     [[ ! $CODENAME == stretch ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.3${normal}" &&
