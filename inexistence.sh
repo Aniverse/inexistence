@@ -1044,14 +1044,15 @@ function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
 
-    echo "暂时不要用本脚本装rt，我正在改，你现在用不了的\n Please do NOT use this script to install rtorrent for now"
-
     [[ ! $CODENAME == stretch ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
     echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
-    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}05)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal}" &&
+    echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
+    echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
+    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
@@ -1062,12 +1063,12 @@ while [[ $RTVERSION = "" ]]; do
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
-        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}05${normal}): " ; read -e version
+        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
-            05 | 5) RTVERSION=0.9.6 ;;
+            14) RTVERSION='0.9.4 IPv6 supported' ;;
             99) RTVERSION=No ;;
-            "" | *) RTVERSION=0.9.6 ;;
+            "" | *) RTVERSION='0.9.4 IPv6 supported' ;;
         esac
 
     else
@@ -1079,8 +1080,11 @@ while [[ $RTVERSION = "" ]]; do
             01 | 1) RTVERSION=0.9.2 ;;
             02 | 2) RTVERSION=0.9.3 ;;
             03 | 3) RTVERSION=0.9.4 ;;
-            04 | 4) RTVERSION='0.9.4 IPv6 supported' ;;
-            05 | 5) RTVERSION=0.9.6 ;;
+            04 | 4) RTVERSION=0.9.6 ;;
+            11) RTVERSION='0.9.2 IPv6 supported' ;;
+            12) RTVERSION='0.9.3 IPv6 supported' ;;
+            13) RTVERSION='0.9.4 IPv6 supported' ;;
+            14) RTVERSION='0.9.6 IPv6 supported' ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.4 ;;
         esac
@@ -1089,6 +1093,9 @@ while [[ $RTVERSION = "" ]]; do
 
 done
 
+[[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i
+RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
+
 if [[ $RTVERSION == No ]]; then
 
     echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
@@ -1096,11 +1103,11 @@ if [[ $RTVERSION == No ]]; then
 
 else
 
-    if [[ $RTVERSION == "0.9.4 IPv6 supported" ]]; then
+    if [[ `echo $RTVERSION | grep IPv6 | grep -Eo 0.9.[234]` ]]; then
 
-        echo "${bold}${baiqingse}rTorrent 0.9.4 (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
+        echo "${bold}${baiqingse}rTorrent $RTVERSIONIns (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
 
-    elif [[ $RTVERSION == 0.9.6 ]]; then
+    elif [[ $RTVERSION == '0.9.4 IPv6 supported' ]]; then
 
         echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
 
@@ -2158,9 +2165,7 @@ function _installrt() {
 
 bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
-[[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i
-RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
-[[ $DeBUG == 1 ]] && echo $IPv6Opt && echo $RTVERSIONIns
+# [[ $DeBUG == 1 ]] && echo $IPv6Opt && echo $RTVERSIONIns
 
 if [[ $rt_installed == Yes ]]; then
     rtupdate $IPv6Opt $RTVERSIONIns
