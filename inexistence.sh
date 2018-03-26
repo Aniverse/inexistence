@@ -25,7 +25,7 @@ while true; do
   case "$1" in
     -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
     -p | --password ) ANPASS="$2"       ; shift ; shift ;;
-    --de            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && DEVERSION="$x"    ; shift ; shift ;;
+    --de            ) { [[ $2 == ppa ]] && DEVERSION='Install from PPA' ; [[ $2 == repo ]] && DEVERSION='Install from repo' ; }    ; shift ; shift ;;
     --delt          ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && DELTVERSION="$x"  ; shift ; shift ;;
     --qb            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && QBVERSION="$x"    ; shift ; shift ;;
     --rt            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && RTVERSION="$x"    ; shift ; shift ;;
@@ -1464,8 +1464,8 @@ while [[ $UseTweaks = "" ]]; do
 
     case $responce in
         [yY] | [yY][Ee][Ss] | "" ) UseTweaks=Yes ;;
-        [nN] | [nN][Oo]) UseTweaks=No ;;
-        *) UseTweaks=Yes ;;
+        [nN] | [nN][Oo]          ) UseTweaks=No ;;
+        *                        ) UseTweaks=Yes ;;
     esac
 
 done
