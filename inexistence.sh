@@ -449,7 +449,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; read input
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ ! $ForceYes == 1 ]] && read input
 
 
 ### fi
@@ -1093,6 +1093,7 @@ while [[ $RTVERSION = "" ]]; do
 
 done
 
+[[ $IPv6Opt == -i ]] && RTVERSION=`echo $RTVERSION IPv6 supported`
 [[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i
 RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
 
@@ -1495,8 +1496,9 @@ echo ; }
 
 function _askreboot() {
 # read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
-echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " ; read -e is_reboot
-if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then reboot
+echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "
+if [[ $ForceYes == 1 ]];then reboot ; else read -e is_reboot ; fi
+if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
 else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
 
@@ -1556,7 +1558,7 @@ function _askcontinue() {
   echo
   echo '####################################################################'
   echo
-  echo -e "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input
+  echo -e "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; [[ ! $ForceYes == 1 ]] && read input
   echo -e "\n${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
   echo -e "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}\n" ; }
 
