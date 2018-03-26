@@ -12,11 +12,59 @@ DeBUG=0
 INEXISTENCEVER=099
 INEXISTENCEDATE=20180326
 # --------------------------------------------------------------------------------
-[[ $1 == -d ]] && DeBUG=1
+# 获取参数
+OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
+
+eval set -- "$OPTS"
+
+while true; do
+  case "$1" in
+    -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
+    -p | --password ) ANPASS="$2"       ; shift ; shift ;;
+    --de            ) DEVERSION="$2"    ; shift ; shift ;;
+    --delt          ) DELTVERSION="$2"  ; shift ; shift ;;
+    --qb            ) QBVERSION="$2"    ; shift ; shift ;;
+    --rt            ) RTVERSION="$2"    ; shift ; shift ;;
+    --tr            ) TRVERSION="$2"    ; shift ; shift ;;
+
+    -d | --debug    ) DeBUG=1           ; shift ;;
+    -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
+    -y | --yes      ) ForceYes=1        ; shift ;;
+
+    --apt-yes       ) aptsources="Yes"  ; shift ;;
+    --apt-no        ) aptsources="No"   ; shift ;;
+    --swap-yes      ) USESWAP="Yes"     ; shift ;;
+    --swap-no       ) USESWAP="No"      ; shift ;;
+    --bbr-yes       ) InsBBR="Yes"      ; shift ;;
+    --bbr-no        ) InsBBR="No"       ; shift ;;
+    --flood-yes     ) InsFlood="Yes"    ; shift ;;
+    --flood-no      ) InsFlood="No"     ; shift ;;
+    --rdp-vnc       ) InsRDP="VNC"      ; shift ;;
+    --rdp-x2go      ) InsRDP="X2Go"     ; shift ;;
+    --rdp-no        ) InsRDP="No"       ; shift ;;
+    --wine-yes      ) InsWine="Yes"     ; shift ;;
+    --wine-no       ) InsWine="No"      ; shift ;;
+    --tools-yes     ) InsTools="Yes"    ; shift ;;
+    --tools-no      ) InsTools="No"     ; shift ;;
+    --flexget-yes   ) InsFlex="Yes"     ; shift ;;
+    --flexget-no    ) InsFlex="No"      ; shift ;;
+    --rclone-yes    ) InsRclone="Yes"   ; shift ;;
+    --rclone-no     ) InsRclone="No"    ; shift ;;
+    --tweaks-yes    ) UseTweaks="Yes"   ; shift ;;
+    --tweaks-no     ) UseTweaks="No"    ; shift ;;
+    --mt-single     ) MAXCPUS=1         ; shift ;;
+    --mt-double     ) MAXCPUS=2         ; shift ;;
+    --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
+    --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
+
+    -- ) shift; break ;;
+     * ) break ;;
+  esac
+done
 
 if [[ $DeBUG == 1 ]]; then
     ANUSER=aniverse ; ANPASS=blackshiro ; SYSTEMCHECK=0 ; UseTweaks=Yes
-    aptsources=Yes  ; MAXCPUS=$(nproc)  ; InsBBR=No
+    aptsources=Yes  ; MAXCPUS=$(nproc) 
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -990,7 +1038,7 @@ function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
 
-    echo "暂时不要用本脚本装rt，我正在改，你现在用不了的"
+    echo "暂时不要用本脚本装rt，我正在改，你现在用不了的\n Please do NOT use this script to install rtorrent for now"
 
     [[ ! $CODENAME == stretch ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
@@ -2104,7 +2152,9 @@ function _installrt() {
 
 bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
-[[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i && RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
+[[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i
+RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
+[[ $DeBUG == 1 ]] && echo $IPv6Opt && echo $RTVERSIONIns
 
 if [[ $rt_installed == Yes ]]; then
     rtupdate $IPv6Opt $RTVERSIONIns
