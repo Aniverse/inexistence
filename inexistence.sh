@@ -26,11 +26,11 @@ while true; do
     -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
     -p | --password ) ANPASS="$2"       ; shift ; shift ;;
 
-    --qb            ) { [[ $2 == ppa ]] && QBVERSION='Install from PPA'   ; [[ $2 == repo ]] && QBVERSION='Install from repo'   ; QBVERSION=$2 }    ; shift ; shift ;;
-    --rt            ) { [[ $2 == ppa ]] && RTVERSION='Install from PPA'   ; [[ $2 == repo ]] && RTVERSION='Install from repo'   ; RTVERSION=$2 }    ; shift ; shift ;;
-    --tr            ) { [[ $2 == ppa ]] && TRVERSION='Install from PPA'   ; [[ $2 == repo ]] && TRVERSION='Install from repo'   ; TRVERSION=$2 }    ; shift ; shift ;;
-    --de            ) { [[ $2 == ppa ]] && DEVERSION='Install from PPA'   ; [[ $2 == repo ]] && DEVERSION='Install from repo'   ; DEVERSION=$2 }    ; shift ; shift ;;
-    --delt          ) { [[ $2 == ppa ]] && DELTVERSION='Install from PPA' ; [[ $2 == repo ]] && DELTVERSION='Install from repo' ; DELTVERSION=$2 }  ; shift ; shift ;;
+    --qb            ) { [[ $2 == ppa ]] && QBVERSION='Install from PPA'   ; [[ $2 == repo ]] && QBVERSION='Install from repo'   ; QBVERSION=$2   ; }  ; shift ; shift ;;
+    --rt            ) { [[ $2 == ppa ]] && RTVERSION='Install from PPA'   ; [[ $2 == repo ]] && RTVERSION='Install from repo'   ; RTVERSION=$2   ; }  ; shift ; shift ;;
+    --tr            ) { [[ $2 == ppa ]] && TRVERSION='Install from PPA'   ; [[ $2 == repo ]] && TRVERSION='Install from repo'   ; TRVERSION=$2   ; }  ; shift ; shift ;;
+    --de            ) { [[ $2 == ppa ]] && DEVERSION='Install from PPA'   ; [[ $2 == repo ]] && DEVERSION='Install from repo'   ; DEVERSION=$2   ; }  ; shift ; shift ;;
+    --delt          ) { [[ $2 == ppa ]] && DELTVERSION='Install from PPA' ; [[ $2 == repo ]] && DELTVERSION='Install from repo' ; DELTVERSION=$2 ; }  ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
