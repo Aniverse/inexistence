@@ -67,9 +67,9 @@ Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
 8. **rTorrent**  
-这部分是调用我修改的 `rtinst` 来安装的，默认选项为安装原版 0.9.4  
+这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的，默认选项为安装原版 0.9.4  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
-- 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
+- 0.9.2-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 - 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6；Debian 9 强制使用本版本  
 - FTP，端口号 21；SSH，端口号 22  
 - ruTorrent 版本为 3.8，包含一些第三方插件和主题  
