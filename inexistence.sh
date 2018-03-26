@@ -26,11 +26,11 @@ while true; do
     -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
     -p | --password ) ANPASS="$2"       ; shift ; shift ;;
 
-    --qb            ) { [[ $2 == ppa ]] && QBVERSION='Install from PPA'   ; [[ $2 == repo ]] && QBVERSION='Install from repo'   ; QBVERSION=$2   ; }  ; shift ; shift ;;
-    --rt            ) { [[ $2 == ppa ]] && RTVERSION='Install from PPA'   ; [[ $2 == repo ]] && RTVERSION='Install from repo'   ; RTVERSION=$2   ; }  ; shift ; shift ;;
-    --tr            ) { [[ $2 == ppa ]] && TRVERSION='Install from PPA'   ; [[ $2 == repo ]] && TRVERSION='Install from repo'   ; TRVERSION=$2   ; }  ; shift ; shift ;;
-    --de            ) { [[ $2 == ppa ]] && DEVERSION='Install from PPA'   ; [[ $2 == repo ]] && DEVERSION='Install from repo'   ; DEVERSION=$2   ; }  ; shift ; shift ;;
-    --delt          ) { [[ $2 == ppa ]] && DELTVERSION='Install from PPA' ; [[ $2 == repo ]] && DELTVERSION='Install from repo' ; DELTVERSION=$2 ; }  ; shift ; shift ;;
+    --qb            ) { if [[ $2 == ppa ]]; then QBVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then QBVERSION='Install from repo'   ; else QBVERSION=$2   ; fi ; } ; shift ; shift ;;
+    --rt            ) { if [[ $2 == ppa ]]; then RTVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then RTVERSION='Install from repo'   ; else RTVERSION=$2   ; fi ; } ; shift ; shift ;;
+    --tr            ) { if [[ $2 == ppa ]]; then TRVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then TRVERSION='Install from repo'   ; else TRVERSION=$2   ; fi ; } ; shift ; shift ;;
+    --de            ) { if [[ $2 == ppa ]]; then DEVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then DEVERSION='Install from repo'   ; else DEVERSION=$2   ; fi ; } ; shift ; shift ;;
+    --delt          ) { if [[ $2 == ppa ]]; then DELTVERSION='Install from PPA' ; elif [[ $2 == repo ]]; then DELTVERSION='Install from repo' ; else DELTVERSION=$2 ; fi ; } ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
