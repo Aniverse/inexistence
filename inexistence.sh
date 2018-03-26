@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180324
+INEXISTENCEDATE=20180326
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
 
@@ -879,11 +879,11 @@ while [[ $DELTVERSION = "" ]]; do
 
     if [[ $DEVERSION == "Install from repo" ]]; then
 
-        DELTVERSION='Install from repo'
+        DELTVERSION='Install from repo' && DeLTDefault=1
 
     elif [[ $DEVERSION == "Install from PPA" ]]; then
 
-        DELTVERSION='Install from PPA'
+        DELTVERSION='Install from PPA' && DeLTDefault=1
 
     else
 
@@ -2099,63 +2099,26 @@ touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
 function _installrt() {
 
-wget --no-check-certificate https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rtsetup
-
-if [[ "${RTVERSION}" == "0.9.4 IPv6 supported" ]]; then
-    export RTVERSION=0.9.4
-    bash rtsetup h5ai-ipv6
-elif [[ "${RTVERSION}" == "0.9.4" ]]; then
-    bash rtsetup h5ai
-else
-    bash rtsetup h5ai-ipv6
-fi
-
-# Installing RAR5
-wget --no-check-certificate --timeout=10 -q https://raw.githubusercontent.com/Aniverse/rtinst/h5ai-ipv6/rarlinux-x64-5.5.0.tar.gz
-tar zxf rarlinux-x64-5.5.0.tar.gz 2>/dev/null
-chmod -R +x rar
-cp -f rar/rar /usr/bin/rar
-cp -f rar/unrar /usr/bin/unrar
-rm -rf rar rarlinux-x64-5.5.0.tar.gz
-
-apt-get install -y --allow-unauthenticated libncurses5-dev libncursesw5-dev
-sed -i "s/rtorrentrel=''/rtorrentrel='${RTVERSION}'/g" /usr/local/bin/rtinst
-sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
+bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
 if [[ $rt_installed == Yes ]]; then
     rtupdate $RTVERSION
 else
-    rtinst -t -l -y -u ${ANUSER} -p ${ANPASS} -w ${ANPASS}
+    rtinst --ssh-default --ftp-default --rutorrent-master --enable-ipv6 --force-yes --log -u $ANUSER -p $ANPASS -w $ANPASS -v $RTVERSION
 fi
 
 # rtwebmin
-
-[[ ! ` grep m2ts /var/www/rutorrent/plugins/screenshots/conf.php ` ]] && sed -i "s/\"mkv\"/\"mkv\",\"m2ts\"/g" /var/www/rutorrent/plugins/screenshots/conf.php
 
 # openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
 ln -s /home/${ANUSER} /var/www/user.folder
 
-# FTP Port
-# FTPPort=$( cat /etc/inexistence/01.Log/rtinst.info | grep "ftp port" | cut -c20- )
-sed -i '/listen_port/c listen_port=21' /etc/vsftpd.conf
-/etc/init.d/vsftpd restart
-
-# spectrogram
-apt-get install -y sox libsox-fmt-mp3
-cd /var/www/rutorrent/plugins
-wget --no-check-certificate -O spectrogram.tar.gz https://github.com/Aniverse/rtinst/raw/master/spectrogram.tar.gz
-tar zxf spectrogram.tar.gz
-rm -rf spectrogram.tar.gz
-chown -R www-data:www-data spectrogram
-
 cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 systemctl daemon-reload
 
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
-
 cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
 
@@ -2712,14 +2675,14 @@ alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
 alias trr="systemctl restart transmission"
 alias rta="su ${ANUSER} -c 'rt start'"
-alias rtb="su ${ANUSER} -c 'rt stop'"
+alias rtb="su ${ANUSER} -c 'rt -k stop'"
 alias rtc="su ${ANUSER} -c 'rt'"
-alias rtr="su ${ANUSER} -c 'rt restart'"
+alias rtr="su ${ANUSER} -c 'rt -k restart'"
 alias rtscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent'"
 alias irssia="su ${ANUSER} -c 'rt -i start'"
-alias irssib="su ${ANUSER} -c 'rt -i stop'"
+alias irssib="su ${ANUSER} -c 'rt -i -k stop'"
 alias irssic="su ${ANUSER} -c 'rt -i'"
-alias irssir="su ${ANUSER} -c 'rt -i restart'"
+alias irssir="su ${ANUSER} -c 'rt -i -k restart'"
 alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
 alias fla="systemctl start flexget"
 alias flaa="flexget daemon start --daemonize"
@@ -2923,12 +2886,12 @@ _time
 echo "${bold}Unfortunately something went wrong during installation.
 Check log by typing these commands:
 ${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ $QBFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" && echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ $DEFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
-[[ $TRFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
-[[ $RTFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ $FloodFail == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
-[[ $FLFAILED == 1 ]] && echo "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
+[[ $QBFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" && echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ $DEFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
+[[ $TRFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
+[[ $RTFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ $FloodFail == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
+[[ $FLFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
 
@@ -2985,14 +2948,14 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 
 
 if   [[ $InsBBR == Yes ]]; then
-    echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 elif [[ $InsBBR == To\ be\ enabled ]]; then
-    echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+     echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
-    echo -e "Skip BBR installation\n\n\n\n\n"
+     echo -e "Skip BBR installation\n\n\n\n\n"
 fi
 
-if [[ $DEVERSION == No ]]; then
+if  [[ $DEVERSION == No ]]; then
     echo -e "Skip Deluge installation \n\n\n\n"
 else
     echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
@@ -3000,7 +2963,7 @@ else
 fi
 
 
-if [[ $QBVERSION == No ]]; then
+if  [[ $QBVERSION == No ]]; then
     echo -e "Skip qBittorrent installation\n\n\n\n"
 else
     echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
@@ -3041,25 +3004,25 @@ fi
 ####################################
 
 if   [[ $InsRDP == VNC ]]; then
-   echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+     echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
 elif [[ $InsRDP == X2Go ]]; then
-   echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+     echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
 else
-   echo "Skip RDP installation\n\n\n\n"
+     echo "Skip RDP installation\n\n\n\n"
 fi
 
 
-if [[ $InsWine == Yes ]]; then
-   echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
+if  [[ $InsWine == Yes ]]; then
+    echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
 else
-   echo "Skip Wine installation\n\n\n\n"
+    echo "Skip Wine installation\n\n\n\n"
 fi
 
 
-if [[ $InsTools == Yes ]]; then
-   echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
+if  [[ $InsTools == Yes ]]; then
+    echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
 else
-   echo "Skip Uploading Toolbox installation\n\n\n\n"
+    echo "Skip Uploading Toolbox installation\n\n\n\n"
 fi
 
 ####################################
