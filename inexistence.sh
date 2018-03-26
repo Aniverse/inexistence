@@ -17,8 +17,6 @@ INEXISTENCEDATE=20180326
 
 # 获取参数
 
-function _setOPT() { tmpVAR="$2" ; [[ $tmpVAR == ppa ]] && tmpVAR='Install from PPA' ; [[ $tmpVAR == repo ]] && tmpVAR='Install from repo' ; }
-
 OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
 
 eval set -- "$OPTS"
@@ -27,11 +25,11 @@ while true; do
   case "$1" in
     -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
     -p | --password ) ANPASS="$2"       ; shift ; shift ;;
-    --de            ) _setOPT && DEVERSION="$tmpVAR"    ; shift ; shift ;;
-    --delt          ) _setOPT && DELTVERSION="$tmpVAR"  ; shift ; shift ;;
-    --qb            ) _setOPT && QBVERSION="$tmpVAR"    ; shift ; shift ;;
-    --rt            ) _setOPT && RTVERSION="$tmpVAR"    ; shift ; shift ;;
-    --tr            ) _setOPT && TRVERSION="$tmpVAR"    ; shift ; shift ;;
+    --de            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && DEVERSION="$x"    ; shift ; shift ;;
+    --delt          ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && DELTVERSION="$x"  ; shift ; shift ;;
+    --qb            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && QBVERSION="$x"    ; shift ; shift ;;
+    --rt            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && RTVERSION="$x"    ; shift ; shift ;;
+    --tr            ) { x="$2" ; [[ $x == ppa ]] && x='Install from PPA' ; [[ $x == repo ]] && x='Install from repo' ; } && TRVERSION="$x"    ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
