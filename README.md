@@ -68,17 +68,18 @@ Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现
 
 8. **rTorrent**  
 这部分是调用我修改的 `rtinst` 来安装的，默认选项为安装原版 0.9.4  
-- 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar  
+- 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
 - 0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 - 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6；Debian 9 强制使用本版本  
 - FTP，端口号 21；SSH，端口号 22  
-- h5ai 目录列表程序  
 - ruTorrent 版本为 3.8，包含一些第三方插件和主题  
 - `club-QuickBox` `MaterialDesign` 第三方主题  
 - `AutoDL-Irssi` 这个其实是 rtinst 安装的  
 - `Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
 - `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
+- `Fileshare` 插件创建有时限、可自定义密码的文件分享链接  
+- `Mediastream` 插件可以在线观看盒子的视频文件  
 
 9. **Flood**  
 Flood 是 rTorrent 的另一个 WebUI，界面美观，不过功能上不如 ruTorrent  
@@ -390,6 +391,7 @@ https://moeclub.org
 https://sometimesnaive.org  
 https://www.94ish.me  
 https://blog.gloriousdays.pw  
+https://blog.rhilip.info  
 http://wilywx.com  
 http://xiaofd.win/onekey-ruisu.html  
 https://github.com/teddysun/across  
