@@ -993,10 +993,11 @@ while [[ $RTVERSION = "" ]]; do
     echo "暂时不要用本脚本装rt，我正在改，你现在用不了的"
 
     [[ ! $CODENAME == stretch ]] &&
-    echo -e "${green}01)${normal} rTorrent ${cyan}0.9.3${normal}" &&
-    echo -e "${green}02)${normal} rTorrent ${cyan}0.9.4${normal}" &&
-    echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+    echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
+    echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
+    echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
+    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
+    echo -e "${green}05)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
@@ -1007,10 +1008,10 @@ while [[ $RTVERSION = "" ]]; do
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
-        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}04${normal}): " ; read -e version
+        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}05${normal}): " ; read -e version
 
         case $version in
-            04 | 4) RTVERSION=0.9.6 ;;
+            05 | 5) RTVERSION=0.9.6 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.6 ;;
         esac
@@ -1018,13 +1019,14 @@ while [[ $RTVERSION = "" ]]; do
     else
 
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
-        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
+        echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}03${normal}): " ; read -e version
 
         case $version in
-            01 | 1) RTVERSION=0.9.3 ;;
-            02 | 2) RTVERSION=0.9.4 ;;
-            03 | 3) RTVERSION='0.9.4 IPv6 supported' ;;
-            04 | 4) RTVERSION=0.9.6 ;;
+            01 | 1) RTVERSION=0.9.2 ;;
+            02 | 2) RTVERSION=0.9.3 ;;
+            03 | 3) RTVERSION=0.9.4 ;;
+            04 | 4) RTVERSION='0.9.4 IPv6 supported' ;;
+            05 | 5) RTVERSION=0.9.6 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.4 ;;
         esac
@@ -1051,10 +1053,11 @@ else
     else
 
         echo "${bold}${baiqingse}rTorrent ${RTVERSION}${normal} ${bold}will be installed${normal}"
+
     fi
 
 
-    echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
+#   echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
 
 fi
 
@@ -2101,10 +2104,12 @@ function _installrt() {
 
 bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
+[[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i && RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
+
 if [[ $rt_installed == Yes ]]; then
-    rtupdate $RTVERSION
+    rtupdate $IPv6Opt $RTVERSIONIns
 else
-    rtinst --ssh-default --ftp-default --rutorrent-master --enable-ipv6 --force-yes --log -u $ANUSER -p $ANPASS -w $ANPASS -v $RTVERSION
+    rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $RTVERSIONIns -u $ANUSER -p $ANPASS -w $ANPASS
 fi
 
 # rtwebmin
