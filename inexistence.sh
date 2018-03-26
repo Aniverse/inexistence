@@ -12,7 +12,13 @@ DeBUG=0
 INEXISTENCEVER=099
 INEXISTENCEDATE=20180326
 # --------------------------------------------------------------------------------
+
+
+
 # 获取参数
+
+function _setOPT() { tmpVAR="$2" ; [[ $tmpVAR == ppa ]] && tmpVAR='Install from PPA' ; [[ $tmpVAR == repo ]] && tmpVAR='Install from repo' ; }
+
 OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
 
 eval set -- "$OPTS"
@@ -21,11 +27,11 @@ while true; do
   case "$1" in
     -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
     -p | --password ) ANPASS="$2"       ; shift ; shift ;;
-    --de            ) DEVERSION="$2"    ; shift ; shift ;;
-    --delt          ) DELTVERSION="$2"  ; shift ; shift ;;
-    --qb            ) QBVERSION="$2"    ; shift ; shift ;;
-    --rt            ) RTVERSION="$2"    ; shift ; shift ;;
-    --tr            ) TRVERSION="$2"    ; shift ; shift ;;
+    --de            ) _setOPT && DEVERSION="$tmpVAR"    ; shift ; shift ;;
+    --delt          ) _setOPT && DELTVERSION="$tmpVAR"  ; shift ; shift ;;
+    --qb            ) _setOPT && QBVERSION="$tmpVAR"    ; shift ; shift ;;
+    --rt            ) _setOPT && RTVERSION="$tmpVAR"    ; shift ; shift ;;
+    --tr            ) _setOPT && TRVERSION="$tmpVAR"    ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
