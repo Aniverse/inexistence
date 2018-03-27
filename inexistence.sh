@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180326
+INEXISTENCEDATE=20180327.2
 # --------------------------------------------------------------------------------
 
 
@@ -69,7 +69,7 @@ while true; do
 done
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; ANPASS=blackshiro ; SYSTEMCHECK=0 ; UseTweaks=Yes
+    ANUSER=aniverse ; SYSTEMCHECK=0 ; UseTweaks=Yes
     aptsources=Yes  ; MAXCPUS=$(nproc) 
 fi
 # --------------------------------------------------------------------------------
@@ -1560,7 +1560,7 @@ function _askcontinue() {
   echo
   echo -e "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; [[ ! $ForceYes == 1 ]] && read input
   echo -e "\n${bold}${magenta}The selected softwares will be installed, this may take between${normal}"
-  echo -e "${bold}${magenta}1 and 90 minutes depending on your systems specs and your selections${normal}\n" ; }
+  echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n" ; }
 
 
 
@@ -1825,7 +1825,7 @@ DeQbLT=No
 
 # DeBUG 用的，在 Log 里也可以看
 # if [[ $DeBUG == 1 ]]; then  ; fi
-echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; echo -e "\n\n\n${normal}"
+echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; echo -e "\n${normal}"
 
 # [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && echo 123
 
@@ -2175,7 +2175,7 @@ else
     rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $RTVERSIONIns -u $ANUSER -p $ANPASS -w $ANPASS
 fi
 
-# rtwebmin
+rtwebmin
 
 # openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
@@ -2346,6 +2346,8 @@ function _installflex() {
   flexget web passwd ${ANPASS} 2>&1 | tee /tmp/flex.pass.output 
   [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "\nFailed to set flexget webui password\n"
   [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "\nFailed to set flexget config and webui password\n"
+  
+  [[ DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2426,6 +2428,11 @@ wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/B
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09ax-6.0.17.fw
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09-6.0.17.fw
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-06-6.0.15.fw ; }
+
+
+
+
+
 
 
 # --------------------- 安装 VNC --------------------- #
@@ -2941,6 +2948,7 @@ echo
 echo -e " ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
+[[ DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 [[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
 [[ $FlexConfFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file, maybe your password is too young too simple?${normal}"
 
