@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=20180327.2
+INEXISTENCEDATE=2018.03.27.3
 # --------------------------------------------------------------------------------
 
 
@@ -783,7 +783,7 @@ elif [[ $QBVERSION == "Install from PPA" ]]; then
         echo -ne "Therefore "
         QBVERSION='Install from repo'
     else
-        echo "${bold}${baiqingse}qBittorrent $QB_latest_ver ${normal} ${bold}will be installed from Stable PPA${normal}"
+        echo "${bold}${baiqingse}qBittorrent $QB_latest_ver${normal} ${bold}will be installed from Stable PPA${normal}"
     fi
 
 else
@@ -2343,11 +2343,11 @@ function _installflex() {
 # chmod -R 777 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
-  flexget web passwd ${ANPASS} 2>&1 | tee /tmp/flex.pass.output 
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "\nFailed to set flexget webui password\n"
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "\nFailed to set flexget config and webui password\n"
+  flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output 
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "\nFailed to set flexget webui password\n" && touch /etc/inexistence/01.Log/lock/flexget.pass.lock
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "\nFailed to set flexget config and webui password\n" && touch /etc/inexistence/01.Log/lock/flexget.conf.lock
   
-  [[ DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
+  [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2896,7 +2896,7 @@ echo '-----------------------------------------------------------'
 
 
 if [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
-    echo -e " ${cyan}qBittorrent WebUI${normal}    http://${serveripv4}:2017"
+    echo -e " ${cyan}qBittorrent WebUI${normal}    https://${serveripv4}/qb"
 elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
@@ -2904,7 +2904,7 @@ fi
 
 
 if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
-    echo -e " ${cyan}Deluge WebUI${normal}         http://${serveripv4}:8112"
+    echo -e " ${cyan}Deluge WebUI${normal}         https://${serveripv4}/de"
 elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
@@ -2912,7 +2912,7 @@ fi
 
 
 if [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
-    echo -e " ${cyan}Transmission WebUI${normal}   http://${ANUSER}:${ANPASS}@${serveripv4}:9099"
+    echo -e " ${cyan}Transmission WebUI${normal}   https://${ANUSER}:${ANPASS}@${serveripv4}/tr"
 elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Transmission installation FAILED${normal}"
     TRFAILED=1 ; INSFAILED=1
@@ -2920,13 +2920,13 @@ fi
 
 
 if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
-    echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rutorrent"
-
-    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] && echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
-    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] && echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flood installation FAILED${normal}"
-
+    echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rt"
+    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] &&
+    echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
+    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flood installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
-#   echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
+    echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
@@ -2948,9 +2948,9 @@ echo
 echo -e " ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
-[[ DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
-[[ $FlexPassFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
-[[ $FlexConfFail == 1 ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file, maybe your password is too young too simple?${normal}"
+[[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
+[[ /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
+[[ /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file, maybe your password is too young too simple?${normal}"
 
 echo '-----------------------------------------------------------'
 echo
@@ -3028,11 +3028,11 @@ if   [[ $InsBBR == Yes ]]; then
 elif [[ $InsBBR == To\ be\ enabled ]]; then
      echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
-     echo -e "Skip BBR installation\n\n\n\n\n"
+     echo -e  "Skip BBR installation\n\n\n\n\n"
 fi
 
 if  [[ $DEVERSION == No ]]; then
-    echo -e "Skip Deluge installation \n\n\n\n"
+    echo -e  "Skip Deluge installation \n\n\n\n"
 else
     echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
     echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
@@ -3040,7 +3040,7 @@ fi
 
 
 if  [[ $QBVERSION == No ]]; then
-    echo -e "Skip qBittorrent installation\n\n\n\n"
+    echo -e  "Skip qBittorrent installation\n\n\n\n"
 else
     echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
     echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
@@ -3048,7 +3048,7 @@ fi
 
 
 if  [[ $RTVERSION == No ]]; then
-    echo -e "Skip rTorrent installation\n\n\n"
+    echo -e  "Skip rTorrent installation\n\n\n"
 else
     echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
     [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; _installflood 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.flood.log ; }
@@ -3056,7 +3056,7 @@ fi
 
 
 if  [[ $TRVERSION == No ]]; then
-    echo -e "Skip Transmission installation\n\n\n\n"
+    echo -e  "Skip Transmission installation\n\n\n\n"
 else
     echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
     echo -ne "Configuring Transmission ... \n\n\n" ; _settr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/09.tr2.log
@@ -3066,14 +3066,14 @@ fi
 if  [[ $InsFlex == Yes ]]; then
     echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
 else
-    echo -e "Skip Flexget installation\n\n\n\n"
+    echo -e  "Skip Flexget installation\n\n\n\n"
 fi
 
 
 if  [[ $InsRclone == Yes ]]; then
     echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
 else
-    echo -e "Skip rclone installation\n\n\n\n"
+    echo -e  "Skip rclone installation\n\n\n\n"
 fi
 
 
@@ -3084,21 +3084,21 @@ if   [[ $InsRDP == VNC ]]; then
 elif [[ $InsRDP == X2Go ]]; then
      echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
 else
-     echo "Skip RDP installation\n\n\n\n"
+     echo -e  "Skip RDP installation\n\n\n\n"
 fi
 
 
 if  [[ $InsWine == Yes ]]; then
     echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
 else
-    echo "Skip Wine installation\n\n\n\n"
+    echo -e  "Skip Wine installation\n\n\n\n"
 fi
 
 
 if  [[ $InsTools == Yes ]]; then
     echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
 else
-    echo "Skip Uploading Toolbox installation\n\n\n\n"
+    echo -e  "Skip Uploading Toolbox installation\n\n\n\n"
 fi
 
 ####################################
@@ -3107,7 +3107,7 @@ fi
 if [[ $UseTweaks == Yes ]]; then
     echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
 else
-    echo -e "Skip System tweaks\n\n\n\n"
+    echo -e  "Skip System tweaks\n\n\n\n"
 fi
 
 
