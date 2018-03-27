@@ -31,7 +31,7 @@ set -u
 root=''
 skip_qemu_kvm=false
 
-VERSION="1.14"
+VERSION="1.14 Aniverse Mod"
 
 function fail {
     echo "virt-what: $1" >&2
@@ -76,7 +76,7 @@ PATH="${root}${prefix}/lib/virt-what:${root}/sbin:${root}/usr/sbin:${PATH}"
 # Check we're running as root.
 
 if [ "x$root" = "x" ] && [ "$EUID" -ne 0 ]; then
-    fail "this script must be run as root"
+    fail "This script must be run as root!"
 fi
 
 # Many fullvirt hypervisors give an indication through CPUID.  Use the
@@ -148,9 +148,9 @@ fi
 if cat "${root}/proc/self/status" | grep -q "VxID: [0-9]*"; then
     echo linux_vserver
     if grep -q "VxID: 0$" "${root}/proc/self/status"; then
-        echo linux_vserver-host
+        echo "Linux VServer Host"
     else
-        echo linux_vserver-guest
+        echo "Linux VServer Guest"
     fi
 fi
 
@@ -162,47 +162,48 @@ fi
 
 # Check for IBM PowerVM Lx86 Linux/x86 emulator.
 if grep -q '^vendor_id.*PowerVM Lx86' "${root}/proc/cpuinfo"; then
-    echo powervm_lx86
+    echo "PowerVM Lx86"
 fi
 
 # Check for Hitachi Virtualization Manager (HVM) Virtage logical partitioning.
 if echo "$dmi" | grep -q 'Manufacturer.*HITACHI' &&
    echo "$dmi" | grep -q 'Product.* LPAR'; then
-    echo virtage
+    echo "Virtage"
 fi
 
 # Check for IBM SystemZ.
 if grep -q '^vendor_id.*IBM/S390' "${root}/proc/cpuinfo"; then
-    echo ibm_systemz
+    echo "IBM SystemZ"
     if [ -f "${root}/proc/sysinfo" ]; then
         if grep -q 'VM.*Control Program.*z/VM' "${root}/proc/sysinfo"; then
-            echo ibm_systemz-zvm
+            echo "IBM SystemZ ZVM"
         elif grep -q '^LPAR' "${root}/proc/sysinfo"; then
-            echo ibm_systemz-lpar
+            echo "IBM SystemZ LPAR"
         else
             # This is unlikely to be correct.
-            echo ibm_systemz-direct
+            echo "IBM SystemZ Direct"
         fi
     fi
 fi
 
 # Check for Parallels.
 if echo "$dmi" | grep -q 'Vendor: Parallels'; then
-    echo parallels
+    echo Parallels
     skip_qemu_kvm=true
 fi
 
 # Check for Xen.
 
 if [ "$cpuid" = "XenVMMXenVMM" ]; then
-    echo xen; echo xen-hvm
+  # echo Xen
+    echo Xen-HVM
     skip_qemu_kvm=true
 elif [ -d "${root}/proc/xen" ]; then
-    echo xen
+  # echo Xen
     if grep -q "control_d" "${root}/proc/xen/capabilities" 2>/dev/null; then
-        echo xen-dom0
+        echo Xen-Dom0
     else
-        echo xen-domU
+        echo Xen-DomU
     fi
     skip_qemu_kvm=true
 elif [ -f "${root}/sys/hypervisor/type" ] &&
@@ -210,12 +211,12 @@ elif [ -f "${root}/sys/hypervisor/type" ] &&
     # Ordinary kernel with pv_ops.  There does not seem to be
     # enough information at present to tell whether this is dom0
     # or domU.  XXX
-    echo xen
+    echo Xen
 elif [ "$arch" = "ia64" ]; then
     if [ -d "${root}/sys/bus/xen" -a ! -d "${root}/sys/bus/xen-backend" ]; then
         # PV-on-HVM drivers installed in a Xen guest.
-        echo xen
-        echo xen-hvm
+      # echo Xen
+        echo Xen-HVM
     else
         # There is no virt leaf on IA64 HVM.  This is a last-ditch
         # attempt to detect something is virtualized by using a
@@ -224,7 +225,7 @@ elif [ "$arch" = "ia64" ]; then
         case "$?" in
             0) ;; # not virtual
             1) # Could be some sort of virt, or could just be a bit slow.
-                echo virt
+                echo "Unknown Virtualization"
         esac
     fi
 fi
