@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.27.7
+INEXISTENCEDATE=2018.03.27.9
 # --------------------------------------------------------------------------------
 
 
@@ -290,6 +290,12 @@ function _intro() {
 if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo "${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}" ; exit 1
 else echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
+arch=$( uname -m ) # 架构，可以识别 ARM
+lbit=$( getconf LONG_BIT ) # 只显示多少位，无法识别 ARM
+
+# 检查是否为 x86_64 架构
+[[ ! $arch == x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
+
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
 SysSupport=0
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
@@ -359,8 +365,6 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # RELEASE=$(lsb_release -rs)
 # CODENAME=$(lsb_release -cs)
 # SETNAME=$(lsb_release -rc)
-  arch=$( uname -m ) # 架构，可以识别 ARM
-  lbit=$( getconf LONG_BIT ) # 只显示多少位，无法识别 ARM
 # relno=$(lsb_release -sr | cut -d. -f1)
   kern=$( uname -r )
   kv1=$(uname -r | cut  -d. -f1)
@@ -2895,66 +2899,68 @@ _check_install_2
 
 clear
 
+if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+FXWEB=":6566" ; FDWEB=":3000"
+
+if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
+
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '------------------------------------------------------------------'
 
 
-if [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
-    echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   https://${serveripv4}/qb"
+if   [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
+    echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   http${sss}://${serveripv4}${QBWEB}"
 elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}qBittorrent installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
 fi
 
 
-if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
-
-
-if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
-    echo -e " ${cyan}Deluge WebUI${normal}        $destatus   https://${serveripv4}/de"
+if   [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
+    echo -e " ${cyan}Deluge WebUI${normal}        $destatus   http${sss}://${serveripv4}${DEWEB}"
 elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Deluge installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
 fi
 
 
-if [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
-    echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   https://${ANUSER}:${ANPASS}@${serveripv4}/tr"
+if   [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
+    echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${ANUSER}:${ANPASS}@${serveripv4}${TRWEB}"
 elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Transmission installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Transmission installation FAILED${normal}"
     TRFAILED=1 ; INSFAILED=1
 fi
 
 
-if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
-    echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}/rt"
+if   [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
+    echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}${RTWEB}"
     [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
-    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
-    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
+    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && INSFAILED=1 && FDFAILED=1 &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flood installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
-elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}rTorrent installation FAILED${normal}"
-    [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
-    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
-    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
+elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No  ]]; then
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}rTorrent installation FAILED${normal}"
+    [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && INSFAILED=1 &&  FDFAILED=1 &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flood installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
 fi
 
 
-if [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
-    echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}:6566"
-#  ${bold}(username is ${underline}flexget${reset_underline}${normal})
-elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flexget installation FAILED${normal}"
-    FLFAILED=1 ; INSFAILED=1
+if   [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
+     echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
+elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
+     echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flexget installation FAILED${normal}"
+     FXFAILED=1 ; INSFAILED=1
 fi
 
 
 # echo -e " ${cyan}MkTorrent WebUI${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
+
 
 echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${ANUSER}${normal}"
@@ -2977,14 +2983,14 @@ _time
 
     if [[ $INSFAILED == 1 ]]; then
 echo "${bold}Unfortunately something went wrong during installation.
-Check log by typing these commands:
+You can check logs by typing these commands:
 ${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ $QBFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" && echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ $DEFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
-[[ $TRFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
-[[ $RTFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
-[[ $FLFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
+[[ $QBFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" && echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ $DEFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
+[[ $TRFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
+[[ $RTFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ $FDFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
+[[ $FXFAILED == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
 
