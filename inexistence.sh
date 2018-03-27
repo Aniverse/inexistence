@@ -2211,7 +2211,8 @@ cp config.template.js config.js
 npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
-npm run build || touch /etc/inexistence/01.Log/lock/flood.fail.lock
+npm run build 2>&1 | tee /tmp/flood.log
+[[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
 
 # [[ $tram -le 1900 ]] && _disable_swap
 
@@ -2910,7 +2911,7 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 
 
 if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
-    echo -e " ${cyan}Deluge WebUI${normal}        $destatus                            https://${serveripv4}/de"
+    echo -e " ${cyan}Deluge WebUI${normal}        $destatus   https://${serveripv4}/de"
 elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
@@ -2927,17 +2928,17 @@ fi
 
 if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
     echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}/rt"
-    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] &&
+    [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
-    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] &&
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
     echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
     echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}rTorrent installation FAILED${normal}"
-    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] &&
+    [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
-    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] &&
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
     echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
