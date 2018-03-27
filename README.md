@@ -142,7 +142,7 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 
 ![Web界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.06.png)
 
-最后打开浏览器检查下各客户端是否都在正常运行  
+最后打开浏览器检查下各客户端是否都能正常访问  
 
 
 #### To Do List
@@ -151,8 +151,6 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 补充更多的站点预设  
 - **MiMA**  
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 的密码的脚本  
-- **加入脚本参数**  
-比如 `bash inexistence -u username -p password --d 1.3.15 --r 0.9.6 --q 4.0.3 --tr 2.93`  
 - **检查安装完成后客户端是否正在运行**  
 
 #### Under Consideration
@@ -394,6 +392,7 @@ https://blog.gloriousdays.pw
 https://blog.rhilip.info  
 http://wilywx.com  
 http://xiaofd.win/onekey-ruisu.html  
+https://github.com/arfoll/unrarall  
 https://github.com/teddysun/across  
 https://github.com/FunctionClub  
 https://github.com/oooldking/script  
