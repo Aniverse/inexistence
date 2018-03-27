@@ -9,36 +9,58 @@
 
 
 
+## 2018.03.27
+
+`inexistence 0.9.9`  
+1. 继续调整 rTorrent，增加不支持 IPv6 的 rtorrent 0.9.6  
+2. 继续调整脚本安装选项  
+--enable-ipv6，--yes，以及 de/qb/tr ppa/repo 版本的输入  
+3. 调整输出文字  
+4. 增加 unrarall 脚本  
+5. Bug fix：Flexget 密码没设置好时提示用户  
+修了好几次终于搞定了……不知道为什么变量无法传递过去……  
+
+
+
+
+## 2018.03.26
+
+`inexistence 0.9.9`  
+1. Alias：rt 使用 -k 参数强行关闭  
+2. Code：排版调整  
+3. 删除 rTorrent 一些已经集成到 `rtinst` 的代码  
+4. Bug Fix：修复 Deluge libtorrent 默认选项判断的问题  
+5. **New Feature：脚本选项、参数**  
+具体哪些选项以后再单独在 WiKi 写  
+6. **New rtinst：重写的 rtinst，不再需要多个分支**  
+此处具体请看 rtinst 项目  
+7. **rTorrent 版本新增 0.9.2 与 0.9.3，包括对应的 IPv6 版本**  
+
+`MinGLiNG 0.8.6`  
+1. 客户端操作菜单：同步 `inexistence` 的改动，对于 `rt` 使用 `-k` 参数强关  
+
+`README 0.8.0`  
+1. 对应 `rtinst` 的改动，更新说明  
+2. 增加参考资料  
+
+
+
+
+
+## 2018.03.25
+
+`inexistence 0.9.9`  
+1. rtinst 维修中，暂无法使用  
 
 
 
 
 
 
+## 2018.03.24
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+`inexistence 0.9.9`  
+1. Deluge auth 的信息改为追加方式写入  
 
 
 
