@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=2018.03.27.4
+INEXISTENCEDATE=2018.03.27.5
 # --------------------------------------------------------------------------------
 
 
@@ -571,7 +571,7 @@ if [[ $ANPASS = "" ]]; then
     while [ -z $localpass ]; do
 
       # echo -n "${bold}Enter the password: ${blue}" ; read -e password1
-        read -ep "Enter the password: ${blue}" password1
+        read -ep "${jiacu}Enter the password: ${blue}" password1
 
         if [ -z $password1 ]; then
 
@@ -2342,11 +2342,12 @@ function _installflex() {
 # chmod -R 777 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
-  flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output 
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && export FlexPassFail=1 && echo -e "\nFailed to set flexget webui password\n" && touch /etc/inexistence/01.Log/lock/flexget.pass.lock
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && export FlexConfFail=1 && echo -e "\nFailed to set flexget config and webui password\n" && touch /etc/inexistence/01.Log/lock/flexget.conf.lock
+  flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output
+  rm -rf /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch /etc/inexistence/01.Log/lock/flexget.pass.lock ; }
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch /etc/inexistence/01.Log/lock/flexget.conf.lock ; }
   
-  [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
+# [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 
   cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
 # cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
@@ -2947,9 +2948,9 @@ echo
 echo -e " ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
 echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
-[[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
-[[ /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n${bold}flexget web passwd <new password>${normal}"
-[[ /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file, maybe your password is too young too simple?${normal}"
+# [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
+[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n        ${bold}flexget web passwd <new password>${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n        maybe your password is too young too simple?${normal}"
 
 echo '-----------------------------------------------------------'
 echo
