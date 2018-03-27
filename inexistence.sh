@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=2018.03.27.5
+INEXISTENCEDATE=2018.03.27.6
 # --------------------------------------------------------------------------------
 
 
@@ -95,11 +95,14 @@ _colors
 function _use_swap() { dd if=/dev/zero of=/root/.swapfile bs=1M count=1024  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
 
 # 关掉之前开的 swap
-function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /.swapfile  ;  }
+function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /.swapfile ; }
 
 # 用于退出脚本
 export TOP_PID=$$
 trap 'exit 1' TERM
+
+# 判断是否在运行
+function _if_running () { ps -ef | grep "$1" | grep -v grep > /dev/null && echo "${green}Running ${normal}" || echo "${red}Inactive${normal}" ; }
 
 ### 硬盘计算 ###
 calc_disk() {
@@ -2892,67 +2895,80 @@ _check_install_2
 clear
 
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
-echo '-----------------------------------------------------------'
+echo '------------------------------------------------------------------'
 
 
 if [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
-    echo -e " ${cyan}qBittorrent WebUI${normal}    https://${serveripv4}/qb"
+    echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   https://${serveripv4}/qb"
 elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}qBittorrent installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
 fi
 
 
+if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
+
+
 if [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
-    echo -e " ${cyan}Deluge WebUI${normal}         https://${serveripv4}/de"
+    echo -e " ${cyan}Deluge WebUI${normal}        $destatus                            https://${serveripv4}/de"
 elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Deluge installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
 fi
 
 
 if [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
-    echo -e " ${cyan}Transmission WebUI${normal}   https://${ANUSER}:${ANPASS}@${serveripv4}/tr"
+    echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   https://${ANUSER}:${ANPASS}@${serveripv4}/tr"
 elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Transmission installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Transmission installation FAILED${normal}"
     TRFAILED=1 ; INSFAILED=1
 fi
 
 
 if [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
-    echo -e " ${cyan}RuTorrent${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/rt"
+    echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}/rt"
     [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] &&
-    echo -e " ${cyan}Flood${normal}                http://${serveripv4}:3000"
+    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
     [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] &&
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flood installation FAILED${normal}"
-    echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
-    echo -e " ${cyan}webmin${normal}               https://${serveripv4}/webmin"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
+    echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}"
+    echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}rTorrent installation FAILED${normal}"
-    echo -e " ${cyan}h5ai File Indexer${normal}    https://${ANUSER}:${ANPASS}@${serveripv4}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}rTorrent installation FAILED${normal}"
+    [[ $InsFlood == Yes ]] && [[ ! $FloodFail == 1 ]] &&
+    echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}:3000"
+    [[ $InsFlood == Yes ]] && [[   $FloodFail == 1 ]] &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flood installation FAILED${normal}"
+    echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
 fi
 
 
 if [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
-    echo -e " ${cyan}Flexget WebUI${normal}        http://${serveripv4}:6566 ${bold}(username is ${underline}flexget${reset_underline}${normal})"
+    echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}:6566"
+#  ${bold}(username is ${underline}flexget${reset_underline}${normal})
 elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                ${bold}${red}Flexget installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                           ${bold}${red}Flexget installation FAILED${normal}"
     FLFAILED=1 ; INSFAILED=1
 fi
 
 
-# echo -e " ${cyan}MkTorrent WebUI${normal}      https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
+# echo -e " ${cyan}MkTorrent WebUI${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
 
 echo
-echo -e " ${cyan}Your Username${normal}        ${bold}${ANUSER}${normal}"
-echo -e " ${cyan}Your Password${normal}        ${bold}${ANPASS}${normal}"
-[[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] && echo -e " ${cyan}VNC  Password${normal}        ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
+echo -e " ${cyan}Your Username${normal}              ${bold}${ANUSER}${normal}"
+echo -e " ${cyan}Your Password${normal}              ${bold}${ANPASS}${normal}"
+[[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]] && [[ `  ps -ef | grep "flexget daemon" | grep -v grep > /dev/null ` ]] &&
+echo -e " ${cyan}Flexget Login${normal}              ${bold}flexget${normal}"
+[[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
+echo -e " ${cyan}VNC  Password${normal}              ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 # [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
-[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n        ${bold}flexget web passwd <new password>${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n        maybe your password is too young too simple?${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] &&
+echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n        ${bold}flexget web passwd <new password>${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] &&
+echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n        maybe your password is too young too simple?${normal}"
 
-echo '-----------------------------------------------------------'
+echo '------------------------------------------------------------------'
 echo
 
 timeWORK=installation
