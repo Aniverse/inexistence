@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=099
-INEXISTENCEDATE=2018.03.27.6
+INEXISTENCEVER=1.0.0
+INEXISTENCEDATE=2018.03.27.7
 # --------------------------------------------------------------------------------
 
 
@@ -1515,14 +1515,14 @@ timeused=$(( $endtime - $starttime ))
 if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
     timeusedmin=$(expr $timeused / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "${baiqingse}${bold}The $timeWORK took about ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedmin} min ${timeusedsec} sec${normal}"
 elif [[ $timeused -ge 3600 ]]; then
     timeusedhour=$(expr $timeused / 3600)
     timeusedmin=$(expr $(expr $timeused % 3600) / 60)
     timeusedsec=$(expr $timeused % 60)
-    echo -e "The $timeWORK took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
-    echo -e "${baiqingse}${bold}The $timeWORK took about ${timeused} sec${normal}"
+    echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeused} sec${normal}"
 fi ; }
 
 
