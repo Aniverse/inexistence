@@ -11,14 +11,19 @@
 
 ## 2018.03.27
 
-`inexistence 0.9.9`  
-1. 继续调整 rTorrent，增加不支持 IPv6 的 rtorrent 0.9.6  
-2. 继续调整脚本安装选项  
+`inexistence 1.0.0`  
+1. **Bump to 1.0.0**  
+2. **调整 rTorrent，增加不支持 IPv6 的 rtorrent 0.9.6**  
+3. **调整脚本安装选项**  
 --enable-ipv6，--yes，以及 de/qb/tr ppa/repo 版本的输入  
-3. 调整输出文字  
-4. 增加 unrarall 脚本  
-5. Bug fix：Flexget 密码没设置好时提示用户  
+4. UI：输出文字调整  
+5. 增加 unrarall 脚本  
+6. Bug fix：Flexget 密码没设置好时提示用户  
 修了好几次终于搞定了……不知道为什么变量无法传递过去……  
+7. **New Feature：安装完成后检查客户端是否在运行**  
+又改了好久的排版，包括 Flexget 账号、密码部分
+
+
 
 
 
