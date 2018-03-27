@@ -375,7 +375,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   mkdir -p /usr/lib/virt-what
   wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
   chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
-  virtua=$(virt-what) 2>/dev/null
+  virtua="$(virt-what)" 2>/dev/null
 
   _check_install_2
   _client_version_check
@@ -2211,7 +2211,7 @@ cp config.template.js config.js
 npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
-npm run build && FloodFail=0 || export FloodFail=1
+npm run build || touch /etc/inexistence/01.Log/lock/flood.fail.lock
 
 # [[ $tram -le 1900 ]] && _disable_swap
 
@@ -2956,17 +2956,17 @@ fi
 # echo -e " ${cyan}MkTorrent WebUI${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
 
 echo
-echo -e " ${cyan}Your Username${normal}              ${bold}${ANUSER}${normal}"
-echo -e " ${cyan}Your Password${normal}              ${bold}${ANPASS}${normal}"
-[[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]] && [[ `  ps -ef | grep "flexget daemon" | grep -v grep > /dev/null ` ]] &&
-echo -e " ${cyan}Flexget Login${normal}              ${bold}flexget${normal}"
+echo -e " ${cyan}Your Username${normal}       ${bold}${ANUSER}${normal}"
+echo -e " ${cyan}Your Password${normal}       ${bold}${ANPASS}${normal}"
+[[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]] &&
+echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
-echo -e " ${cyan}VNC  Password${normal}              ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
+echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
 # [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 [[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] &&
-echo -e "\n${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n        ${bold}flexget web passwd <new password>${normal}"
+echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n          ${bold}flexget web passwd <new password>${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] &&
-echo -e "\n${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n        maybe your password is too young too simple?${normal}"
+echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n          maybe your password is too young too simple?${normal}"
 
 echo '------------------------------------------------------------------'
 echo
@@ -2982,7 +2982,7 @@ ${yellow}cat /etc/inexistence/01.Log/installed.log"
 [[ $DEFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" && echo "DELTCFail=$DELTCFail"
 [[ $TRFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
 [[ $RTFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ $FloodFail == 1 ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
+[[ -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
 [[ $FLFAILED == 1 ]]  && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
