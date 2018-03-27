@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=099
-INEXISTENCEDATE=2018.03.27.3
+INEXISTENCEDATE=2018.03.27.4
 # --------------------------------------------------------------------------------
 
 
@@ -69,8 +69,7 @@ while true; do
 done
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; SYSTEMCHECK=0 ; UseTweaks=Yes
-    aptsources=Yes  ; MAXCPUS=$(nproc) 
+    ANUSER=aniverse ; aptsources=Yes ; MAXCPUS=$(nproc)
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
