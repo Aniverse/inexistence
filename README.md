@@ -13,6 +13,10 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 ## Installation Guide
 
+![脚本参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.09.png)
+
+脚本现已支持自定义参数，具体参数在以下介绍中有说明  
+
 ![引导界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.01.png)
 
 检查是否以 root 权限来运行脚本，检查公网 IP 地址与系统参数  
@@ -25,8 +29,6 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 ![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
 
 显示系统信息以及注意事项  
-
-脚本现已支持自定义参数，具体参数在以下介绍中有说明  
 
 ![安装时的选项](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.04.png)
 
@@ -189,6 +191,10 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 使用 **`-y`** 可以跳过开头的信息确认和此处的信息确认，配合其他参数可以做到无交互安装  
+
+![使用参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.10.png)
+
+
 
 
 -------------------
