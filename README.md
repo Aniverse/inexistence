@@ -115,7 +115,7 @@ Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现
 - `Mediastream` 插件可以在线观看盒子的视频文件  
 
 
-11. ***Flood**  
+11. **Flood**  
 **`--flood-yes`**、**`--flood-no`**  
 选择不安装 rTorrent 的话这个选项不会出现  
 Flood 是 rTorrent 的另一个 WebUI，界面美观，加载速度快，不过功能上不如 ruTorrent  
@@ -136,7 +136,7 @@ Transmission 一般无论哪个版本 PT 站都支持，并且用起来没多大
 VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 或者另外想办法安装 VNC  
 
 
-14. ***wine 与 mono***  
+14. ***wine 与  mono***  
 **`--wine-yes`**、**`--wine-no`**  
 这两个默认也是不安装的  
 `wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
@@ -162,12 +162,12 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 
 17. ***rclone***  
-`--rclone-yes`**、**`--rclone-no`**  
+**`--rclone-yes`**、**`--rclone-no`**  
 默认不安装。安装好后自己输入 rclone config 进行配置  
 
 
 18. ***BBR***  
-`--bbr-yes`、`--bbr-no`  
+**`--bbr-yes`**、**`--bbr-no`**  
 （如果你想安装魔改版 BBR 或 锐速，请移步到 [TrCtrlProToc0l](https://github.com/Aniverse/TrCtrlProToc0l) 脚本）  
 会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认直接启用BBR（不安装新内核）  
 据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配南琴浪版以外的魔改 BBR，因此采用了 4.11.12 内核  
