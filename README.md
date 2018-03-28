@@ -49,7 +49,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 4. **线程数量**  
-`--mt-single`、`--mt-double`、`--mt-half`、`--mt-max`  
+***`--mt-single`、`--mt-double`、`--mt-half`、`--mt-max`***  
 编译时使用几个线程进行编译。一般来说用默认的选项，也就是全部线程都用于编译就行了  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
 
@@ -70,7 +70,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 7. **qBittorrent**  
-`--qb '3.3.11 (Skip hash check)'`  
+`--qb '3.3.11 (Skip hash check)'`、`--qb 3.3.16`、`--qb ppa`  
 在 `Debian 8` 下由于不满足依赖的要求，无法直接完成 4.0 及以后版本的编译  
 （解决办法也有就是我不太喜欢所以没加上）  
 新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
@@ -78,7 +78,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 8. **Deluge**  
-`--de '1.3.15 (Skip hash check)'`  
+`--de '1.3.15 (Skip hash check)'`、`--de 1.3.9`、`--de repo`  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
@@ -91,7 +91,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 9. **libtorrent-rasterbar**  
-`--delt libtorrent-1_0_11`  
+`--delt libtorrent-1_0_11`、`--delt repo`  
 Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现  
 如果你不了解这是什么东西，请敲回车选择默认选项！乱选版本容易翻车  
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
