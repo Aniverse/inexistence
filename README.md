@@ -9,18 +9,20 @@
 
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
 
-![引导界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.01.png)
-![升级系统](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.02.png)
+![引导界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.01.png)
 
-检查是否以 root 来运行脚本，检查系统是否受支持  
+检查是否以 root 权限来运行脚本，检查公网 IP 地址与系统参数  
+
+![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.02.png)
+
 支持 `Ubuntu 16.04、Debian 8、Debian 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
-修改脚本第⑨行的 SYSTEMCHECK=1 可以关闭对于系统是否支持的检查，不过这种情况下脚本能不能正常工作我就不知道了  
+可以使用 `-s` 参数来跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
-![欢迎界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.03.png)
+![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.03.png)
 
 显示系统信息以及注意事项  
 
-![安装时的选项](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.04.png)
+![安装时的选项](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.04.png)
 
 
 1. **是否升级系统**  
@@ -132,15 +134,21 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 - 提高系统文件打开数  
 - 修改 screen 设置  
 
-18. **确认信息**  
+![确认信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.05.png)
+
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
+
 -------------------
 
-![安装完成界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.05.png)
+![安装完成界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.06.png)
 
 安装完成后会输出各类 WebUI 的网址，以及本次安装花了多少时间，然后问你是否重启系统（默认是不重启）  
 
-![Web界面](https://github.com/Aniverse/filesss/raw/master/Images/inexistence.06.png)
+![安装失败界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.07.png)
+
+如果安装时出现了偏差，会提示你如何查看日志（报错时请务必附上日志！）  
+
+![WebUI](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/inexistence.08.png)
 
 最后打开浏览器检查下各客户端是否都能正常访问  
 
@@ -151,7 +159,6 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 补充更多的站点预设  
 - **MiMA**  
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 的密码的脚本  
-- **检查安装完成后客户端是否正在运行**  
 
 #### Under Consideration
 
@@ -189,21 +196,21 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 此外有些功能还没做完  
 不做具体的介绍了，直接看图吧  
 
-![mingling.00](https://github.com/Aniverse/filesss/raw/master/Images/mingling.00.png)
-![mingling.01](https://github.com/Aniverse/filesss/raw/master/Images/mingling.01.png)
-![mingling.02](https://github.com/Aniverse/filesss/raw/master/Images/mingling.02.png)
-![mingling.03](https://github.com/Aniverse/filesss/raw/master/Images/mingling.03.png)
-![mingling.04](https://github.com/Aniverse/filesss/raw/master/Images/mingling.04.png)
-![mingling.05](https://github.com/Aniverse/filesss/raw/master/Images/mingling.05.png)
-![mingling.06](https://github.com/Aniverse/filesss/raw/master/Images/mingling.06.png)
-![mingling.07](https://github.com/Aniverse/filesss/raw/master/Images/mingling.07.png)
-![mingling.08](https://github.com/Aniverse/filesss/raw/master/Images/mingling.08.png)
+![mingling.00](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.00.png)
+![mingling.01](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.01.png)
+![mingling.02](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.02.png)
+![mingling.03](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.03.png)
+![mingling.04](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.04.png)
+![mingling.05](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.05.png)
+![mingling.06](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.06.png)
+![mingling.07](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.07.png)
+![mingling.08](https://github.com/Aniverse/inexistence/raw/master/03.Files/Images/mingling.08.png)
 
 #### Known Issues
 
 #### To Do List
 - **自动检查脚本是否存在更新？**  
-考虑到新版本和老版本可能不适配，这个不一定会做  
+但考虑到新版本和老版本可能不适配，这个不一定会做  
 - **完善说明文档**  
 
 
