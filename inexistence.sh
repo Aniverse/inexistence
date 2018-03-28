@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.28.3
+INEXISTENCEDATE=2018.03.28.4
 # --------------------------------------------------------------------------------
 
 
@@ -2175,6 +2175,8 @@ bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/An
 
 # [[ $DeBUG == 1 ]] && echo $IPv6Opt && echo $RTVERSIONIns
 
+# sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
+
 if [[ $rt_installed == Yes ]]; then
     rtupdate $IPv6Opt $RTVERSIONIns
 else
@@ -2182,8 +2184,8 @@ else
 fi
 
 rtwebmin
+openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 
-# openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
 ln -s /home/${ANUSER} /var/www/user.folder
