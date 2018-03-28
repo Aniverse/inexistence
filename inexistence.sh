@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.27.9
+INEXISTENCEDATE=2018.03.28.3
 # --------------------------------------------------------------------------------
 
 
@@ -1057,7 +1057,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal}" &&
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
-    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)" &&
+    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
