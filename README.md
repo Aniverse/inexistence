@@ -28,7 +28,6 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 ![安装时的选项](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.04.png)
 
-
 1. **是否升级系统**  
 如果你的系统是 `Debian 7` 或 `Ubuntu 14.04`，你可以用本脚本来升级到 `Debian 8` 或 `Ubuntu 16.04`  
 理论上整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
@@ -42,21 +41,30 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 3. **系统源**  
 其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
 
-4. **线程数量**    
-编译时使用几个线程进行编译。一般来说独服用默认的选项，也就是全部线程都用于编译就行了  
+4. **线程数量**  
+编译时使用几个线程进行编译。一般来说用默认的选项，也就是全部线程都用于编译就行了  
 某些 VPS 可能限制下线程数量比较好，不然可能会翻车  
+
+5. **安装时是否创建 swap**  
+`--swap-yes`，`--swap-no`  
+一些内存不够大的 VPS 在编译安装时可能物理内存不足，使用 swap 可以解决这个问题  
+实测 1C1T 1GB 内存 的 Vultr VPS 安装 Flood 不开启 swap 的话会失败，开启就没问题了  
+目前对于物理内存小于 1926MB 的都默认启用 swap，如果内存大于这个值那么你根本就不会看到这个选项……    
+
+6. **客户端安装选项**  
+`--de ppa --qb '3.3.11 (Skip hash check)' --rt 0.9.3 --enable-ipv6 --tr repo`  
 下面四大客户端的安装，指定版本的都是编译安装，安装速度相对较慢但可以任选版本  
 选择 `30` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 选择 `40` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
 选择 `50` 是从 PPA 安装( Debian 不支持所以不会显示)，同样无法指定版本不过一般软件都是最新版  
 
-5. **qBittorrent**  
+7. **qBittorrent**  
 在 `Debian 8` 下由于不满足依赖的要求，无法直接完成 4.0 及以后版本的编译  
 （解决办法也有就是我不太喜欢所以没加上）  
 新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-6. **Deluge**  
+8. **Deluge**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
@@ -67,48 +75,49 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-7. **libtorrent-rasterbar**  
+9. **libtorrent-rasterbar**  
 Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现  
 如果你对这个不了解的话，敲回车选择默认的选项就可以了  
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
-8. **rTorrent**  
+10. **rTorrent**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的，默认选项为安装原版 0.9.4  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
 - 0.9.2-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
-- 0.9.6 用的是最新的 feature-bind 分支，原生支持 IPv6；Debian 9 强制使用本版本  
-- FTP，端口号 21；SSH，端口号 22  
-- ruTorrent 版本为 3.8，包含一些第三方插件和主题  
+- 0.9.6 支持 IPv6 用的是 feature-bind 分支，原生支持 IPv6（Debian 9 强制使用此版本）  
+- 不修改 SSH 端口，FTP 使用 `vsftpd`，端口号 21，监听 IPv6  
+- 设置了 Deluge、qBittorrent、Transmission WebUI 的反代  
+- ruTorrent 版本为来自 master 分支的 3.8 版，此外还安装了如下的插件和主题  
 - `club-QuickBox` `MaterialDesign` 第三方主题  
-- `AutoDL-Irssi` 这个其实是 rtinst 安装的  
-- `Filemanager` 插件可以在 ruTorrent 上管理文件、创建压缩包、生成 mediaino 和截图  
-- `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果  
+- `AutoDL-Irssi` （原版 rtinst 自带）  
+- `Filemanager` 插件可以在 ruTorrent 上管理文件、右键创建压缩包、生成 mediainfo 和截图  
+- `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果（不需要的话可以手动禁用插件）  
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
 - `Fileshare` 插件创建有时限、可自定义密码的文件分享链接  
 - `Mediastream` 插件可以在线观看盒子的视频文件  
 
-9. **Flood**  
-Flood 是 rTorrent 的另一个 WebUI，界面美观，不过功能上不如 ruTorrent  
+11. **Flood**  
+Flood 是 rTorrent 的另一个 WebUI，界面美观，加载速度快，不过功能上不如 ruTorrent  
 选择不安装 rTorrent 的话这个选项不会出现  
 
-10. **Transmission**  
-Transmission 一般无论哪个版本PT站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
-此外还会安装修改版的 WebUI，更方便易用  
-11 和 12 这两个隐藏选项，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
+12. **Transmission**  
+Transmission 一般无论哪个版本 PT 站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
+此外还会安装 [美化版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
+隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
-11. **Remote Desktop**  
+13. **Remote Desktop**  
 远程桌面选项，默认不安装  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
-VNC 目前在某些情况下有 bug，建议用 X2Go  
+VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 或者另外想办法安装 VNC  
 
-12. **wine 与 mono**  
+14. **wine 与 mono**  
 这两个默认也是不安装的  
-`wine` 可以实现在 Linux 上运行 Windows 程序  
+`wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
 `mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
 
-13. **Some additional tools**  
-安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent 及其 WebUI  
+15. **Some additional tools**  
+安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent  
 - `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
 - `mkvtoolnix` 主要是用于做 BD-Remux  
 - `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，采用 git 的 Static Builds  
@@ -117,20 +126,20 @@ VNC 目前在某些情况下有 bug，建议用 X2Go
 - `BDinfoCLI` 已经自带了，需要 mono 来运行  
 - `bluray` 其实也自带了，不过有的时候我会忘记同步这里的版本，所以还是更新下  
 
-14. **Flexget**  
+16. **Flexget**  
 默认不安装；我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己设置  
 
-15. **rclone**  
+17. **rclone**  
 默认不安装。安装好后自己输入 rclone config 进行配置  
 
-16. **BBR**  
+18. **BBR**  
 会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认 直接启用BBR（不更换内核）  
 据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配南琴浪版以外的魔改 BBR，因此采用了 4.11.12 内核  
 注意：更换内核或多或少是有点危险性的操作，有时候会导致无法正常启动系统  
 不过针对常见的 Online／OP 的独服我是准备了五个 firmware，应该没什么问题  
 
-17. **系统设置**  
+19. **系统设置**  
 默认启用，具体操作如下：  
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
