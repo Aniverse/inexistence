@@ -2,6 +2,7 @@
 
 > 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
 > 作者是个菜鸡，本脚本的主要内容是抄袭 + 百度谷歌得来的  
+> 
 
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
 
@@ -200,13 +201,14 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 -------------------
 
 
+
 ![安装完成界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.06.png)
 
 安装完成后会输出各类 WebUI 的网址，以及本次安装花了多少时间，然后问你是否重启系统（默认是不重启）  
 
 ![安装失败界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.07.png)
 
-如果安装时出现了偏差，会提示你如何查看日志（报错时请务必附上日志！）  
+如果报道上出现了偏差，会提示你如何查看日志（报错时请务必附上日志！）  
 
 ![WebUI](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.08.png)
 
@@ -216,15 +218,12 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 #### To Do List
 
-- **Flexget 模板**  
-补充更多的站点预设  
 - **MiMA**  
 修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 的密码的脚本  
 
+
 #### Under Consideration
 
-- **Timer**  
-定时器？  
 - **不使用 root 运行**  
 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
 
@@ -233,9 +232,6 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 - **Debian 下 VNC 可能连不上**  
 求大佬们赐教  
-- **有时候 rTorrent 或 ruTorrent 会有一些问题**  
-最糟的情况是 rTorrent 没装成功，稍好一点的情况是 rut 连不上 rt，再好一点的情况是某些插件不能使用  
-因为有的时候是怎么翻车的我也不是很清楚，再加上我水平菜，所以这问题我一时半会儿修不了
 - **没有检查用户输入的账号、密码的有效性**  
 什么时候学好了正则再说  
 
@@ -268,6 +264,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 ![mingling.08](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.08.png)
 
 #### Known Issues
+- **有时候客户端操作菜单按了却没用**  
 
 #### To Do List
 - **自动检查脚本是否存在更新？**  
