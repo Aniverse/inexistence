@@ -136,7 +136,7 @@ Transmission 一般无论哪个版本 PT 站都支持，并且用起来没多大
 VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 或者另外想办法安装 VNC  
 
 
-14. ***wine 与  mono***  
+14. ***wine & mono***  
 **`--wine-yes`**、**`--wine-no`**  
 这两个默认也是不安装的  
 `wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
