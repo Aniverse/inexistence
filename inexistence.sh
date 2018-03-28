@@ -227,11 +227,11 @@ echo ; }
 
 ### 输入自己想要的软件版本 ###
 function _inputversion() {
-echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version, or the installation will be FAILED${normal}"
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version${normal}"
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
 
 function _inputversionlt() {
-echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version, or the installation will be FAILED${normal}"
+echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version${normal}"
 echo -e "${red}${bold} Here is a list of all the available versions${normal}\n"
 wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" inputversion; echo -n "${normal}" ; }
@@ -967,7 +967,7 @@ while [[ $DELTVERSION = "" ]]; do
         if [[ $CODENAME == stretch ]]; then
 
           # read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}01${normal}): " ; read -e version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
@@ -983,7 +983,7 @@ while [[ $DELTVERSION = "" ]]; do
         else
 
            #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want to be used for Deluge?${normal} (Default ${cyan}40${normal}): " ; read -e version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
 
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
@@ -1057,7 +1057,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal}" &&
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
-    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
+    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)" &&
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
@@ -1067,14 +1067,14 @@ while [[ $RTVERSION = "" ]]; do
   
     if [[ $CODENAME == stretch ]]; then
 
-        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6${normal}"
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6 feature bind branch${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
-            14) RTVERSION='0.9.4 IPv6 supported' ;;
+            14) RTVERSION='0.9.6 IPv6 supported' ;;
             99) RTVERSION=No ;;
-            "" | *) RTVERSION='0.9.4 IPv6 supported' ;;
+            "" | *) RTVERSION='0.9.6 IPv6 supported' ;;
         esac
 
     else
@@ -2911,7 +2911,7 @@ echo '------------------------------------------------------------------'
 if   [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
     echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   http${sss}://${serveripv4}${QBWEB}"
 elif [[ ! $QBVERSION == No ]] && [[ $qb_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}qBittorrent installation FAILED${normal}"
+    echo -e " ${red}qBittorrent WebUI${normal}                      ${bold}${baihongse}ERROR   ${normal}   ${bold}${red}qBittorrent installation FAILED${normal}"
     QBFAILED=1 ; INSFAILED=1
 fi
 
@@ -2919,7 +2919,7 @@ fi
 if   [[ ! $DEVERSION == No ]] && [[ $de_installed == Yes ]]; then
     echo -e " ${cyan}Deluge WebUI${normal}        $destatus   http${sss}://${serveripv4}${DEWEB}"
 elif [[ ! $DEVERSION == No ]] && [[ $de_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Deluge installation FAILED${normal}"
+    echo -e " ${red}Deluge WebUI${normal}                      ${bold}${baihongse}ERROR   ${normal}   ${bold}${red}Deluge installation FAILED${normal}"
     DEFAILED=1 ; INSFAILED=1
 fi
 
@@ -2927,7 +2927,7 @@ fi
 if   [[ ! $TRVERSION == No ]] && [[ $tr_installed == Yes ]]; then
     echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${ANUSER}:${ANPASS}@${serveripv4}${TRWEB}"
 elif [[ ! $TRVERSION == No ]] && [[ $tr_installed == No ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Transmission installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                         ${bold}${red}Transmission installation FAILED${normal}"
     TRFAILED=1 ; INSFAILED=1
 fi
 
@@ -2936,16 +2936,16 @@ if   [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
     echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}${RTWEB}"
     [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && INSFAILED=1 && FDFAILED=1 &&
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flood installation FAILED${normal}"
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                         ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No  ]]; then
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}rTorrent installation FAILED${normal}"
+    echo -e " ${bold}${baihongse}ERROR${normal}                         ${bold}${red}rTorrent installation FAILED${normal}"
     [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && INSFAILED=1 &&  FDFAILED=1 &&
-    echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flood installation FAILED${normal}"
+    [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+    echo -e " ${bold}${baihongse}ERROR${normal}                         ${bold}${red}Installation FAILED${normal}" && FDFAILED=1
     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}"
     RTFAILED=1 ; INSFAILED=1
 fi
@@ -2954,7 +2954,7 @@ fi
 if   [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
      echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
 elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
-     echo -e " ${bold}${baihongse}ERROR${normal}                          ${bold}${red}Flexget installation FAILED${normal}"
+     echo -e " ${bold}${baihongse}ERROR${normal}                         ${bold}${red}Flexget installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
 fi
 
