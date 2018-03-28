@@ -2668,19 +2668,6 @@ echo -e "${bailanse}\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n${norm
 # --------------------- 一些设置修改 --------------------- #
 function _tweaks() {
 
-# Oh my zsh
-#sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-#cp -f "${local_packages}"/template/config/zshrc ~/.zshrc
-#wget -O ~/.oh-my-zsh/themes/agnosterzak.zsh-theme http://raw.github.com/zakaziko99/agnosterzak-ohmyzsh-theme/master/agnosterzak.zsh-theme
-#chsh -s /bin/zsh
-
-
-# PowerFonts
-git clone --depth=1 -b master --single-branch https://github.com/powerline/fonts
-cd fonts;./install.sh
-cd; rm -rf fonts
-
-
 #修改时区
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
