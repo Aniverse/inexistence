@@ -2943,7 +2943,7 @@ fi
 if   [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
      echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
 elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
-     echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Flexget installation FAILED${normal}"
+     echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
 fi
 
