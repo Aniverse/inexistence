@@ -3,14 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-#PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-#export PATH
+# PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+# export PATH
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.28.4
+INEXISTENCEDATE=2018.03.29.1
 # --------------------------------------------------------------------------------
 
 
@@ -106,24 +106,21 @@ function _if_running () { ps -ef | grep "$1" | grep -v grep > /dev/null && echo 
 
 ### 硬盘计算 ###
 calc_disk() {
-    local total_size=0
-    local array=$@
-    for size in ${array[@]}
-    do
-        [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
-        [ "`echo ${size:(-1)}`" == "K" ] && size=0
-        [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
-        [ "`echo ${size:(-1)}`" == "T" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' * 1024}' )
-        [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
-        total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
-    done
-    echo ${total_size} ; }
+local total_size=0 ; local array=$@
+for size in ${array[@]} ; do
+    [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
+    [ "`echo ${size:(-1)}`" == "K" ] && size=0
+    [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
+    [ "`echo ${size:(-1)}`" == "T" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' * 1024}' )
+    [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
+    total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
+done ; echo ${total_size} ; }
+
 
 ### 操作系统检测 ###
-get_opsy() {
-    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
-    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
-    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return ; }
+get_opsy() { [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+[ -f /etc/os-release  ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+[ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return ; }
 
 # --------------------------------------------------------------------------------
 ### 是否为 IPv4 地址(其实也不一定是) ###
@@ -135,19 +132,19 @@ function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{
 # --------------------------------------------------------------------------------
 # 检查客户端是否已安装、客户端版本
 function _check_install_1(){
-  client_location=$( command -v ${client_name} )
+client_location=$( command -v ${client_name} )
 
-  [[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
-  [[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
-  [[ "${client_name}" == "deluged" ]] && client_name=de
-  [[ "${client_name}" == "rtorrent" ]] && client_name=rt
-  [[ "${client_name}" == "flexget" ]] && client_name=flex
+[[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
+[[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
+[[ "${client_name}" == "deluged" ]] && client_name=de
+[[ "${client_name}" == "rtorrent" ]] && client_name=rt
+[[ "${client_name}" == "flexget" ]] && client_name=flex
 
-  if [[ -a $client_location ]]; then
-      eval "${client_name}"_installed=Yes
-  else
-      eval "${client_name}"_installed=No
-  fi ; }
+if [[ -a $client_location ]]; then
+    eval "${client_name}"_installed=Yes
+else
+    eval "${client_name}"_installed=No
+fi ; }
 
 function _check_install_2(){
 for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
@@ -155,10 +152,10 @@ for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone 
 done ; }
 
 function _client_version_check(){
-[[ "${qb_installed}" == "Yes" ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
-[[ "${de_installed}" == "Yes" ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`  deluged --version | grep libtorrent | grep -Eo "[01].[0-9]+.[0-9]+"  `
-[[ "${rt_installed}" == "Yes" ]] && rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
-[[ "${tr_installed}" == "Yes" ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; }
+[[ $qb_installed == Yes ]] && qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"`
+[[ $de_installed == Yes ]] && deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` && delugelt_ver=`  deluged --version | grep libtorrent | grep -Eo "[01].[0-9]+.[0-9]+"  `
+[[ $rt_installed == Yes ]] && rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'`
+[[ $tr_installed == Yes ]] && trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; }
 
 # --------------------------------------------------------------------------------
 ### 随机数 ###
@@ -203,19 +200,19 @@ major_repo=0
 echo
 echo "Checking major 3rd party components"
 # echo -n ": "; check_url $_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Inexistence: "; check_url $inex_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "qBittorrent: "; check_url $qbt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Deluge: "; check_url $de_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Libtorrent-rasterbar: "; check_url $lt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "rtinst Aniverse Mod: "; check_url $rtinst_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Rtorrent: "; check_url $rt_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "xmlrpc-c: "; check_url $xmlrpc_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "RuTorrent: ";check_url $ru_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Autodl-irssi: "; check_url $adl_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "libevent: "; check_url $libevent_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Transmission: "; check_url $tr_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Transmission Web Control: "; check_url $trweb_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "rclone: "; check_url $rclone_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
+echo -n "Inexistence: "          ; check_url $inex_url     && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "qBittorrent: "          ; check_url $qbt_url      && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Deluge: "               ; check_url $de_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Libtorrent-rasterbar: " ; check_url $lt_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "rtinst Aniverse Mod: "  ; check_url $rtinst_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Rtorrent: "             ; check_url $rt_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "xmlrpc-c: "             ; check_url $xmlrpc_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "RuTorrent: "            ; check_url $ru_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Autodl-irssi: "         ; check_url $adl_url      && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "libevent: "             ; check_url $libevent_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Transmission: "         ; check_url $tr_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "Transmission WebUI: "   ; check_url $trweb_url    && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
+echo -n "rclone: "               ; check_url $rclone_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
 echo
 
 if [ $major_repo = 1 ]; then
@@ -1408,7 +1405,8 @@ echo ; }
 # --------------------- BBR 相关 --------------------- #
 
 # 检查是否已经启用BBR、BBR 魔改版
-function check_bbr_status() { bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}') ; if [[ $bbrstatus =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then bbrinuse=Yes ; else bbrinuse=No ; fi ; }
+function check_bbr_status() { bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
+if [[ $bbrstatus =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then bbrinuse=Yes ; else bbrinuse=No ; fi ; }
 
 # 检查系统内核版本是否大于4.9
 function check_kernel_version() { if [[ $kv1 -ge 4 ]] && [[ $kv2 -ge 9 ]]; then bbrkernel=Yes ; else bbrkernel=No ; fi ; }
@@ -1709,7 +1707,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync
+apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -1952,12 +1950,12 @@ else
     if [[ $qb_installed == Yes ]]; then
         make install && QBCFail=0 || export QBCFail=1
     else
-#       dpkg -r qbittorrentnox
+      # dpkg -r qbittorrentnox
         checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
     fi
 
     mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
-#     make install
+  # make install
     cd;rm -rf libtorrent qBittorrent
     echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
@@ -1970,7 +1968,7 @@ fi ; }
 
 # --------------------- 下载安装 qBittorrent --------------------- #
 
-function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral /etc/iFeral ; chmod -R +x iFeral ; }
+function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral /etc/iFeral ; chmod -R +x /etc/iFeral/app ; }
 
 
 
