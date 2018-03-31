@@ -8,6 +8,8 @@ templates:
       path: /home/SCRIPTUSERNAME/qbittorrent/download/
       host: localhost
       port: 2017
+      username: SCRIPTUSERNAME
+      password: SCRIPTPASSWORD
   tr:
     transmission:
       path: /home/SCRIPTUSERNAME/transmission/download/
