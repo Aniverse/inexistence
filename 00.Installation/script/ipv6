@@ -5,14 +5,15 @@
 # https://github.com/outime/ipv6-dhclient-script
 # https://github.com/jxzy199306/ipv6-dhclient-script
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};heibaise=${black}${on_white};shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};heibaise=${black}${on_white};shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm);jiacu=${normal}${bold}
 
-LAST_UPDATE=20180201
+LAST_UPDATE=20180401
 
-INTERFACE=$1
-BLOCK_ADDR=$2
-BLOCK_SUBNET=$3
-BLOCK_DUID=$4
+BLOCK_ADDR=$1
+BLOCK_SUBNET=$2
+BLOCK_DUID=$3
+INTERFACE=$4
+[[ -z $INTERFACE ]] && INTERFACE=`ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"`
 DHCLIENT6_FILE="/etc/dhcp/dhclient6.conf"
 
 #[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
@@ -40,8 +41,8 @@ clear
         exit 1
     fi
 
-    [[ -a $DHCLIENT6_FILE ]] && echo "${bold}${red}Attention${white} dhclient6.conf detected. Existing config will be replaced"
-    echo "${bold}${red}WARNING${white} Network will restart at the end of this script so any existing connections will be dropped!${normal}"
+    [[ -a $DHCLIENT6_FILE ]] && echo "${bold}${red}Attention${jiacu} dhclient6.conf detected. Existing config will be replaced"
+    echo "${bold}${red}WARNING${jiacu} Network will restart at the end of this script so any existing connections will be dropped!${normal}"
     echo
     
     while [[ $INTERFACE = "" ]]; do
@@ -53,8 +54,8 @@ clear
 
     CURRENT_IPV6=$(ip addr show dev $INTERFACE | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
     if [[ $? -eq 0 ]]; then
-        echo "${bold}You have the following IPv6 addreses configured for ${blue}$INTERFACE${white}"
-        echo "${green}${CURRENT_IPV6}${white}"
+        echo "${bold}You have the following IPv6 addreses configured for ${blue}$INTERFACE${jiacu}"
+        echo "${green}${CURRENT_IPV6}${jiacu}"
         read -e -p "Continue? [Y/n]: ${normal}" -i "Y" SKIP
         if ! [[ $SKIP =~ ^([yY][eE][sS]|[yY])$ ]]; then
             exit 1
@@ -64,15 +65,15 @@ clear
     echo
 
     while [[ $BLOCK_ADDR = "" ]]; do # to be replaced with regex
-        read -p "${bold}${yellow}Input your IPv6 block address ${white}(e.g. ${underline}2001:bb8:3e23:200::${reset_underline}): ${blue}" BLOCK_ADDR
+        read -p "${bold}${yellow}Input your IPv6 block address ${jiacu}(e.g. ${underline}2001:bb8:3e23:200::${reset_underline}): ${blue}" BLOCK_ADDR
     done
     
     while ! [[ $BLOCK_SUBNET =~ ^[0-9]+$ ]]; do
-        read -p "${bold}${yellow}Input your subnet for block ${white}(e.g. if it's /56, input ${underline}56${reset_underline}): ${blue}" BLOCK_SUBNET
+        read -p "${bold}${yellow}Input your subnet for block ${jiacu}(e.g. if it's /56, input ${underline}56${reset_underline}): ${blue}" BLOCK_SUBNET
     done
 
     while [[ $BLOCK_DUID = "" ]]; do # to be replaced with regex
-        read -p "${bold}${yellow}Input your associated DUID ${white}(e.g. ${underline}00:03:00:00:34:b0:0c:47:4a:0e${reset_underline}): ${blue}" BLOCK_DUID
+        read -p "${bold}${yellow}Input your associated DUID ${jiacu}(e.g. ${underline}00:03:00:00:34:b0:0c:47:4a:0e${reset_underline}): ${blue}" BLOCK_DUID
         echo -ne "${normal}"
     done
 
@@ -119,10 +120,10 @@ clear
     echo "}" >> $DHCLIENT6_FILE
 
     if [[ $DISTRO = "Debian" ]]; then
-        sysctl -w net.ipv6.conf.$INTERFACE.autoconf=0
+        sysctl -w net.ipv6.conf.$INTERFACE.autoconf=0 > /dev/null
         sed -i '/^net.ipv6.conf.*/'d /etc/sysctl.conf
         echo "net.ipv6.conf.$INTERFACE.autoconf=0" >> /etc/sysctl.conf
-#       ifdown $INTERFACE && ifup $INTERFACE
+      # ifdown $INTERFACE && ifup $INTERFACE
         systemctl reload-or-restart networking.service
     elif [[ $DISTRO = "Redhat" ]]; then
         systemctl enable ipv6-dhclient
