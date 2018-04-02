@@ -2001,6 +2001,8 @@ else
 cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
 fi
 
+touch /etc/inexistence/01.Log/qbittorrent.log
+
 systemctl daemon-reload
 systemctl enable qbittorrent
 systemctl start qbittorrent
