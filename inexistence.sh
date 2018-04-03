@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.29.1
+INEXISTENCEDATE=2018.04.03.1
 # --------------------------------------------------------------------------------
 
 
@@ -2888,7 +2888,9 @@ _check_install_2
 
 clear ; unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
 
-if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+#if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+
+RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
 if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
