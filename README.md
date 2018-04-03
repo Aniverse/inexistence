@@ -313,13 +313,13 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
 
 ``` 
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
+bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
 ``` 
 
 可以在命令里写上 IPv6 的信息（复制粘贴更方便一些）  
 第四项的网卡可以让脚本自动检测，也可以手动指定  
 ```
-wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
+wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
 bash ipv6 [address] [subnet] [DUID] [interface]  
 bash ipv6 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26 enp2s0  
 bash ipv6 [address] [subnet] [DUID]  
