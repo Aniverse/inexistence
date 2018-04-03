@@ -11,9 +11,58 @@
 
 
 
+## 2018.04.03
+
+`inexistence 1.0.0`  
+1. Bug Fix：暂时禁用 De/Qb 的反代  
+
+`README 1.0.1`  
+1. 更新 IPv6 部分的说明  
+2. 说明 qb 的隐藏选项  
+3. 说明 de/qb/tr/rt `No` 不安装的写法  
 
 
 
+
+
+
+## 2018.04.02
+
+`inexistence 1.0.0`  
+1. Bug Fix：创建 qb 的日志文件  
+
+
+
+
+
+## 2018.04.01
+
+`inexistence 1.0.0`  
+1. Bug Fix：启用 qb webui 的本地认证  
+
+`IPv6`  
+1. New Feature：使用参数的情况下也可以自动检测网卡  
+2. UI：使用 jiacu 代替 white  
+
+
+
+
+
+## 2018.03.31
+
+`inexistence 1.0.0`  
+1. Bug Fix：修复 qBittorrent WebUI 因为反代跳过了账号密码验证的问题  
+
+
+
+
+
+## 2018.03.29
+
+`inexistence 1.0.0`  
+1. 还是加了个 speedtest-cli 的安装  
+下一步原先那个可以删了，不需要 beta 的输出了……  
+2. Code：部分调整  
 
 
 
