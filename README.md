@@ -25,7 +25,7 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 ![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.png)
 
 支持 `Ubuntu 16.04、Debian 8、Debian 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
-可以使用 **`-s`** 参数来跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
+使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
 ![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
 
@@ -73,15 +73,14 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 7. ***qBittorrent***  
-**`--qb '3.3.11 (Skip hash check)'`**、**`--qb 3.3.16`**、**`--qb ppa`**  
-在 `Debian 8` 下由于不满足依赖的要求，无法直接完成 4.0 及以后版本的编译  
-（解决办法也有就是我不太喜欢所以没加上）  
-新增加的 qb 3.3.11 Skip Hash Check 是可以在 WebUI 下跳过校验的 3.3.11 版本  
+**`--qb '3.3.11 (Skip hash check)'`**、**`--qb 3.3.16`**、**`--qb ppa`**、**`--qb No`**  
+在 `Debian 8` 下由于不满足依赖的要求，无法直接完成 4.0 及以后版本的编译（解决办法也有就是我不太喜欢所以没加上）  
+隐藏选项 21，是可以在 WebUI 下跳过校验的 3.3.11 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
 8. ***Deluge***  
-**`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**  
+**`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
@@ -94,14 +93,14 @@ bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexiste
 
 
 9. ***libtorrent-rasterbar***  
-**`--delt libtorrent-1_0_11`**、**`--delt repo`**  
+**`--delt libtorrent-1_0_11`**、**`--delt repo`**、**`--delt No`**  
 Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现  
 如果你不了解这是什么东西，请敲回车选择默认选项！乱选版本容易翻车  
 最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
 
 
 10. ***rTorrent***  
-**`--rt 0.9.4`**、**`--rt 0.9.3 --enable-ipv6`**  
+**`--rt 0.9.4`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的，默认选项为安装原版 0.9.4  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
 - 0.9.2-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
@@ -191,7 +190,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 ![确认信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.05.png)
 
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
-使用 **`-y`** 可以跳过开头的信息确认和此处的信息确认，配合其他参数可以做到无交互安装  
+使用 ***`-y`*** 可以跳过开头的信息确认和此处的信息确认，配合其他参数可以做到无交互安装  
 
 ![使用参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.10.png)
 
@@ -314,10 +313,17 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
 
 ``` 
-wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
-bash ipv6  
-bash ipv6 [interface] [address] [subnet] [DUID]  
-bash ipv6 enp2s0 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26  
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
+``` 
+
+可以在命令里写上 IPv6 的信息（复制粘贴更方便一些）  
+第四项的网卡可以让脚本自动检测，也可以手动指定  
+```
+wget --no-check-certificate https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
+bash ipv6 [address] [subnet] [DUID] [interface]  
+bash ipv6 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26 enp2s0  
+bash ipv6 [address] [subnet] [DUID]  
+bash ipv6 2001:cb6:2521:240:: 57 00:03:00:01:d3:3a:15:b4:43:ad  
 ```
 
 ![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
