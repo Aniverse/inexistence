@@ -123,11 +123,10 @@ clear
         sysctl -w net.ipv6.conf.$INTERFACE.autoconf=0 > /dev/null
         sed -i '/^net.ipv6.conf.*/'d /etc/sysctl.conf
         echo "net.ipv6.conf.$INTERFACE.autoconf=0" >> /etc/sysctl.conf
-        if [[ ! `command -v systemctl` ]]; then
-            ifdown $INTERFACE && ifup $INTERFACE ; ifup $INTERFACE ; ifup $INTERFACE
-        else
-            systemctl reload-or-restart networking.service
-        fi
+        ifdown $INTERFACE && ifup $INTERFACE ; ifup $INTERFACE
+
+      # if [[ ! `command -v systemctl` ]]; then ifdown $INTERFACE && ifup $INTERFACE ; ifup $INTERFACE ; ifup $INTERFACE ; else systemctl restart networking.service ; fi
+
     elif [[ $DISTRO = "Redhat" ]]; then
         systemctl enable ipv6-dhclient
         systemctl restart ipv6-dhclient
