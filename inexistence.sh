@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.04.03.2
+INEXISTENCEDATE=2018.04.04.01
 # --------------------------------------------------------------------------------
 
 
@@ -175,7 +175,7 @@ for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq )
 done
 
 if [ $os_repo = 1 ]; then
-  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it mannually${normal}"
+  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it manually${normal}"
 fi
 }
 
@@ -1501,7 +1501,7 @@ echo ; }
 function _askreboot() {
 # read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
 echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "
-if [[ $ForceYes == 1 ]];then reboot ; else read -e is_reboot ; fi
+if [[ $ForceYes == 1 ]];then reboot || echo "WTF, try reboot manually?" ; else read -e is_reboot ; fi
 if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
 else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
@@ -1758,7 +1758,7 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
-[[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
+[[ ! $DeBUG == 1 ]] && echo -e "\n\n  ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
 sleep 20
 kill -s TERM $TOP_PID
