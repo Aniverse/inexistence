@@ -987,8 +987,8 @@ while [[ $DELTVERSION = "" ]]; do
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40 | "") DELTVERSION='Install from repo' ;;
-                  50) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
+                  40) DELTVERSION='Install from repo' ;;
+                  50 |"") DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
                   99) DELTVERSION=No ;;
                   *) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
             esac
@@ -1003,7 +1003,7 @@ while [[ $DELTVERSION = "" ]]; do
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40 | "") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
+                  40 |"") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
                   99) DELTVERSION=No ;;
                   *) DELTVERSION='Install from repo' && DeLTDefault=1 ;;
             esac
