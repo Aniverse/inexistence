@@ -977,6 +977,22 @@ while [[ $DELTVERSION = "" ]]; do
                   "" | *) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
             esac
 
+        elif [[ $CODENAME == xenial ]]; then
+
+           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}50${normal}): " ; read -e version
+
+            case $version in
+                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+                  40 | "") DELTVERSION='Install from repo' ;;
+                  50) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
+                  99) DELTVERSION=No ;;
+                  *) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
+            esac
+
         else
 
            #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
@@ -988,7 +1004,6 @@ while [[ $DELTVERSION = "" ]]; do
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40 | "") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
-                  50) DELTVERSION='Install from PPA' ;;
                   99) DELTVERSION=No ;;
                   *) DELTVERSION='Install from repo' && DeLTDefault=1 ;;
             esac
@@ -2014,7 +2029,7 @@ touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 
 
-# --------------------- 编译安装 Deluge --------------------- #
+# --------------------- 安装 Deluge --------------------- #
 
 function _installde() {
 
