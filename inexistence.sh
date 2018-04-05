@@ -979,7 +979,7 @@ while [[ $DELTVERSION = "" ]]; do
 
         elif [[ $CODENAME == xenial ]]; then
 
-           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
+           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}50${normal}): " version
             echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}50${normal}): " ; read -e version
 
             case $version in
@@ -1995,7 +1995,7 @@ function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral
 function _setqbt() {
 
 [[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
-# [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qBittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
+# [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qbittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
 mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
 chmod -R 777 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
@@ -2325,7 +2325,7 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 # [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-mkdir -p /home/${ANUSER}/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
+mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
 chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 rm -rf /var/www/transmission.download
@@ -2359,7 +2359,7 @@ function _installflex() {
   pip install --upgrade setuptools pip
   pip install flexget transmissionrpc
 
-  mkdir -p /home/${ANUSER}/{transmission,qBittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
+  mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
   cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
@@ -2832,7 +2832,7 @@ alias sousuo2="find /home/${ANUSER} -name"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
-alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 ; echo -e '\n已开启 root 登陆\n'"
+alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
