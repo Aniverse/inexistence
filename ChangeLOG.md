@@ -19,6 +19,109 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2018.04.04
+
+`inexistence 1.0.0`  
+1. UI：升级系统后重启的提示修改了下；重启失败的话可能会有提示可能没有，这个情况不多见不好测试  
+此外修正了一个拼错的单词……  
+
+`IPv6`  
+1. Bug Fix：看下面的吐槽  
+不知道为什么这次我自己在 Debian 8 下跑了好几次都不成功，ifup 就行了，restart networking 还直接搞断网了，我不得不 IPMI 连上去重启了下网络……  
+这样的话还是用回 ifup 算了，蛋疼  
+
+
+
+
+
+
+## 2018.04.03
+
+`inexistence 1.0.0`  
+1. Bug Fix：暂时禁用 De/Qb 的反代  
+原来 qb webui 图标显示不出来也是反代的问题。由于不懂 ngnix 所以这个暂时先搁置了吧，之前算是瞎折腾了  
+2. 增加 lolcat 的安装  
+
+`IPv6`  
+1. New Feature：对于没有 `systemctl` 的，仍然使用 `ifdown` `ifup`  
+
+`BDinfo`  
+1. 修复文件名不对导致最后无法输出结果的问题  
+2. 最后不经询问直接输出结果  
+3. 改进一些写法  
+
+`README 1.0.1`  
+1. 更新 IPv6 部分的说明  
+2. 说明 qb 的隐藏选项  
+3. 说明 de/qb/tr/rt `No` 不安装的写法  
+
+
+
+
+
+
+## 2018.04.02
+
+`inexistence 1.0.0`  
+1. Bug Fix：创建 qb 的日志文件  
+
+
+
+
+
+## 2018.04.01
+
+`inexistence 1.0.0`  
+1. Bug Fix：启用 qb webui 的本地认证  
+
+`IPv6`  
+1. New Feature：使用参数的情况下也可以自动检测网卡  
+2. UI：使用 jiacu 代替 white  
+
+
+
+
+
+## 2018.03.31
+
+`inexistence 1.0.0`  
+1. Bug Fix：修复 qBittorrent WebUI 因为反代跳过了账号密码验证的问题  
+
+
+
+
+
+## 2018.03.29
+
+`inexistence 1.0.0`  
+1. 还是加了个 speedtest-cli 的安装  
+下一步原先那个可以删了，不需要 beta 的输出了……  
+2. Code：部分调整  
+
+
+
+
+
 ## 2018.03.28
 
 `inexistence 1.0.0`  

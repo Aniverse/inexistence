@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.03.29.1
+INEXISTENCEDATE=2018.04.06.02
 # --------------------------------------------------------------------------------
 
 
@@ -175,7 +175,7 @@ for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq )
 done
 
 if [ $os_repo = 1 ]; then
-  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it mannually${normal}"
+  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it manually${normal}"
 fi
 }
 
@@ -886,42 +886,46 @@ while [[ $DEVERSION = "" ]]; do
 done
 
 
-[[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
+[[ ` echo $DEVERSION | grep -oP "[0-9.]+" | awk -F '.' '{print $3}' ` -lt 11 ]] && DESSL=Yes
 
 
-  if [[ $DEVERSION == No ]]; then
+if [[ $DEVERSION == No ]]; then
 
-      echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-      DELTVERSION=NoDeluge
+    echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
+    DELTVERSION=NoDeluge
 
-  elif [[ $DEVERSION == "Install from repo" ]]; then 
+elif [[ $DEVERSION == "Install from repo" ]]; then 
 
-      sleep 0
+    sleep 0
 
-  elif [[ $DEVERSION == "Install from PPA" ]]; then
+elif [[ $DEVERSION == "Install from PPA" ]]; then
 
-      if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-          echo -ne "Therefore "
-          DEVERSION='Install from repo'
-      else
-          echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}will be installed from PPA${normal}"
-      fi
+    if [[ $DISTRO == Debian ]]; then
 
-  else
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
+        echo -ne "Therefore "
+        DEVERSION='Install from repo'
 
-      echo "${bold}${baiqingse}Deluge ${DEVERSION}${normal} ${bold}will be installed${normal}"
+    else
 
-  fi
+        echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}will be installed from PPA${normal}"
+
+    fi
+
+else
+
+    echo "${bold}${baiqingse}Deluge ${DEVERSION}${normal} ${bold}will be installed${normal}"
+
+fi
 
 
-  if [[ $DEVERSION == "Install from repo" ]]; then 
+if [[ $DEVERSION == "Install from repo" ]]; then 
 
-      echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository${normal}"
+    echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository${normal}"
 
-  fi
+fi
 
-  echo ; }
+echo ; }
 
 
 
@@ -977,6 +981,22 @@ while [[ $DELTVERSION = "" ]]; do
                   "" | *) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
             esac
 
+        elif [[ $CODENAME == xenial ]]; then
+
+           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}50${normal}): " version
+            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}50${normal}): " ; read -e version
+
+            case $version in
+                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
+                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+                  40) DELTVERSION='Install from repo' ;;
+                  50 |"") DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
+                  99) DELTVERSION=No ;;
+                  *) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
+            esac
+
         else
 
            #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
@@ -987,8 +1007,7 @@ while [[ $DELTVERSION = "" ]]; do
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
                   02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40 | "") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
-                  50) DELTVERSION='Install from PPA' ;;
+                  40 |"") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
                   99) DELTVERSION=No ;;
                   *) DELTVERSION='Install from repo' && DeLTDefault=1 ;;
             esac
@@ -1501,7 +1520,7 @@ echo ; }
 function _askreboot() {
 # read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
 echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "
-if [[ $ForceYes == 1 ]];then reboot ; else read -e is_reboot ; fi
+if [[ $ForceYes == 1 ]];then reboot || echo "WTF, try reboot manually?" ; else read -e is_reboot ; fi
 if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
 else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
 
@@ -1707,7 +1726,7 @@ fi
 # dpkg --configure -a
 # apt-get -f -y install
 
-apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli
+apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -1758,7 +1777,7 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
-[[ ! $DeBUG == 1 ]] && echo -e "\n${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
+[[ ! $DeBUG == 1 ]] && echo -e "\n\n  ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
 sleep 20
 kill -s TERM $TOP_PID
@@ -1980,11 +1999,11 @@ function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral
 function _setqbt() {
 
 [[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
-# [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qBittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
+# [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qbittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
 mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
-chmod -R 777 /home/${ANUSER}/qbittorrent
+chmod -R 666 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
-chmod -R 777 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
+chmod -R 666 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
 rm -rf /var/www/qbittorrent.download
 ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
 
@@ -2001,6 +2020,8 @@ else
 cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
 fi
 
+touch /etc/inexistence/01.Log/qbittorrent.log
+
 systemctl daemon-reload
 systemctl enable qbittorrent
 systemctl start qbittorrent
@@ -2012,7 +2033,7 @@ touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 
 
-# --------------------- 编译安装 Deluge --------------------- #
+# --------------------- 安装 Deluge --------------------- #
 
 function _installde() {
 
@@ -2083,11 +2104,11 @@ function _installde() {
       fi
 
       if [[ $DESKIP == Yes ]]; then
-          DEVERSION=1.3.15
-          cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
+          export DEVERSION=1.3.15
+          cd ; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
           echo -e "\n\n\nDELUGE SKIP HASH CHECK (FOR LOG)\n\n\n"
       else
-          cd; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+          cd ; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
 
       tar zxf deluge-"${DEVERSION}".tar.gz
@@ -2097,6 +2118,7 @@ function _installde() {
       ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
+
       if [[ $DESSL == Yes ]]; then
           sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
           sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
@@ -2124,19 +2146,19 @@ function _setde() {
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/transmission.download
 ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
-chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+chmod -R 666 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
-chmod -R 777 /etc/inexistence/01.Log
+chmod -R 666 /etc/inexistence/01.Log
 
 # mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
 # cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
 mkdir -p /root/.config && cd /root/.config
-[[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
+[[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv /root/.config/deluge /root/.config/deluge.old ; }
 cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
 tar zxf deluge.config.tar.gz
-chmod -R 777 /root/.config
+chmod -R 666 /root/.config
 rm -rf deluge.config.tar.gz; cd
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
@@ -2308,8 +2330,8 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 # [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-mkdir -p /home/${ANUSER}/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
-chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
+chmod -R 666 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 rm -rf /var/www/transmission.download
 ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
@@ -2342,12 +2364,12 @@ function _installflex() {
   pip install --upgrade setuptools pip
   pip install flexget transmissionrpc
 
-  mkdir -p /home/${ANUSER}/{transmission,qBittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
+  mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
   cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
-# chmod -R 777 /home/${ANUSER}/.config/flexget
+# chmod -R 666 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
   flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output
@@ -2815,7 +2837,7 @@ alias sousuo2="find /home/${ANUSER} -name"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
-alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 ; echo -e '\n已开启 root 登陆\n'"
+alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
@@ -2886,13 +2908,15 @@ _check_install_2
 
 clear ; unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
 
-if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+#if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+
+RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
 if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
 
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
-echo '------------------------------------------------------------------------'
+echo '---------------------------------------------------------------------------------'
 
 
 if   [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
@@ -2962,22 +2986,22 @@ echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI pa
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n          maybe your password is too young too simple?${normal}"
 
-echo '------------------------------------------------------------------'
+echo '---------------------------------------------------------------------------------'
 echo
 
 timeWORK=installation
 _time
 
     if [[ ! $INSFAILED == "" ]]; then
-echo "${bold}Unfortunately something went wrong during installation.
-You can check logs by typing these commands:
-${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ ! $QBFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ ! $DEFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
-[[ ! $TRFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
-[[ ! $RTFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ ! $FDFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
-[[ ! $FXFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
+echo -e "\n ${bold}Unfortunately something went wrong during installation.
+ You can check logs by typing these commands:
+ ${yellow}cat /etc/inexistence/01.Log/installed.log"
+[[ ! $QBFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ ! $DEFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
+[[ ! $TRFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
+[[ ! $RTFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\n cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ ! $FDFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
+[[ ! $FXFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
 
