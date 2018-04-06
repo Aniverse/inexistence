@@ -1997,9 +1997,9 @@ function _setqbt() {
 [[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
 # [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qbittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
 mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
-chmod -R 777 /home/${ANUSER}/qbittorrent
+chmod -R 666 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
-chmod -R 777 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
+chmod -R 666 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
 rm -rf /var/www/qbittorrent.download
 ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
 
@@ -2141,11 +2141,11 @@ function _setde() {
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/transmission.download
 ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
-chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+chmod -R 666 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
-chmod -R 777 /etc/inexistence/01.Log
+chmod -R 666 /etc/inexistence/01.Log
 
 # mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
 # cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
@@ -2153,7 +2153,7 @@ mkdir -p /root/.config && cd /root/.config
 [[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
 cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
 tar zxf deluge.config.tar.gz
-chmod -R 777 /root/.config
+chmod -R 666 /root/.config
 rm -rf deluge.config.tar.gz; cd
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
@@ -2326,7 +2326,7 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
 mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
-chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+chmod -R 666 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 rm -rf /var/www/transmission.download
 ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
@@ -2364,7 +2364,7 @@ function _installflex() {
   cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
-# chmod -R 777 /home/${ANUSER}/.config/flexget
+# chmod -R 666 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
 
   flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output
@@ -2988,15 +2988,15 @@ timeWORK=installation
 _time
 
     if [[ ! $INSFAILED == "" ]]; then
-echo "${bold}Unfortunately something went wrong during installation.
-You can check logs by typing these commands:
-${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ ! $QBFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ ! $DEFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
-[[ ! $TRFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
-[[ ! $RTFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\ncat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ ! $FDFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
-[[ ! $FXFAILED == "" ]] && echo -e "cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
+echo -e "\n ${bold}Unfortunately something went wrong during installation.
+ You can check logs by typing these commands:
+ ${yellow}cat /etc/inexistence/01.Log/installed.log"
+[[ ! $QBFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ ! $DEFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
+[[ ! $TRFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
+[[ ! $RTFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\n cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
+[[ ! $FDFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
+[[ ! $FXFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
 echo -ne "${normal}"
     fi
 
