@@ -2004,8 +2004,8 @@ mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.co
 chmod -R 666 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
 chmod -R 666 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
-rm -rf /var/www/qbittorrent.download
-ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbittorrent.download
+rm -rf /var/www/qbdownload
+ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbdownload
 
 cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
@@ -2144,8 +2144,8 @@ function _setde() {
 
 # [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
-rm -rf /var/www/transmission.download
-ln -s /home/${ANUSER}/deluge/download/ /var/www/deluge.download
+rm -rf /var/www/de.download
+ln -s /home/${ANUSER}/deluge/download/ /var/www/de.download
 chmod -R 666 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
@@ -2333,8 +2333,8 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
 chmod -R 666 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
-rm -rf /var/www/transmission.download
-ln -s /home/${ANUSER}/transmission/download/ /var/www/transmission.download
+rm -rf /var/www/trdownload
+ln -s /home/${ANUSER}/transmission/download/ /var/www/trdownload
 
 cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
 cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
