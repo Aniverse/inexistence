@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.04.04.01
+INEXISTENCEDATE=2018.04.06.01
 # --------------------------------------------------------------------------------
 
 
@@ -2916,7 +2916,7 @@ FXWEB=":6566" ; FDWEB=":3000"
 if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
 
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
-echo '------------------------------------------------------------------------'
+echo '---------------------------------------------------------------------------------'
 
 
 if   [[ ! $QBVERSION == No ]] && [[ $qb_installed == Yes ]]; then
@@ -2986,7 +2986,7 @@ echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI pa
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n          maybe your password is too young too simple?${normal}"
 
-echo '------------------------------------------------------------------'
+echo '---------------------------------------------------------------------------------'
 echo
 
 timeWORK=installation
