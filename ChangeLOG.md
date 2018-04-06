@@ -20,19 +20,28 @@
 
 
 
+## 2018.04.06
+
+`inexistence 1.0.0`  
+1. Bug Fix：修复了 Deluge SSL 判断的问题  
+2. Bug Fix：修复了 Deluge 1.3.15 skip hash check 安装失败的问题  
+3. UI：最后安装完成界面调整，长度对齐，“缩进”对齐之类的  
+4. 部分 chmod 777 改成 666  
+5. 禁用反代  
+反代还导致 h5ai 出了点问题，暂时先禁用了  
 
 
 
 
 
 
+## 2018.04.04
 
-
-
-
-
-
-
+`inexistence 1.0.0`  
+1. Bug Fix：修复多创建了 /home/$ANUSER/qBittorrent(大写)，/home/$ANUSER/download, /home/$ANUSER/watch 目录的问题  
+2. 将 Ubuntu 16.04 下 Deluge libtorrent 的默认版本改为从 PPA 安装  
+似乎 OB 用了 TLS 1.2 后，系统源自带的 libtorrent 1.0.7 会连不上 Tracker  
+3. Alias：只用成功修改设置的情况下 sshr 才输出修改成功  
 
 
 
