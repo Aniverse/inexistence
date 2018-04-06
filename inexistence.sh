@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.04.06.01
+INEXISTENCEDATE=2018.04.06.02
 # --------------------------------------------------------------------------------
 
 
@@ -886,7 +886,7 @@ while [[ $DEVERSION = "" ]]; do
 done
 
 
-[[ `echo $DEVERSION | awk -F '.' '{print $3}'` -lt 11 ]] && DESSL=Yes
+[[ ` echo $DEVERSION | grep -oP "[0-9.]+" | awk -F '.' '{print $3}' ` -lt 11 ]] && DESSL=Yes
 
 
 if [[ $DEVERSION == No ]]; then
@@ -2155,7 +2155,7 @@ chmod -R 666 /etc/inexistence/01.Log
 # mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
 # cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
 mkdir -p /root/.config && cd /root/.config
-[[ -d /root/.config/deluge ]] && rm-rf /root/.config/deluge && mv /root/.config/deluge /root/.config/deluge.old
+[[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv /root/.config/deluge /root/.config/deluge.old ; }
 cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
 tar zxf deluge.config.tar.gz
 chmod -R 666 /root/.config
