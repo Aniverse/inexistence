@@ -886,42 +886,46 @@ while [[ $DEVERSION = "" ]]; do
 done
 
 
-[[ `echo $DEVERSION | cut -c5` -lt 11 ]] && DESSL=Yes
+[[ `echo $DEVERSION | awk -F '.' '{print $3}'` -lt 11 ]] && DESSL=Yes
 
 
-  if [[ $DEVERSION == No ]]; then
+if [[ $DEVERSION == No ]]; then
 
-      echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-      DELTVERSION=NoDeluge
+    echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
+    DELTVERSION=NoDeluge
 
-  elif [[ $DEVERSION == "Install from repo" ]]; then 
+elif [[ $DEVERSION == "Install from repo" ]]; then 
 
-      sleep 0
+    sleep 0
 
-  elif [[ $DEVERSION == "Install from PPA" ]]; then
+elif [[ $DEVERSION == "Install from PPA" ]]; then
 
-      if [[ $DISTRO == Debian ]]; then
-          echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-          echo -ne "Therefore "
-          DEVERSION='Install from repo'
-      else
-          echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}will be installed from PPA${normal}"
-      fi
+    if [[ $DISTRO == Debian ]]; then
 
-  else
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
+        echo -ne "Therefore "
+        DEVERSION='Install from repo'
 
-      echo "${bold}${baiqingse}Deluge ${DEVERSION}${normal} ${bold}will be installed${normal}"
+    else
 
-  fi
+        echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}will be installed from PPA${normal}"
+
+    fi
+
+else
+
+    echo "${bold}${baiqingse}Deluge ${DEVERSION}${normal} ${bold}will be installed${normal}"
+
+fi
 
 
-  if [[ $DEVERSION == "Install from repo" ]]; then 
+if [[ $DEVERSION == "Install from repo" ]]; then 
 
-      echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository${normal}"
+    echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}will be installed from repository${normal}"
 
-  fi
+fi
 
-  echo ; }
+echo ; }
 
 
 
@@ -2100,11 +2104,11 @@ function _installde() {
       fi
 
       if [[ $DESKIP == Yes ]]; then
-          DEVERSION=1.3.15
-          cd; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
+          export DEVERSION=1.3.15
+          cd ; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
           echo -e "\n\n\nDELUGE SKIP HASH CHECK (FOR LOG)\n\n\n"
       else
-          cd; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
+          cd ; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
       fi
 
       tar zxf deluge-"${DEVERSION}".tar.gz
@@ -2114,6 +2118,7 @@ function _installde() {
       ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
       ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
+
       if [[ $DESSL == Yes ]]; then
           sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
           sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
