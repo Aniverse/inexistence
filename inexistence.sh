@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.0
-INEXISTENCEDATE=2018.04.06.02
+INEXISTENCEVER=1.0.0.7
+INEXISTENCEDATE=2018.04.08.01
 # --------------------------------------------------------------------------------
 
 
@@ -1624,6 +1624,7 @@ Kernel  : $kern
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
+MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 #################################
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
@@ -1641,6 +1642,7 @@ RDP=${InsRDP}
 WINE=${InsWine}
 FLOOD=${InsFlood}
 #################################
+如果要截图请截完整点，包含上面所有信息
 EOF
 
 mkdir -p /etc/inexistence/01.Log/lock
@@ -2882,6 +2884,7 @@ echo "DefaultLimitNOFILE=666666" >> /etc/systemd/system.conf
 echo "DefaultLimitNPROC=666666" >> /etc/systemd/system.conf
 
 # 将最大的分区的保留空间设置为 0%
+echo `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 
 locale-gen en_US.UTF-8
