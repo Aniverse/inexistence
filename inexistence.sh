@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.0.7
-INEXISTENCEDATE=2018.04.08.01
+INEXISTENCEDATE=2018.04.09.01
 # --------------------------------------------------------------------------------
 
 
@@ -2240,7 +2240,7 @@ npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
 npm run build 2>&1 | tee /tmp/flood.log
-[[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
+# [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
 
 # [[ $tram -le 1900 ]] && _disable_swap
 
