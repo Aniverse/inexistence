@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.0.7
-INEXISTENCEDATE=2018.04.09.01
+INEXISTENCEVER=1.0.0.8
+INEXISTENCEDATE=2018.04.10.01
 # --------------------------------------------------------------------------------
 
 
@@ -2197,7 +2197,7 @@ bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/An
 
 # [[ $DeBUG == 1 ]] && echo $IPv6Opt && echo $RTVERSIONIns
 
-# sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
+sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
 if [[ $rt_installed == Yes ]]; then
     rtupdate $IPv6Opt $RTVERSIONIns
@@ -2240,6 +2240,7 @@ npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
 npm run build 2>&1 | tee /tmp/flood.log
+rm -rf /etc/inexistence/01.Log/lock/flood.fail.lock
 # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
 
 # [[ $tram -le 1900 ]] && _disable_swap
