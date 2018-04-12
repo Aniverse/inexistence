@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.0.8
-INEXISTENCEDATE=2018.04.10.01
+INEXISTENCEVER=1.0.0.9
+INEXISTENCEDATE=2018.04.12.01
 # --------------------------------------------------------------------------------
 
 
@@ -407,6 +407,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # DELT_PPA_ver=1.0.11
 
   DELT_PPA_ver=` wget -qO- https://launchpad.net/~deluge-team/+archive/ubuntu/ppa | grep -B1 xenial | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | tail -n1 `
+# QBLT_PPA_ver=` wget -qO- https://launchpad.net/~qbittorrent-team/+archive/ubuntu/qbittorrent-stable | grep -B1 xenial | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | tail -n1 `
 
   TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
   TR_latest_ver=` wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -n1 `
@@ -950,7 +951,7 @@ while [[ $DELTVERSION = "" ]]; do
 
       # echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
         echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
-        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.6 ${normal} (NOT recommended)"
+        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.7 ${normal}"
         echo -e "${green}30)${normal} Select another version"
         echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
         [[ $DISTRO == Ubuntu ]] &&
@@ -973,7 +974,7 @@ while [[ $DELTVERSION = "" ]]; do
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
                   01 | 1) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40) DELTVERSION='Install from repo' ;;
                   50) DELTVERSION='Install from PPA' ;;
@@ -989,7 +990,7 @@ while [[ $DELTVERSION = "" ]]; do
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40) DELTVERSION='Install from repo' ;;
                   50 |"") DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
@@ -1005,7 +1006,7 @@ while [[ $DELTVERSION = "" ]]; do
             case $version in
                   00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
                   01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_6 ;;
+                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40 |"") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
                   99) DELTVERSION=No ;;
