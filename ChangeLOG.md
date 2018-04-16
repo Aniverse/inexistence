@@ -10,6 +10,65 @@
 
 
 
+
+
+
+
+
+
+
+
+## 2018.04.16
+
+`inexistence 1.0.1`  
+1. **Bump to 1.0.1**  
+2. 修改 rtinst 装的 h5ai 的位置，现设定为 `/var/www/h5ai`  
+这样可以不用管 /var/www 路径下那些多余的东西了  
+3. Bug Fix：修复 flexget 安装失败的问题  
+以前都没问题的，pip 更新后，位置变成了 `/usr/local/bin/pip`，只在脚本里用 pip 的话会定位到以前的 `/usr/bin/pip` 于是就失败了  
+4. UI：Flexget 安装完后使用 `flexget daemon status` 检查运行状态，同时状态里增加需要检查密码和配置文件的类型  
+
+`rtinst Aniverse Mod`  
+1. 修改 rtinst 装的 h5ai 的位置，现设定为 `/var/www/h5ai`  
+
+
+
+
+
+
+## 2018.04.12
+
+`inexistence 1.0.0`  
+1. 更新可选的 libtorrent-rasterbar 版本到 1.1.7  
+
+
+
+
+
+
+## 2018.04.10
+
+`inexistence 1.0.0`  
+1. rtupdate 编译时候的线程数量采用之前设定的数量  
+
+`rtinst Aniverse Mod`  
+1. 同步原作者的改动  
+
+
+
+
+
+## 2018.04.09
+
+`inexistence 1.0.0`  
+1. 去除对于 Flood 安装成功与否的判断  
+还有些问题，以后再说吧，写论文没空……
+
+
+
+
+
+
 ## 2018.04.08
 
 `inexistence 1.0.0`  
@@ -30,9 +89,12 @@
 2. Bug Fix：修复了 Deluge 1.3.15 skip hash check 安装失败的问题  
 3. UI：最后安装完成界面调整，长度对齐，“缩进”对齐之类的  
 4. 部分 chmod 777 改成 666  
-5. 禁用反代  
+5. **禁用反代**  
 反代还导致 h5ai 出了点问题，暂时先禁用了  
 
+`rtinst Aniverse Mod`  
+1. 修改 h5ai 软链 rt 下载路径的名字    
+2. **禁用反代**  
 
 
 
