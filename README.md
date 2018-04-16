@@ -1,7 +1,7 @@
 # Inexistence
 
 > 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
-> 作者是个菜鸡，本脚本的主要内容是抄袭 + 百度谷歌得来的  
+> 作者是个菜鸡，没学过编程，本脚本的不少内容是 依样画葫芦 + 抄袭 + 百度/谷歌得来的  
 > 
 
 本文内容不会及时更新；目前最新的脚本在界面上和截图里有一些不一样  
@@ -9,7 +9,8 @@
 ## Usage
 
 ```
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
+wget --no-check-certificate -qNO inexistence.sh https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
+bash inexistence.sh
 ```
 
 ## Installation Guide
@@ -220,8 +221,11 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 #### To Do List
 
 - **MiMA**  
-修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 的密码的脚本  
-
+修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 密码的脚本  
+实现起来不难，主要是现在没空做  
+- **Banben**  
+升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本  
+其实这个再跑一次 inexistence 脚本也可以做到，但感觉有点麻烦
 
 #### Under Consideration
 
@@ -480,4 +484,5 @@ https://tieba.baidu.com/p/5536354634
 https://tieba.baidu.com/p/5532509017  
 https://tieba.baidu.com/p/5158974574  
 https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade  
+https://blog.csdn.net/loveaborn/article/details/17269645  
 
