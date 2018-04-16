@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.1.3
-INEXISTENCEDATE=2018.04.16.04
+INEXISTENCEDATE=2018.04.16.05
 # --------------------------------------------------------------------------------
 
 
@@ -1756,7 +1756,7 @@ function _distro_upgrade() {
 
 starttime=$(date +%s)
 
-echo -e "${baihongse}executing apt-listchanges remove${normal}\n"
+echo -e "\n${baihongse}executing apt-listchanges remove${normal}\n"
 apt-get remove apt-listchanges --assume-yes --force-yes
 
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
@@ -1780,7 +1780,7 @@ apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Op
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
-[[ ! $DeBUG == 1 ]] && echo -e "\n\n  ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
+[[ ! $DeBUG == 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
 
 sleep 20
 kill -s TERM $TOP_PID
@@ -1990,9 +1990,9 @@ fi ; }
 
 # --------------------- 下载安装 qBittorrent --------------------- #
 
-function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/iFeral /etc/iFeral ; chmod -R +x /etc/iFeral/app ; }
+function _installqbt2() { git clone --depth=1 -b master--single-branch https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
 
-
+# https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
 
 
 
