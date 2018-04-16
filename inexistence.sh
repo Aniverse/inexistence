@@ -9,15 +9,15 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.3
-INEXISTENCEDATE=2018.04.16.05
+INEXISTENCEVER=1.0.1.4
+INEXISTENCEDATE=2018.04.16.06
 # --------------------------------------------------------------------------------
 
 
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
+OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -36,6 +36,7 @@ while true; do
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
+    --tr-skip       ) TRdefault=No      ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
     --apt-yes       ) aptsources="Yes"  ; shift ;;
     --apt-no        ) aptsources="No"   ; shift ;;
@@ -284,7 +285,7 @@ ${heibaise}${bold}                                                              
 function _intro() {
 
 # 检查是否以 root 权限运行脚本
-if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo "${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}" ; exit 1
+if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
 else echo "${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
 arch=$( uname -m ) # 架构，可以识别 ARM
@@ -754,7 +755,7 @@ while [[ $QBVERSION = "" ]]; do
         11) QBVERSION=4.0.2 ;;
         12) QBVERSION=4.0.3 ;;
         13) QBVERSION=4.0.4 ;;
-        21) QBVERSION='3.3.11 (Skip hash check)' && QBPATCH=Yes ;;
+        21) QBVERSION='3.3.11 (Skip hash check)' ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
         50) QBVERSION='Install from PPA' ;;
@@ -770,6 +771,8 @@ if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
 else
     QBVERSION4=No
 fi
+
+[[ QBVERSION == '3.3.11 (Skip hash check)' ]] && QBPATCH=Yes
 
 
 if [[ $QBVERSION == No ]]; then
@@ -874,7 +877,7 @@ while [[ $DEVERSION = "" ]]; do
             13) DEVERSION=1.3.7 ;;
             14) DEVERSION=1.3.8 ;;
             15) DEVERSION=1.3.9 ;;
-            21) DEVERSION='1.3.15 (Skip hash check)' && DESKIP=Yes ;;
+            21) DEVERSION='1.3.15 (Skip hash check)' ;;
             30) _inputversion && DEVERSION="${inputversion}"  ;;
             40) DEVERSION='Install from repo' ;;
             50) DEVERSION='Install from PPA' ;;
@@ -888,7 +891,7 @@ done
 
 
 [[ ` echo $DEVERSION | grep -oP "[0-9.]+" | awk -F '.' '{print $3}' ` -lt 11 ]] && DESSL=Yes
-
+[[ DEVERSION == '1.3.15 (Skip hash check)' ]] && DESKIP=Yes
 
 if [[ $DEVERSION == No ]]; then
 
@@ -1956,7 +1959,7 @@ else
     QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
     git checkout release-${QBVERSION}
 
-    if [[ "${QBPATCH}" == "Yes" ]]; then
+    if [[ $QBPATCH == Yes ]]; then
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         git cherry-pick db3158c
@@ -1992,9 +1995,11 @@ fi ; }
 
 function _installqbt2() { git clone --depth=1 -b master--single-branch https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
 
-# https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
-
-
+# wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
+# dpkg -i qt_5.5.1-1_amd64_debian8.deb
+# export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+# export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# qmake --version
 
 
 # --------------------- 设置 qBittorrent --------------------- #
@@ -2927,7 +2932,7 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 # [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
 
 flexget daemon status 2>1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
-[[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
+[[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
