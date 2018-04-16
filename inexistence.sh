@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.2
-INEXISTENCEDATE=2018.04.16.03
+INEXISTENCEVER=1.0.1.3
+INEXISTENCEDATE=2018.04.16.04
 # --------------------------------------------------------------------------------
 
 
@@ -2913,7 +2913,7 @@ function _end() {
 
 _check_install_2
 
-clear ; unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
+unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
 
 #if [[ ! $RTVERSION == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
 
@@ -2924,11 +2924,15 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 
 
 # systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
+# [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
 
-[[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
+flexget daemon status 2>1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
+[[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
+
+clear
 
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '---------------------------------------------------------------------------------'
