@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.0.9
-INEXISTENCEDATE=2018.04.12.01
+INEXISTENCEVER=1.0.1
+INEXISTENCEDATE=2018.04.16.01
 # --------------------------------------------------------------------------------
 
 
@@ -1674,13 +1674,13 @@ mkdir -p /etc/inexistence/09.Torrents
 mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
-mkdir -p /var/www
+mkdir -p /var/www/h5ai
 
 # For Wine DVDFab10
 mkdir -p /root/Documents/DVDFab10/BDInfo
 ln -s /root/Documents/DVDFab10/BDInfo /etc/inexistence/08.BDinfo/DVDFab
 
-ln -s /etc/inexistence /var/www/inexistence
+ln -s /etc/inexistence /var/www/h5ai/inexistence
 ln -s /etc/inexistence /home/${ANUSER}/inexistence
 cp -f "${local_packages}"/script/* /usr/local/bin ; }
 
@@ -1949,7 +1949,7 @@ else
 
     fi
 
-    cd; git clone https://github.com/qbittorrent/qBittorrent
+    cd ; git clone https://github.com/qbittorrent/qBittorrent
     cd qBittorrent
 
 #   [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
@@ -2007,8 +2007,8 @@ mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.co
 chmod -R 666 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
 chmod -R 666 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
-rm -rf /var/www/qbdownload
-ln -s /home/${ANUSER}/qbittorrent/download /var/www/qbdownload
+rm -rf /var/www/h5ai/qbittorrent
+ln -s /home/${ANUSER}/qbittorrent/download /var/www/h5ai/qbittorrent
 
 cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
@@ -2147,8 +2147,8 @@ function _setde() {
 
 # [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
-rm -rf /var/www/de.download
-ln -s /home/${ANUSER}/deluge/download/ /var/www/de.download
+rm -rf /var/www/h5ai/deluge
+ln -s /home/${ANUSER}/deluge/download/ /var/www/h5ai/deluge
 chmod -R 666 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
@@ -2211,7 +2211,7 @@ openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb
 
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
-ln -s /home/${ANUSER} /var/www/user.folder
+ln -s /home/${ANUSER} /var/www/h5ai/user.folder
 
 cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
@@ -2337,8 +2337,8 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
 chmod -R 666 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
-rm -rf /var/www/trdownload
-ln -s /home/${ANUSER}/transmission/download/ /var/www/trdownload
+rm -rf /var/www/h5ai/transmission
+ln -s /home/${ANUSER}/transmission/download/ /var/www/h5ai/transmission
 
 cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
 cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
@@ -2366,7 +2366,9 @@ function _installflex() {
 
   apt-get -y install python-pip
   pip install --upgrade setuptools pip
-  pip install flexget transmissionrpc
+  pip install --upgrade setuptools pip
+  pip install flexget
+  pip install transmissionrpc
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
