@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.1
-INEXISTENCEDATE=2018.04.16.02
+INEXISTENCEVER=1.0.1.2
+INEXISTENCEDATE=2018.04.16.03
 # --------------------------------------------------------------------------------
 
 
@@ -2922,6 +2922,14 @@ FXWEB=":6566" ; FDWEB=":3000"
 
 if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
 
+
+# systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
+
+[[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
+Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
+
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '---------------------------------------------------------------------------------'
 
@@ -2968,9 +2976,9 @@ elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No  ]]; then
      RTFAILED=1 ; INSFAILED=1
 fi
 
-
+# flexget 状态可能是 8 位字符长度的
 if   [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
-     echo -e " ${cyan}Flexget WebUI${normal}       $(_if_running "flexget daemon")   http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
+     echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
 elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
      echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
