@@ -9,7 +9,7 @@
 ## Usage
 
 ```
-wget --no-check-certificate -qNO inexistence.sh https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
+wget --no-check-certificate -qO inexistence.sh https://github.com/Aniverse/inexistence/raw/master/inexistence.sh &&
 bash inexistence.sh
 ```
 
@@ -17,7 +17,7 @@ bash inexistence.sh
 
 ![脚本参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.09.png)
 
-脚本现已支持自定义参数，具体参数在以下介绍中有说明  
+脚本现已支持自定义参数，具体参数的说明在下文中有说明  
 
 ![引导界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.01.png)
 
