@@ -2365,9 +2365,8 @@ touch /etc/inexistence/01.Log/lock/transmission.lock ; }
 function _installflex() {
 
   apt-get -y install python-pip
-  pip install flexget || echo -e "\n\nFailed\n\n"
-  [[ `which flexget` ]] && { pip install --upgrade setuptools pip ; pip install flexget ; }
-  pip install transmissionrpc
+  pip install --upgrade pip setuptools
+  /usr/local/bin/pip install flexget transmissionrpc
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
@@ -2394,6 +2393,8 @@ function _installflex() {
 
   touch /etc/inexistence/01.Log/lock/flexget.lock
   echo -e "${bailvse}\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+
+
 
 
 
