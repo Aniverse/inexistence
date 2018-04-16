@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1
-INEXISTENCEDATE=2018.04.16.01
+INEXISTENCEVER=1.0.1.1
+INEXISTENCEDATE=2018.04.16.02
 # --------------------------------------------------------------------------------
 
 
@@ -2365,9 +2365,8 @@ touch /etc/inexistence/01.Log/lock/transmission.lock ; }
 function _installflex() {
 
   apt-get -y install python-pip
-  pip install --upgrade setuptools pip
-  pip install --upgrade setuptools pip
-  pip install flexget
+  pip install flexget || echo -e "\n\nFailed\n\n"
+  [[ `which flexget` ]] && { pip install --upgrade setuptools pip ; pip install flexget ; }
   pip install transmissionrpc
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
@@ -2956,7 +2955,7 @@ if   [[ ! $RTVERSION == No ]] && [[ $rt_installed == Yes ]]; then
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
      [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
-     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}"
+     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}/h5ai"
      echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${red}RuTorrent${normal}           ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
@@ -2964,7 +2963,7 @@ elif [[ ! $RTVERSION == No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
      [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && FDFAILED=1
-     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}"
+     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}/h5ai"
      RTFAILED=1 ; INSFAILED=1
 fi
 
