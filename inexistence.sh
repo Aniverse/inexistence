@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.1.4
-INEXISTENCEDATE=2018.04.16.06
+INEXISTENCEDATE=2018.04.17.01
 # --------------------------------------------------------------------------------
 
 
@@ -772,7 +772,7 @@ else
     QBVERSION4=No
 fi
 
-[[ QBVERSION == '3.3.11 (Skip hash check)' ]] && QBPATCH=Yes
+[[ $QBVERSION == '3.3.11 (Skip hash check)' ]] && QBPATCH=Yes
 
 
 if [[ $QBVERSION == No ]]; then
@@ -856,7 +856,7 @@ while [[ $DEVERSION = "" ]]; do
             13) DEVERSION=1.3.7 ;;
             14) DEVERSION=1.3.8 ;;
             15) DEVERSION=1.3.9 ;;
-            21) DEVERSION='1.3.15 Skip hash check' && DESKIP=Yes ;;
+            21) DEVERSION='1.3.15 Skip hash check' ;;
             30) _inputversion && DEVERSION="${inputversion}"  ;;
             40) DEVERSION='Install from repo' ;;
             50) DEVERSION='Install from PPA' ;;
@@ -891,7 +891,7 @@ done
 
 
 [[ ` echo $DEVERSION | grep -oP "[0-9.]+" | awk -F '.' '{print $3}' ` -lt 11 ]] && DESSL=Yes
-[[ DEVERSION == '1.3.15 (Skip hash check)' ]] && DESKIP=Yes
+[[ $DEVERSION == '1.3.15 (Skip hash check)' ]] && DESKIP=Yes
 
 if [[ $DEVERSION == No ]]; then
 
@@ -1354,9 +1354,9 @@ while [[ $InsRDP = "" ]]; do
 done
 
 if [[ $InsRDP == VNC ]]; then
-    echo "${bold}${baiqingse}VNC${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
+    echo "${bold}${baiqingse}VNC${jiacu} and ${baiqingse}xfce4${jiacu} will be installed${normal}"
 elif [[ $InsRDP == X2Go ]]; then
-    echo "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${normal} will be installed"
+    echo "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${jiacu} will be installed${normal}"
 else
     echo "${baizise}VNC or X2Go will ${baihongse}not${baizise} be installed${normal}"
 fi
@@ -1384,7 +1384,7 @@ while [[ $InsWine = "" ]]; do
 done
 
 if [[ $InsWine == Yes ]]; then
-    echo "${bold}${baiqingse}Wine${normal} and ${bold}${baiqingse}mono${normal} ${bold}will be installed${normal}"
+    echo "${bold}${baiqingse}Wine${jiacu} and ${baiqingse}mono${jiacu} will be installed${normal}"
 else
     echo "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}"
 fi
@@ -1414,7 +1414,7 @@ while [[ $InsTools = "" ]]; do
 done
 
 if [[ $InsTools == Yes ]]; then
-    echo "${bold}${baiqingse}Latest version of these softwares${normal} ${bold}will be installed${normal}"
+    echo "${bold}${baiqingse}Latest version of these softwares${jiacu} will be installed${normal}"
 else
     echo "${baizise}These softwares will ${baihongse}not${baizise} be installed${normal}"
 fi
@@ -1527,6 +1527,7 @@ echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/
 if [[ $ForceYes == 1 ]];then reboot || echo "WTF, try reboot manually?" ; else read -e is_reboot ; fi
 if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
 else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
+
 
 
 
@@ -1995,11 +1996,12 @@ fi ; }
 
 function _installqbt2() { git clone --depth=1 -b master--single-branch https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
 
-# wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
-# dpkg -i qt_5.5.1-1_amd64_debian8.deb
-# export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
-# export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-# qmake --version
+function _installqbt3() { 
+wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
+dpkg -i qt_5.5.1-1_amd64_debian8.deb
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+qmake --version ; }
 
 
 # --------------------- 设置 qBittorrent --------------------- #
