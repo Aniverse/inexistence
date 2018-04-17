@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.4
-INEXISTENCEDATE=2018.04.17.02
+INEXISTENCEVER=1.0.1.5
+INEXISTENCEDATE=2018.04.17.03
 # --------------------------------------------------------------------------------
 
 
@@ -731,9 +731,8 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.11${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}3.3.14${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}3.3.16${normal}"
-    [[ ! $CODENAME = jessie ]] &&
-    echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}" && 
-    echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}" && 
+    echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}"
+    echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}"
     echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -766,11 +765,7 @@ while [[ $QBVERSION = "" ]]; do
 done
 
 
-if [[ `echo $QBVERSION | cut -c1` == 4 ]]; then
-    QBVERSION4=Yes
-else
-    QBVERSION4=No
-fi
+[[ `echo $QBVERSION | cut -c1` == 4 ]] && QBVERSION4=Yes || QBVERSION4=No
 
 [[ $QBVERSION == '3.3.11 (Skip hash check)' ]] && QBPATCH=Yes
 
@@ -795,11 +790,11 @@ elif [[ $QBVERSION == "Install from PPA" ]]; then
 
 else
 
-    if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
-        echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
-        QBVERSION=3.3.16 && QBVERSION4=No
-        echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
-    fi
+#   if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
+#       echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
+#       QBVERSION=3.3.16 && QBVERSION4=No
+#       echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
+#   fi
 
     echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
 
@@ -1908,7 +1903,30 @@ else
         echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
         echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
 
-    # 3. 需要编译安装 libtorrent-rasterbar，安装速度慢
+    # 3. Debian 8 下先安装 qt 5.5.1 再安装 qBittorrent 4.0.4
+    # 2018.04.17 更新
+    # 这个仅适用于全新安装，非全新安装的情况下我感觉很容易翻车…… 比如之前安装过了 qt 5.3.2 的一些包的情况，卸载了似乎也不行，不卸载更不行
+
+    elif [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
+
+      # apt-get purge -y libqt5svg5-dev qtbase5-dev qttools5-dev-tools
+        apt-get install -y python python3 checkinstall screen automake autoconf libtool git pkg-config zlib1g-dev build-essential libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev geoip-database libgeoip-dev libgl1-mesa-dev
+        cd ; wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
+        dpkg -i qt_5.5.1-1_amd64_debian8.deb
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        qmake --version | tee -a /etc/inexistence/01.Log/installed.log
+        git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
+        cd libtorrent
+        ./autotool.sh
+        ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
+        make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
+        make install
+        ldconfig
+        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+        echo "qBittorrent libtorrent-rasterbar from building, with qt 5.5.1 from deb" >> /etc/inexistence/01.Log/installed.log
+
+    # 4. 需要编译安装 libtorrent-rasterbar，安装速度慢
     #### Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
     #### elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
     #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
@@ -1926,11 +1944,11 @@ else
 
         apt-get purge -y libtorrent-rasterbar-dev
         apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
-        cd; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
+        cd ; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
         cd libtorrent
         ./autotool.sh
 
-        if [[ "$CODENAME" =~ ("jessie"|"stretch") ]]; then
+        if [[ "$CODENAME" =~ ("stretch") ]]; then
           ./configure --disable-debug --enable-encryption --with-libgeoip=system
         else
           ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
@@ -1947,7 +1965,6 @@ else
       # checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
       # mv -f libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
         ldconfig
-        echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
         echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
         echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
@@ -2343,7 +2360,7 @@ cd ; echo -e "${baizise}\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n${normal}
 
 function _settr() {
 
-wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh | bash
+bash wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh
 
 # [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
