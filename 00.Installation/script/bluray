@@ -28,8 +28,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
-BDDATE=20180321
-BDVER=2.3.3.3
+BDDATE=2018.04.17
+BDVER=2.3.5
 DeBUG=0
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
@@ -372,7 +372,8 @@ if [[ $resolution == autoar ]]; then
     echo -e "Display aspect ratio is ${underline}${bold}$DAR${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-    DH0=` expr $VideoHeight / $DARW  `
+  # DH0=` expr $VideoHeight / $DARW  `
+    DH0=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
     DH=` expr $DH0 \* $DARH  `
     fenbianlv="${DH}x${DW}"
 
