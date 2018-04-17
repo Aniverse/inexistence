@@ -11,7 +11,13 @@
 
 
 
+## 2018.04.16
 
+`inexistence 1.0.1`  
+1. Opts：Deluge/qBittorrent 跳过校验的选项修复  
+2. 增加 Debian 8 安装 qt 5.5.1 deb 包的选项（不启用）  
+以后这个可以用于在 Debian 8 下编译安装 qBittorrent 4.0  
+3. Code：高亮部分调整  
 
 
 
@@ -27,6 +33,8 @@
 3. Bug Fix：修复 flexget 安装失败的问题  
 以前都没问题的，pip 更新后，位置变成了 `/usr/local/bin/pip`，只在脚本里用 pip 的话会定位到以前的 `/usr/bin/pip` 于是就失败了  
 4. UI：Flexget 安装完后使用 `flexget daemon status` 检查运行状态，同时状态里增加需要检查密码和配置文件的类型  
+5. Opts：增加 Tr 跳过校验版本的 Opinions `--tr-skip`  
+6. UI：部分文字高亮和换行调整  
 
 `rtinst Aniverse Mod`  
 1. 修改 rtinst 装的 h5ai 的位置，现设定为 `/var/www/h5ai`  
