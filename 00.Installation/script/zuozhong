@@ -2,7 +2,7 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.03.23
+# 2018.04.17
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
 magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); jiacu=${normal}${bold}
@@ -22,6 +22,9 @@ file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 file_title_clean="`   echo "$file_title_clean" | sed 's/\//\./'   `"
+
+# 询问要用的 Tracker URL
+function _input_announce() { echo "${yellow}${bold}" ; read -e -p "Input your tracker announce: ${normal}${blue}" TRACKERA ; echo "${normal}" ; ANNOUNCE="-a $TRACKERA" ; }
 
 # 询问 Tracker
 echo -e "
