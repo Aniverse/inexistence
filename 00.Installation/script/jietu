@@ -41,7 +41,7 @@ if [[ "$fenbianlv" == "" ]]; then
     echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-   # DH0=` expr $VideoHeight / $DARW  `
+  # DH0=` expr $VideoHeight / $DARW  `
     DH0=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
     DH=` expr $DH0 \* $DARH  `
     fenbianlv="${DH}x${DW}"
