@@ -2,7 +2,7 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.03.21
+# 2018.04.17
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -41,7 +41,8 @@ if [[ "$fenbianlv" == "" ]]; then
     echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-    DH0=` expr $VideoHeight / $DARW  `
+   # DH0=` expr $VideoHeight / $DARW  `
+    DH0=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
     DH=` expr $DH0 \* $DARH  `
     fenbianlv="${DH}x${DW}"
     echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
