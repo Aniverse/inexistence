@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.1.4
-INEXISTENCEDATE=2018.04.17.01
+INEXISTENCEDATE=2018.04.17.02
 # --------------------------------------------------------------------------------
 
 
@@ -1945,6 +1945,7 @@ else
       # [[ $tram -le 1900 ]] && _disable_swap
 
       # checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
+      # mv -f libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
         ldconfig
         echo;echo;echo;echo;echo;echo "  QB-LIBTORRENT-BUULDING-COMPLETED  ";echo;echo;echo;echo;echo
 
@@ -1980,8 +1981,7 @@ else
         checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
     fi
 
-    mv qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
-  # make install
+    mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd;rm -rf libtorrent qBittorrent
     echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
@@ -2004,18 +2004,22 @@ export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/us
 qmake --version ; }
 
 
+
+
+
 # --------------------- 设置 qBittorrent --------------------- #
 
 function _setqbt() {
 
-[[ -d /root/.config/qBittorrent ]] && rm -rf /root/.config/qBittorrent.old && mv /root/.config/qBittorrent /root/.config/qBittorrent.old
+[[ -d /root/.config/qBittorrent ]] && { rm -rf /root/.config/qBittorrent.old ; mv /root/.config/qBittorrent /root/.config/qBittorrent.old ; }
 # [[ -d /home/${ANUSER}/.config/qBittorrent ]] && rm -rf /home/${ANUSER}/qbittorrent.old && mv /home/${ANUSER}/.config/qBittorrent /root/.config/qBittorrent.old
 mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent  #/home/${ANUSER}/.config/qBittorrent
-chmod -R 666 /home/${ANUSER}/qbittorrent
+chmod -R 777 /home/${ANUSER}/qbittorrent
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent  #/home/${ANUSER}/.config/qBittorrent
 chmod -R 666 /etc/inexistence/01.Log  #/home/${ANUSER}/.config/qBittorrent
 rm -rf /var/www/h5ai/qbittorrent
 ln -s /home/${ANUSER}/qbittorrent/download /var/www/h5ai/qbittorrent
+# chown www-data:www-data /var/www/h5ai/qbittorrent
 
 cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
@@ -2043,20 +2047,22 @@ touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 
 
+
+
 # --------------------- 安装 Deluge --------------------- #
 
 function _installde() {
 
-  if [[ "${DEVERSION}" == "Install from repo" ]]; then
+  if [[ $DEVERSION == "Install from repo" ]]; then
 
       apt-get install -y deluged deluge-web
 
-  elif [[ "${DEVERSION}" == "Install from PPA" ]]; then
+  elif [[ $DEVERSION == "Install from PPA" ]]; then
 
       apt-get install -y software-properties-common python-software-properties
       add-apt-repository -y ppa:deluge-team/ppa
       apt-get update
-#     apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
+      apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
       apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
       apt-mark hold libtorrent-rasterbar8 python-libtorrent
       apt-get install -y deluged deluge-web
@@ -2106,7 +2112,7 @@ function _installde() {
 
         # [[ $tram -le 1900 ]] && _disable_swap
 
-          mv libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
+          mv -f libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
           ldconfig
           touch /etc/inexistence/01.Log/lock/deluge.libtorrent.compile.lock
           echo -e "${bailanse}\n\n\n\n  DELUGE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n${normal}"
@@ -2155,8 +2161,9 @@ function _setde() {
 # [[ -d /home/${ANUSER}/.config/deluge ]] && rm-rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge /root/.config/deluge.old
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/h5ai/deluge
-ln -s /home/${ANUSER}/deluge/download/ /var/www/h5ai/deluge
-chmod -R 666 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+ln -s /home/${ANUSER}/deluge/download /var/www/h5ai/deluge
+# chown www-data:www-data /var/www/h5ai/deluge
+chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
@@ -2169,7 +2176,7 @@ mkdir -p /root/.config && cd /root/.config
 cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
 tar zxf deluge.config.tar.gz
 chmod -R 666 /root/.config
-rm -rf deluge.config.tar.gz; cd
+rm -rf deluge.config.tar.gz ; cd
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
@@ -2315,13 +2322,13 @@ else
     make -j${MAXCPUS}
 
 #   dpkg -r transmission
-    if [[ "${tr_installed}" == "Yes" ]]; then
+    if [[ $tr_installed == Yes ]]; then
         make install
     else
         checkinstall -y --pkgversion=$TRVERSION
     fi
 
-    mv tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
+    mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd; rm -rf transmission*
 
 fi
@@ -2342,10 +2349,11 @@ wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-co
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
 mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon  #/home/${ANUSER}/.config/transmission-daemon
-chmod -R 666 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
+chmod -R 777 /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission  #/home/${ANUSER}/.config/transmission-daemon
 rm -rf /var/www/h5ai/transmission
-ln -s /home/${ANUSER}/transmission/download/ /var/www/h5ai/transmission
+ln -s /home/${ANUSER}/transmission/download /var/www/h5ai/transmission
+# chown -R www-data:www-data /var/www/h5ai
 
 cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
 cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
