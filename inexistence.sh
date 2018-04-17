@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.5
-INEXISTENCEDATE=2018.04.17.03
+INEXISTENCEVER=1.0.1.6
+INEXISTENCEDATE=2018.04.17.04
 # --------------------------------------------------------------------------------
 
 
@@ -2360,7 +2360,7 @@ cd ; echo -e "${baizise}\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n${normal}
 
 function _settr() {
 
-bash wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh
+echo 1 | bash -c "$(wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 
 # [[ -d /home/${ANUSER}/.config/transmission-daemon ]] && rm -rf /home/${ANUSER}/.config/transmission-daemon.old && mv /home/${ANUSER}/.config/transmission-daemon /home/${ANUSER}/.config/transmission-daemon.old
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
