@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.1.6
-INEXISTENCEDATE=2018.04.17.04
+INEXISTENCEVER=1.0.2
+INEXISTENCEDATE=2018.04.18.01
 # --------------------------------------------------------------------------------
 
 
@@ -2678,8 +2678,8 @@ rm -rf ffmpeg-*-64bit-static*
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
 echo -n  > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb-src https://mkvtoolnix.download/${DISTROL}/${CODENAME}/ ./" >> /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
 wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
 dpkg -i repo-mediaarea_1.0-5_all.deb
