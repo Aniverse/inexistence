@@ -2,7 +2,7 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.04.17
+# 2018.04.18
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -18,6 +18,7 @@ black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput
 
 mediapath=`echo "$1"`; fenbianlv=`echo "$2"`
 
+[[ ! ` command -v bc ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} bc not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
@@ -42,8 +43,8 @@ if [[ "$fenbianlv" == "" ]]; then
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
   # DH0=` expr $VideoHeight / $DARW  `
-    DH0=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
-    DH=` expr $DH0 \* $DARH  `
+  # DH=` expr $DH0 \* $DARH  `
+    DH=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
     fenbianlv="${DH}x${DW}"
     echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
 fi

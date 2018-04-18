@@ -28,8 +28,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
-BDDATE=2018.04.17
-BDVER=2.3.5
+BDDATE=2018.04.18
+BDVER=2.3.6
 DeBUG=0
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
@@ -55,7 +55,7 @@ appmissing="Yes" ; fi ; }
 
 
 # 检查必要软件是否齐全
-function _check_install_2(){ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut ; do app_name=$apps; _check_install; done; rm -rf tmpmissingapp ; }
+function _check_install_2(){ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut bc ; do app_name=$apps; _check_install; done; rm -rf tmpmissingapp ; }
 
 
 # 有 root 权限的盒子安装 ffmpeg
@@ -373,8 +373,8 @@ if [[ $resolution == autoar ]]; then
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
   # DH0=` expr $VideoHeight / $DARW  `
-    DH0=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
-    DH=` expr $DH0 \* $DARH  `
+  # DH=` expr $DH0 \* $DARH  `
+    DH=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
     fenbianlv="${DH}x${DW}"
 
     echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
