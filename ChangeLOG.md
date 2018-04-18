@@ -11,7 +11,35 @@
 
 
 
-## 2018.04.16
+
+
+
+
+
+
+
+
+
+## 2018.04.18
+
+`inexistence 1.0.2`  
+1. **Bump to 1.0.2**  
+昨天没跳版本号那只能今天跳了  
+2. Bug Fix：更新 mkvtoolnix repo 源  
+
+`bluray 2.3.6`  
+1. Bug Fix：修复分辨率算错的问题（又乘了一次高度比）  
+
+`jietu`  
+1. Bug Fix：修复分辨率算错的问题（又乘了一次高度比）  
+
+
+
+
+
+
+
+## 2018.04.17
 
 `inexistence 1.0.1`  
 1. Opts：Deluge/qBittorrent 跳过校验的选项修复  
@@ -36,6 +64,10 @@
 `zuozhong`  
 1. 修复了手动输入链接不可用的问题  
 
+`README 1.0.5`  
+1. 更新 Transmission 跳过校验的 Opts 写法  
+2. 更新 qBittorrent 安装的说明  
+3. 增加一处参考资料  
 
 
 
@@ -55,6 +87,14 @@
 
 `rtinst Aniverse Mod`  
 1. 修改 rtinst 装的 h5ai 的位置，现设定为 `/var/www/h5ai`  
+
+`README 1.0.2-1.0.4`  
+1. 更新“无责任”部分  
+2. 更新安装命令  
+原先的长度太长用不了了，真蛋疼……  
+3. To do list 更新  
+增加 `Banben` 和一些说明
+4. 增加一处参考资料  
 
 
 
