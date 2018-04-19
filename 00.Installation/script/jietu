@@ -44,7 +44,7 @@ if [[ "$fenbianlv" == "" ]]; then
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
   # DH0=` expr $VideoHeight / $DARW  `
   # DH=` expr $DH0 \* $DARH  `
-    DH=` echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
+    DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
     fenbianlv="${DH}x${DW}"
     echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
 fi
