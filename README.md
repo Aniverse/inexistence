@@ -87,11 +87,13 @@ bash inexistence.sh
 **`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
 在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
+- `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtkUI  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
-- `Stats` 和 `TotalTraffic` 需要 GtkUI 才能显示出来，分别可以显示速度曲线和 Deluge 的总传输流量  
-- `YaRSS2` 是用于 RSS 的插件；`LabelPlus` 是加强版的标签管理；这两个也需要 GtKUI  
-- `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtKUI  
-隐藏选项 11-15 ，分别对应 1.3.5-1.3.9 的老版本  
+- `Stats`、`TotalTraffic`、`Pieces`、`LabelPlus`、`YaRSS2`、`NoFolder` 都只能在 GUI 下设置，WebUI 下无法显示  
+- `Stats` 和 `TotalTraffic`、`Pieces` 分别可以实现速度曲线和流量统计、区块统计  
+- `LabelPlus` 是加强版的标签管理，支持自动根据 Tracker 对种子限速，刷 Frds 可用；也只有 GUI 可用    
+- `YaRSS2` 是用于 RSS 的插件；`NoFolder` 可以让 Deluge 在下载种子时不生成文件夹，辅种可用
+隐藏选项 11-15 ，分别对应 1.3.5-1.3.9 版本  
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
@@ -470,6 +472,7 @@ https://sometimesnaive.org
 https://www.94ish.me  
 https://blog.gloriousdays.pw  
 https://blog.rhilip.info  
+https://ymgblog.com  
 http://wilywx.com  
 http://xiaofd.win/onekey-ruisu.html  
 https://github.com/arfoll/unrarall  
