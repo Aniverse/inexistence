@@ -92,7 +92,7 @@ bash inexistence.sh
 - `Stats`、`TotalTraffic`、`Pieces`、`LabelPlus`、`YaRSS2`、`NoFolder` 都只能在 GUI 下设置，WebUI 下无法显示  
 - `Stats` 和 `TotalTraffic`、`Pieces` 分别可以实现速度曲线和流量统计、区块统计  
 - `LabelPlus` 是加强版的标签管理，支持自动根据 Tracker 对种子限速，刷 Frds 可用；也只有 GUI 可用    
-- `YaRSS2` 是用于 RSS 的插件；`NoFolder` 可以让 Deluge 在下载种子时不生成文件夹，辅种可用
+- `YaRSS2` 是用于 RSS 的插件；`NoFolder` 可以让 Deluge 在下载种子时不生成文件夹，辅种可用  
 隐藏选项 11-15 ，分别对应 1.3.5-1.3.9 版本  
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
@@ -131,7 +131,7 @@ Flood 是 rTorrent 的另一个 WebUI，界面美观，加载速度快，不过�
 
 12. ***Transmission***  
 **`--tr repo`**、**`--tr ppa`**、**`--tr 2.93 --tr-skip`**、**`--tr No`**  
-Transmission 一般无论哪个版本 PT 站都支持，并且用起来没多大差别，因此默认选择从仓库里安装，节省时间  
+Transmission 默认选择从仓库里安装，节省时间（ban 2.93 以前版本的站点也不是很多）  
 此外还会安装 [美化版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
 隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
