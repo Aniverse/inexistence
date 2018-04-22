@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.2
-INEXISTENCEDATE=2018.04.21.01
+INEXISTENCEDATE=2018.04.22-1
 # --------------------------------------------------------------------------------
 
 
@@ -851,7 +851,7 @@ while [[ $DEVERSION = "" ]]; do
             13) DEVERSION=1.3.7 ;;
             14) DEVERSION=1.3.8 ;;
             15) DEVERSION=1.3.9 ;;
-            21) DEVERSION='1.3.15 Skip hash check' ;;
+            21) DEVERSION='1.3.15 (Skip hash check)' ;;
             30) _inputversion && DEVERSION="${inputversion}"  ;;
             40) DEVERSION='Install from repo' ;;
             50) DEVERSION='Install from PPA' ;;
