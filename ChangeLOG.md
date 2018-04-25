@@ -34,6 +34,38 @@ deb 包的体积 270MB 左右，无法直接扔 GitHUb 了
 
 
 
+
+
+
+### About libtorrent-rasterbar
+总结下三个系统和 Xenial PPA 自带的 libtorrent 的表现吧：  
+Ubuntu 16.04 系统自带的 1.0.7 别的都没问题，qb 编译也能用，就是不支持 OurBits（别的站都没问题）  
+Debian 8 自带的 0.16.18 汇报双栈 IP 没问题，但是无法不适配 qBittorrent（版本太老），OurBits 也不支持  
+Debian 9 自带的 1.1.1 最尴尬，qBittorrent 编译不支持，给 Deluge 用 bug 也很多……  
+PS:OB 最近 https 这方面有改过才导致一些老版本不支持  
+
+来自 Ubuntu 16.04 Deluge PPA 的 libtorrent 1.0.11，有段时间我可以直接 V4+V6，现在不行了，大概包升级了  
+这个版本无法用于编译 qb，但如果你 qb 已经编译完了再切换到这个包却又没问题……  
+来自 Ubuntu 16.04 qBittorrent PPA 的 libtorrent 1.1.7，我得说 qb 官方更新这个还是很勤快的，现在用的往往是最新版本（3.3 的时候倒是停留在 1.0.11），但是追新不一定是件好事  
+目前来看 libtorrent 1.1.X 系列的 bug 还是比较多的，不是很建议使用  
+
+Deluge 目前基本上 0.16 以后的 lt 都能用，但是 1.1 的话用是能用，bug 却很多，比如汇报 tracker 时间显示为无限、无法限制速度等等  
+qBittorrent 基本上需要 1.0.7 以后的（0.16 要用于编译好像也不是不行，但是官方说放弃支持了我觉得还是不要考虑了吧），1.1.X 在 qb 3.3 上支持不好；在 4.X 上官方都开始使用 1.1.X 了，然而 1.1.X 本身 bug 比较多……  
+
+如果用 apt 安装的话，Deluge 对应的包是 python-libtorrent，qBittorrent 对应的包是 libtorrent-rasterbar-dev  
+不过这两个包其实还是依赖于 libtorrent-rasterbar[789] 这个包，7 对应 libtorrent-rasterbar 0.16 版，8 对应 1.0，9 对应 1.1  
+
+编译安装的话，confugure 的时候 Deluge 必须用上 --enable-python-binding，--with-libiconv 不确定是否必须  
+qBittorrent 4.0 以后的版本最好用上 CXXFLAGS=-std=c++11（4.0 以前的版本这个不是必须）（不用好像也行，但不用的话 libboost 似乎要用 C++11 才行）
+此外 `--disable-debug --enable-encryption --with-libgeoip=system` 这几个我想或许没有也行？……  
+
+
+
+
+
+
+
+
 ## 2018.04.25
 
 `inexistence 1.0.2`  
@@ -43,6 +75,9 @@ deb 包的体积 270MB 左右，无法直接扔 GitHUb 了
 
 `README 1.0.8` 
 1. 更新明天要改的 libtorrent 的内容  
+
+`ChangeLog 0.3.0` 
+1. 写了 libtorrent 的一些总结  
 
 
 
