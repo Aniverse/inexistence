@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.2
-INEXISTENCEDATE=2018.04.22-1
+INEXISTENCEDATE=2018.04.25-1
 # --------------------------------------------------------------------------------
 
 
@@ -970,14 +970,14 @@ while [[ $DELTVERSION = "" ]]; do
             echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
             case $version in
-                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-                  01 | 1) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
+                  00 | 0) DELTVERSION=RC_0_16 ;;
+                  01 | 1) DELTVERSION=RC_1_0 && DeLTDefault=1 ;;
+                  02 | 2) DELTVERSION=RC_1_1 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40) DELTVERSION='Install from repo' ;;
                   50) DELTVERSION='Install from PPA' ;;
                   99) DELTVERSION=No ;;
-                  "" | *) DELTVERSION=libtorrent-1_0_11 && DeLTDefault=1 ;;
+                  "" | *) DELTVERSION=RC_1_0 && DeLTDefault=1 ;;
             esac
 
         elif [[ $CODENAME == xenial ]]; then
@@ -986,9 +986,9 @@ while [[ $DELTVERSION = "" ]]; do
             echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}50${normal}): " ; read -e version
 
             case $version in
-                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
+                  00 | 0) DELTVERSION=RC_0_16 ;;
+                  01 | 1) DELTVERSION=RC_1_0 ;;
+                  02 | 2) DELTVERSION=RC_1_1 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40) DELTVERSION='Install from repo' ;;
                   50 |"") DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
@@ -1002,9 +1002,9 @@ while [[ $DELTVERSION = "" ]]; do
             echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
 
             case $version in
-                  00 | 0) DELTVERSION=libtorrent-0_16_19 ;;
-                  01 | 1) DELTVERSION=libtorrent-1_0_11 ;;
-                  02 | 2) DELTVERSION=libtorrent-1_1_7 ;;
+                  00 | 0) DELTVERSION=RC_0_16 ;;
+                  01 | 1) DELTVERSION=RC_1_0 ;;
+                  02 | 2) DELTVERSION=RC_1_1 ;;
                   30) _inputversionlt && DELTVERSION="${inputversion}" ;;
                   40 |"") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
                   99) DELTVERSION=No ;;
@@ -1916,8 +1916,9 @@ else
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version | tee -a /etc/inexistence/01.Log/installed.log
-        git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
-        cd libtorrent
+        rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentqb
+        git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentqb
+        cd /etc/inexistence/00.Installation/MAKE/libtorrentqb
         ./autotool.sh
         ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
         make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
@@ -1944,7 +1945,8 @@ else
 
         apt-get purge -y libtorrent-rasterbar-dev
         apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
-        cd ; git clone --depth=1 -b libtorrent-1_0_11 --single-branch https://github.com/arvidn/libtorrent
+        rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentqb
+        cd ; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentqb
         cd libtorrent
         ./autotool.sh
 
@@ -1971,8 +1973,10 @@ else
 
     fi
 
-    cd ; git clone https://github.com/qbittorrent/qBittorrent
-    cd qBittorrent
+    rm -rf /etc/inexistence/00.Installation/MAKE/qBittorrent
+    cd ; git clone https://github.com/qbittorrent/qBittorrent /etc/inexistence/00.Installation/MAKE/qBittorrent
+    cd /etc/inexistence/00.Installation/MAKE/qBittorrent
+    touch "${QBVERSION}".LOG
 
 #   [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
     QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
@@ -1999,7 +2003,7 @@ else
     fi
 
     mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
-    cd;rm -rf libtorrent qBittorrent
+    cd
     echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
 fi ; }
@@ -2116,8 +2120,10 @@ function _installde() {
 
           apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf # > /dev/null
           echo -e "${bailanse}\n\n\n\n  DE-DEPENDENCY-COMPLETED  \n\n\n${normal}"
-          cd; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent
-          cd libtorrent
+          rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentde
+          cd ; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentde
+          cd /etc/inexistence/00.Installation/MAKE/libtorrentde
+          touch ${DELTVERSION}.LOG
           ./autotool.sh
           ./configure --enable-python-binding --with-libiconv --with-libgeoip=system #这个是qb的参数
 
@@ -2160,8 +2166,8 @@ function _installde() {
 
       python setup.py build  > /dev/null
       python setup.py install --install-layout=deb  > /dev/null
-#     python setup.py install_data
-      cd; rm -rf deluge* libtorrent
+      python setup.py install_data
+      cd; rm -rf deluge*
 
   fi
 
