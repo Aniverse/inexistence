@@ -17,8 +17,10 @@
 解决办法从 GitHub 里某个 issue 下找来的，修改 libtorrent 源码里的一行就可以了  
 这个问题折腾了我好长好长时间，现在终于解决了……  
 怎么说呢，要自己看得懂才行，不然都只能请教别人……  
-4. **Bug Fix：修复 Ubuntu 16.04 下编译安装 qBittorrent 4.0 后 Deluge libtorrent 失效的问题**  
-其实 2/3/4 说的是同一件事情……  
+4. Ubuntu 16.04 下 Deluge 的默认选项改为从源码安装的 1.3.15  
+主要是为了配合新的 libtorrent 包，并且 Deluge 安装怎么样都很快  
+5. **Bug Fix：修复 Ubuntu 16.04 下编译安装 qBittorrent 4.0 后 Deluge libtorrent 失效的问题**  
+其实 2/3/4/5 说的是同一件事情……  
 
 `About` 
 1. 再次提前写更新日志  
@@ -27,7 +29,7 @@
 4. 这次重新写了下在 VPS 上编译的步骤，步骤简化+一步到位，省事很多了……  
 5. 在 Vultr 5欧 Cloud Compute 上编译 qt 5.9.5 要 240-250 分钟……  
 deb 包的体积 270MB 左右，无法直接扔 GitHUb 了  
-编译 5.10.1 的话要 300 分钟左右，并且 configure 的时候还会提示缺了三个东西，
+编译 5.10.1 的话要 300 分钟左右，并且 configure 的时候还会提示缺了三个东西  
 最后 checkinstall 只会出来一个十几 MB 的包，dpkg -i 装了这个包的话东西也是不全的……
 
 
@@ -56,7 +58,7 @@ qBittorrent 基本上需要 1.0.7 以后的（0.16 要用于编译好像也不�
 不过这两个包其实还是依赖于 libtorrent-rasterbar[789] 这个包，7 对应 libtorrent-rasterbar 0.16 版，8 对应 1.0，9 对应 1.1  
 
 编译安装的话，confugure 的时候 Deluge 必须用上 --enable-python-binding，--with-libiconv 不确定是否必须  
-qBittorrent 4.0 以后的版本最好用上 CXXFLAGS=-std=c++11（4.0 以前的版本这个不是必须）（不用好像也行，但不用的话 libboost 似乎要用 C++11 才行）
+qBittorrent 4.0 以后的版本最好用上 CXXFLAGS=-std=c++11（4.0 以前的版本这个不是必须）（不用好像也行，但不用的话 libboost 似乎要用 C++11 才行）  
 此外 `--disable-debug --enable-encryption --with-libgeoip=system` 这几个我想或许没有也行？……  
 
 
