@@ -85,7 +85,7 @@ bash inexistence.sh
 
 8. ***Deluge***  
 **`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
-在 `Ubuntu 16.04` 下默认选项为从 PPA 安装，在其他系统中默认选项为 1.3.15  
+默认选项为从源码安装 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtkUI  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
@@ -100,11 +100,12 @@ bash inexistence.sh
 
 9. ***libtorrent-rasterbar***  
 **`--delt libtorrent-1_0_11`**、**`--delt repo`**、**`--delt No`**  
-Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现  
+Deluge 选项选择 repo、PPA 或者不安装的话这个选项不会出现  
 如果你不了解这是什么东西，请敲回车选择默认选项！乱选版本容易翻车  
 默认选项是使用预先编译好的 deb 包来安装 libtorrent（RC_1_0 分支，版本 1.0.11）  
 这个包可以同时给 Deluge 和 qBittorrent 使用，并可以正确地汇报双栈 IP，我估摸着应该碰不到什么 bug 了  
-注意：最新的 1.1.X 版本在 Deluge 上 bug 多到起飞，在 qBittorrent 上也不能保证没问题，因此不建议选择这个版本  
+[关于 libtorrent-rasterbar 的一些个人总结](https://github.com/Aniverse/inexistence/blob/master/ChangeLOG.md#about-libtorrent-rasterbar)  
+
 
 
 
