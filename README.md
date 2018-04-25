@@ -102,7 +102,10 @@ bash inexistence.sh
 **`--delt libtorrent-1_0_11`**、**`--delt repo`**、**`--delt No`**  
 Deluge 选项选择 repo、PPA、不安装的话这个选项不会出现  
 如果你不了解这是什么东西，请敲回车选择默认选项！乱选版本容易翻车  
-最新的 1.1.X 版本在 Deluge 和 qBittorrent 上或多或少都有些问题，因此不建议选择这个版本  
+默认选项是使用预先编译好的 deb 包来安装 libtorrent（RC_1_0 分支，版本 1.0.11）  
+这个包可以同时给 Deluge 和 qBittorrent 使用，并可以正确地汇报双栈 IP，我估摸着应该碰不到什么 bug 了  
+注意：最新的 1.1.X 版本在 Deluge 上 bug 多到起飞，在 qBittorrent 上也不能保证没问题，因此不建议选择这个版本  
+
 
 
 10. ***rTorrent***  
