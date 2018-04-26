@@ -9,8 +9,8 @@
 `inexistence 1.0.3`  
 1. **Bump to 1.0.3**  
 是不是稍微快了点，不过这次 dpkg libtorrent 确实是个很大的变化了……  
-2. **New Feature：默认使用预先编译好的 deb 包安装 libtorrent-rasterbar 1.0.11**  
-经过测试，Debian 8/9、Ubuntu 16.04 都可以正常安装  
+2. **New Feature：不再询问 libtorrent 版本，全部指定使用预编译好的 1.0.11 deb 包来安装**  
+经过测试，在 Debian 8/9、Ubuntu 16.04 下都可以正常安装  
 且在 U2/CMCT 使用 Deluge/qBittorrent 无需任何设置即可同时汇报 IPv6 与 IPv4 地址  
 3. **New Feature：统一 libtorrent-rasterbar 的安装参数**  
 现在可以同时支持 Deluge 和 qBittorrent 了  
@@ -22,6 +22,7 @@
 5. **Bug Fix：修复 Ubuntu 16.04 下编译安装 qBittorrent 4.0 后 Deluge libtorrent 失效的问题**  
 其实 2/3/4/5 说的是同一件事情……  
 
+
 `About` 
 1. 再次提前写更新日志  
 2. 这里是碎碎念时间  
@@ -32,8 +33,10 @@ deb 包的体积 270MB 左右，无法直接扔 GitHUb 了
 编译 5.10.1 的话要 300 分钟左右，并且 configure 的时候还会提示缺了三个东西  
 最后 checkinstall 只会出来一个十几 MB 的包，dpkg -i 装了这个包的话东西也是不全的……
 
-
-
+`README 1.1.0` 
+1. 加回以前的一行安装代码  
+因为代码精简了，所以长度没有超出了  
+2. 更新 libtorrent-rasterbar 的说明  
 
 
 
@@ -74,6 +77,8 @@ qBittorrent 4.0 以后的版本最好用上 CXXFLAGS=-std=c++11（4.0 以前的�
 1. libtorrent 改为从 RC 分支安装  
 2. 编译完后不删除编译时留下的文件（主要是用于 make uninstall）  
 3. 修改编译安装时的下载路径  
+4. 源码文件夹内记录版本号  
+5. 增加一些路径与路径说明文件  
 
 `README 1.0.8` 
 1. 更新明天要改的 libtorrent 的内容  
