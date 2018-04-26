@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.3
-INEXISTENCEDATE=2018.04.26-4
+INEXISTENCEDATE=2018.04.26-5
 # --------------------------------------------------------------------------------
 
 
@@ -1790,7 +1790,8 @@ apt-get install -y                                                              
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
-libboost-python-dev
+libboost-python-dev                                                                 \
+zlib1g-dev
 
 if [[ $CODENAME == jessie ]]; then
     wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -qO libtorrent-rasterbar_1.0.11_jessie_amd64.deb
@@ -1871,7 +1872,7 @@ else
     
     ./configure --prefix=/usr --disable-gui
 
-    make -j${MAXCPUS} && QBCFail=0 || export QBCFail=1
+    make -j$MAXCPUS
 
     mkdir -p doc-pak
     cat >description-pak<<EOF
