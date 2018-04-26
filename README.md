@@ -11,6 +11,9 @@
 ## Usage
 
 ```
+bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
+```
+```
 wget --no-check-certificate -qO inexistence.sh https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
 bash inexistence.sh
 ```
@@ -99,14 +102,9 @@ bash inexistence.sh
 
 
 9. ***libtorrent-rasterbar***  
-**`--delt libtorrent-1_0_11`**、**`--delt repo`**、**`--delt No`**  
-Deluge 选项选择 repo、PPA 或者不安装的话这个选项不会出现  
-如果你不了解这是什么东西，请敲回车选择默认选项！乱选版本容易翻车  
-默认选项是使用预先编译好的 deb 包来安装 libtorrent（RC_1_0 分支，版本 1.0.11）  
-这个包可以同时给 Deluge 和 qBittorrent 使用，并可以正确地汇报双栈 IP，我估摸着应该碰不到什么 bug 了  
+本来这里是有个询问 libtorrent-rasterbar 版本的，现在直接移除了  
+现在脚本安装的 Deluge 和 qBittorrent 都会使用来自 RC_1_0 分支的 1.0.11 版，可以正确地汇报双栈 IP 地址  
 [关于 libtorrent-rasterbar 的一些个人总结](https://github.com/Aniverse/inexistence/blob/master/ChangeLOG.md#about-libtorrent-rasterbar)  
-
-
 
 
 10. ***rTorrent***  
