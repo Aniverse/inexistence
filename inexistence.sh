@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.2
-INEXISTENCEDATE=2018.04.25-1
+INEXISTENCEVER=1.0.3
+INEXISTENCEDATE=2018.04.26-1
 # --------------------------------------------------------------------------------
 
 
@@ -833,57 +833,30 @@ while [[ $DEVERSION = "" ]]; do
     [[ $de_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
 
-    [[ $DISTRO == Ubuntu ]] && dedefaultnum=50 ; [[ $DISTRO == Debian ]] && dedefaultnum=05
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " version
 
-    echo -ne "${bold}${yellow}Which version of Deluge do you want?${normal} (Default ${cyan}${dedefaultnum}${normal}): " ; read -e version
+    echo -ne "${bold}${yellow}Which version of Deluge do you want?${normal} (Default ${cyan}05${normal}): " ; read -e version
 
-    if [[ $DISTRO == Ubuntu ]]; then
-
-        case $version in
-            01 | 1) DEVERSION=1.3.11 ;;
-            02 | 2) DEVERSION=1.3.12 ;;
-            03 | 3) DEVERSION=1.3.13 ;;
-            04 | 4) DEVERSION=1.3.14 ;;
-            05 | 5) DEVERSION=1.3.15 ;;
-            11) DEVERSION=1.3.5 ;;
-            12) DEVERSION=1.3.6 ;;
-            13) DEVERSION=1.3.7 ;;
-            14) DEVERSION=1.3.8 ;;
-            15) DEVERSION=1.3.9 ;;
-            21) DEVERSION='1.3.15 (Skip hash check)' ;;
-            30) _inputversion && DEVERSION="${inputversion}"  ;;
-            40) DEVERSION='Install from repo' ;;
-            50) DEVERSION='Install from PPA' ;;
-            99) DEVERSION=No ;;
-            * | "") DEVERSION='Install from PPA' ;;
-        esac
-
-    elif [[ $DISTRO == Debian ]]; then
-
-        case $version in
-            01 | 1) DEVERSION=1.3.11 ;;
-            02 | 2) DEVERSION=1.3.12 ;;
-            03 | 3) DEVERSION=1.3.13 ;;
-            04 | 4) DEVERSION=1.3.14 ;;
-            05 | 5) DEVERSION=1.3.15 ;;
-            11) DEVERSION=1.3.5 ;;
-            12) DEVERSION=1.3.6 ;;
-            13) DEVERSION=1.3.7 ;;
-            14) DEVERSION=1.3.8 ;;
-            15) DEVERSION=1.3.9 ;;
-            21) DEVERSION='1.3.15 (Skip hash check)' ;;
-            30) _inputversion && DEVERSION="${inputversion}"  ;;
-            40) DEVERSION='Install from repo' ;;
-            50) DEVERSION='Install from PPA' ;;
-            99) DEVERSION=No ;;
-            * | "") DEVERSION=1.3.15 ;;
-        esac
-
-    fi
+    case $version in
+        01 | 1) DEVERSION=1.3.11 ;;
+        02 | 2) DEVERSION=1.3.12 ;;
+        03 | 3) DEVERSION=1.3.13 ;;
+        04 | 4) DEVERSION=1.3.14 ;;
+        05 | 5) DEVERSION=1.3.15 ;;
+        11) DEVERSION=1.3.5 ;;
+        12) DEVERSION=1.3.6 ;;
+        13) DEVERSION=1.3.7 ;;
+        14) DEVERSION=1.3.8 ;;
+        15) DEVERSION=1.3.9 ;;
+        21) DEVERSION='1.3.15 (Skip hash check)' ;;
+        30) _inputversion && DEVERSION="${inputversion}"  ;;
+        40) DEVERSION='Install from repo' ;;
+        50) DEVERSION='Install from PPA' ;;
+        99) DEVERSION=No ;;
+        * | "") DEVERSION=1.3.15 ;;
+    esac
 
 done
-
 
 [[ ` echo $DEVERSION | grep -oP "[0-9.]+" | awk -F '.' '{print $3}' ` -lt 11 ]] && DESSL=Yes
 [[ $DEVERSION == '1.3.15 (Skip hash check)' ]] && DESKIP=Yes
@@ -954,7 +927,7 @@ while [[ $DELTVERSION = "" ]]; do
         echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
         [[ $DISTRO == Ubuntu ]] &&
         echo -e "${green}50)${normal} libtorrent-rasterbar ${cyan}$DELT_PPA_ver${normal} from ${cyan}Deluge PPA${normal}"
-        [[ $de_installed == Yes ]] &&
+      # [[ $de_installed == Yes ]] &&
         echo -e "${red}99)${normal} Do not install libtorrent-rasterbar AGAIN"
 
         [[ $delugelt_ver ]] &&
@@ -963,55 +936,20 @@ while [[ $DELTVERSION = "" ]]; do
         echo "${shanshuo}${baihongse}${bold} ATTENTION ${normal} ${blue}${bold}USE THE ${heihuangse}DEFAULT${normal}${blue}${bold} OPINION UNLESS YOU KNOW WHAT'S THIS${normal}"
       # echo -e "${bailanse}${bold} 注意！ ${normal} ${blue}${bold}如果你不知道这是什么玩意儿，请使用默认选项${normal}"
 
+      # read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+        echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
-        if [[ $CODENAME == stretch ]]; then
-
-          # read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}01${normal}): " ; read -e version
-
-            case $version in
-                  00 | 0) DELTVERSION=RC_0_16 ;;
-                  01 | 1) DELTVERSION=RC_1_0 && DeLTDefault=1 ;;
-                  02 | 2) DELTVERSION=RC_1_1 ;;
-                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40) DELTVERSION='Install from repo' ;;
-                  50) DELTVERSION='Install from PPA' ;;
-                  99) DELTVERSION=No ;;
-                  "" | *) DELTVERSION=RC_1_0 && DeLTDefault=1 ;;
-            esac
-
-        elif [[ $CODENAME == xenial ]]; then
-
-           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}50${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}50${normal}): " ; read -e version
-
-            case $version in
-                  00 | 0) DELTVERSION=RC_0_16 ;;
-                  01 | 1) DELTVERSION=RC_1_0 ;;
-                  02 | 2) DELTVERSION=RC_1_1 ;;
-                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40) DELTVERSION='Install from repo' ;;
-                  50 |"") DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
-                  99) DELTVERSION=No ;;
-                  *) DELTVERSION='Install from PPA' && DeLTDefault=1 ;;
-            esac
-
-        else
-
-           #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
-            echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
-
-            case $version in
-                  00 | 0) DELTVERSION=RC_0_16 ;;
-                  01 | 1) DELTVERSION=RC_1_0 ;;
-                  02 | 2) DELTVERSION=RC_1_1 ;;
-                  30) _inputversionlt && DELTVERSION="${inputversion}" ;;
-                  40 |"") DELTVERSION='Install from repo' && DeLTDefault=1 ;;
-                  99) DELTVERSION=No ;;
-                  *) DELTVERSION='Install from repo' && DeLTDefault=1 ;;
-            esac
-
-        fi
+        case $version in
+              00 | 0) DELTVERSION=RC_0_16 ;;
+              01 | 1) DELTVERSION=1.0.11 && DeLTDefault=1 ;;
+              02 | 2) DELTVERSION=RC_1_1 ;;
+              03 | 3) DELTVERSION=RC_1_0 ;;
+              30) _inputversionlt && DELTVERSION="${inputversion}" ;;
+              40) DELTVERSION='Install from repo' ;;
+              50) DELTVERSION='Install from PPA' ;;
+              99) DELTVERSION=No ;;
+              "" | *) DELTVERSION=1.0.11 && DeLTDefault=1 ;;
+        esac
 
     fi
 
@@ -1031,9 +969,11 @@ while [[ $DELTVERSION = "" ]]; do
 
 done
 
-
 DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
-
+[[ $DELTVERSION == RC_0_16 ]] && DELTPKG=` wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-0_16_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" `
+[[ $DELTVERSION == RC_1_0  ]] && DELTPKG=` wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_0_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" `
+[[ $DELTVERSION == RC_1_1  ]] && DELTPKG=` wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" `
+[[ $DELTVERSION == 1.0.11  ]] && DELTPKG=1.0.11
 
     if [[ $DELTVERSION == "Install from repo" ]]; then
 
@@ -1041,7 +981,7 @@ DELTPKG=`  echo "$DELTVERSION" | sed "s/_/\./g" | sed "s/libtorrent-//"  `
 
     elif [[ $DELTVERSION == "Install from PPA" ]]; then
 
-        echo "${baiqingse}${bold}libtorrent-rasterbar 1.0.11${normal} ${bold}will be installed from Deluge PPA${normal}"
+        echo "${baiqingse}${bold}libtorrent-rasterbar $DELT_PPA_ver${normal} ${bold}will be installed from Deluge PPA${normal}"
 
     elif [[ $DELTVERSION == No ]]; then
 
@@ -2328,7 +2268,7 @@ else
     make -j${MAXCPUS}
     make install
 #   checkinstall -y --pkgversion=2.1.8
-    cd; rm -rf libevent release-2.1.8-stable.tar.gz
+    cd ; rm -rf release-2.1.8-stable.tar.gz
 #   ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     ldconfig
 
@@ -2339,7 +2279,7 @@ else
     else
         git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
         cd transmission
-        [[ ! "$TRVERSION" = "2.93" ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+        [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
 #       sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     fi
 
@@ -2355,7 +2295,7 @@ else
     fi
 
     mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
-    cd; rm -rf transmission*
+    cd ; rm -rf transmission-${TRVERSION}.tar.gz
 
 fi
 
