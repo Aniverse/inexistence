@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.3
-INEXISTENCEDATE=2018.04.26-1
+INEXISTENCEDATE=2018.04.26-4
 # --------------------------------------------------------------------------------
 
 
@@ -1793,13 +1793,13 @@ geoip-database libgeoip-dev                                                     
 libboost-python-dev
 
 if [[ $CODENAME == jessie ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -O libtorrent-rasterbar_1.0.11_jessie_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -qO libtorrent-rasterbar_1.0.11_jessie_amd64.deb
     dpkg -i libtorrent-rasterbar_1.0.11_jessie_amd64.deb
 elif [[ $CODENAME == xenial ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb -O libtorrent-rasterbar_1.0.11_xenial_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb -qO libtorrent-rasterbar_1.0.11_xenial_amd64.deb
     dpkg -i libtorrent-rasterbar_1.0.11_xenial_amd64.deb
 elif [[ $CODENAME == stretch ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -O libtorrent-rasterbar_1.0.11_stretch_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO libtorrent-rasterbar_1.0.11_stretch_amd64.deb
     dpkg -i libtorrent-rasterbar_1.0.11_stretch_amd64.deb
 fi
 
@@ -1839,7 +1839,7 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
 
-        wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
+        wget --no-check-certificate -qO qt_5.5.1-1_amd64_debian8.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
         dpkg -i qt_5.5.1-1_amd64_debian8.deb
 
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
@@ -1856,6 +1856,7 @@ else
     [[ -d qBittorrent ]] && mv -f qBittorrent.old.$(date "+%Y.%m.%d.%H.%M.%S")
     git clone https://github.com/qbittorrent/qBittorrent
 
+    cd qBittorrent
     QBVERSION=`echo $QBVERSION | grep -oE [0-9.]+`
     git checkout release-$QBVERSION
 
@@ -1987,8 +1988,11 @@ else
     ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
     ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
 
-    sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
-    sed -i "/      ctx = SSL.Context(SSL.SSLv23_METHOD)/a\      ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
+    if [[ $DESSL == Yes ]]; then
+        sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
+        sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
+        echo -e "\n\nSSL FIX (FOR LOG)\n\n"
+    fi
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb  > /dev/null # 输出太长了，省略大部分，反正也不重要
@@ -2922,6 +2926,8 @@ _askwine
 _asktools
 _askflex
 _askrclone
+
+DELTVERSION=1.0.11
 
 if [[ -d /proc/vz ]]; then
     echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
