@@ -2259,43 +2259,47 @@ else
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
     [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
-    cd; wget --no-check-certificate https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
-    tar xvf release-2.1.8-stable.tar.gz
-    mv libevent-release-2.1.8-stable libevent
-    cd libevent
+    cd /etc/inexistence/00.Installation/MAKE ; wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+    tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
+    mv libevent-release-2.1.8-stable libevent-2.1.8
+    cd libevent-2.1.8
     ./autogen.sh
     ./configure
-    make -j${MAXCPUS}
-    make install
-#   checkinstall -y --pkgversion=2.1.8
-    cd ; rm -rf release-2.1.8-stable.tar.gz
-#   ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+    make -j$MAXCPUS
+  # make install
+    checkinstall -y --pkgversion=2.1.8 --pkgname=libevent --pkggroup libevent
+  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     ldconfig
+    cd ..
 
-    if [[ "${TRdefault}" == "No" ]]; then
-        wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${TRVERSION}.tar.gz
-        tar xvf transmission-${TRVERSION}.tar.gz
-        cd transmission-${TRVERSION}
+    if [[ $TRdefault == No ]]; then
+        wget --no-check-certificate -O transmission-$TRVERSION.tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$TRVERSION.tar.gz
+        tar xf transmission-$TRVERSION.tar.gz ; rm -rf transmission-$TRVERSION.tar.gz
+        cd transmission-$TRVERSION
     else
-        git clone --depth=1 -b ${TRVERSION} --single-branch https://github.com/transmission/transmission
-        cd transmission
-        [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-#       sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
+        git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
+        cd transmission-$TRVERSION
+     #  [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+        [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+     #  sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     fi
 
     ./autogen.sh
     ./configure --prefix=/usr
-    make -j${MAXCPUS}
+    mkdir -p doc-pak
+    cat >description-pak<<EOF
+Transmission is a fast, easy, and free BitTorrent client.
+EOF
+    make -j$MAXCPUS
 
-#   dpkg -r transmission
+  # dpkg -r transmission
     if [[ $tr_installed == Yes ]]; then
         make install
     else
-        checkinstall -y --pkgversion=$TRVERSION
+        checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission --pkggroup transmission
     fi
 
     mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
-    cd ; rm -rf transmission-${TRVERSION}.tar.gz
 
 fi
 
