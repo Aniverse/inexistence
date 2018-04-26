@@ -30,7 +30,7 @@ while true; do
     --rt            ) { if [[ $2 == ppa ]]; then RTVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then RTVERSION='Install from repo'   ; else RTVERSION=$2   ; fi ; } ; shift ; shift ;;
     --tr            ) { if [[ $2 == ppa ]]; then TRVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then TRVERSION='Install from repo'   ; else TRVERSION=$2   ; fi ; } ; shift ; shift ;;
     --de            ) { if [[ $2 == ppa ]]; then DEVERSION='Install from PPA'   ; elif [[ $2 == repo ]]; then DEVERSION='Install from repo'   ; else DEVERSION=$2   ; fi ; } ; shift ; shift ;;
-    --delt          ) { if [[ $2 == ppa ]]; then DELTVERSION='Install from PPA' ; elif [[ $2 == repo ]]; then DELTVERSION='Install from repo' ; else DELTVERSION=$2 ; fi ; } ; shift ; shift ;;
+#   --delt          ) { if [[ $2 == ppa ]]; then DELTVERSION='Install from PPA' ; elif [[ $2 == repo ]]; then DELTVERSION='Install from repo' ; else DELTVERSION=$2 ; fi ; } ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
@@ -864,7 +864,7 @@ done
 if [[ $DEVERSION == No ]]; then
 
     echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-    DELTVERSION=NoDeluge
+#   DELTVERSION=NoDeluge
 
 elif [[ $DEVERSION == "Install from repo" ]]; then 
 
@@ -902,7 +902,7 @@ echo ; }
 
 
 
-
+# 2018.04.26 禁用这个问题，统一使用 1.0.11
 # --------------------- 询问需要安装的 Deluge libtorrent 版本 --------------------- #
 # DELTVERSION=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
@@ -1503,8 +1503,8 @@ function _askcontinue() {
   echo
   echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${QBVERSION}${normal}"
   echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${DEVERSION}${normal}"
-  [[ ! $DEVERSION == No ]] &&
-  echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${DELTVERSION}${normal}"
+# [[ ! $DEVERSION == No ]] &&
+# echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${DELTVERSION}${normal}"
   echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${RTVERSION}${normal}"
   [[ ! $RTVERSION == No ]] &&
   echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
@@ -1729,82 +1729,99 @@ exit 0 ; }
 
 
 
+
+
+# --------------------- 编译安装 libtorrent-rasterbar --------------------- #
+
+function _compile_lt() {
+
+[[ `dpkg -l | grep libtorrent-rasterbar-dev` ]] && apt-get purge -y libtorrent-rasterbar-dev
+[[ `dpkg -l | grep python-libtorrent` ]] && apt-get purge -y python-libtorrent
+apt-get -y autoremove
+
+cd /etc/inexistence/00.Installation/MAKE
+
+DELTVERSION=RC_1_0
+DELTPKG=1.0.11
+
+# 安装依赖 
+apt-get install -y                                                                  \
+build-essential pkg-config autoconf automake libtool git checkinstall               \
+libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
+geoip-database libgeoip-dev                                                         \
+libboost-python-dev
+
+git clone --depth=1 -b $DELTVERSION --single-branch https://github.com/arvidn/libtorrent libtorrent-$DELTPKG
+cd libtorrent-$DELTPKG
+
+# 修改源码，不然 C++11 编译完后 Deluge 无法使用
+sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py
+
+./autotool.sh
+./configure --enable-python-binding --with-libiconv \
+            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11 # 第一行是 Deluge 的参数，第二行是 qBittorrent 的参数
+make -j${MAXCPUS}
+
+mkdir -p doc-pak
+cat >description-pak<<EOF
+an efficient feature complete C++ bittorrent implementation
+EOF
+
+checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $DELTPKG
+cp -f libtorrent-rasterb*.deb /etc/inexistence/01.Log/INSTALLATION/packages
+
+cd ; ldconfig ; }
+
+
+
+
+
+
+
+
+# --------------------- 使用 deb 包安装 libtorrent-rasterbar --------------------- #
+
+function _install_lt_deb_1011() {
+
+cd /etc/inexistence/00.Installation/MAKE
+
+# 安装依赖 
+apt-get install -y                                                                  \
+build-essential pkg-config autoconf automake libtool git checkinstall               \
+libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
+geoip-database libgeoip-dev                                                         \
+libboost-python-dev
+
+if [[ $CODENAME == jessie ]]; then
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -O libtorrent-rasterbar_1.0.11_jessie_amd64.deb
+    dpkg -i libtorrent-rasterbar_1.0.11_jessie_amd64.deb
+elif [[ $CODENAME == xenial ]]; then
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb -O libtorrent-rasterbar_1.0.11_xenial_amd64.deb
+    dpkg -i libtorrent-rasterbar_1.0.11_xenial_amd64.deb
+elif [[ $CODENAME == stretch ]]; then
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -O libtorrent-rasterbar_1.0.11_stretch_amd64.deb
+    dpkg -i libtorrent-rasterbar_1.0.11_stretch_amd64.deb
+fi
+
+cd ; ldconfig ; }
+
+
+
+
+
+
+
+
 # --------------------- 编译安装 qBittorrent --------------------- #
 
 function _installqbt() {
 
-# libtorrent-rasterbar 可以从系统源/PPA源里安装，或者用之前 deluge 用的 libtorrent-rasterbar；而编译 qbittorrent-nox 需要 libtorrent-rasterbar 的版本高于 1.0.6
-
-# 好吧，先检查下系统源里的 libtorrent-rasterbar-dev 版本是多少压压惊
-SysLTDEVer0=`  apt-cache policy libtorrent-rasterbar-dev | grep Candidate | awk '{print $2}' | sed "s/[^0-9]/ /g"  `
-SysLTDEVer1=`echo $SysLTDEVer0 | awk '{print $1}'`
-SysLTDEVer2=`echo $SysLTDEVer0 | awk '{print $2}'`
-SysLTDEVer3=`echo $SysLTDEVer0 | awk '{print $3}'`
-[[ $SysLTDEVer0 ]] && SysLTDEVer4=`echo ${SysLTDEVer1}.${SysLTDEVer2}.${SysLTDEVer3}`
-
-# 检查 python-libtorrent 版本
-PyLTVer0=`dpkg -l | grep python-libtorrent | awk '{print $3}' | sed 's/[^0-9]/ /g'`
-PyLTVer1=`echo $PyLTVer0 | awk '{print $1}'`
-PyLTVer2=`echo $PyLTVer0 | awk '{print $2}'`
-PyLTVer3=`echo $PyLTVer0 | awk '{print $3}'`
-[[ $PyLTVer0 ]] && PyLTVer4=`echo ${PyLTVer1}.${PyLTVer2}.${PyLTVer3}`
-
-# 检查已安装的 libtorrent-rasterbar 版本
-InstalledLTVer0=`dpkg -l | egrep libtorrent-rasterbar[789] | awk '{print $3}' | sed 's/[^0-9]/ /g'`
-InstalledLTVer1=`echo $InstalledLTVer0 | awk '{print $1}'`
-InstalledLTVer2=`echo $InstalledLTVer0 | awk '{print $2}'`
-InstalledLTVer3=`echo $InstalledLTVer0 | awk '{print $3}'`
-[[ $InstalledLTVer0 ]] && InstalledLTVer4=`echo ${InstalledLTVer1}.${InstalledLTVer2}.${InstalledLTVer3}`
-
-# 检查已编译的 libtorrent-rasterbar 版本（只能检查到之前用脚本 checkinstall 安装且写入了版本号的）
-BuildedLT=`dpkg -l | egrep "libtorrentde"`
-BuildedLTVer0=`dpkg -l | egrep "libtorrentde" | awk '{print $3}' | sed 's/[^0-9]/ /g'`
-BuildedLTVer1=`echo $BuildedLTVer0 | awk '{print $1}'`
-BuildedLTVer2=`echo $BuildedLTVer0 | awk '{print $2}'`
-BuildedLTVer3=`echo $BuildedLTVer0 | awk '{print $3}'`
-[[ $BuildedLT ]] && BuildedLTVer4=`echo ${BuildedLTVer1}.${BuildedLTVer2}.${BuildedLTVer3}`
-
-# 检查当前 Deluge 用的 libtorrent-rasterbar 版本（当之前安装 Deluge 是编译 libtorrent 的时候，这里的版本可能和 python-libtorrent 不一样）
-if [[ $( command -v deluged ) ]] && [[ ` deluged --version 2>/dev/null | grep libtorrent ` ]]; then
-    DeLTVer0=`deluged --version 2>/dev/null | grep libtorrent | awk '{print $2}' | sed "s/[^0-9]/ /g"`
-    DeLTVer1=`echo $DeLTVer0 | awk '{print $1}'`
-    DeLTVer2=`echo $DeLTVer0 | awk '{print $2}'`
-    DeLTVer3=`echo $DeLTVer0 | awk '{print $3}'`
-    [[ $DeLTVer0 ]] && DeLTVer4=`echo ${DeLTVer1}.${DeLTVer2}.${DeLTVer3}`
-fi
-
-SysQbLT=No
-[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 0 ]] && [[ "${SysLTDEVer3}" -ge 6 ]] && SysQbLT=Yes
-[[ "${SysLTDEVer1}" == 1 ]] && [[ "${SysLTDEVer2}" == 1 ]] && [[ "${SysLTDEVer3}" -ge 2 ]] && SysQbLT=Yes
-
-DeQbLT=No
-[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 0 ]] && [[ "${DeLTVer3}" -ge 6 ]] && DeLT=8 && DeQbLT=Yes
-[[ "${DeLTVer1}" == 1 ]] && [[ "${DeLTVer2}" == 1 ]] && [[ "${DeLTVer3}" -ge 2 ]] && DeLT=9 && DeQbLT=Yes
-
-# DeLT 表示 libtorrent-ratserbar几，比如 0.16.18 对应 7，1.0.11 对应 8，1.1.6 对应 9
-
-# 检测 deluge 用的 libtorrent 是不是来自于 python-libtorrent 这个包（其实这个 same 并不严谨，有可能不是同一个版本，但我懒得管了...）
-[[ $SysLTDEVer4 == $DeLTVer4 ]] && SameLT=Yes
-
-# 不用之前选择的版本做判断是为了防止出现有的人之前单独安装了 Deluge with 1.0.7 lt，又用脚本装 qb 导致出现 lt 冲突的情况
-
-# DeBUG 用的，在 Log 里也可以看
-# if [[ $DeBUG == 1 ]]; then  ; fi
-echo -e "${bailanse}\n\n" ; echo DeQbLT=$DeQbLT ; echo SysQbLT=$SysQbLT ; echo DeLTVer4=$DeLTVer4 ; echo BuildedLTVer4=$BuildedLTVer4 ; echo SysLTDEVer4=$SysLTDEVer4 ; echo InstalledLTVer4=$InstalledLTVer4 ; echo -e "\n${normal}"
-
-# [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]] && echo 123
-
-
-
-
-
-
-if [[ "${QBVERSION}" == "Install from repo" ]]; then
+if [[ $QBVERSION == "Install from repo" ]]; then
 
     apt-get install -y qbittorrent-nox
     echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
-elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
+elif [[ $QBVERSION == "Install from PPA" ]]; then
 
     apt-get install -y software-properties-common python-software-properties
     add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
@@ -1814,120 +1831,40 @@ elif [[ "${QBVERSION}" == "Install from PPA" ]]; then
 
 else
 
-    # 2018.03.17 我真的是被 qBittorrent 这个依赖给搞烦起来了，索性以后用 iFeral 的方法算了？
+    # 使用 deb 包安装 libtorrent-rasterbar 1.0.11
+    _install_lt_deb_1011
 
-    # 1. 不需要再安装 libtorrent-rasterbar
-    #### 之前在安装 Deluge 的时候已经编译了 libtorrent-rasterbar，且版本满足 qBittorrent 编译的需要
-    #### 2018.02.05 发现 Deluge 不能用 C++11 模式编译，不然 deluged 运行不了
+    if [[ $CODENAME == jessie ]]; then
 
-    #### 2018.03.17 Debian 9 下 qBittorrent 4.0 似乎不需要 C++11，所以用 Deluge 编译的 libtorrent 应该是可以的
-    #### 而如果用 Ubuntu 16.04 一般也不会有人去选择编译（如果编译了的话那么 xenial 下无法完成 qb 4.0 的编译）
+        apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+        apt-get autoremove -y
 
-    if [[ $DeQbLT == Yes ]] && [[ $BuildedLT ]]; then
-
-        apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev # > /dev/null
-
-        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-        echo "qBittorrent libtorrent-rasterbar from deluge" >> /etc/inexistence/01.Log/installed.log
-
-    # 2. 需要安装 libtorrent-rasterbar-dev
-    #### 第一个情况，Ubuntu 16.04（$SysQbLT = yes） ，没装 deluge，或者装了 deluge 且用的 libtorrent 是源的版本（$SameLT = Yes），且需要装的 qBittorrent 版本不是 4.0 的
-
-    ################ 还有一个情况，Ubuntu 16.04 或者 Debian 9，Deluge 用的是编译的 libtorrent-rasterbar 0.16.19，不确定能不能用这个办法，所以还是再用第三个方案编译一次算了……
-    # 2018.02.01 这个情况一般不会出现了，因为我又隐藏了 libtorrent-rasterbar 0.16 分支的选项……
-
-    elif [[ $SysQbLT == Yes && $QBVERSION4 == No && ! $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes && $QBVERSION4 == No ]]; then
-
-        apt-get install -y build-essential pkg-config automake libtool git libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev python3 zlib1g-dev libtorrent-rasterbar-dev # > /dev/null
-
-        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-DEPENDENCY-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-        echo "qBittorrent libtorrent-rasterbar from system repo" >> /etc/inexistence/01.Log/installed.log
-
-    # 3. Debian 8 下先安装 qt 5.5.1 再安装 qBittorrent 4.0.4
-    # 2018.04.17 更新
-    # 这个仅适用于全新安装，非全新安装的情况下我感觉很容易翻车…… 比如之前安装过了 qt 5.3.2 的一些包的情况，卸载了似乎也不行，不卸载更不行
-
-    elif [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
-
-      # apt-get purge -y libqt5svg5-dev qtbase5-dev qttools5-dev-tools
-        apt-get install -y python python3 checkinstall screen automake autoconf libtool git pkg-config zlib1g-dev build-essential libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev geoip-database libgeoip-dev libgl1-mesa-dev
-        cd ; wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
+        wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
         dpkg -i qt_5.5.1-1_amd64_debian8.deb
+
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version | tee -a /etc/inexistence/01.Log/installed.log
-        rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentqb
-        git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentqb
-        cd /etc/inexistence/00.Installation/MAKE/libtorrentqb
-        ./autotool.sh
-        ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
-        make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
-        make install
-        ldconfig
-        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-        echo "qBittorrent libtorrent-rasterbar from building, with qt 5.5.1 from deb" >> /etc/inexistence/01.Log/installed.log
-
-    # 4. 需要编译安装 libtorrent-rasterbar，安装速度慢
-    #### Debian8 没装 Deluge 或者 Deluge 没有用编译的 libtorrent-rasterbar 1.0/1.1
-    #### elif [[ $SysQbLT == Yes && ! -a $DeLTVer4 ]] || [[ $SysQbLT == Yes && $SameLT == Yes ]]; then
-    #### 比较蛋疼的是我也不敢确定我的判断条件有没有写少了的，所以还是用 else
-
-    #### 2018.01.26：今天我非常蛋疼地发现，Debian 9 自带的 libtorrent 1.1.1 可能编译 qb 的时候会出问题，所以 Debian 9 还是指定来编译 1.0 的 libtorrent 算了
-    #### 也就是说现在 libtorrent 版本需要是 1.0.6-1.0.11，或 1.1.2 及以上 （？？？）
-    #### https://github.com/qbittorrent/qBittorrent/issues/6197
-
-    #### 2018.02.01：再补充一个需要安装的情况：Ubuntu 16.04 如果想要安装 qb 4.0 及以后的版本，repo 或 Deluge PPA 的 lt 都不行，必须在 C++11 模式下编译 lt
-    #### https://github.com/qbittorrent/qBittorrent/issues/7863
-
-    #### 2018.02.05：如果之前 Deluge 用的是编译的 libtorrent-rasterbar，这里再编译一次的话似乎会冲突……
 
     else
 
-        apt-get purge -y libtorrent-rasterbar-dev
-        apt-get install -y libqt5svg5-dev libboost-dev libboost-system-dev build-essential qtbase5-dev qttools5-dev-tools geoip-database libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev libgeoip-dev pkg-config zlib1g-dev automake autoconf libtool git python python3 checkinstall # > /dev/null
-        rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentqb
-        cd ; git clone --depth=1 -b RC_1_0 --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentqb
-        cd libtorrent
-        ./autotool.sh
-
-        if [[ "$CODENAME" =~ ("stretch") ]]; then
-          ./configure --disable-debug --enable-encryption --with-libgeoip=system
-        else
-          ./configure --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11
-        fi
-
-      # [[ $tram -le 1900 ]] && _use_swap
-
-        make clean
-        make -j${MAXCPUS} && QBLTFail=0 || export QBLTCFail=1
-        make install
-
-      # [[ $tram -le 1900 ]] && _disable_swap
-
-      # checkinstall -y --pkgname=libtorrentqb --pkgversion=1.0.11
-      # mv -f libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
-        ldconfig
-
-        echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-LIBTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
-        echo "qBittorrent libtorrent-rasterbar from building" >> /etc/inexistence/01.Log/installed.log
+        apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
 
     fi
 
-    rm -rf /etc/inexistence/00.Installation/MAKE/qBittorrent
-    cd ; git clone https://github.com/qbittorrent/qBittorrent /etc/inexistence/00.Installation/MAKE/qBittorrent
-    cd /etc/inexistence/00.Installation/MAKE/qBittorrent
-    touch "${QBVERSION}".LOG
+    cd /etc/inexistence/00.Installation/MAKE
+    [[ -d qBittorrent ]] && mv -f qBittorrent.old.$(date "+%Y.%m.%d.%H.%M.%S")
+    git clone https://github.com/qbittorrent/qBittorrent
 
-#   [[ "${QBVERSION}" == '3.3.11 (Skip hash check)' ]] && QBVERSION=3.3.11
-    QBVERSION=`echo $QBVERSION | cut -c1-7 | sed "s/ //g" | sed "s/(//g"`
-    git checkout release-${QBVERSION}
+    QBVERSION=`echo $QBVERSION | grep -oE [0-9.]+`
+    git checkout release-$QBVERSION
 
     if [[ $QBPATCH == Yes ]]; then
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         git cherry-pick db3158c
-        git cherry-pick b271fa9
-        git cherry-pick 1ce71fc #IO
+        git cherry-pick b271fa9 # WebUI 跳过校验
+        git cherry-pick 1ce71fc # 显示 IO 状况
         echo -e "\n\n\nQB 3.3.11 SKIP HASH CHECK (FOR LOG)\n\n\n"
     fi
     
@@ -1935,12 +1872,12 @@ else
 
     make -j${MAXCPUS} && QBCFail=0 || export QBCFail=1
 
-    if [[ $qb_installed == Yes ]]; then
-        make install && QBCFail=0 || export QBCFail=1
-    else
-      # dpkg -r qbittorrentnox
-        checkinstall -y --pkgname=qbittorrentnox --pkgversion=$QBVERSION
-    fi
+    mkdir -p doc-pak
+    cat >description-pak<<EOF
+qBittorrent BitTorrent client headless (qbittorrent-nox)
+EOF
+
+    checkinstall -y --pkgname=qbittorrent-headless --pkgversion=$QBVERSION --pkggroup qbittorrent
 
     mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd
@@ -1957,12 +1894,7 @@ fi ; }
 
 function _installqbt2() { git clone --depth=1 -b master--single-branch https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
 
-function _installqbt3() { 
-wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
-dpkg -i qt_5.5.1-1_amd64_debian8.deb
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
-export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-qmake --version ; }
+
 
 
 
@@ -2014,104 +1946,57 @@ touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 function _installde() {
 
-  if [[ $DEVERSION == "Install from repo" ]]; then
+if [[ $DEVERSION == "Install from repo" ]]; then
 
-      apt-get install -y deluged deluge-web
+    apt-get install -y deluged deluge-web
 
-  elif [[ $DEVERSION == "Install from PPA" ]]; then
+elif [[ $DEVERSION == "Install from PPA" ]]; then
 
-      apt-get install -y software-properties-common python-software-properties
-      add-apt-repository -y ppa:deluge-team/ppa
-      apt-get update
-      apt-get install -y --allow-downgrades libtorrent-rasterbar8 python-libtorrent
-      apt-get install -y --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
-      apt-mark hold libtorrent-rasterbar8 python-libtorrent
-      apt-get install -y deluged deluge-web
+    apt-get install -y software-properties-common python-software-properties
+    add-apt-repository -y ppa:deluge-team/ppa
+    apt-get update
+    apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8 python-libtorrent
+    apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
+    apt-mark hold libtorrent-rasterbar8 python-libtorrent
+    apt-get install -y deluged deluge-web
 
-  else
+else
 
-      # 从源里安装 libtorrent-rasterbar[789] 以及对应版本的 python-libtorrent
-      if [[ $DELTVERSION == "Install from repo" ]]; then
+    # 使用 deb 包安装 libtorrent-rasterbar 1.0.11
+    _install_lt_deb_1011
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-libtorrent # > /dev/null
-          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.python.lock
+    # 安装 Deluge 依赖
+    apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
 
-      # 从 PPA 安装 libtorrent-rasterbar8 以及对应版本的 python-libtorrent
-      elif [[ $DELTVERSION == "Install from PPA" ]]; then
+    cd /etc/inexistence/00.Installation/MAKE
 
-          apt-get install -y software-properties-common python-software-properties
-          add-apt-repository -y ppa:deluge-team/ppa
-          apt-get update
-          apt-get install -y --allow-downgrades libtorrent-rasterbar8
-          apt-get install -y --allow-downgrades python-libtorrent
-          apt-mark hold libtorrent-rasterbar8 python-libtorrent
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
-          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.ppa.lock
+    if [[ $DESKIP == Yes ]]; then
+        export DEVERSION=1.3.15
+        wget --no-check-certificate -O deluge-$DEVERSION.tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-$DEVERSION.skip.tar.gz
+        echo -e "\n\n\nDELUGE SKIP HASH CHECK (FOR LOG)\n\n\n"
+    else
+        wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-$DEVERSION.tar.gz
+    fi
 
-      # 不安装 libtorrent-rasterbar（因为之前装过了，再装一次有时候会冲突）
-      elif [[ $DELTVERSION == No ]]; then
+    tar zxf deluge-$DEVERSION.tar.gz
+    rm -rf deluge-$DEVERSION.tar.gz
+    cd deluge-$DEVERSION
 
-          apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako # > /dev/null
-          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.no.lock
-          echo -e "${bailanse}\n\n\n\n  DELUGE-DEPENDENCY-COMPLETED  \n\n\n${normal}"
+    ### 修复稍微新一点的系统（比如 Debian 8）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
+    ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
+    ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
+    ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
 
-      # 编译安装 libtorrent-rasterbar
-      else
+    sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
+    sed -i "/      ctx = SSL.Context(SSL.SSLv23_METHOD)/a\      ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
 
-          apt-get install -y build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako git libtool automake autoconf # > /dev/null
-          echo -e "${bailanse}\n\n\n\n  DE-DEPENDENCY-COMPLETED  \n\n\n${normal}"
-          rm -rf /etc/inexistence/00.Installation/MAKE/libtorrentde
-          cd ; git clone --depth=1 -b ${DELTVERSION} --single-branch https://github.com/arvidn/libtorrent /etc/inexistence/00.Installation/MAKE/libtorrentde
-          cd /etc/inexistence/00.Installation/MAKE/libtorrentde
-          touch ${DELTVERSION}.LOG
-          ./autotool.sh
-          ./configure --enable-python-binding --with-libiconv --with-libgeoip=system #这个是qb的参数
+    python setup.py build  > /dev/null
+    python setup.py install --install-layout=deb  > /dev/null # 输出太长了，省略大部分，反正也不重要
+    python setup.py install_data # 给桌面环境用的
 
-        # [[ $tram -le 1900 ]] && _use_swap
+fi
 
-          make -j${MAXCPUS} && DELTCFail=0 || export DELTCFail=1
-          dpkg -r libtorrentde
-          checkinstall -y --pkgname=libtorrentde --pkgversion=${DELTPKG}
-
-        # [[ $tram -le 1900 ]] && _disable_swap
-
-          mv -f libtorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
-          ldconfig
-          touch /etc/inexistence/01.Log/lock/deluge.libtorrent.compile.lock
-          echo -e "${bailanse}\n\n\n\n  DELUGE-LIBTORRENT-BUILDING-COMPLETED  \n\n\n${normal}"
-
-      fi
-
-      if [[ $DESKIP == Yes ]]; then
-          export DEVERSION=1.3.15
-          cd ; wget --no-check-certificate -O deluge-"${DEVERSION}".tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-"${DEVERSION}".skip.tar.gz
-          echo -e "\n\n\nDELUGE SKIP HASH CHECK (FOR LOG)\n\n\n"
-      else
-          cd ; wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-"${DEVERSION}".tar.gz
-      fi
-
-      tar zxf deluge-"${DEVERSION}".tar.gz
-      cd deluge-"${DEVERSION}"
-
-      ### 修复稍微新一点的系统（比如 Debian 8）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
-      ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
-      ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
-      ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
-
-      if [[ $DESSL == Yes ]]; then
-          sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
-          sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
-          echo -e "\n\nSSL FIX (FOR LOG)\n\n"
-      fi
-
-      python setup.py build  > /dev/null
-      python setup.py install --install-layout=deb  > /dev/null
-      python setup.py install_data
-      cd; rm -rf deluge*
-
-  fi
-
-  echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
+cd ; echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
 
 
 
@@ -2259,17 +2144,18 @@ else
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
     [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
-    cd /etc/inexistence/00.Installation/MAKE ; wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+
+    cd /etc/inexistence/00.Installation/MAKE
+    wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
     mv libevent-release-2.1.8-stable libevent-2.1.8
     cd libevent-2.1.8
     ./autogen.sh
     ./configure
     make -j$MAXCPUS
-  # make install
-    checkinstall -y --pkgversion=2.1.8 --pkgname=libevent --pkggroup libevent
-  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
-    ldconfig
+
+    checkinstall -y --pkgversion=2.1.8 --pkgname=libevent --pkggroup libevent # make install
+    ldconfig                                                                  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     cd ..
 
     if [[ $TRdefault == No ]]; then
@@ -2279,9 +2165,9 @@ else
     else
         git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
         cd transmission-$TRVERSION
-     #  [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+      # [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
         [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-     #  sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
+      # sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     fi
 
     ./autogen.sh
@@ -3024,8 +2910,8 @@ _askaptsource
 _askmt
 _askswap
 _askdeluge
-[[ ! $DEVERSION == No ]] && 
-_askdelt
+# [[ ! $DEVERSION == No ]] && 
+# _askdelt
 _askqbt
 _askrt
 [[ ! $RTVERSION == No ]] && 
