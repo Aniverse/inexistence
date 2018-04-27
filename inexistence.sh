@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.3
-INEXISTENCEDATE=2018.04.27-1
+INEXISTENCEVER=1.0.4
+INEXISTENCEDATE=2018.04.27-3
 # --------------------------------------------------------------------------------
 
 
@@ -478,7 +478,7 @@ echo
 echo -e "${green}01)${normal} Upgrade to ${green}$UPGRADE_DISTRO_1${normal} (Default)"
 echo -e "${green}02)${normal} Upgrade to ${green}$UPGRADE_DISTRO_2${normal}"
 echo -e "${green}03)${normal} DONOT upgrade system and exit script"
-echo -ne "${bold}${yellow}Would you like to upgrade your system? (Default ${cyan}01${normal}): " ; read -e responce
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
 case $responce in
     01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
@@ -1720,6 +1720,7 @@ if [[ $UPGRDAE2 == Yes ]]; then
     apt-get -y update
     apt-get -y install apt
     sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
+    apt-get -y update
 else
     sed -i "s/RELEASE/${UPGRADE_CODENAME}/g" /etc/apt/sources.list
     apt-get -y update
