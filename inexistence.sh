@@ -475,16 +475,16 @@ function _ask_distro_upgrade() {
 [[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; }
 [[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
 echo
-echo -e "${green}01)${normal} Upgrade to $UPGRADE_DISTRO_1 (Default)"
-echo -e "${green}02)${normal} Upgrade to $UPGRADE_DISTRO_2"
+echo -e "${green}01)${normal} Upgrade to ${green}$UPGRADE_DISTRO_1${normal} (Default)"
+echo -e "${green}02)${normal} Upgrade to ${green}$UPGRADE_DISTRO_2${normal}"
 echo -e "${green}03)${normal} DONOT upgrade system and exit script"
 echo -ne "${bold}${yellow}Would you like to upgrade your system? (Default ${cyan}01${normal}): " ; read -e responce
 
 case $responce in
-    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1 ;;
-    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 ;;
-    03 | 3     ) distro_up=No                                                                               ;;
-    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1 ;;
+    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+    03 | 3     ) distro_up=No                                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
 esac
 
 if [[ $distro_up == Yes ]]; then
@@ -1644,22 +1644,11 @@ function _setsources() {
 
 if [[ $aptsources == Yes ]]; then
 
-    if [[ $DISTRO == Debian ]]; then
-
-        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/debian.apt.sources
-        sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-        apt-get --yes --force-yes update
-
-    elif [[ $DISTRO == Ubuntu ]]; then
-
-        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/ubuntu.apt.sources
-        sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
-        apt-get -y update
-
-    fi
+    cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
+    wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
+    sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
+    [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
+    apt-get -y update
 
 else
 
@@ -1703,6 +1692,8 @@ export APT_LISTCHANGES_FRONTEND=none
 
 starttime=$(date +%s)
 
+# apt-get -f install
+
 echo -e "\n${baihongse}executing apt-listchanges remove${normal}\n"
 apt-get remove apt-listchanges --assume-yes --force-yes
 
@@ -1717,14 +1708,30 @@ apt-get -fuy --force-yes autoremove
 echo -e "${baihongse}executing clean${normal}\n"
 apt-get --force-yes clean
 
+
+
 echo -e "${baihongse}executing update${normal}\n"
-apt-get update
+cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
+wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
+[[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
+
+if [[ $UPGRDAE2 == Yes ]]; then
+    sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
+    apt-get -y update
+    apt-get -y install apt
+    sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
+else
+    sed -i "s/RELEASE/${UPGRADE_CODENAME}/g" /etc/apt/sources.list
+    apt-get -y update
+fi
+
+
 
 echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
-apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
+apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
 
 echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
-apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
+apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
