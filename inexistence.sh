@@ -475,9 +475,9 @@ function _ask_distro_upgrade() {
 [[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; }
 [[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
 echo
-echo -e "${green}01)${normal} Upgrade to ${green}$UPGRADE_DISTRO_1${normal} (Default)"
-echo -e "${green}02)${normal} Upgrade to ${green}$UPGRADE_DISTRO_2${normal}"
-echo -e "${green}03)${normal} DONOT upgrade system and exit script"
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
+echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
+echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
 echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
 
 case $responce in
@@ -1685,6 +1685,16 @@ sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 # --------------------- 升级系统 --------------------- #
 # https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade
 
+function _distro_upgrade_upgrade() {
+echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
+apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
+
+echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
+apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade ; }
+
+
+
+
 function _distro_upgrade() {
 
 export DEBIAN_FRONTEND=noninteractive
@@ -1718,7 +1728,7 @@ wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse
 if [[ $UPGRDAE2 == Yes ]]; then
     sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
     apt-get -y update
-    apt-get -y install apt
+    _distro_upgrade_upgrade
     sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
     apt-get -y update
 else
@@ -1726,13 +1736,7 @@ else
     apt-get -y update
 fi
 
-
-
-echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
-apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
-
-echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
-apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
+_distro_upgrade_upgrade
 
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
