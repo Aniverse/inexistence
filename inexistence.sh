@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.3
-INEXISTENCEDATE=2018.04.26-5
+INEXISTENCEDATE=2018.04.27-1
 # --------------------------------------------------------------------------------
 
 
@@ -471,15 +471,20 @@ echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailv
 
 function _ask_distro_upgrade() {
 
-[[ $CODENAME == wheezy ]] && UPGRADE_DISTRO="Debian 8"     && echo -e "\nYou are now running ${cyan}${bold}Debian 7${normal}, which is not supported by this script"
-[[ $CODENAME == trusty ]] && UPGRADE_DISTRO="Ubuntu 16.04" && echo -e "\nYou are now running ${cyan}${bold}Ubuntu 14.04${normal}, which is not supported by this script"
-# read -ep "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-echo -ne "${bold}${yellow}Would you like to upgrade your system to ${UPGRADE_DISTRO}? ${normal}[${cyan}Y${normal}]es or [N]o: " ; read -e responce
+[[ $CODENAME == wheezy || $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
+[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; }
+[[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
+echo
+echo -e "${green}01)${normal} Upgrade to $UPGRADE_DISTRO_1 (Default)"
+echo -e "${green}02)${normal} Upgrade to $UPGRADE_DISTRO_2"
+echo -e "${green}03)${normal} DONOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system? (Default ${cyan}01${normal}): " ; read -e responce
 
 case $responce in
-    [yY] | [yY][Ee][Ss] | "" ) distro_up=Yes ;;
-    [nN] | [nN][Oo]          ) distro_up=No  ;;
-    *                        ) distro_up=Yes ;;
+    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1 ;;
+    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 ;;
+    03 | 3     ) distro_up=No                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1 ;;
 esac
 
 if [[ $distro_up == Yes ]]; then
@@ -505,8 +510,8 @@ local answer
 while true ; do
     read answer
     case $answer in [yY] | [yY][Ee][Ss] | "" ) return 0 ;;
-                    [nN] | [nN][Oo] ) return 1 ;;
-                    * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+                    [nN] | [nN][Oo]          ) return 1 ;;
+                    *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
     esac
 done ; }
 
@@ -538,8 +543,8 @@ if [[ $ANUSER = "" ]]; then
 
         read  answer
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
-                        [nN] | [nN][Oo] ) reinput_name=1 ;;
-                        * ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+                        [nN] | [nN][Oo]          ) reinput_name=1 ;;
+                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
         esac
 
         ANUSER=$addname
@@ -631,8 +636,8 @@ while [[ $aptsources = "" ]]; do
 
     case $responce in
         [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
-        [nN] | [nN][Oo]) aptsources=No ;;
-        *) aptsources=Yes ;;
+        [nN] | [nN][Oo]          ) aptsources=No ;;
+        *                        ) aptsources=Yes ;;
     esac
 
 done
@@ -667,11 +672,11 @@ while [[ $MAXCPUS = "" ]]; do
 
     case $responce in
         01 | 1 | "") MAXCPUS=$(nproc) ;;
-        02 | 2) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
-        03 | 3) MAXCPUS=1 ;;
-        04 | 4) MAXCPUS=2 ;;
-        05 | 5) MAXCPUS=No ;;
-        *) MAXCPUS=$(nproc) ;;
+        02 | 2     ) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
+        03 | 3     ) MAXCPUS=1 ;;
+        04 | 4     ) MAXCPUS=2 ;;
+        05 | 5     ) MAXCPUS=No ;;
+        *          ) MAXCPUS=$(nproc) ;;
     esac
 
 done
@@ -1693,6 +1698,9 @@ sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 
 function _distro_upgrade() {
 
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
+
 starttime=$(date +%s)
 
 echo -e "\n${baihongse}executing apt-listchanges remove${normal}\n"
@@ -1701,14 +1709,16 @@ apt-get remove apt-listchanges --assume-yes --force-yes
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
 
 echo -e "${baihongse}executing apt sources change${normal}\n"
-[[ $CODENAME == wheezy ]] && sed -i "s/wheezy/jessie/g" /etc/apt/sources.list
-[[ $CODENAME == trusty ]] && sed -i "s/trusty/xenial/g" /etc/apt/sources.list
+sed -i "s/$CODENAME/$UPGRADE_CODENAME/g" /etc/apt/sources.list
 
-echo -e "${baihongse}executing autoremove${normal}\n" ; apt-get -fuy --force-yes autoremove
+echo -e "${baihongse}executing autoremove${normal}\n"
+apt-get -fuy --force-yes autoremove
 
-echo -e "${baihongse}executing clean${normal}\n" ; apt-get --force-yes clean
+echo -e "${baihongse}executing clean${normal}\n"
+apt-get --force-yes clean
 
-echo -e "${baihongse}executing update${normal}\n" ; apt-get update
+echo -e "${baihongse}executing update${normal}\n"
+apt-get update
 
 echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
 apt-get --force-yes -o Dpkg::Options::="--force-confold" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
@@ -1835,6 +1845,8 @@ else
     # 使用 deb 包安装 libtorrent-rasterbar 1.0.11
     _install_lt_deb_1011
 
+    [[ `  dpkg -l | grep -v qbittorrent-headless | grep qbittorrent-nox  ` ]] && apt-get purge -y qbittorrent-nox
+
     if [[ $CODENAME == jessie ]]; then
 
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
@@ -1879,9 +1891,14 @@ else
 qBittorrent BitTorrent client headless (qbittorrent-nox)
 EOF
 
-    checkinstall -y --pkgname=qbittorrent-headless --pkgversion=$QBVERSION --pkggroup qbittorrent
+    if [[ $qb_installed == Yes ]]; then
+        make install
+    else
+      # [[ /usr/bin/qbittorrent-nox ]] && mv -f /usr/bin/qbittorrent-nox /usr/bin/qbittorrent-nox.old
+        checkinstall -y --pkgname=qbittorrent-headless --pkgversion=$QBVERSION --pkggroup qbittorrent
+        mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
+    fi
 
-    mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
     cd
     echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
 
@@ -2146,6 +2163,8 @@ elif [[ "${TRVERSION}" == "Install from PPA" ]]; then
 
 else
 
+  # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
+
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
     [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
@@ -2188,9 +2207,8 @@ EOF
         make install
     else
         checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission --pkggroup transmission
+        mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     fi
-
-    mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
 
 fi
 
