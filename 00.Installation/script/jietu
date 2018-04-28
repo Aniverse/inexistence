@@ -2,7 +2,7 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.04.18
+# 2018.04.28
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -46,7 +46,18 @@ if [[ "$fenbianlv" == "" ]]; then
   # DH=` expr $DH0 \* $DARH  `
     DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
     fenbianlv="${DH}x${DW}"
-    echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+#   echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
+    case $responce in
+        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
+        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+    esac
+fi
+
+if [[ $resolution == input ]]; then
+    echo ; read -ep "Input the screenshots' resolution you want: ${green}" -i $VideoResolution fenbianlv
+    echo -e "${normal}\nThe script will take 10 screenshots in ${green}$fenbianlv${normal}"
 fi
 
 # Calculating timestampsetting
