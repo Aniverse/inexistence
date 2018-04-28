@@ -28,8 +28,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
-BDDATE=2018.04.18
-BDVER=2.3.6
+BDDATE=2018.04.28
+BDVER=2.3.7
 DeBUG=0
 # --------------------------------------------------------------------------------
 [[ $1 == -d ]] && DeBUG=1
@@ -356,9 +356,9 @@ echo -ne "${yellow}${bold}Which resolution of the screenshots do you want?${norm
 case $response in
     01 | 1 ) resolution=1080p ;;
     02 | 2 ) resolution=auto ;;
-    02 | 3 ) resolution=autoar ;;
-    03 | 4 ) resolution=input ;;
-    04 | 5 ) resolution=no ;;
+    03 | 3 ) resolution=autoar ;;
+    04 | 4 ) resolution=input ;;
+    05 | 5 ) resolution=no ;;
     "" | * ) resolution=autoar ;;
 esac
 
@@ -390,7 +390,7 @@ if [[ "${resolution}" == "1080p" ]]; then
 elif [[ "${resolution}" == "auto" ]]; then
     echo -e "The script will take 10 screenshots in original resolution"
 elif [[ "${resolution}" == "input" ]]; then
-    echo ; read -e -p "Input the screenshots' resolution you want: ${green}" -i 1280x720 fenbianlv
+    echo ; read -e -p "Input the screenshots' resolution you want: ${green}" -i $VideoResolution fenbianlv
     echo -e "${normal}\nThe script will take 10 screenshots in ${green}$fenbianlv${normal}"
 elif [[ "${resolution}" == "no" ]]; then
     echo -e "The script will not take screenshots"
@@ -556,17 +556,17 @@ function _getinfo() {
 [[ "${bdscan}" == "manual" ]] && mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 
 if [[ ! "${bdscan}" == "no" ]]; then
-    sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title_clean}.txt" > temptext
+    sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-1}' `
     head -n $count temptext > "${outputpath}/bdinfo.quick.summary.txt"
     rm temptext
 
-    sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title_clean}.txt" > temptext
+    sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-2}' `
     head -n $count temptext > "${outputpath}/bdinfo.main.summary.txt"
     rm temptext
 
-    mv "${outputpath}/BDINFO.${file_title_clean}.txt" "${outputpath}/bdinfo.txt"
+    mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.txt"
     echo -e "\n\n${bold}${green}Scanning BDinfo DONE${normal}\n\n"
 fi ; }
 
