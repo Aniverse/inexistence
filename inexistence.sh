@@ -1741,7 +1741,11 @@ _distro_upgrade_upgrade
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
-[[ ! $DeBUG == 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n" && reboot
+[[ ! $DeBUG == 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+
+sleep 5
+reboot -f
+init 6
 
 sleep 20
 kill -s TERM $TOP_PID
