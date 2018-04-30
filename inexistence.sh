@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.04.30
+INEXISTENCEDATE=2018.04.30.2
 # --------------------------------------------------------------------------------
 
 
@@ -1396,7 +1396,7 @@ else
             case $responce in
                 [yY] | [yY][Ee][Ss] | "" ) InsBBR=To\ be\ enabled ;;
                 [nN] | [nN][Oo]          ) InsBBR=No ;;
-                *                        ) InsBBR=Yes ;;
+                *                        ) InsBBR=To\ be\ enabled ;;
             esac
 
         else
@@ -1417,8 +1417,13 @@ else
 
     done
 
-    if [[ $InsBBR == Yes ]] || [[ $InsBBR == To\ be\ enabled ]]; then
+    # 主要是考虑到使用 opt 的情况
+   [[ $InsBBR == Yes ]] && [[ $bbrkernel == Yes ]] && InsBBR=To\ be\ enabled
+
+    if [[ $InsBBR == Yes ]]; then
         echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be installed${normal}"
+    elif [[ $InsBBR == To\ be\ enabled ]]; then
+        echo "${bold}${baiqingse}TCP BBR${normal} ${bold}will be enabled${normal}"
     else
         echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
     fi
@@ -2343,9 +2348,15 @@ echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 # --------------------- 安装 BBR --------------------- #
 
 function _install_bbr() {
-_online_ubuntu_bbr_firmware
-_bbr_kernel_4_11_12
-_enable_bbr
+if [[ $bbrinuse == Yes ]]; then
+    sleep 0
+elif [[ $bbrkernel == Yes && $bbrinuse == No ]]; then
+    _enable_bbr
+else
+    _online_ubuntu_bbr_firmware
+    _bbr_kernel_4_11_12
+    _enable_bbr
+fi
 echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 # 安装 4.11.12 的内核
@@ -3003,10 +3014,8 @@ mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
 # --------------------- 安装 --------------------- #
 
 
-if   [[ $InsBBR == Yes ]]; then
+if   [[ $InsBBR == Yes ]] || [[ $InsBBR == To\ be\ enabled ]]; then
      echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
-elif [[ $InsBBR == To\ be\ enabled ]]; then
-     echo -ne "Configuring BBR ... \n\n\n" ; _enable_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
 else
      echo -e  "Skip BBR installation\n\n\n\n\n"
 fi
