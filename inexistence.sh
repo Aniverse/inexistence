@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.04.27-3
+INEXISTENCEDATE=2018.04.30
 # --------------------------------------------------------------------------------
 
 
@@ -1828,6 +1828,9 @@ elif [[ $CODENAME == xenial ]]; then
 elif [[ $CODENAME == stretch ]]; then
     wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO libtorrent-rasterbar_1.0.11_stretch_amd64.deb
     dpkg -i libtorrent-rasterbar_1.0.11_stretch_amd64.deb
+elif [[ $CODENAME == bionic ]]; then
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar_1.0.11_bionic_amd64.deb -qO libtorrent-rasterbar_1.0.11_bionic_amd64.deb
+    dpkg -i libtorrent-rasterbar_1.0.11_bionic_amd64.deb
 fi
 
 cd ; ldconfig ; }
@@ -1912,7 +1915,7 @@ EOF
     else
       # [[ /usr/bin/qbittorrent-nox ]] && mv -f /usr/bin/qbittorrent-nox /usr/bin/qbittorrent-nox.old
         checkinstall -y --pkgname=qbittorrent-headless --pkgversion=$QBVERSION --pkggroup qbittorrent
-        mv -f qbittorrentnox*deb /etc/inexistence/01.Log/INSTALLATION/packages
+        mv -f qbittorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
     fi
 
     cd
@@ -2347,6 +2350,18 @@ echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
 
 # 安装 4.11.12 的内核
 function _bbr_kernel_4_11_12() {
+
+if [[ $CODENAME == stretch ]]; then
+    [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  {bold}Installing libssl1.0.0 ...${normal} "
+    echo -e "\ndeb http://ftp.hk.debian.org/debian jessie main\c" >> /etc/apt/sources.list
+    apt-get update
+    apt-get install -y libssl1.0.0
+    sed  -i '/deb http:\/\/ftp\.hk\.debian\.org\/debian jessie main/d' /etc/apt/sources.list
+    apt-get update ; }
+else
+    [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  ${bold}Installing libssl1.0.0 ...${normal} "  ; apt-get install -y libssl1.0.0 ; }
+fi
+
 wget --no-check-certificate -qO 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
 wget --no-check-certificate -qO 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
 wget --no-check-certificate -qO 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
@@ -2753,7 +2768,7 @@ alias sousuo2="find /home/${ANUSER} -name"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
-alias sshr="sed -i '/^PermitRootLogin.*/ c\PermitRootLogin yes' /etc/ssh/sshd_config && /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
+alias sshr="sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
