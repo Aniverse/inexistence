@@ -28,11 +28,9 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
-BDDATE=2018.05.01
-BDVER=2.4.0
+BDDATE=2018.05.02
+BDVER=2.4.2
 DeBUG=0
-# --------------------------------------------------------------------------------
-[[ $1 == -d ]] && DeBUG=1
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
 # --------------------------------------------------------------------------------
@@ -45,11 +43,14 @@ eval set -- "$OPTS"
 
 while true; do
   case "$1" in
+    -p | --path       ) pathtostuff="$2"  ; shift ; shift ;;
     -i | --bdinfo     ) bdscan="$2"       ; shift ; shift ;;
     -s | --screenshot ) fenbianlv="$2"    ; shift ; shift ;;
     -t | --tracker    ) TRACKERA="$2"     ; shift ; shift ;;
     -d | --default    ) Default=1         ; shift ;;
+    -b | --debug      ) DeBUG=1           ; shift ;;
     -y | --yes        ) ForceYes=1        ; shift ;;
+         --no-vcs     ) sstn=No           ; shift ;;
      * ) break ;;
   esac
 done
@@ -72,14 +73,11 @@ fi
 
 
 if [[ $Default == 1 ]]; then
-    bdscan=auto ; sstn=No
+    [[ ! $sstn      ]] && sstn=No
+    [[ ! $bdscan    ]] && bdscan=auto
     [[ ! $fenbianlv ]] && resolution=autoar
     [[ ! $TRACKERA  ]] && { newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ; }
 fi
-
-
-
-
 
 
 # Logo
@@ -349,7 +347,7 @@ elif [[ $CustomedOutput == 0 ]] && [[ $NoRoot == 0 ]]; then
     outputpath="/etc/inexistence/04.Upload/$file_title_clean"
 fi
 
-[[ $DeBUG == 1 ]] && { echo -e "${bold}\nOutput path sets to ${outputpath}${normal}" ; echo -e "\n$bdpath\n" ; df -lh ; echo ; ls "$bdpath" ; }
+[[ $DeBUG == 1 ]] && { echo -e "\n${bold}Output path sets to ${outputpath}${normal}" ; echo -e "\n$bdpath\n" ; df -lh ; echo ; ls "$bdpath" ; }
 
 echo ; }
 
@@ -378,11 +376,11 @@ while [[ $bdscan = "" ]]; do
 done
 
 if [[ $bdscan == auto ]]; then
-    echo "The script will scan the first longest playlist automaticly"
+    echo "${bold}The script will scan the first longest playlist ${cyan}automaticly${normal}"
 elif [[ $bdscan == manual ]]; then
-    echo "Auto scan disabled, you need to select the mpls manually"
+    echo "${bold}Auto scan disabled, you need to select the mpls ${cyan}manually${normal}"
 elif [[ $bdscan == no ]]; then
-    echo "BDinfo will not be scanned"
+    echo "${bold}${red}BDinfo will not be scanned${normal}"
 fi
 
 echo ; }
@@ -438,16 +436,16 @@ if [[ $resolution == autoar ]]; then
 fi
 
 if [[ $resolution == 1080p ]]; then
-    echo -e "The script will take 10 screenshots in 1920×1080"
+    echo -e "${bold}The script will take 10 screenshots in ${green}1920×1080${normal}"
 elif [[ $resolution == auto ]]; then
-    echo -e "The script will take 10 screenshots in original resolution"
+    echo -e "${bold}The script will take 10 screenshots in ${green}original${jiacu} resolution${normal}"
 elif [[ $resolution == input ]]; then
     echo ; read -e -p "Input the screenshots' resolution you want: ${green}" -i $VideoResolution fenbianlv
-    echo -e "${normal}\nThe script will take 10 screenshots in ${green}$fenbianlv${normal}"
+    echo -e "\n${jiacu}The script will take 10 screenshots in ${green}$fenbianlv${normal}"
 elif [[ $resolution == input_opt ]]; then
-    echo -e "${normal}\nThe script will take 10 screenshots in ${green}$fenbianlv${normal}"
+    echo -e "${bold}The script will take 10 screenshots in ${green}$fenbianlv${normal}"
 elif [[ $resolution == no ]]; then
-    echo -e "The script will not take screenshots"
+    echo -e "${bold}${red}The script will not take screenshots${normal}"
 fi
 
 echo ; }
@@ -470,8 +468,9 @@ while [[ $sstn = "" ]]; do
 
 done
 
-[[ $sstn == Yes ]] && echo -e "The script will generate a thumbnail"
-[[ $sstn == No  ]] && echo -e "The script will not generate a thumbnail" ; }
+[[ $sstn == Yes ]] && echo -e "${bold}The script will generate a ${cyan}thumbnail${normal}"
+[[ $sstn == No  ]] && echo -e "${bold}${red}The script will not generate a thumbnail${normal}"
+echo ; }
 
 
 
@@ -480,10 +479,9 @@ done
 # 询问是否制作种子
 function _askmktorrent() {
 
-        while [[ $newtorrent = "" ]]; do
+    while [[ $newtorrent = "" ]]; do
 
-echo -e "
-01) ${cyan}Create a new torrent with empty announce${normal}
+echo -e "01) ${cyan}Create a new torrent with empty announce${normal}
 02) ${cyan}Create a new torrent and specify an announce${normal}
 03) ${cyan}Create a new torrent for HD-Torrents${normal}
 08) ${cyan}Create a new torrent for public trackers${normal}
@@ -512,23 +510,23 @@ else
     esac
 fi
 
-        done
+    done
 
 if [[ $newtorrent == No ]]; then
-    echo -e "The script will not create a new torrent"
+    echo -e "${bold}${red}The script will not create a new torrent${normal}"
 else    
     BDUSELESS=` ls "$bdpath" | grep -v CERTIFICATE | grep -v BDMV | tr "\n" "  " `
     [[ "$BDUSELESS" ]] && USELESS=1
 fi
 
 if [[ $newtorrent == Yes1 ]]; then
-    newtorrent=Yes ; echo -e "The script will create a new torrent with empty announce"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}empty${jiacu} announce${normal}"
 elif [[ $newtorrent == Yes2 ]]; then
-    newtorrent=Yes ; echo -e "The script will create a new torrent with the announce you input"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with the announce you ${cyan}input${normal}"
 elif [[ $newtorrent == Yes3 ]]; then
-    newtorrent=Yes ; echo -e "The script will create a new torrent with HD-Torrents' announce"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}HD-Torrents${jiacu} announce${normal}"
 elif [[ $newtorrent == Yes8 ]]; then
-    newtorrent=Yes ; echo -e "The script will create a new torrent with public trackers' announce"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}public trackers${jiacu} announce${normal}"
     ANNOUNCE="-a udp://tracker.coppersurfer.tk:6969/announce -a http://open.kickasstracker.com:80/announce -a http://bt.dl1234.com:80/announce  -a udp://tracker.safe.moe:6969/announce -a udp://9.rarbg.to:2710/announce -a udp://tracker.piratepublic.com:1337/announce -a http://tracker.opentrackr.org:1337/announce -a http://retracker.telecom.by:80/announce -a https://open.acgnxtracker.com:443/announce -a udp://tracker.xku.tv:6969/announce -a udp://thetracker.org:80/announce -a udp://bt.xxx-tracker.com:2710/announce -a http://0d.kebhana.mx:443/announce -a http://share.camoe.cn:8080/announce -a udp://inferno.demonoid.pw:3418/announce -a udp://tracker.cypherpunks.ru:6969/announce"
 fi ; echo ; }
 
@@ -553,7 +551,7 @@ case $responce in
 esac
 
 if [[ $movefile == Yes ]]; then
-    echo -e "The script will create a new torrent without non-essential files"
+    echo -e "${bold}The script will create a new torrent without non-essential files${normal}"
     mkdir -p "/etc/inexistence/06.BluRay/temp/$file_title_clean"
     if [[ "${stufftype}" == "BDISO" ]]; then
         copy_bdiso_to_bdmv=1
@@ -563,7 +561,7 @@ if [[ $movefile == Yes ]]; then
         mv `ls | grep -v BDMV | grep -v CERTIFICATE` "/etc/inexistence/06.BluRay/temp/$file_title_clean"
         cd "$working_path"
     fi
-else echo "The script will not remove non-essential files" ; fi ; echo ; }
+else echo "${bold}${red}The script will not remove non-essential files${normal}" ; fi ; echo ; }
 
 
 
@@ -579,8 +577,8 @@ case $responce in
     ""   | *            )  rcloneup=No  ;;
 esac
 
-[[ "${rcloneup}" == "Yes" ]]  && echo -e "The script will upload results to $RCLONEPATH"
-[[ "${rcloneup}" == "No" ]]   && echo -e "The script will not upload results elsewhere"   ; echo ; }
+[[ $rcloneup == Yes ]]  && echo -e "${bold}The script will upload results to ${cyan}$RCLONEPATH${normal}"
+[[ $rcloneup == No ]]   && echo -e "${bold}${red}The script will not upload results elsewhere${normal}"   ; echo ; }
 
 
 
