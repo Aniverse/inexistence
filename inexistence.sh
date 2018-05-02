@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.04.30.2
+INEXISTENCEDATE=2018.05.02.1
 # --------------------------------------------------------------------------------
 
 
@@ -412,7 +412,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
   TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
   TR_latest_ver=` wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -n1 `
-# TR_latest_ver=2.93
+# TR_latest_ver=2.94
 
   clear
 
@@ -1138,6 +1138,7 @@ while [[ $TRVERSION = "" ]]; do
     echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
     echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
     echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
+    echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -1156,8 +1157,10 @@ while [[ $TRVERSION = "" ]]; do
             03 | 3) TRVERSION=2.84 ;;
             04 | 4) TRVERSION=2.92 ;;
             05 | 5) TRVERSION=2.93 ;;
+            06 | 6) TRVERSION=2.94 ;;
             11) TRVERSION=2.92 && TRdefault=No ;;
             12) TRVERSION=2.93 && TRdefault=No ;;
+            13) TRVERSION=2.94 && TRdefault=No ;;
             30) _inputversion && TRVERSION="${inputversion}" ;;
             31) _inputversion && TRVERSION="${inputversion}" && TRdefault=No ;;
             40) TRVERSION='Install from repo' ;;
