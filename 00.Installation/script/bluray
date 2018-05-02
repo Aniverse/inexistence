@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.02
-BDVER=2.4.4
+BDVER=2.4.5
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -83,7 +83,7 @@ fi
 
 
 # Logo
-function _logo() { clear ; wget --no-check-certificate -t1 -T7 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/bluray.logo.1 ; echo -e "${bold}Automated Blu-ray Upload Toolkit${normal}" ; }
+function _logo() { clear ; wget --no-check-certificate -t1 -T7 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/bluray.logo.1 ; echo -e "${bold}Automated Blu-ray Upload Toolkit ${green}$BDVER${normal}" ; }
 
 
 # 必要软件检查
@@ -232,13 +232,13 @@ echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}" ; }
 # 询问路径
 function _askpath() {
 BDdetect=0
-while [ $BDdetect = 0 ]; do
+while [[ $pathtostuff == "" ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
     echo ; echo -e "${yellow}${bold}Input path to your stuff: ${normal}${underline}" ; read -e pathtostuff ; echo -n "${reset_underline}"
     if [[ ` ls "$pathtostuff" 2>/dev/null ` ]]; then
         FileExists=1 ; _stufftype
     else
-        FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}"
+        FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
     fi
 #   if [[ $FileExists == 1 ]]; then _stufftype ; else echo "${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist! ${normal}" ; fi
 done ; }
@@ -252,6 +252,7 @@ BDname=` basename "$pathtostuff" `
 UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
+[[   $UHDBD == 1 ]] && unset pathtostuff
 
 if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
 #   文件夹路径下包含名为 BDMV 的文件，认为是 BDMV
@@ -266,7 +267,7 @@ if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
        _iso_check
 #   所输入的文件夹目录下即不存在 BDMV 文件夹也不存在 ISO 文件
     else
-        echo -e "\n${bold}${red}ERROR${jiacu} This folder does not contain BDMV or BDISO${normal}"
+        echo -e "\n${bold}${red}ERROR${jiacu} This folder does not contain BDMV or BDISO${normal}" ; unset pathtostuff
     fi
 elif [[ ! $UHDBD == 1 ]] && [[ ! -d "${pathtostuff}" ]]; then
     ifBDISO="${pathtostuff##*.}"
@@ -275,7 +276,7 @@ elif [[ ! $UHDBD == 1 ]] && [[ ! -d "${pathtostuff}" ]]; then
         _iso_check
     else
        #echo -e "\n${bold}${red}ERROR${jiacu} This is a ${underline}${ifBDISO}${reset_underline} file, not BDISO${normal}"
-        echo -e "\n${bold}${red}ERROR${jiacu} This is not an ${underline}ISO${reset_underline} file${normal}"
+        echo -e "\n${bold}${red}ERROR${jiacu} This is not an ${underline}ISO${reset_underline} file${normal}" ; unset pathtostuff
     fi
 fi ; }
 
@@ -290,9 +291,9 @@ if [[ `ls /mnt/mountbluraydisk | grep BDMV` ]]; then
     stufftype=BDISO ; BDdetect=1
     echo -ne "\n${bold}${magenta}BDISO${jiacu} detected ... ${normal}"
 elif [[ `ls /mnt/mountbluraydisk | grep VIDEO_TS` ]]; then
-    echo -e "\n${bold}${red}ERROR${jiacu} This is a DVDISO, not BDISO${normal}"
+    echo -e "\n${bold}${red}ERROR${jiacu} This is a DVDISO, not BDISO${normal}" ; unset pathtostuff
 else
-    echo -e "\n${bold}${red}ERROR${jiacu} This is not a valid BDISO or you do not have root privileges to mount it${normal}"
+    echo -e "\n${bold}${red}ERROR${jiacu} This is not a valid BDISO or you do not have root privileges to mount it${normal}" ; unset pathtostuff
 fi
 umount /mnt/mountbluraydisk > /dev/null 2>&1 ; }
 
