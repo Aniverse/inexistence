@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.02.1
+INEXISTENCEDATE=2018.05.02.2
 # --------------------------------------------------------------------------------
 
 
@@ -2287,7 +2287,9 @@ function _installflex() {
 
   apt-get -y install python-pip
   pip install --upgrade pip setuptools
-  /usr/local/bin/pip install flexget transmissionrpc
+  /usr/local/bin/pip install markdown
+  /usr/local/bin/pip install flexget 
+  /usr/local/bin/pip install transmissionrpc
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
