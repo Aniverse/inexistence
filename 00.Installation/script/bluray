@@ -16,6 +16,7 @@ NoInstall=0
 # 使用 rar 打包文件，最后给出下载链接（需要开启 http 下载以及安装了 rar）
 BATCH=0
 DOWNLOAD_LINK_BASE="https://$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )/h5ai/inexistence/04.Upload"
+WEB_FOLDER="/etc/inexistence/04.Upload"
 # --------------------------------------------------------------------------------
 # 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径
 # 请确保 rclone 命令可用
@@ -33,7 +34,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.6.0
+BDVER=2.6.1
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -642,15 +643,15 @@ function _getinfo() {
 if [[ ! $bdscan == no ]]; then
     sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-1}' `
-    head -n $count temptext > "${outputpath}/bdinfo.quick.summary.txt"
+    head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
     rm temptext
 
     sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-2}' `
-    head -n $count temptext > "${outputpath}/bdinfo.main.summary.txt"
+    head -n $count temptext > "${outputpath}/bdinfo.main.txt"
     rm temptext
 
-    mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.txt"
+    mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.full.txt"
     echo -e "\n\n${bold}${green}Scanning BDinfo DONE${normal}\n\n"
 fi ; }
 
@@ -716,7 +717,7 @@ if [[ $copy_bdiso_to_bdmv == 1 ]]; then
     echo -e "${green}DONE${normal}"
     bdpath="/etc/inexistence/06.BluRay/temp/$file_title_clean"
 fi
-mktorrent -v -p -l 24 $ANNOUNCE -o "${outputpath}/${file_title_clean}.torrent" "$bdpath" && echo -e "\n\n${bold}${green}Creating torrents DONE${normal}\n\n" ; }
+mktorrent -v -p -l 24 $ANNOUNCE -o "${outputpath}/new.torrent" "$bdpath" && echo -e "\n\n${bold}${green}Creating torrents DONE${normal}\n\n" ; }
 
 # rclone 上传
 function _rcloneup() { rclone copy -v --stats 5s "${outputpath}" "${RCLONEPATH}" && echo -e "\n\n${bold}${green}rclone transfer DONE${normal}\n\n" ; }
@@ -734,19 +735,23 @@ function _end() {
 [[ $move_when_complete == 1 ]] && mv ` ls "/etc/inexistence/06.BluRay/temp/$file_title_clean" ` "$bdpath" && rm -rf "/etc/inexistence/06.BluRay/temp/$file_title_clean"
 # [[ $stufftype == "BDISO" ]] && umount "$bdisopath" # && rm -rf "/etc/inexistence/06.BluRay/$file_title_clean" "/etc/inexistence/06.BluRay/temp/$file_title_clean"
 
-[[ $BATCH == 1 ]] && { rar a -m3 "$file_title_clean.rar" "$outputpath" ; }
+file_title_short=` echo "${file_title_clean}" | cut -c1-40  `
+[[ $BATCH == 1 ]] && { rar a -m5 "${WEB_FOLDER}/${file_title_short}.rar" "$outputpath" ; }
 
 endtime=$(date +%s) 
 timeused=$(( $endtime - $starttime ))
 
 clear ; echo -e "${bold}Done. Files created in ${yellow}\"${outputpath}\"${normal}"
+
+echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
+
 [[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}"
 
-[[ $BATCH == 1 ]] && echo -e "${bold}Download batch via this link: ${yellow}${DOWNLOAD_LINK_BASE}/$file_title_clean.rar${normal}"
+[[ $BATCH == 1 ]] && echo -e "${bold}Download batch via this link: ${green}${DOWNLOAD_LINK_BASE}/${file_title_short}.rar${normal}"
 
-if [[ ! "${bdscan}" == "no" ]] ; then
-    echo -e "\n${bold}${blue}--------------------------------------------- BDinfo Quick Summary ---------------------------------------------${normal}\n"
-    cat "${outputpath}/bdinfo.quick.summary.txt"
+if [[ ! $bdscan == no ]] ; then
+    echo -e "\n${bold}${blue}--------------------------------------------- BDinfo Main Summary ----------------------------------------------${normal}\n"
+    cat "${outputpath}/bdinfo.main.txt"
     echo -e "\n${bold}${blue}------------------------------------ Just copy them, no need to download txt -----------------------------------${normal}"
 fi
 
