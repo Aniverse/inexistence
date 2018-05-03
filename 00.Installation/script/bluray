@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.5.5
+BDVER=2.5.6
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -398,7 +398,7 @@ echo ; }
 
 
 
-
+function _response_jietu() { echo -e "${jiacu}The script will take 10 screenshots in ${green}$fenbianlv${normal}" ; }
 
 # 询问截图的分辨率
 function _askresolution() {
@@ -426,11 +426,11 @@ done
 if [[ $resolution == autoar ]]; then
     echo -e "Calculating resolution ..."
     VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
-    echo -e "Original resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
+    echo -ne "Original resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
     VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
     VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" ` ; DW=$VideoHeight
     DAR=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
-    echo -e "Display aspect ratio is ${underline}${bold}$DAR${normal}${reset_underline}"
+    echo -e "display aspect ratio is ${underline}${bold}$DAR${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
   # DH0=` expr $VideoHeight / $DARW  `
@@ -438,11 +438,12 @@ if [[ $resolution == autoar ]]; then
     DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
     fenbianlv="${DH}x${DW}"
 
-    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
+    echo -n "${yellow}${bold}The correct resolution may be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse "
+    if [[ $ForceYes == 1 ]] ; then echo ; _response_jietu ; else read responce ; fi
     case $responce in
-        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+        [Tt] | [Tt][Ru][Uu][eE]     )  _response_jietu ;;
         [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
-        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+        ""   | *                    )  _response_jietu ;;
     esac
 fi
 
@@ -452,9 +453,9 @@ elif [[ $resolution == auto ]]; then
     echo -e "${bold}The script will take 10 screenshots in ${green}original${jiacu} resolution${normal}"
 elif [[ $resolution == input ]]; then
     echo ; read -e -p "Input the screenshots' resolution you want: ${green}" -i $VideoResolution fenbianlv
-    echo -e "\n${jiacu}The script will take 10 screenshots in ${green}$fenbianlv${normal}"
+    echo ; _response_jietu
 elif [[ $resolution == input_opt ]]; then
-    echo -e "${bold}The script will take 10 screenshots in ${green}$fenbianlv${normal}"
+    _response_jietu
 elif [[ $resolution == no ]]; then
     echo -e "${bold}${red}The script will not take screenshots${normal}"
 fi
@@ -601,7 +602,7 @@ esac
 
 # 准备
 function _preparation() {
-echo "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input
+[[ ! $ForceYes == 1 ]] && { echo "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; read input ; }
 clear ; starttime=$(date +%s) ; echo -e "${bold}${blue}Work start!\n${normal}" ; }
 
 # Debug
