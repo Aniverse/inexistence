@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.02.2
+INEXISTENCEDATE=2018.05.03.1
 # --------------------------------------------------------------------------------
 
 
@@ -2024,8 +2024,8 @@ else
         wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-$DEVERSION.tar.gz
     fi
 
-    tar zxf deluge-$DEVERSION.tar.gz
-    rm -rf deluge-$DEVERSION.tar.gz
+    tar xf deluge-$DEVERSION.tar.gz
+    rm -f deluge-$DEVERSION.tar.gz
     cd deluge-$DEVERSION
 
     ### 修复稍微新一点的系统（比如 Debian 8）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
@@ -2037,11 +2037,18 @@ else
         sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
         sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
         echo -e "\n\nSSL FIX (FOR LOG)\n\n"
+        python setup.py build  > /dev/null
+        python setup.py install --install-layout=deb  > /dev/null
+        mv -f /usr/bin/deluged /usr/bin/deluged2
+        wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
+        tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
     fi
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb  > /dev/null # 输出太长了，省略大部分，反正也不重要
     python setup.py install_data # 给桌面环境用的
+
+    [[ $DESSL == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
 
 fi
 
@@ -2211,7 +2218,7 @@ else
 
     if [[ $TRdefault == No ]]; then
         wget --no-check-certificate -O transmission-$TRVERSION.tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$TRVERSION.tar.gz
-        tar xf transmission-$TRVERSION.tar.gz ; rm -rf transmission-$TRVERSION.tar.gz
+        tar xf transmission-$TRVERSION.tar.gz ; rm -f transmission-$TRVERSION.tar.gz
         cd transmission-$TRVERSION
     else
         git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
@@ -2225,7 +2232,7 @@ else
     ./configure --prefix=/usr
     mkdir -p doc-pak
     cat >description-pak<<EOF
-Transmission is a fast, easy, and free BitTorrent client.
+A fast, easy, and free BitTorrent client
 EOF
     make -j$MAXCPUS
 
@@ -2293,7 +2300,7 @@ function _installflex() {
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
-  cp -f "${local_packages}"/template/config/flexfet.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
+  cp -f "${local_packages}"/template/config/flexget.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
 # chmod -R 666 /home/${ANUSER}/.config/flexget
