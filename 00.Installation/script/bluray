@@ -28,8 +28,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
-BDDATE=2018.05.02
-BDVER=2.4.6
+BDDATE=2018.05.03
+BDVER=2.4.7
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -37,7 +37,7 @@ bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dyp:i:s:t: --long "default,yes,path:,bdinfo:,screenshot:,tracker:" -- "$@")
+OPTS=$(getopt -n "$0" -o bdyp:i:s:t: --long "debug,default,yes,path:,bdinfo:,screenshot:,tracker:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -70,7 +70,7 @@ if [[ $TRACKERA ]]; then
     [[ $TRACKERA == empty ]] && { newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ; }
     [[ $TRACKERA == input ]] &&   newtorrent=Yes2
     [[ $TRACKERA == bt    ]] &&   newtorrent=Yes8
-    [[ ! $newtorrent ]]      && { newtorrent=Yes2 ; ANNOUNCE="-a $TRACKERA" ; }
+    [[ ! $newtorrent ]]      && { newtorrent=Yes4 ; ANNOUNCE="-a $TRACKERA" ; }
 fi
 
 
@@ -527,9 +527,11 @@ fi
 if [[ $newtorrent == Yes1 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}empty${jiacu} announce${normal}"
 elif [[ $newtorrent == Yes2 ]]; then
-    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with the announce you ${cyan}input${normal}"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}TRACKERA${normal}"
 elif [[ $newtorrent == Yes3 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}HD-Torrents${jiacu} announce${normal}"
+elif [[ $newtorrent == Yes4 ]]; then
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}TRACKERA${normal}"
 elif [[ $newtorrent == Yes8 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}public trackers${jiacu} announce${normal}"
     ANNOUNCE="-a udp://tracker.coppersurfer.tk:6969/announce -a http://open.kickasstracker.com:80/announce -a http://bt.dl1234.com:80/announce  -a udp://tracker.safe.moe:6969/announce -a udp://9.rarbg.to:2710/announce -a udp://tracker.piratepublic.com:1337/announce -a http://tracker.opentrackr.org:1337/announce -a http://retracker.telecom.by:80/announce -a https://open.acgnxtracker.com:443/announce -a udp://tracker.xku.tv:6969/announce -a udp://thetracker.org:80/announce -a udp://bt.xxx-tracker.com:2710/announce -a http://0d.kebhana.mx:443/announce -a http://share.camoe.cn:8080/announce -a udp://inferno.demonoid.pw:3418/announce -a udp://tracker.cypherpunks.ru:6969/announce"
