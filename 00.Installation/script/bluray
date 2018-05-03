@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.4.8
+BDVER=2.4.9
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -242,7 +242,7 @@ while [[ $pathtostuff == "" ]]; do
     fi
 #   if [[ $FileExists == 1 ]]; then _stufftype ; else echo "${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist! ${normal}" ; fi
 done
-[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}$pathtostuff${normal}\n" ; }
+[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}FileExists=$FileExists\n${cyan}$pathtostuff${normal}\n" ; }
 
 
 
@@ -254,6 +254,8 @@ UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
 [[   $UHDBD == 1 ]] && unset pathtostuff
+
+[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}UHDBD=$UHDBD\n${cyan}$pathtostuff${normal}\n"
 
 if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
 #   文件夹路径下包含名为 BDMV 的文件，认为是 BDMV
