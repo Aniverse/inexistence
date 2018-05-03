@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.02
-BDVER=2.4.5
+BDVER=2.4.6
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -37,7 +37,7 @@ bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dyi:s:t: --long "default,yes,bdinfo:,screenshot:,tracker:" -- "$@")
+OPTS=$(getopt -n "$0" -o dyp:i:s:t: --long "default,yes,path:,bdinfo:,screenshot:,tracker:" -- "$@")
 
 eval set -- "$OPTS"
 
