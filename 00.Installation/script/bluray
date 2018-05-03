@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.5.0
+BDVER=2.5.1
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -43,7 +43,7 @@ eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -p | --path       ) pathtostuff="$2"  ; shift ; shift ;;
+    -p | --path       ) pathtostuff="$2" && opt_path=1 ; shift ; shift ;;
     -i | --bdinfo     ) bdscan="$2"       ; shift ; shift ;;
     -s | --screenshot ) fenbianlv="$2"    ; shift ; shift ;;
     -t | --tracker    ) TRACKERA="$2"     ; shift ; shift ;;
@@ -230,15 +230,16 @@ echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}" ; }
 
 
 # 询问路径
-function _askpath() { BDdetect=0
+function _askpath() {
 
-while [[ $pathtostuff == "" ]]; do
+BDdetect=0
+[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}$opt_path${normal}\n"
+
+while [[ $pathtostuff == "" ]] || [[ $opt_path == 1 ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
     echo ; echo -e "${yellow}${bold}Input path to your stuff: ${normal}${underline}" ; read -e pathtostuff ; echo -n "${reset_underline}"
-    _stuff_check_existence ; read_path=1
+    _stuff_check_existence
 done
-
-[[ ! $read_path == 1 ]] && _stuff_check_existence
 
 [[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}FileExists=$FileExists\n${cyan}$pathtostuff${normal}\n" ; }
 
@@ -250,6 +251,7 @@ if [[ ` ls "$pathtostuff" 2>/dev/null ` ]]; then
 else
     FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
 fi ; }
+
 
 
 # 检查是不是 BDMV 或者 BDISO，是不是 UHD BD
@@ -266,7 +268,7 @@ UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n
 if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
 #   文件夹路径下包含名为 BDMV 的文件，认为是 BDMV
     if [[ ` ls "${pathtostuff}" | grep BDMV ` ]]; then
-        stufftype=BDMV ; BDdetect=1
+        stufftype=BDMV ; BDdetect=1 ; opt_path=2
         echo -ne "\n${bold}${magenta}BDMV${jiacu} detected ... ${normal}"
 #   没有 BDMV 文件夹但是有 ISO 文件 (首发圆盘往往是一个文件夹里塞着一个BDISO)
 #   只选择其中 find 命令结果中排名第一的 ISO，若还有其他 ISO 则会被无视
@@ -297,7 +299,7 @@ mkdir -p /mnt/mountbluraydisk
 mount -o loop "$pathtostuff" /mnt/mountbluraydisk > /dev/null 2>&1
 [[ $DeBUG == 1 ]] && echo -e "\n$pathtostuff\n" && df -lh && echo && ls /mnt/mountbluraydisk
 if [[ `ls /mnt/mountbluraydisk | grep BDMV` ]]; then
-    stufftype=BDISO ; BDdetect=1
+    stufftype=BDISO ; BDdetect=1 ; opt_path=2
     echo -ne "\n${bold}${magenta}BDISO${jiacu} detected ... ${normal}"
 elif [[ `ls /mnt/mountbluraydisk | grep VIDEO_TS` ]]; then
     echo -e "\n${bold}${red}ERROR${jiacu} This is a DVDISO, not BDISO${normal}" ; unset pathtostuff
@@ -416,7 +418,7 @@ while [[ $resolution = "" ]]; do
     case $response in
         01 | 1 ) resolution=1080p ;;
         02 | 2 ) resolution=auto ;;
-        03 | 3 ) resolution=autoar ;;
+        03 | 3 ) resolution=autoar && echo ;;
         04 | 4 ) resolution=input ;;
         05 | 5 ) resolution=no ;;
         "" | * ) resolution=autoar ;;
@@ -425,7 +427,7 @@ while [[ $resolution = "" ]]; do
 done
 
 if [[ $resolution == autoar ]]; then
-    echo -e "\nCalculating resolution ..."
+    echo -e "Calculating resolution ..."
     VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
     echo -e "Original resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
     VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
