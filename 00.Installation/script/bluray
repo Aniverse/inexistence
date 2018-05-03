@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.5.6
+BDVER=2.5.7
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -439,13 +439,14 @@ if [[ $resolution == autoar ]]; then
     fenbianlv="${DH}x${DW}"
 
     echo -n "${yellow}${bold}The correct resolution may be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse "
-    if [[ $ForceYes == 1 ]] ; then echo ; _response_jietu ; else read responce ; fi
+    if [[ $ForceYes == 1 ]] ; then echo ; _response_jietu ; else
+    read responce
     case $responce in
         [Tt] | [Tt][Ru][Uu][eE]     )  _response_jietu ;;
         [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
         ""   | *                    )  _response_jietu ;;
     esac
-fi
+fi ; fi
 
 if [[ $resolution == 1080p ]]; then
     echo -e "${bold}The script will take 10 screenshots in ${green}1920×1080${normal}"
