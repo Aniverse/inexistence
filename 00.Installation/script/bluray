@@ -235,7 +235,9 @@ function _askpath() {
 BDdetect=0
 [[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}$opt_path${normal}\n"
 
-while [[ $pathtostuff == "" ]] || [[ $opt_path == 1 ]]; do
+[[ $opt_path == 1 ]] && _stuff_check_existence
+
+while [[ $pathtostuff == "" ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
     echo ; echo -e "${yellow}${bold}Input path to your stuff: ${normal}${underline}" ; read -e pathtostuff ; echo -n "${reset_underline}"
     _stuff_check_existence
