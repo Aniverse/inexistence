@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.5.4
+BDVER=2.5.5
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -233,7 +233,7 @@ echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}" ; }
 function _askpath() {
 
 BDdetect=0
-[[ $opt_path == 1 ]] && { echo -e "\n${bold}Read Blu-ray from:\n${blue}$opt_path${normal}\n" ; _stuff_check_existence ; }
+[[ $opt_path == 1 ]] && { echo -e "\n${bold}Read Blu-ray from:\n${blue}$pathtostuff${normal}" ; _stuff_check_existence ; }
 
 while [[ $pathtostuff == "" ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
