@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.4.7
+BDVER=2.4.8
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -241,7 +241,8 @@ while [[ $pathtostuff == "" ]]; do
         FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
     fi
 #   if [[ $FileExists == 1 ]]; then _stufftype ; else echo "${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist! ${normal}" ; fi
-done ; }
+done
+[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}$pathtostuff${normal}\n" ; }
 
 
 
@@ -256,7 +257,7 @@ UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n
 
 if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
 #   文件夹路径下包含名为 BDMV 的文件，认为是 BDMV
-    if [[ `ls "${pathtostuff}" | grep BDMV` == BDMV ]]; then
+    if [[ ` ls "${pathtostuff}" | grep BDMV ` ]]; then
         stufftype=BDMV ; BDdetect=1
         echo -ne "\n${bold}${magenta}BDMV${jiacu} detected ... ${normal}"
 #   没有 BDMV 文件夹但是有 ISO 文件 (首发圆盘往往是一个文件夹里塞着一个BDISO)
@@ -527,11 +528,11 @@ fi
 if [[ $newtorrent == Yes1 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}empty${jiacu} announce${normal}"
 elif [[ $newtorrent == Yes2 ]]; then
-    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}TRACKERA${normal}"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}$TRACKERA${normal}"
 elif [[ $newtorrent == Yes3 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}HD-Torrents${jiacu} announce${normal}"
 elif [[ $newtorrent == Yes4 ]]; then
-    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}TRACKERA${normal}"
+    newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}$TRACKERA${normal}"
 elif [[ $newtorrent == Yes8 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}public trackers${jiacu} announce${normal}"
     ANNOUNCE="-a udp://tracker.coppersurfer.tk:6969/announce -a http://open.kickasstracker.com:80/announce -a http://bt.dl1234.com:80/announce  -a udp://tracker.safe.moe:6969/announce -a udp://9.rarbg.to:2710/announce -a udp://tracker.piratepublic.com:1337/announce -a http://tracker.opentrackr.org:1337/announce -a http://retracker.telecom.by:80/announce -a https://open.acgnxtracker.com:443/announce -a udp://tracker.xku.tv:6969/announce -a udp://thetracker.org:80/announce -a udp://bt.xxx-tracker.com:2710/announce -a http://0d.kebhana.mx:443/announce -a http://share.camoe.cn:8080/announce -a udp://inferno.demonoid.pw:3418/announce -a udp://tracker.cypherpunks.ru:6969/announce"
