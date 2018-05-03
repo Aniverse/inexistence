@@ -4,6 +4,96 @@
 
 
 
+
+
+
+## 2018.05.03
+
+`inexistence 1.0.4`  
+1. Deluge 安装老版本时，仅使用老版本的 deluged，其余使用 1.3.15 的文件  
+
+
+
+
+
+
+
+## 2018.05.02
+
+`inexistence 1.0.4`  
+1. New Feature：增加 Transmission 2.94 的安装选项  
+2. 安装 flexget 前先安装 markdown  
+
+`bluray 2.4.5`  
+1. Bug Fix：-i 参数现在会覆盖 -d 参数了  
+2. Bug Fix：-s 参数支持 autoar  
+3. New Feature：-t 参数增加 input 类型  
+4. New Feature：--no-vcs 参数，跳过缩略图  
+5. **New Feature：增加 -p 参数，可以指定 BD 路径**  
+6. UI：显示脚本版本号  
+7. **UI：高亮显示每个选项的回应**  
+8. Known Issues：-t 参数指定 Tracker 可能导致无法制作种子，待修复  
+
+
+
+
+
+## 2018.04.30
+
+`inexistence 1.0.4`  
+1. Bug Fix：针对使用参数运行脚本的情况，修正了下 bbr 的安装逻辑  
+即 `--bbr-yes` 的情况下根据实际情况判断是否安装新内核  
+2. Bug Fix：增加对 libssl 1.0 的安装以免不满足 4.11 headers 依赖的情况  
+3. Bug Fix：qb deb 包 mv 的问题  
+4. Alias：改进开启 root 登陆的命令  
+
+`bluray 2.4.0`  
+1. **New Feature：增加运行参数**  
+d,y,i,s,t  
+
+
+
+
+
+## 2018.04.29
+
+`inexistence 1.0.4`  
+1. Bug Fix：升级系统结束后，在 reboot 后再使用 init 6 重启  
+
+`jietu`  
+1. **New Feature：自动判断分辨率后询问是否正确，若不正确则可以手动输入**  
+
+`bdinfo`  
+1. Bug Fix：修复 BDinfo 文件名判断错误的问题  
+
+`bluray 2.3.7`  
+1. Bug Fix：修复 BDinfo 文件名判断错误的问题  
+2. Bug Fix：修复 询问分辨率时实际选项和显示的选项没对上的问题  
+3. 截图询问自定义分辨率时，以视频原始分辨率为模板来询问  
+也就是说，如果自动计算分辨率出错，要用回原始分辨率的话直接敲回车就行  
+说到这个我又想到，我或许可以直接取消这个问题，先设定自动计算，然后询问是否使用这个计算出来的分辨率……  
+
+
+
+
+
+
+## 2018.04.26
+
+`inexistence 1.0.4`  
+1. **Bump to 1.0.4**  
+2. **New Feature：允许从 Ubuntu 14.04 升级到 18.04，允许从 Debian 7 升级到 Debian 9**  
+升级前先替换系统源，然后如果垮了一个系统升级的话先升级 apt  
+过段时间考虑开始适配 Ubuntu 18.04  
+3. checkinstall 安装 qb 的包名改成 `qbittorrent-headless`，补充了更多的 deb 包信息  
+为了和别的做区分而故意这么设计的  
+4. 已经安装了 qb 的情况下，保险起见还是 make install   
+
+
+
+
+
+
 ## 2018.04.26
 
 `inexistence 1.0.3`  
