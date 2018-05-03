@@ -29,7 +29,7 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 # --------------------------------------------------------------------------------
 BDDATE=2018.05.03
-BDVER=2.4.9
+BDVER=2.5.0
 DeBUG=0
 # --------------------------------------------------------------------------------
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
@@ -230,20 +230,26 @@ echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}" ; }
 
 
 # 询问路径
-function _askpath() {
-BDdetect=0
+function _askpath() { BDdetect=0
+
 while [[ $pathtostuff == "" ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
     echo ; echo -e "${yellow}${bold}Input path to your stuff: ${normal}${underline}" ; read -e pathtostuff ; echo -n "${reset_underline}"
-    if [[ ` ls "$pathtostuff" 2>/dev/null ` ]]; then
-        FileExists=1 ; _stufftype
-    else
-        FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
-    fi
-#   if [[ $FileExists == 1 ]]; then _stufftype ; else echo "${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist! ${normal}" ; fi
+    _stuff_check_existence ; read_path=1
 done
+
+[[ ! $read_path == 1 ]] && _stuff_check_existence
+
 [[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}FileExists=$FileExists\n${cyan}$pathtostuff${normal}\n" ; }
 
+
+
+function _stuff_check_existence() {
+if [[ ` ls "$pathtostuff" 2>/dev/null ` ]]; then
+    FileExists=1 ; _stufftype
+else
+    FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
+fi ; }
 
 
 # 检查是不是 BDMV 或者 BDISO，是不是 UHD BD
