@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.03.1
+INEXISTENCEDATE=2018.05.03.2
 # --------------------------------------------------------------------------------
 
 
@@ -2305,6 +2305,8 @@ function _installflex() {
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
 # chmod -R 666 /home/${ANUSER}/.config/flexget
 # chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/.config/flexget
+
+  touch /home/$ANUSER/cookies.txt
 
   flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output
   rm -rf /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
