@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-mingling=0.8.6
-UPDATE=2018.03.23
+mingling=0.8.7
+UPDATE=2018.05.05
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -152,6 +152,7 @@ INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXIS
 tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
 
 #更多的检测
+ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
 # --------------------------------------------------------------------------------
 
 
