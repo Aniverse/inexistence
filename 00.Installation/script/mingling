@@ -3,7 +3,7 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.0.2
+SCRIPTVER=0.9.0.3
 SCRIPTUPDATE=2018.05.05
 
 [[ $1 == -d ]] && DeBUG=1
@@ -128,7 +128,9 @@ function _ip() { echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地�
 function _update_mingling() {
 echo -ne "\n${bold}开始更新脚本 ... "
 for JIAOBEN in jietu bdinfo bluray mingling guazai ipv6 xiansu zuozhong bdjietu ; do wget -qO /usr/local/bin/$JIAOBEN https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/$JIAOBEN && chmod +x /usr/local/bin/$JIAOBEN ; done
-echo -e "${green}完成！${bold}" ; }
+echo -e "${green}完成！${normal}"
+echo -ne "${bold}三秒后运行更新后的 mingling ${normal}"
+echo -n . ; sleep 1 ; echo -n . ; sleep 1 ; echo . ; sleep 1 ; bash /usr/local/bin/mingling ; }
 
 
 
@@ -193,8 +195,7 @@ case $response in
             _doc
             _main_menu ;;
     8 | 08) #更新脚本
-            _update_mingling
-            exit 0 ; bash /usr/local/bin/mingling ;;
+            _update_mingling ;;
     9 | 09 | "") clear; exit 0 ;;
     *) clear; exit 0 ;;
 esac ; }
