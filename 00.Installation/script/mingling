@@ -3,7 +3,7 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.8.8.2
+SCRIPTVER=0.9.0.1
 SCRIPTUPDATE=2018.05.05
 
 [[ $1 == -d ]] && DeBUG=1
@@ -101,7 +101,17 @@ lbit=$( getconf LONG_BIT )
 opsy=$( get_opsy )
 kern=$( uname -r )
 
-echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
+inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
+INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
+INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
+tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
+
+# 更多的检测
+ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
+# --------------------------------------------------------------------------------
+
+
+function _ip() { echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
 
 # serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
   serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}' )
@@ -110,19 +120,15 @@ echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
   isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}检查公网 IPv4 地址失败，使用内网地址代替 ...${normal}" ; serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ; }
 
-  serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
 # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
-
-inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
-INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
-INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
-tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
-
-#更多的检测
-ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
-# --------------------------------------------------------------------------------
+  serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 ) ; }
 
 
+# 更新脚本
+function _update_mingling() {
+echo -ne "\n${bold}开始更新脚本 ... "
+for JIAOBEN in jietu bdinfo bluray mingling guazai ipv6 xiansu zuozhong bdjietu ; do wget -qO /usr/local/bin/$JIAOBEN https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/$JIAOBEN && chmod +x /usr/local/bin/$JIAOBEN ; done
+echo -e "\n${green}完成！${bold}" ; }
 
 
 
@@ -151,9 +157,10 @@ function _main_menu() {
   echo -e "${green}(03) ${jiacu}查看系统信息"
   echo -e "${green}(04) ${jiacu}查看客户端版本"
 # echo -e "${green}(05) ${jiacu}查看客户端是否都在运行"
-  echo -e "${green}(06) ${jiacu}进入客户端操作菜单"
-  echo -e "${green}(07) ${jiacu}运行其他脚本"
-  echo -e "${green}(08) ${jiacu}查看本脚本的说明"
+  echo -e "${green}(05) ${jiacu}进入客户端操作菜单"
+  echo -e "${green}(06) ${jiacu}运行其他脚本"
+  echo -e "${green}(07) ${jiacu}查看本脚本的说明"
+  echo -e "${green}(08) ${jiacu}更新脚本"
   echo -e "${green}(09) ${jiacu}退出脚本"
   echo -e "${normal}"
 
@@ -173,17 +180,20 @@ case $response in
             _client_version_check
             _show_client_version
             _main_menu ;;
-    5 | 05) # 查看客户端是否都在运行
-            _ifrunning
-            _main_menu ;;
-    6 | 06) # 进入客户端操作菜单
+#   5 | 05) # 查看客户端是否都在运行
+#           _ifrunning
+#           _main_menu ;;
+    5 | 05) # 进入客户端操作菜单
             _show_client_menu
             _client_menu_response ;;
-    7 | 07) #脚本菜单
+    6 | 06) #脚本菜单
             _show_scripts_menu
             _scripts_menu_response ;;
-    8 | 08) #脚本说明文档
+    7 | 07) #脚本说明文档
             _doc
+            _main_menu ;;
+    8 | 08) #更新脚本
+            _update_mingling
             _main_menu ;;
     9 | 09 | "") clear; exit 0 ;;
     *) clear; exit 0 ;;
@@ -253,7 +263,7 @@ echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
 
 
 # 02. 查看客户端网址
-function _showurl() { clear ; echo
+function _showurl() { _ip ; clear ; echo
 if [[ $inexistence == Yes ]]; then
     echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal}\n"
     echo -e "${bold}---------------------------------------------------------------------------------------------------\n"
@@ -282,6 +292,7 @@ if [[ $virtwhat_installed == No ]] || [[ $lsb_installed == No ]] || [[ $smartctl
     echo  -e "${guangbiao}"
 fi
 
+_ip
 echo "${bold}正在检查盒子的各项参数 ...${normal}"
 
 disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
@@ -406,9 +417,7 @@ function _ifrunning() { clear ; echo
 # tr_status_2="$( trc | grep Active | cut -c12- | sed 's/sin.*//' )"
 
 echo -e " ${baihongse}${bold}                                        05. 客户端运行状况                                         ${normal}\n${bold}"
-
 _ifrunning_3
-
 echo -e "${normal}\n ${baihongse}${bold}                             注意：客户端在运行不代表你就能打开 WebUI                              ${normal}" ; }
 
 
