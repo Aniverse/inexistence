@@ -3,7 +3,7 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.0.3
+SCRIPTVER=0.9.0.4
 SCRIPTUPDATE=2018.05.05
 
 [[ $1 == -d ]] && DeBUG=1
@@ -374,7 +374,8 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
 
 # 04. 查看安装的客户端的版本
 
-# 判断软件版本。部分使用正则表达式提取数字部分，如果有类似 dev/beta 这样的版本号则无法显示出来；此外 Flexget 本身执行速度较慢
+# 判断软件版本。部分使用正则表达式提取数字部分，如果有类似 dev/beta 这样的版本号则无法显示出来
+# Flexget 速度太慢，放弃检查了
 function _client_version_check() { clear
 if [[ ! $qbtnox_ver ]]; then
     echo -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
@@ -382,9 +383,9 @@ if [[ ! $qbtnox_ver ]]; then
     if [[ ! $de_installed == No        ]]; then delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'` ; deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` ; else delugelt_ver=好像没安装 ; deluged_ver=好像没安装 ; fi
     if [[ ! $tr_installed == No        ]]; then trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; else trd_ver=好像没安装 ; fi
     if [[ ! $rt_installed == No        ]]; then rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'` ; else rtorrent_ver=好像没安装 ; fi
-    if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
+  # if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
     if [[ ! $rclone_installed == No    ]]; then rclone_ver=`rclone --version | head -n1 | awk '{print $2}' | sed "s/v//"` >/dev/null 2>&1 ; else rclone_ver=好像没安装 ; fi
-    if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
+  # if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
     if [[ ! $ffmpeg_installed == No    ]]; then ffmpeg_ver=`ffmpeg 2>&1 | head -n1 | awk '{print $3}'` ; else ffmpeg_ver=好像没安装 ; fi
     if [[ ! $mediainfo_installed == No ]]; then mp_ver=`mediainfo --version | grep Lib | cut -c17-` ; else mp_ver=好像没安装 ; fi
     echo -e "${guangbiao}"
@@ -394,16 +395,16 @@ fi ; }
 function _show_client_version() { clear ; echo
   echo -e " ${white}${on_magenta}${bold}                                         04. 客户端的版本                                         ${normal} "
   echo
-  echo -e "    ${cyan}${bold}qBittorrent${normal}          ${bold}${yellow}${qbtnox_ver}${normal}"
-  echo -e "    ${cyan}${bold}Deluge${normal}               ${bold}${yellow}${deluged_ver}${normal}"
-  echo -e "    ${cyan}${bold}Deluge libtorrent${normal}    ${bold}${yellow}${delugelt_ver}${normal}"
-  echo -e "    ${cyan}${bold}rTorrent${normal}             ${bold}${yellow}${rtorrent_ver}${normal}"
-  echo -e "    ${cyan}${bold}Transmission${normal}         ${bold}${yellow}${trd_ver}${normal}"
-  echo -e "    ${cyan}${bold}Flexget${normal}              ${bold}${yellow}${flexget_ver}${normal}"
-  echo -e "    ${cyan}${bold}rclone${normal}               ${bold}${yellow}${rclone_ver}${normal}"
-  echo -e "    ${cyan}${bold}AutoDL-Irssi${normal}         ${bold}${yellow}${irssi_ver}${normal}"
-  echo -e "    ${cyan}${bold}ffmpeg${normal}               ${bold}${yellow}${ffmpeg_ver}${normal}"
-  echo -e "    ${cyan}${bold}mediainfo${normal}            ${bold}${yellow}${mp_ver}${normal}"
+  echo -e "    ${cyan}${bold}qBittorrent${normal}            ${bold}${yellow}${qbtnox_ver}${normal}"
+  echo -e "    ${cyan}${bold}Deluge${normal}                 ${bold}${yellow}${deluged_ver}${normal}"
+  echo -e "    ${cyan}${bold}libtorrent-rasterbar${normal}   ${bold}${yellow}${delugelt_ver}${normal}"
+  echo -e "    ${cyan}${bold}rTorrent${normal}               ${bold}${yellow}${rtorrent_ver}${normal}"
+  echo -e "    ${cyan}${bold}Transmission${normal}           ${bold}${yellow}${trd_ver}${normal}"
+  echo -e "    ${cyan}${bold}Flexget${normal}                ${bold}${yellow}${flexget_ver}${normal}"
+  echo -e "    ${cyan}${bold}rclone${normal}                 ${bold}${yellow}${rclone_ver}${normal}"
+  echo -e "    ${cyan}${bold}AutoDL-Irssi${normal}           ${bold}${yellow}${irssi_ver}${normal}"
+  echo -e "    ${cyan}${bold}ffmpeg${normal}                 ${bold}${yellow}${ffmpeg_ver}${normal}"
+  echo -e "    ${cyan}${bold}mediainfo${normal}              ${bold}${yellow}${mp_ver}${normal}"
   echo ; }
 
 
