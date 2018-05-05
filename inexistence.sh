@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.03.2
+INEXISTENCEDATE=2018.05.05
 # --------------------------------------------------------------------------------
 
 
@@ -739,6 +739,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}"
     echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}"
     echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
+    echo -e "${green}13)${normal} qBittorrent ${cyan}4.1.0${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -759,6 +760,7 @@ while [[ $QBVERSION = "" ]]; do
         11) QBVERSION=4.0.2 ;;
         12) QBVERSION=4.0.3 ;;
         13) QBVERSION=4.0.4 ;;
+        14) QBVERSION=4.1.0 ;;
         21) QBVERSION='3.3.11 (Skip hash check)' ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
@@ -2691,8 +2693,8 @@ shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; 
 _colors
 
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
-iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘I/O (第一次测试) : \${yellow}\$io1\${normal}"
-io2=\$( io_test ) ; echo -e "\${bold}硬盘I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
+io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
 
 wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
