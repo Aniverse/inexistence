@@ -3,15 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-mingling=0.8.7
-UPDATE=2018.05.05
+SCRIPTVER=0.8.8.1
+SCRIPTUPDATE=2018.05.05
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
 # echo $de_installed $rt_installed $qb_installed $tr_installed $flex_installed $rclone_installed $virtwhat_installed $lsb_installed $smartctl_installed
 
 # 一些改进方向--------------------------------
-# 增加硬盘IO、网速的测试
 # systemctl is-active application.service
 # stty -echo #stty echo
 
@@ -162,6 +161,7 @@ ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.'
 # 00. 脚本的欢迎界面，还没写好
 function _logo() {
 clear ; wget --no-check-certificate --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/mingling.logo.1
+echo -e "${bold}$SCRIPTVER${normal}"
 if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
 if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
 if [[ ! "$inexistence" == "Yes" ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi ; }
@@ -407,95 +407,84 @@ function _ifrunning() { clear ; echo
 
 echo -e " ${baihongse}${bold}                                        05. 客户端运行状况                                         ${normal}\n${bold}"
 
-if [[ ! $qb_installed == No ]]; then kehuduan=qbittorrent-nox ; _is_running_2 ; qb_status_1="${client_status}"
-echo -e " ${cyan}qBittorrent ${jiacu}            $qb_status_1" ; fi
-
-if [[ ! $de_installed == No ]]; then kehuduan=deluged ; _is_running_2 ; de_status_1="${client_status}"
-echo -e " ${cyan}Deluged ${jiacu}                $de_status_1"
-kehuduan=deluge-web ; _is_running_2 ; dew_status_1="${client_status}"
-echo -e " ${cyan}Deluge Web ${jiacu}             $dew_status_1" ; fi
-
-if [[ ! $tr_installed == No ]]; then kehuduan=transmission-daemon ; _is_running_2 ; tr_status_1="${client_status}"
-echo -e " ${cyan}Transmission ${jiacu}           $tr_status_1" ; fi
-
-if [[ ! $rt_installed == No ]]; then kehuduan=rtorrent ; _is_running_2 ; rt_status_1="${client_status}"
-echo -e " ${cyan}rTorrent ${jiacu}               $rt_status_1" ; fi
-
-if [[ ! $irssi_installed == No ]]; then kehuduan=irssi ; _is_running_2 ; irssi_status_1="${client_status}"
-echo -e " ${cyan}AutoDL-Irssi ${jiacu}           $irssi_status_1" ; fi
-
-if [[ ! $flex_installed == No ]]; then kehuduan=flexget ; _is_running_2 ; flex_status_1="${client_status}"
-echo -e " ${cyan}Flexget daemon ${jiacu}         $flex_status_1" ; fi
+_ifrunning_3
 
 echo -e "${normal}\n ${baihongse}${bold}                             注意：客户端在运行不代表你就能打开 WebUI                              ${normal}" ; }
 
 
 
 
-
-# 06-1. 客户端操作菜单
-function _show_client_menu() { clear ; echo
-  echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} \n${bold}"
-
+function _ifrunning_3() { 
 if [[ ! $qb_installed == No ]]; then kehuduan=qbittorrent-nox ; _is_running_2 ; qb_status_1="${client_status}"
-echo -e " ${cyan}qBittorrent ${jiacu}            $qb_status_1" ; fi
+echo -e "  ${cyan}qBittorrent ${jiacu}                   $qb_status_1" ; fi
 
 if [[ ! $de_installed == No ]]; then kehuduan=deluged ; _is_running_2 ; de_status_1="${client_status}"
-echo -e " ${cyan}Deluged ${jiacu}                $de_status_1"
+echo -e "  ${cyan}Deluged ${jiacu}                       $de_status_1"
 kehuduan=deluge-web ; _is_running_2 ; dew_status_1="${client_status}"
-echo -e " ${cyan}Deluge Web ${jiacu}             $dew_status_1" ; fi
+echo -e "  ${cyan}Deluge Web ${jiacu}                    $dew_status_1" ; fi
 
 if [[ ! $tr_installed == No ]]; then kehuduan=transmission-daemon ; _is_running_2 ; tr_status_1="${client_status}"
-echo -e " ${cyan}Transmission ${jiacu}           $tr_status_1" ; fi
+echo -e "  ${cyan}Transmission ${jiacu}                  $tr_status_1" ; fi
 
 if [[ ! $rt_installed == No ]]; then kehuduan=rtorrent ; _is_running_2 ; rt_status_1="${client_status}"
-echo -e " ${cyan}rTorrent ${jiacu}               $rt_status_1" ; fi
+echo -e "  ${cyan}rTorrent ${jiacu}                      $rt_status_1" ; fi
 
 if [[ ! $irssi_installed == No ]]; then kehuduan=irssi ; _is_running_2 ; irssi_status_1="${client_status}"
-echo -e " ${cyan}AutoDL-Irssi ${jiacu}           $irssi_status_1" ; fi
+echo -e "  ${cyan}AutoDL-Irssi ${jiacu}                  $irssi_status_1" ; fi
 
 if [[ ! $flex_installed == No ]]; then kehuduan=flexget ; _is_running_2 ; flex_status_1="${client_status}"
-echo -e " ${cyan}Flexget daemon ${jiacu}         $flex_status_1" ; fi
+echo -e "  ${cyan}Flexget daemon ${jiacu}                $flex_status_1" ; fi ; }
 
-  echo
-  echo -e "  ${green}(01) ${jiacu}运行 qBittorrent          ${green}(13) ${jiacu}运行 rTorrent             ${green} ${jiacu}"
-  echo -e "  ${green}(02) ${jiacu}关闭 qBittorrent          ${green}(14) ${jiacu}关闭 rTorrent             ${green} ${jiacu}"
-  echo -e "  ${green}(03) ${jiacu}重启 qBittorrent          ${green}(15) ${jiacu}重启 rTorrent             ${green} ${jiacu}"
-  echo -e "  ${green}(04) ${jiacu}运行 Transmission         ${green}(16) ${jiacu}运行 Deluge               ${green} ${jiacu}"
-  echo -e "  ${green}(05) ${jiacu}关闭 Transmission         ${green}(17) ${jiacu}关闭 Deluge               ${green} ${jiacu}"
-  echo -e "  ${green}(06) ${jiacu}重启 Transmission         ${green}(18) ${jiacu}重启 Deluge               ${green} ${jiacu}"
-  echo -e "  ${green}(07) ${jiacu}运行 Flexget daemon       ${green}(19) ${jiacu}screen rTorrent           ${green} ${jiacu}"
-  echo -e "  ${green}(08) ${jiacu}关闭 Flexget daemon       ${green}(20) ${jiacu}screen AutoDL-Irssi       ${green} ${jiacu}"
-  echo -e "  ${green}(09) ${jiacu}重启 Flexget daemon       ${green}(21) ${jiacu}查看 Flexget 日志         ${green} ${jiacu}"
-  echo -e "  ${green}(10) ${jiacu}运行 AutoDL-Irssi         ${green}(22) ${jiacu}编辑 Flexget 配置          ${green} ${jiacu}"
-  echo -e "  ${green}(11) ${jiacu}关闭 AutoDL-Irssi         ${green}(23) ${jiacu}重启 seedbox              ${green} ${jiacu}"
-  echo -e "  ${green}(12) ${jiacu}重启 AutoDL-Irssi         ${green}(24) ${jiacu}返回 main menu            ${green} ${jiacu}"
-  echo -e "" ; _systemd_check
-  echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
+
+
+
+# 06-1-1. 客户端操作菜单
+function _show_client_menu() { _show_client_menu_0
+echo -e "" ; _systemd_check
+echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
+
+# 06-1-2. 客户端操作菜单——零
+function _show_client_menu_0() { clear ; echo
+echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} \n${bold}"
+_ifrunning_3
+echo
+echo -e "  ${green}(01) ${jiacu}运行 qBittorrent          ${green}(13) ${jiacu}运行 rTorrent             ${green} ${jiacu}"
+echo -e "  ${green}(02) ${jiacu}关闭 qBittorrent          ${green}(14) ${jiacu}关闭 rTorrent             ${green} ${jiacu}"
+echo -e "  ${green}(03) ${jiacu}重启 qBittorrent          ${green}(15) ${jiacu}重启 rTorrent             ${green} ${jiacu}"
+echo -e "  ${green}(04) ${jiacu}运行 Transmission         ${green}(16) ${jiacu}运行 Deluge               ${green} ${jiacu}"
+echo -e "  ${green}(05) ${jiacu}关闭 Transmission         ${green}(17) ${jiacu}关闭 Deluge               ${green} ${jiacu}"
+echo -e "  ${green}(06) ${jiacu}重启 Transmission         ${green}(18) ${jiacu}重启 Deluge               ${green} ${jiacu}"
+echo -e "  ${green}(07) ${jiacu}运行 Flexget daemon       ${green}(19) ${jiacu}screen rTorrent           ${green} ${jiacu}"
+echo -e "  ${green}(08) ${jiacu}关闭 Flexget daemon       ${green}(20) ${jiacu}screen AutoDL-Irssi       ${green} ${jiacu}"
+echo -e "  ${green}(09) ${jiacu}重启 Flexget daemon       ${green}(21) ${jiacu}查看 Flexget 日志         ${green} ${jiacu}"
+echo -e "  ${green}(10) ${jiacu}运行 AutoDL-Irssi         ${green}(22) ${jiacu}编辑 Flexget 配置         ${green} ${jiacu}"
+echo -e "  ${green}(11) ${jiacu}关闭 AutoDL-Irssi         ${green}(23) ${jiacu}重启 seedbox              ${green} ${jiacu}"
+echo -e "  ${green}(12) ${jiacu}重启 AutoDL-Irssi         ${green}(24) ${jiacu}返回 main menu            ${green} ${jiacu}"
+echo ; }
 
 # 06-2. 客户端选项回应
 function _client_menu_response() {
 wenzi1="现在大概已在运行了 ......" ; wenzi2="现在大概已经关掉了 ......" ; wenzi3="应该大概重启了一次 ......"
 read response
 case $response in
-    01 | 1) echo -e "" ; systemctl start   qbittorrent      > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    02 | 2) echo -e "" ; systemctl stop    qbittorrent      > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    03 | 3) echo -e "" ; systemctl restart qbittorrent      > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    04 | 4) echo -e "" ; systemctl start   transmission     > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    05 | 5) echo -e "" ; systemctl stop    transmission     > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    06 | 6) echo -e "" ; systemctl restart transmission     > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    07 | 7) echo -e "" ; systemctl start   flexget          > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Flexget daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    08 | 8) echo -e "" ; systemctl stop    flexget          > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Flexget daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    09 | 9) echo -e "" ; systemctl restart flexget          > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Flexget daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        10) echo -e "" ; su ${ANUSER} -c 'rt -i start'      > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        11) echo -e "" ; su ${ANUSER} -c 'rt -i -k stop'    > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        12) echo -e "" ; su ${ANUSER} -c 'rt -i -k restart' > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        13) echo -e "" ; su ${ANUSER} -c 'rt start'         > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        14) echo -e "" ; su ${ANUSER} -c 'rt -k stop'       > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        15) echo -e "" ; su ${ANUSER} -c 'rt -k restart'    > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        16) echo -e "" ; systemctl start   deluged > /dev/null 2>&1 ; systemctl start   deluge-web > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Deluge ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        17) echo -e "" ; systemctl stop    deluged > /dev/null 2>&1 ; systemctl stop    deluge-web > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Deluge ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        18) echo -e "" ; systemctl restart deluged > /dev/null 2>&1 ; systemctl restart deluge-web > /dev/null 2>&1 ; _show_client_menu ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    01 | 1) echo -e "" ; systemctl start   qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    02 | 2) echo -e "" ; systemctl stop    qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    03 | 3) echo -e "" ; systemctl restart qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    04 | 4) echo -e "" ; systemctl start   transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+    05 | 5) echo -e "" ; systemctl stop    transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+    06 | 6) echo -e "" ; systemctl restart transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+    07 | 7) echo -e "" ; systemctl start   flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    08 | 8) echo -e "" ; systemctl stop    flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    09 | 9) echo -e "" ; systemctl restart flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+        10) echo -e "" ; su ${ANUSER} -c 'rt -i start'      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        11) echo -e "" ; su ${ANUSER} -c 'rt -i -k stop'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        12) echo -e "" ; su ${ANUSER} -c 'rt -i -k restart' > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        13) echo -e "" ; su ${ANUSER} -c 'rt start'         > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        14) echo -e "" ; su ${ANUSER} -c 'rt -k stop'       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        15) echo -e "" ; su ${ANUSER} -c 'rt -k restart'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        16) echo -e "" ; systemctl start   deluged > /dev/null 2>&1 ; systemctl start   deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+        17) echo -e "" ; systemctl stop    deluged > /dev/null 2>&1 ; systemctl stop    deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+        18) echo -e "" ; systemctl restart deluged > /dev/null 2>&1 ; systemctl restart deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
         19) echo -e "" ; chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent' ;;
         20) echo -e "" ; chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'    ;;
         21) echo -e "" ; echo ; tail -n100 /root/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
