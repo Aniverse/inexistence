@@ -7,12 +7,38 @@
 
 
 
+## 2018.05.05
+
+`inexistence 1.0.4`  
+1. 把 qBittorrent 的默认安装版本改为 4.0.4  
+天空终于支持 qBittorrent 4.0 了，没有理由再用 3.3.11 了  
+
+
+
+
+
+## 2018.05.05
+
+`inexistence 1.0.4`  
+1. New Feature：增加 qBittorrent 4.10 的安装选项  
+2. Alias：IO 测试加个空格……  
+
+`mingling 0.9.0`  
+1. **UI：显示脚本版本号**  
+2. **New Feature：增加 更新脚本 的功能**  
+3. **Feature：合并客户端运行情况与操作菜单**  
+4. **Feature：一开始不检查 IP 地址与系统信息，加速脚本启动过程**  
+5. Feature：Flexget 版本检查实在太慢，直接移除了  
+6. Bug Fix：修复客户端操作菜单里 rTorrent 与 Irssi 选项无效的问题  
+
+
+
+
+
 ## 2018.05.03
 
 `inexistence 1.0.4`  
 1. Deluge 安装老版本时，仅使用老版本的 deluged，其余使用 1.3.15 的文件  
-
-
 
 
 
