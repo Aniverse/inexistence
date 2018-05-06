@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.05
+INEXISTENCEDATE=2018.05.06
 # --------------------------------------------------------------------------------
 
 
@@ -750,7 +750,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
-    echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
+    echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}13${normal}): " ; read -e version
 
     case $version in
         01 | 1) QBVERSION=3.3.7 ;;
@@ -766,13 +766,11 @@ while [[ $QBVERSION = "" ]]; do
         40) QBVERSION='Install from repo' ;;
         50) QBVERSION='Install from PPA' ;;
         99) QBVERSION=No ;;
-        * | "") QBVERSION=3.3.11 ;;
+        * | "") QBVERSION=4.0.4 ;;
     esac
 
 done
 
-
-[[ `echo $QBVERSION | cut -c1` == 4 ]] && QBVERSION4=Yes || QBVERSION4=No
 
 [[ $QBVERSION == '3.3.11 (Skip hash check)' ]] && QBPATCH=Yes
 
@@ -796,12 +794,6 @@ elif [[ $QBVERSION == "Install from PPA" ]]; then
     fi
 
 else
-
-#   if [[ $CODENAME == jessie ]] && [[ $QBVERSION4 == Yes ]]; then
-#       echo -e "${bold}${red}ERROR${normal} ${bold}Since qBittorrent 4.0 needs qmake 5.5.1,\nBuilding qBittorrent 4 doesn't work on ${cyan}Debian 8 by normal method${normal}"
-#       QBVERSION=3.3.16 && QBVERSION4=No
-#       echo "${bold}The script will use qBittorrent ${QBVERSION} instead"
-#   fi
 
     echo "${bold}${baiqingse}qBittorrent ${QBVERSION}${normal} ${bold}will be installed${normal}"
 
@@ -1830,18 +1822,16 @@ libboost-python-dev                                                             
 zlib1g-dev
 
 if [[ $CODENAME == jessie ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -qO libtorrent-rasterbar_1.0.11_jessie_amd64.deb
-    dpkg -i libtorrent-rasterbar_1.0.11_jessie_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb -qO lt.deb
 elif [[ $CODENAME == xenial ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb -qO libtorrent-rasterbar_1.0.11_xenial_amd64.deb
-    dpkg -i libtorrent-rasterbar_1.0.11_xenial_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb -qO lt.deb
 elif [[ $CODENAME == stretch ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO libtorrent-rasterbar_1.0.11_stretch_amd64.deb
-    dpkg -i libtorrent-rasterbar_1.0.11_stretch_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO lt.deb
 elif [[ $CODENAME == bionic ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar_1.0.11_bionic_amd64.deb -qO libtorrent-rasterbar_1.0.11_bionic_amd64.deb
-    dpkg -i libtorrent-rasterbar_1.0.11_bionic_amd64.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar_1.0.11_bionic_amd64.deb -qO lt.deb
 fi
+
+dpkg -i lt.deb && rm -rf lt.deb
 
 cd ; ldconfig ; }
 
@@ -1880,6 +1870,7 @@ else
 
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
+        apt-get install -y libgl1-mesa-dev
 
         wget --no-check-certificate -qO qt_5.5.1-1_amd64_debian8.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
         dpkg -i qt_5.5.1-1_amd64_debian8.deb
