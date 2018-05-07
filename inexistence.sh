@@ -1143,10 +1143,11 @@ function _asktr() {
 
 while [[ $TRVERSION = "" ]]; do
 
-    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}"
-    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}"
-    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
-    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
+    [[ ! $CODENAME == bionic ]] &&
+    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}" &&
+    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}" &&
+    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}" &&
+    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}" &&
     echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
     echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
     echo -e "${green}30)${normal} Select another version"
@@ -2210,7 +2211,7 @@ else
 
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
-    [[ $rtorrent_dev == 1 ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
+    [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
     cd /etc/inexistence/00.Installation/MAKE
     wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
@@ -2232,13 +2233,13 @@ else
     else
         git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
         cd transmission-$TRVERSION
-      # [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
         [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
       # sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
     fi
 
     ./autogen.sh
     ./configure --prefix=/usr
+
     mkdir -p doc-pak
     cat >description-pak<<EOF
 A fast, easy, and free BitTorrent client
@@ -2249,7 +2250,7 @@ EOF
     if [[ $tr_installed == Yes ]]; then
         make install
     else
-        checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission --pkggroup transmission
+        checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission-seedbox --pkggroup transmission
         mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     fi
 
