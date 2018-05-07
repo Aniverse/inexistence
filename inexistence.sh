@@ -1020,7 +1020,7 @@ function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
 
-    [[ ! $rtorrent_dev ==1 ]] &&
+    [[ ! $rtorrent_dev == 1 ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
     echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
@@ -1034,8 +1034,8 @@ while [[ $RTVERSION = "" ]]; do
     [[ $rt_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 #   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
-  
-    if [[ $rtorrent_dev ==1 ]]; then
+
+    if [[ $rtorrent_dev == 1 ]]; then
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 feature-bind branch${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
