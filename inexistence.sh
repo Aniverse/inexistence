@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.06
+INEXISTENCEDATE=2018.05.07
 # --------------------------------------------------------------------------------
 
 
@@ -1147,7 +1147,7 @@ while [[ $TRVERSION = "" ]]; do
     echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}" &&
     echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}" &&
     echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}" &&
-    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}" &&
+    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
     echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
     echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
     echo -e "${green}30)${normal} Select another version"
@@ -2556,12 +2556,14 @@ elif [[ $InsWineMode == apt ]]; then
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 
     if [[ $DISTRO == Ubuntu ]]; then
-        apt-get install -y software-properties-common
-        apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+        if [[ $CODENAME == bionic ]]; then # 暂时没有 Ubuntu 18.04 的源，只能手动加 17.10 的了
+            echo "deb https://dl.winehq.org/wine-builds/ubuntu/ artful main" > /etc/apt/sources.list.d/wine.list
+        else
+            apt-get install -y software-properties-common
+            apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+        fi
     elif [[ $DISTRO == Debian ]]; then
-        if [[ $CODENAME == bionic ]]; then echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ artful main" > /etc/apt/sources.list.d/wine.list
-        else echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list ; fi
-      # echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
+        echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
     fi
 
     apt-get update -y
@@ -2569,7 +2571,7 @@ elif [[ $InsWineMode == apt ]]; then
 
 fi
 
-wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
@@ -2597,7 +2599,7 @@ chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
 
-cd ; wget --no-check-certificate -O ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
+cd ; wget --no-check-certificate -qO ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
 tar xf ffmpeg-3.4.2-64bit-static.tar.xz
 rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
