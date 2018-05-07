@@ -325,7 +325,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
 # rTorrent 是否只能安装 feature-bind branch
-[[ $CODENAME == ~ (stretch|bionic) ]] && rtorrent_dev=1
+[[ $CODENAME =~ (stretch|bionic) ]] && rtorrent_dev=1
 
 
 ### if [[ ! $distro_up == Yes ]]; then
@@ -2558,7 +2558,9 @@ elif [[ $InsWineMode == apt ]]; then
         apt-get install -y software-properties-common
         apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
     elif [[ $DISTRO == Debian ]]; then
-        echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
+        if [[ $CODENAME == bionic ]]; then echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ artful main" > /etc/apt/sources.list.d/wine.list
+        else echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list ; fi
+      # echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
     fi
 
     apt-get update -y
@@ -2604,8 +2606,7 @@ rm -rf ffmpeg-*-64bit-static*
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-echo -n  > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
 wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
@@ -2770,6 +2771,8 @@ alias cdde="cd /home/${ANUSER}/deluge/download"
 alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
 alias cdrt="cd /home/${ANUSER}/rtorrent/download"
 alias cdtr="cd /home/${ANUSER}/transmission/download"
+alias cdin="cd /etc/inexistence/"
+alias cdrut="cd /var/www/rutorrent"
 
 alias shanchu="rm -rf"
 alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
