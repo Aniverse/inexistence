@@ -1844,7 +1844,7 @@ elif [[ $CODENAME == xenial ]]; then
 elif [[ $CODENAME == stretch ]]; then
     wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO lt.deb
 elif [[ $CODENAME == bionic ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar_1.0.11_bionic_amd64.deb -qO lt.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb -qO lt.deb
 fi
 
 dpkg -i lt.deb && rm -rf lt.deb
@@ -2210,7 +2210,7 @@ else
 
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
-    [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
+    [[ $rtorrent_dev == 1 ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
     cd /etc/inexistence/00.Installation/MAKE
     wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
