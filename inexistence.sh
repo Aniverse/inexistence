@@ -242,6 +242,22 @@ if [[ ! "$SysSupport" == 1 ]]; then
     exit 1
 fi ; }
 
+# 进度显示
+spinner() {
+    local pid=$1
+    local delay=0.25
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+    echo -ne "${OK}"
+}
+
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -301,15 +317,15 @@ DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
-[[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
-[[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
+[[ $CODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
+[[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
-
-
+# rTorrent 是否只能安装 feature-bind branch
+[[ $CODENAME == ~ (stretch|bionic) ]] && rtorrent_dev=1
 
 
 ### if [[ ! $distro_up == Yes ]]; then
@@ -1004,7 +1020,7 @@ function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
 
-    [[ ! $CODENAME == stretch ]] &&
+    [[ ! $rtorrent_dev ==1 ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
     echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
@@ -1012,16 +1028,16 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support, feature-bind branch)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 #   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
   
-    if [[ $CODENAME == stretch ]]; then
+    if [[ $rtorrent_dev ==1 ]]; then
 
-        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6 feature bind branch${normal}"
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 feature-bind branch${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
@@ -1068,7 +1084,7 @@ else
 
         echo "${bold}${baiqingse}rTorrent $RTVERSIONIns (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
 
-    elif [[ $RTVERSION == '0.9.4 IPv6 supported' ]]; then
+    elif [[ $RTVERSION == '0.9.6 IPv6 supported' ]]; then
 
         echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
 
@@ -1274,7 +1290,7 @@ function _askrdp() {
 
 while [[ $InsRDP = "" ]]; do
 
-    echo -e "${green}01)${normal} VNC  with xfce4 (may have some issues)"
+    echo -e "${green}01)${normal} VNC  with xfce4"
     echo -e "${green}02)${normal} X2Go with xfce4"
     echo -e   "${red}99)${normal} Do not install remote desktop"
 #   echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
@@ -1749,7 +1765,7 @@ sleep 5
 reboot -f
 init 6
 
-sleep 20
+sleep 5
 kill -s TERM $TOP_PID
 exit 0 ; }
 
