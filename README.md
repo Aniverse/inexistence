@@ -30,8 +30,7 @@ bash inexistence.sh
 
 ![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.png)
 
-注意：似乎采用软 RAID 的盒子使用本脚本升级系统后会导致 dd 的 IO 测试性能暴降！  
-支持 `Ubuntu 16.04、Debian 8、Debian 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
+支持 `Ubuntu 16.04 / 18.04、Debian 8 / 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
 使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
 ![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
@@ -104,7 +103,6 @@ bash inexistence.sh
 9. ***libtorrent-rasterbar***  
 本来这里是有个询问 libtorrent-rasterbar 版本的，现在直接移除了  
 现在脚本安装的 Deluge 和 qBittorrent 都会使用来自 RC_1_0 分支的 1.0.11 版，可以正确地汇报双栈 IP 地址  
-[关于 libtorrent-rasterbar 的一些个人总结](https://github.com/Aniverse/inexistence/blob/master/ChangeLOG.md#about-libtorrent-rasterbar)  
 
 
 10. ***rTorrent***  
@@ -468,6 +466,7 @@ https://rclone.org/install
 http://dev.deluge-torrent.org/wiki/UserGuide    
 https://mkvtoolnix.download/downloads.html  
 http://outlyer.net/etiq/projects/vcs  
+https://amefs.net  
 https://www.dwhd.org  
 https://moeclub.org  
 https://sometimesnaive.org  
