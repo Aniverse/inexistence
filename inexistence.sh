@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.06
+INEXISTENCEDATE=2018.05.07
 # --------------------------------------------------------------------------------
 
 
@@ -242,6 +242,22 @@ if [[ ! "$SysSupport" == 1 ]]; then
     exit 1
 fi ; }
 
+# 进度显示
+spinner() {
+    local pid=$1
+    local delay=0.25
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+    echo -ne "${OK}"
+}
+
 # --------------------------------------------------------------------------------
 ###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
 ###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
@@ -301,15 +317,15 @@ DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
-[[ "$CODENAME" =~ ("xenial"|"jessie"|"stretch") ]] && SysSupport=1
-[[ "$CODENAME" =~      ("wheezy"|"trusty")      ]] && SysSupport=2
+[[ $CODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
+[[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
-
-
+# rTorrent 是否只能安装 feature-bind branch
+[[ $CODENAME =~ (stretch|bionic) ]] && rtorrent_dev=1
 
 
 ### if [[ ! $distro_up == Yes ]]; then
@@ -1004,7 +1020,7 @@ function _askrt() {
 
 while [[ $RTVERSION = "" ]]; do
 
-    [[ ! $CODENAME == stretch ]] &&
+    [[ ! $rtorrent_dev == 1 ]] &&
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
     echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
@@ -1012,16 +1028,16 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support, feature-bind branch)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
 #   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
-  
-    if [[ $CODENAME == stretch ]]; then
 
-        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} ${bold}is only supported by ${green}rTorrent 0.9.6 feature bind branch${normal}"
+    if [[ $rtorrent_dev == 1 ]]; then
+
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 feature-bind branch${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
@@ -1068,7 +1084,7 @@ else
 
         echo "${bold}${baiqingse}rTorrent $RTVERSIONIns (with UNOFFICAL IPv6 support)${normal} ${bold}will be installed${normal}"
 
-    elif [[ $RTVERSION == '0.9.4 IPv6 supported' ]]; then
+    elif [[ $RTVERSION == '0.9.6 IPv6 supported' ]]; then
 
         echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind branch)${normal} ${bold}will be installed${normal}"
 
@@ -1127,9 +1143,10 @@ function _asktr() {
 
 while [[ $TRVERSION = "" ]]; do
 
-    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}"
-    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}"
-    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}"
+    [[ ! $CODENAME == bionic ]] &&
+    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}" &&
+    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}" &&
+    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}" &&
     echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
     echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
     echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
@@ -1274,7 +1291,7 @@ function _askrdp() {
 
 while [[ $InsRDP = "" ]]; do
 
-    echo -e "${green}01)${normal} VNC  with xfce4 (may have some issues)"
+    echo -e "${green}01)${normal} VNC  with xfce4"
     echo -e "${green}02)${normal} X2Go with xfce4"
     echo -e   "${red}99)${normal} Do not install remote desktop"
 #   echo -e "目前 VNC 在某些情况下连不上，谷歌找了 N 个小时也没找到解决办法\n因此如果需要的话建议用 X2Go，或者你自己手动安装 VNC 试试？"
@@ -1749,7 +1766,7 @@ sleep 5
 reboot -f
 init 6
 
-sleep 20
+sleep 5
 kill -s TERM $TOP_PID
 exit 0 ; }
 
@@ -1828,7 +1845,7 @@ elif [[ $CODENAME == xenial ]]; then
 elif [[ $CODENAME == stretch ]]; then
     wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb -qO lt.deb
 elif [[ $CODENAME == bionic ]]; then
-    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar_1.0.11_bionic_amd64.deb -qO lt.deb
+    wget --no-check-certificate https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb -qO lt.deb
 fi
 
 dpkg -i lt.deb && rm -rf lt.deb
@@ -2194,7 +2211,7 @@ else
 
     apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
     apt-get install -y openssl
-    [[ $CODENAME = stretch ]] && apt-get install -y libssl1.0-dev
+    [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
     cd /etc/inexistence/00.Installation/MAKE
     wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
@@ -2214,15 +2231,20 @@ else
         tar xf transmission-$TRVERSION.tar.gz ; rm -f transmission-$TRVERSION.tar.gz
         cd transmission-$TRVERSION
     else
-        git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
+        git clone https://github.com/transmission/transmission transmission-$TRVERSION
         cd transmission-$TRVERSION
-      # [[ ! $TRVERSION = 2.93 ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+        git checkout $TRVERSION
+        # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
+        [[ $TRVERSION == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
+        # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
         [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-      # sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
+        # 解决 Transmission 2.9X 版本文件打开数被限制到 1024 的问题，https://github.com/transmission/transmission/issues/309
+        [[ `grep FD_SETSIZE=1024 CMakeLists.txt ` ]] && sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=777777/g" CMakeLists.txt
     fi
 
     ./autogen.sh
     ./configure --prefix=/usr
+
     mkdir -p doc-pak
     cat >description-pak<<EOF
 A fast, easy, and free BitTorrent client
@@ -2233,7 +2255,7 @@ EOF
     if [[ $tr_installed == Yes ]]; then
         make install
     else
-        checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission --pkggroup transmission
+        checkinstall -y --pkgversion=$TRVERSION --pkgname=transmission-seedbox --pkggroup transmission
         mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
     fi
 
@@ -2539,8 +2561,12 @@ elif [[ $InsWineMode == apt ]]; then
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 
     if [[ $DISTRO == Ubuntu ]]; then
-        apt-get install -y software-properties-common
-        apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+        if [[ $CODENAME == bionic ]]; then # 暂时没有 Ubuntu 18.04 的源，只能手动加 17.10 的了
+            echo "deb https://dl.winehq.org/wine-builds/ubuntu/ artful main" > /etc/apt/sources.list.d/wine.list
+        else
+            apt-get install -y software-properties-common
+            apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+        fi
     elif [[ $DISTRO == Debian ]]; then
         echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
     fi
@@ -2550,7 +2576,7 @@ elif [[ $InsWineMode == apt ]]; then
 
 fi
 
-wget --no-check-certificate https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
@@ -2578,7 +2604,7 @@ chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
 
-cd ; wget --no-check-certificate -O ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
+cd ; wget --no-check-certificate -qO ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
 tar xf ffmpeg-3.4.2-64bit-static.tar.xz
 rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
@@ -2588,8 +2614,7 @@ rm -rf ffmpeg-*-64bit-static*
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
 
 wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-echo -n  > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
+echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
 wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
@@ -2754,6 +2779,8 @@ alias cdde="cd /home/${ANUSER}/deluge/download"
 alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
 alias cdrt="cd /home/${ANUSER}/rtorrent/download"
 alias cdtr="cd /home/${ANUSER}/transmission/download"
+alias cdin="cd /etc/inexistence/"
+alias cdrut="cd /var/www/rutorrent"
 
 alias shanchu="rm -rf"
 alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
