@@ -2231,8 +2231,9 @@ else
         tar xf transmission-$TRVERSION.tar.gz ; rm -f transmission-$TRVERSION.tar.gz
         cd transmission-$TRVERSION
     else
-        git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
+        git clone https://github.com/transmission/transmission transmission-$TRVERSION
         cd transmission-$TRVERSION
+        git checkout $TRVERSION
         # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
         [[ $TRVERSION == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
         # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
