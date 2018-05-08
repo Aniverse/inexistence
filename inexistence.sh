@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.4
-INEXISTENCEDATE=2018.05.07
+INEXISTENCEVER=1.0.5
+INEXISTENCEDATE=2018.05.08
 # --------------------------------------------------------------------------------
 
 
@@ -2137,8 +2137,18 @@ fi
 rtwebmin
 openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 
-sed -i 's/^.*memory_limi.*/memory_limit = 512M/' /etc/php5/fpm/php.ini
-sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.0/fpm/php.ini
+[[ -e /etc/php5/fpm/php.ini ]] && sed -i 's/^.*memory_limi.*/memory_limit = 512M/' /etc/php5/fpm/php.ini
+[[ -e /etc/php/7.0/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.0/fpm/php.ini
+
+# Preparation for rtorrent_fast_resume.pl
+cd ; wget http://search.cpan.org/CPAN/authors/id/I/IW/IWADE/Convert-Bencode_XS-0.06.tar.gz
+wget https://rt.cpan.org/Ticket/Attachment/1433449/761974/patch-t_001_tests_t
+tar xf Convert-Bencode_XS-0.06.tar.gz
+cd Convert-Bencode_XS-0.06
+patch -uNp0 -i ../patch-t_001_tests_t
+perl Makefile.PL
+make ; make install ; cd
+rm -rf Convert-Bencode_XS-0.06 Convert-Bencode_XS-0.06.tar.gz patch-t_001_tests_t
 
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
@@ -2146,7 +2156,6 @@ ln -s /home/${ANUSER} /var/www/h5ai/user.folder
 
 cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
-systemctl daemon-reload
 
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
 cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
@@ -2239,7 +2248,8 @@ else
         # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
         [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
         # 解决 Transmission 2.9X 版本文件打开数被限制到 1024 的问题，https://github.com/transmission/transmission/issues/309
-        [[ `grep FD_SETSIZE=1024 CMakeLists.txt ` ]] && sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=777777/g" CMakeLists.txt
+        # [[ `grep FD_SETSIZE=1024 CMakeLists.txt ` ]] && sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=777777/g" CMakeLists.txt
+        # 经测试发现没啥卵用，还是不改了 ……
     fi
 
     ./autogen.sh
