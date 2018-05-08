@@ -2233,8 +2233,12 @@ else
     else
         git clone --depth=1 -b $TRVERSION --single-branch https://github.com/transmission/transmission transmission-$TRVERSION
         cd transmission-$TRVERSION
+        # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
+        [[ $TRVERSION == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
+        # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
         [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-      # sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=666666/g" CMakeLists.txt
+        # 解决 Transmission 2.9X 版本文件打开数被限制到 1024 的问题，https://github.com/transmission/transmission/issues/309
+        [[ `grep FD_SETSIZE=1024 CMakeLists.txt ` ]] && sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=777777/g" CMakeLists.txt
     fi
 
     ./autogen.sh
