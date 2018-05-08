@@ -4,14 +4,27 @@
 
 
 
+## 2018.05.08
+
+`inexistence 1.0.5`  
+1. **Bump version to 1.0.5**  
+2. **New Feature：Add support for Ubuntu 18.04 bionic**  
+主要就是 rtinst merge 原版更新，编译 lt 的 deb 包，检查适配情况  
+发现 tr 编译安装 2.92 以前的版本会出错，主要原因在于 OpenSSL 1.1.0，用 Debian 9 的办法无解  
+最后对于 2.92 选择 merge 一个包含在 2.93 内的 pr，然后其他版本直接隐藏掉不可选  
+此外 wine 的软件源里还没有 bionic 的，因此目前使用 artful 的源代替，测试安装正常  
+3. **New Feature：生成可以跳过校验的种子 rtskip 脚本**  
 
 
 
-## 2018.05.05
+
+
+## 2018.05.06
 
 `inexistence 1.0.4`  
 1. 把 qBittorrent 的默认安装版本改为 4.0.4  
-天空终于支持 qBittorrent 4.0 了，没有理由再用 3.3.11 了  
+天空终于支持 qBittorrent 4.X（4.1.0 都支持了） 了，没有理由再用 3.3.11 了  
+顺带一提，有的站点连 4.2.0 Alpha 都能用……怀疑是不是所有 qb 都在白名单内  
 
 
 
@@ -159,7 +172,7 @@ deb 包的体积 270MB 左右，无法直接扔 GitHUb 了
 
 
 ### About libtorrent-rasterbar
-总结下三个系统和 Xenial PPA 自带的 libtorrent 的表现吧：  
+总结下三个系统和 Xenial PPA 自带的 libtorrent-rasterbar 的表现吧：  
 Ubuntu 16.04 系统自带的 1.0.7 别的都没问题，qb 编译也能用，就是不支持 OurBits（别的站都没问题）  
 Debian 8 自带的 0.16.18 汇报双栈 IP 没问题，但是无法不适配 qBittorrent（版本太老），OurBits 也不支持  
 Debian 9 自带的 1.1.1 最尴尬，qBittorrent 编译不支持，给 Deluge 用 bug 也很多……  
@@ -176,11 +189,12 @@ qBittorrent 基本上需要 1.0.7 以后的（0.16 要用于编译好像也不�
 如果用 apt 安装的话，Deluge 对应的包是 python-libtorrent，qBittorrent 对应的包是 libtorrent-rasterbar-dev  
 不过这两个包其实还是依赖于 libtorrent-rasterbar[789] 这个包，7 对应 libtorrent-rasterbar 0.16 版，8 对应 1.0，9 对应 1.1  
 
-编译安装的话，confugure 的时候 Deluge 必须用上 --enable-python-binding，--with-libiconv 不确定是否必须  
+编译安装的话，confugure 的时候 Deluge 必须用上 --enable-python-binding  
 qBittorrent 4.0 以后的版本最好用上 CXXFLAGS=-std=c++11（4.0 以前的版本这个不是必须）（不用好像也行，但不用的话 libboost 似乎要用 C++11 才行）  
 此外 `--disable-debug --enable-encryption --with-libgeoip=system` 这几个我想或许没有也行？……  
 
-
+如果要编译个 libtorrent-rasterbar 确保能同时给 Deluge 和 qBittorrent 使用，需要修改源码里的 bindings/python/setup.py 文件  
+参考资料：[1](https://github.com/qbittorrent/qBittorrent/issues/6383)、[2](https://github.com/qbittorrent/qBittorrent/issues/6721)、[3](https://github.com/qbittorrent/qBittorrent/issues/7149)
 
 
 
