@@ -28,9 +28,10 @@ bash inexistence.sh
 
 检查是否以 root 权限来运行脚本，检查公网 IP 地址与系统参数  
 
-![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.png)
+![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.1.png)
+![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.2.png)
 
-支持 `Ubuntu 16.04 / 18.04、Debian 8 / 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
+支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9` ；`Ubuntu 14.04、Debian 7` 可以选择用脚本升级系统；其他系统不支持  
 使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
 ![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
@@ -40,7 +41,7 @@ bash inexistence.sh
 ![安装时的选项](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.04.png)
 
 1. ***是否升级系统***  
-如果你的系统是 `Debian 7` 或 `Ubuntu 14.04`，你可以用本脚本来升级到 `Debian 8` 或 `Ubuntu 16.04`  
+如果你的系统是 `Debian 7` 或 `Ubuntu 14.04`，你可以用本脚本来升级到 `Debian 8／9` 或 `Ubuntu 16.04／18.04`  
 理论上整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
 升级完后会直接执行重启命令，重启完后你需要再次运行脚本来完成软件的安装  
 
