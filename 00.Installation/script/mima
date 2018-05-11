@@ -3,7 +3,7 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 # --------------------------------------------------------------------------------
-VER=0.0.5
+VER=0.1.0
 DATE=2018.05.11
 # --------------------------------------------------------------------------------
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
@@ -74,26 +74,34 @@ echo -e "\n${yellow}${bold}What would you like to do? (Press Enter to exit)" ; r
 
 case $response in
     1 | 01) # Change ALL the passwords (Include SSH)
+            _askpassword
             _password_all ;;
     2 | 02) # Change password for Transmission WebUI
+            _askpassword
             _tr_pass
             _read_response ;;
     3 | 03) # Change password for qBittorrent WebUI
+            _askpassword
             _qb_pass
             _read_response ;;
     4 | 04) # Change password for Deluge WebUI
+            _askpassword
             _de_pass
             _read_response ;;
     5 | 05) # Change password for ruTorrent
+            _askpassword
             _rut_pass
             _read_response ;;
     6 | 06) # Change password for Flexget WebUI
+            _askpassword
             _fg_pass
             _read_response ;;
     7 | 07) # Reset Flood authorization
+            _askpassword
             _flood_reset
             _read_response ;;
     8 | 08) # Enable root login
+            _askpassword
             _enable_root_login
             _read_response ;;
     9 | 09 | "") clear; exit 0 ;;
@@ -109,35 +117,50 @@ esac ; }
 
 
 # 02 Change password for Transmission WebUI
-function _tr_pass() { 
+function _tr_pass() {
+
  ; }
 
 
 # 03 Change password for qBittorrent WebUI
-function _qb_pass() { 
+function _qb_pass() {
+QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
+sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf
  ; }
 
 
 # 04 Change password for Deluge WebUI
-function _de_pass() { 
- ; }
+function _de_pass() {
+echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth
+sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /root/.config/deluge/web.conf
+sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /root/.config/deluge/web.conf
+}
 
 
 
 # 05 Change password for ruTorrent
-function _rut_pass() { 
- ; }
+function _rut_pass() {
+}
 
 
 
 # 06 Change password for Flexget WebUI
 function _fg_pass() { 
- ; }
+flexget web passwd $ANPASS >/tmp/flex.pass.output 2>&1
+rm -f /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
+[[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch /etc/inexistence/01.Log/lock/flexget.pass.lock ; }
+[[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch /etc/inexistence/01.Log/lock/flexget.conf.lock ; }
+}
 
 
 # 07 Reset Flood authorization
+# https://github.com/jfurrow/flood/wiki/F.A.Q.#i-forgot-my-password-how-can-i-recover-it
 function _flood_reset() { 
- ; }
+systemctl stop flood
+rm -f /srv/flood/server/db/users.db
+systemctl start flood ; }
+
 
 
 
