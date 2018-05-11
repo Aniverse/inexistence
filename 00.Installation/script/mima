@@ -1,0 +1,250 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+# --------------------------------------------------------------------------------
+VER=0.0.5
+DATE=2018.05.11
+# --------------------------------------------------------------------------------
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
+blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
+on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
+on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
+dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
+reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
+baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
+heibaise=${black}${on_white}; jiacu=${normal}${bold}
+shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+# --------------------------------------------------------------------------------
+# 生成 12 位随机密码
+function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
+# --------------------------------------------------------------------------------
+# 获取参数
+OPTS=$(getopt -n "$0" -o p: --long "de,qb,rt,tr,fg,fl,password:" -- "$@")
+eval set -- "$OPTS"
+
+while true; do
+  case "$1" in
+    -p | --password ) ANPASS="$2"       ; shift ; shift ;;
+	-r              ) RANDOM=1          ; shift         ;;
+         --qb       ) ChangeQB=1        ; shift ; shift ;;
+         --de       ) ChangeDE=1        ; shift ; shift ;;
+         --rt       ) ChangeRT=1        ; shift ; shift ;;
+         --tr       ) ChangeTR=1        ; shift ; shift ;;
+         --fg       ) ChangeFG=1        ; shift ; shift ;;
+         --fl       ) ChangeFL=1        ; shift ; shift ;;
+    -- ) shift; break ;;
+     * ) break ;;
+  esac
+done
+[[ $RANDOM == 1 ]] && ANPASS=$(genpasswd)
+# --------------------------------------------------------------------------------
+inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
+INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
+INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
+tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
+ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
+# --------------------------------------------------------------------------------
+
+
+
+# 00. Main menu
+function _main_menu() {
+
+  echo -e "${green}(01) ${jiacu}Change ALL the passwords (Include SSH)"
+  echo -e "${green}(02) ${jiacu}Change password for Transmission WebUI"
+  echo -e "${green}(03) ${jiacu}Change password for qBittorrent WebUI"
+  echo -e "${green}(04) ${jiacu}Change password for Deluge WebUI"
+  echo -e "${green}(05) ${jiacu}Change password for ruTorrent"
+  echo -e "${green}(06) ${jiacu}Change password for Flexget WebUI"
+  echo -e "${green}(07) ${jiacu}Reset Flood authorization"
+  echo -e "${green}(08) ${jiacu}Enable root login"
+  echo -e "${green}(09) ${jiacu}Exit"
+  echo -e "${normal}"
+
+  echo -e "注意 ${normal} To reset password the script will force restart the clients, resume data may be lost!"
+}
+
+
+
+# 00. Response
+function _read_response() {
+echo -e "\n${yellow}${bold}What would you like to do? (Press Enter to exit)" ; read response
+
+case $response in
+    1 | 01) # Change ALL the passwords (Include SSH)
+            _password_all ;;
+    2 | 02) # Change password for Transmission WebUI
+            _tr_pass
+            _read_response ;;
+    3 | 03) # Change password for qBittorrent WebUI
+            _qb_pass
+            _read_response ;;
+    4 | 04) # Change password for Deluge WebUI
+            _de_pass
+            _read_response ;;
+    5 | 05) # Change password for ruTorrent
+            _rut_pass
+            _read_response ;;
+    6 | 06) # Change password for Flexget WebUI
+            _fg_pass
+            _read_response ;;
+    7 | 07) # Reset Flood authorization
+            _flood_reset
+            _read_response ;;
+    8 | 08) # Enable root login
+            _enable_root_login
+            _read_response ;;
+    9 | 09 | "") clear; exit 0 ;;
+    *) clear; exit 0 ;;
+esac ; }
+
+
+
+
+
+
+
+
+
+# 02 Change password for Transmission WebUI
+function _tr_pass() { 
+ ; }
+
+
+# 03 Change password for qBittorrent WebUI
+function _qb_pass() { 
+ ; }
+
+
+# 04 Change password for Deluge WebUI
+function _de_pass() { 
+ ; }
+
+
+
+# 05 Change password for ruTorrent
+function _rut_pass() { 
+ ; }
+
+
+
+# 06 Change password for Flexget WebUI
+function _fg_pass() { 
+ ; }
+
+
+# 07 Reset Flood authorization
+function _flood_reset() { 
+ ; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 08 Enable root login
+function _enable_root_login() { sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\nRoot login enabled\n' ; }
+
+
+
+
+
+
+
+
+
+
+
+function _askpassword() {
+
+local password1
+local password2
+
+exec 3>&1 >/dev/tty
+
+if [[ $ANPASS = "" ]]; then
+
+    while [ -z $localpass ] ; do
+
+        read -ep "${jiacu}Enter the password: ${blue}" password1
+
+        if [ -z $password1 ]; then
+
+            localpass=$(genpasswd)
+            echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
+
+        elif [ ${#password1} -lt 8 ]; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
+
+        else
+
+            while [[ $password2 = "" ]]; do
+                read -ep "${jiacu}Enter the new password again: ${blue}" password2
+            done
+
+            if [ $password1 != $password2 ]; then
+                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
+            else
+                localpass=$password1
+            fi
+
+        fi
+
+    done
+
+    ANPASS=$localpass
+    exec >&3-
+    echo
+  # return $exitvalue
+
+else
+
+    echo -e "${bold}Password sets to ${blue}$ANPASS${normal}\n"
+
+fi ; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
