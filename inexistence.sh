@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.5
-INEXISTENCEDATE=2018.05.08
+INEXISTENCEDATE=2018.05.11
 # --------------------------------------------------------------------------------
 
 
@@ -2139,6 +2139,7 @@ openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb
 
 [[ -e /etc/php5/fpm/php.ini ]] && sed -i 's/^.*memory_limi.*/memory_limit = 512M/' /etc/php5/fpm/php.ini
 [[ -e /etc/php/7.0/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.0/fpm/php.ini
+[[ -e /etc/php/7.2/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.2/fpm/php.ini
 
 # Preparation for rtorrent_fast_resume.pl
 cd ; wget http://search.cpan.org/CPAN/authors/id/I/IW/IWADE/Convert-Bencode_XS-0.06.tar.gz
