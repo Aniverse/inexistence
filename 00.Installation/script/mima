@@ -40,6 +40,7 @@ while true; do
 done
 [[ $RANDOM == 1 ]] && ANPASS=$(genpasswd)
 # --------------------------------------------------------------------------------
+local_packages=/etc/inexistence/00.Installation
 inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
 INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
 INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
@@ -47,20 +48,20 @@ tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut
 ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
 # --------------------------------------------------------------------------------
 
-
+#没安装的显示红色，安装了的显示绿色
 
 # 00. Main menu
 function _main_menu() {
 
-  echo -e "${green}(01) ${jiacu}Change ALL the passwords (Include SSH)"
-  echo -e "${green}(02) ${jiacu}Change password for Transmission WebUI"
-  echo -e "${green}(03) ${jiacu}Change password for qBittorrent WebUI"
-  echo -e "${green}(04) ${jiacu}Change password for Deluge WebUI"
-  echo -e "${green}(05) ${jiacu}Change password for ruTorrent"
-  echo -e "${green}(06) ${jiacu}Change password for Flexget WebUI"
-  echo -e "${green}(07) ${jiacu}Reset Flood authorization"
-  echo -e "${green}(08) ${jiacu}Enable root login"
-  echo -e "${green}(09) ${jiacu}Exit"
+  echo -e "${green}${bold}(01) ${jiacu}Change ALL the passwords (Include SSH)${normal}"
+  echo -e "${green}${bold}(02) ${jiacu}Change password for Transmission WebUI${normal}"
+  echo -e "${green}${bold}(03) ${jiacu}Change password for qBittorrent WebUI${normal}"
+  echo -e "${green}${bold}(04) ${jiacu}Change password for Deluge WebUI${normal}"
+  echo -e "${green}${bold}(05) ${jiacu}Change password for ruTorrent${normal}"
+  echo -e "${green}${bold}(06) ${jiacu}Change password for Flexget WebUI${normal}"
+  echo -e "${green}${bold}(07) ${jiacu}Reset Flood authorization${normal}"
+  echo -e "${green}${bold}(08) ${jiacu}Enable root login"
+  echo -e "${green}${bold}(09) ${jiacu}Exit"
   echo -e "${normal}"
 
   echo -e "注意 ${normal} To reset password the script will force restart the clients, resume data may be lost!"
@@ -112,30 +113,50 @@ esac ; }
 
 
 
+# 02 Change ALL the passwords (Include SSH)
+function _password_all() {
+
+
+
+_tr_pass
+_qb_pass
+_de_pass
+_rut_pass
+_fg_pass
+_flood_reset
+{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1
+{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1
+}
 
 
 
 
 # 02 Change password for Transmission WebUI
 function _tr_pass() {
+systemctl stop transmission
+sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
+systemctl start transmission ; }
 
- ; }
 
 
 # 03 Change password for qBittorrent WebUI
 function _qb_pass() {
-QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
-sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
-sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf
- ; }
+systemctl stop qbittorrent
+QBPASS=$(  echo -n "$ANPASS" | md5sum | cut -f1 -d' '  )
+sed -i "s/.*Password_ha1.*/WebUI\\\Password_ha1=@ByteArray(${QBPASS})/" /root/.config/qBittorrent/qBittorrent.conf
+systemctl start qbittorrent ; }
+
 
 
 # 04 Change password for Deluge WebUI
 function _de_pass() {
+systemctl stop deluged
+systemctl stop deluge-web
 echo "${ANUSER}:${ANPASS}:10" > /root/.config/deluge/auth
 sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /root/.config/deluge/web.conf
 sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /root/.config/deluge/web.conf
-}
+systemctl start deluged
+systemctl start deluge-web ; }
 
 
 
@@ -163,31 +184,11 @@ systemctl start flood ; }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # 08 Enable root login
 function _enable_root_login() { sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\nRoot login enabled\n' ; }
 
 
-
-
-
-
-
-
-
-
-
+# 08 Ask password
 function _askpassword() {
 
 local password1
@@ -236,6 +237,14 @@ else
     echo -e "${bold}Password sets to ${blue}$ANPASS${normal}\n"
 
 fi ; }
+
+
+
+
+
+
+
+
 
 
 
