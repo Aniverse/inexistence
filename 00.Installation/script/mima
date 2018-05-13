@@ -53,7 +53,8 @@ ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.'
 # 00. Main menu
 function _main_menu() {
 
-  echo -e "${green}${bold}(01) ${jiacu}Change ALL the passwords (Include SSH)${normal}"
+  echo -e "${green}${bold}(01) ${jiacu}Change ALL the passwords${normal}"
+  echo -e "${green}${bold}(02) ${jiacu}Change password for SSH /FTP"
   echo -e "${green}${bold}(02) ${jiacu}Change password for Transmission WebUI${normal}"
   echo -e "${green}${bold}(03) ${jiacu}Change password for qBittorrent WebUI${normal}"
   echo -e "${green}${bold}(04) ${jiacu}Change password for Deluge WebUI${normal}"
@@ -61,7 +62,7 @@ function _main_menu() {
   echo -e "${green}${bold}(06) ${jiacu}Change password for Flexget WebUI${normal}"
   echo -e "${green}${bold}(07) ${jiacu}Reset Flood authorization${normal}"
   echo -e "${green}${bold}(08) ${jiacu}Enable root login"
-  echo -e "${green}${bold}(09) ${jiacu}Exit"
+  echo -e "${green}${bold}(99) ${jiacu}Exit"
   echo -e "${normal}"
 
   echo -e "注意 ${normal} To reset password the script will force restart the clients, resume data may be lost!"
@@ -71,67 +72,73 @@ function _main_menu() {
 
 # 00. Response
 function _read_response() {
-echo -e "\n${yellow}${bold}What would you like to do? (Press Enter to exit)" ; read response
+echo -e "\n${yellow}${bold}What would you like to do? (Press ${bailvse}Enter${normal}${bold} to exit)${normal}" ; read response
 
 case $response in
-    1 | 01) # Change ALL the passwords (Include SSH)
+    1 | 01) # Change ALL the passwords
             _askpassword
             _password_all ;;
-    2 | 02) # Change password for Transmission WebUI
+    2 | 02) # Change password for SSH /FTP
+            _askpassword
+            _ssh_pass
+            _read_response ;;
+    3 | 03) # Change password for Transmission WebUI
             _askpassword
             _tr_pass
             _read_response ;;
-    3 | 03) # Change password for qBittorrent WebUI
+    4 | 04) # Change password for qBittorrent WebUI
             _askpassword
             _qb_pass
             _read_response ;;
-    4 | 04) # Change password for Deluge WebUI
+    5 | 05) # Change password for Deluge WebUI
             _askpassword
             _de_pass
             _read_response ;;
-    5 | 05) # Change password for ruTorrent
+    6 | 06) # Change password for ruTorrent
             _askpassword
             _rut_pass
             _read_response ;;
-    6 | 06) # Change password for Flexget WebUI
+    7 | 07) # Change password for Flexget WebUI
             _askpassword
             _fg_pass
             _read_response ;;
-    7 | 07) # Reset Flood authorization
+    8 | 08) # Reset Flood authorization
             _askpassword
             _flood_reset
             _read_response ;;
-    8 | 08) # Enable root login
-            _askpassword
+    9 | 09) # Enable root login
             _enable_root_login
             _read_response ;;
-    9 | 09 | "") clear; exit 0 ;;
-    *) clear; exit 0 ;;
+
+        99) clear; exit 0 ;;
+         *) clear; exit 0 ;;
 esac ; }
 
 
 
 
 
-# 02 Change ALL the passwords (Include SSH)
+# 01 Change ALL the passwords
 function _password_all() {
-
-
-
+_ssh_pass
 _tr_pass
 _qb_pass
 _de_pass
 _rut_pass
 _fg_pass
 _flood_reset
-{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1
-{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1
 }
 
 
 
+# 02 Change password for SSH /FTP
+function _ssh_pass() {
+{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1
+{ echo -ne '$ANPASS\n$ANPASS\n' | passwd root ; } >/dev/null 2>&1 ; }
 
-# 02 Change password for Transmission WebUI
+
+
+# 03 Change password for Transmission WebUI
 function _tr_pass() {
 systemctl stop transmission
 sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
@@ -139,7 +146,7 @@ systemctl start transmission ; }
 
 
 
-# 03 Change password for qBittorrent WebUI
+# 04 Change password for qBittorrent WebUI
 function _qb_pass() {
 systemctl stop qbittorrent
 QBPASS=$(  echo -n "$ANPASS" | md5sum | cut -f1 -d' '  )
@@ -148,7 +155,7 @@ systemctl start qbittorrent ; }
 
 
 
-# 04 Change password for Deluge WebUI
+# 05 Change password for Deluge WebUI
 function _de_pass() {
 systemctl stop deluged
 systemctl stop deluge-web
@@ -160,13 +167,13 @@ systemctl start deluge-web ; }
 
 
 
-# 05 Change password for ruTorrent
+# 06 Change password for ruTorrent
 function _rut_pass() {
 }
 
 
 
-# 06 Change password for Flexget WebUI
+# 07 Change password for Flexget WebUI
 function _fg_pass() { 
 flexget web passwd $ANPASS >/tmp/flex.pass.output 2>&1
 rm -f /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
@@ -175,7 +182,7 @@ rm -f /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
 }
 
 
-# 07 Reset Flood authorization
+# 08 Reset Flood authorization
 # https://github.com/jfurrow/flood/wiki/F.A.Q.#i-forgot-my-password-how-can-i-recover-it
 function _flood_reset() { 
 systemctl stop flood
@@ -184,11 +191,12 @@ systemctl start flood ; }
 
 
 
-# 08 Enable root login
+# 09 Enable root login
 function _enable_root_login() { sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\nRoot login enabled\n' ; }
 
 
-# 08 Ask password
+
+# 00 Ask password
 function _askpassword() {
 
 local password1
