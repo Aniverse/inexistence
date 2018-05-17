@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.5
-INEXISTENCEDATE=2018.05.11
+INEXISTENCEDATE=2018.05.17
 # --------------------------------------------------------------------------------
 
 
@@ -353,12 +353,13 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
-# serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
-  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}' )
+  serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
+# serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
+# serveripv4=$(ip route get 8.8.8.8 | awk '{print $3}' )
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ; }
+  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' ) ; }
 
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
@@ -2698,7 +2699,7 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,137!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,140!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
 
