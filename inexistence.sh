@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.5
-INEXISTENCEDATE=2018.05.17
+INEXISTENCEDATE=2018.05.20
 # --------------------------------------------------------------------------------
 
 
@@ -539,6 +539,7 @@ function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Z
 
 
 # 询问用户名。检查用户名是否有效的功能以后再做
+# 2018.05.20 转换成小写
 
 function _askusername(){ clear
 
@@ -555,7 +556,8 @@ if [[ $ANUSER = "" ]]; then
             read -ep "${bold}Enter username: ${blue}" answerusername
         done
 
-        addname="${answerusername}"
+        addname=`  echo $answerusername | tr 'A-Z' 'a-z'  `
+
         echo -n "${normal}${bold}Confirm that username is ${blue}${answerusername}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
         read  answer
@@ -572,6 +574,7 @@ if [[ $ANUSER = "" ]]; then
 
 else
 
+    ANUSER=`  echo $ANUSER | tr 'A-Z' 'a-z'  `
     echo -e "${bold}Username sets to ${blue}$ANUSER${normal}\n"
 
 fi ; }
@@ -1571,7 +1574,7 @@ rm -rf /etc/inexistence2
 if id -u ${ANUSER} >/dev/null 2>&1; then
     echo;echo "${ANUSER} already exists";echo
 else
-    adduser --gecos "" ${ANUSER} --disabled-password
+    adduser --gecos "" ${ANUSER} --disabled-password --force-badname
     echo "${ANUSER}:${ANPASS}" | sudo chpasswd
 fi
 
