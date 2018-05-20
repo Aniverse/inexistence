@@ -595,7 +595,7 @@ while [[ $confirm_name == false ]]; do
 
     while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
         reinput_name=false
-        read -ep "${bold}Enter username: ${blue}" answerusername
+        read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
         validate_username $answerusername
     done
 
@@ -631,7 +631,7 @@ if [[ $ANPASS = "" ]]; then
     while [ -z $localpass ]; do
 
       # echo -n "${bold}Enter the password: ${blue}" ; read -e password1
-        read -ep "${jiacu}Enter the password: ${blue}" password1
+        read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
 
         if [ -z $password1 ]; then
 
@@ -646,7 +646,7 @@ if [[ $ANPASS = "" ]]; then
         else
 
             while [[ $password2 = "" ]]; do
-                read -ep "${jiacu}Enter the new password again: ${blue}" password2
+                read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
             done
 
             if [ $password1 != $password2 ]; then
