@@ -9,8 +9,8 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.5.7
-INEXISTENCEDATE=2018.05.20
+INEXISTENCEVER=1.0.6
+INEXISTENCEDATE=2018.05.20.5
 # --------------------------------------------------------------------------------
 
 
@@ -537,7 +537,7 @@ done ; }
 function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 
 
-# 检查用户名的有效性，抄袭自：https://github.com/Azure/azure-devops-utils
+# 检查用户名的有效性，抄自：https://github.com/Azure/azure-devops-utils
 function validate_username() {
   ANUSER="$1" ; local min=1 ; local max=32
   # This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
@@ -616,7 +616,9 @@ done ; echo ; }
 
 
 
-# 询问密码。检查密码是否足够复杂的功能以后再做（需要满足 Flexget WebUI 密码复杂度的要求）
+
+# 一定程度上的密码复杂度检测：https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator
+# 询问密码。目前的复杂度判断还不够 Flexget 的程度，但总比没有强……
 
 function _askpassword() {
 
@@ -636,13 +638,29 @@ if [[ $ANPASS = "" ]]; then
 
         if [ -z $password1 ]; then
 
-          # exitvalue=1
-            localpass=$(genpasswd)
+            localpass=$(genpasswd) ; # exitvalue=1
             echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
 
+        # 长度至少为 8 位
         elif [ ${#password1} -lt 8 ]; then
 
-            echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
+            echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
+
+        # 至少有 1 位数字
+        elif ! echo "$password1" | grep -q '[0-9]'; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
+
+        # 排除 YYYYmmdd 的时间格式
+        # 吐槽下，用 Shell 这么搞很蛋疼，应该考虑别的实现方式……
+        elif ! echo "$password1" | grep -qE "[1-9][0-9]{3}(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])"; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password should avoid dates and years${normal}" && continue
+
+        # 至少有 1 位字母，无论大小还是小写
+        elif ! echo "$UserPW" | grep -q '[a-z][A-Z]'; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letters${normal}" && continue
 
         else
 
@@ -661,9 +679,7 @@ if [[ $ANPASS = "" ]]; then
     done
 
     ANPASS=$localpass
-    exec >&3-
-    echo
-  # return $exitvalue
+    exec >&3- ; echo ; # return $exitvalue
 
 else
 
