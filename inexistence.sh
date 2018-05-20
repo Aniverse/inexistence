@@ -548,7 +548,7 @@ function validate_username() {
       echo -e "${CW} The username must be between $min and $max characters${normal}"
       username_valid=false
   elif ! [[ "$ANUSER" =~ ^[a-z][-a-z0-9_]*$ ]]; then
-      echo -e "${CW} The username must contain only lowercase letters, numbers and underscores and starts with a letter${normal}"
+      echo -e "${CW} The username must contain only lowercase letters, digits, underscores and starts with a letter${normal}"
       username_valid=false
   elif [[ "$reserved_names" =~ " $ANUSER " ]]; then
       echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
@@ -681,8 +681,8 @@ function _askaptsource() {
 
 while [[ $aptsources = "" ]]; do
 
-#   read -ep "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-    echo -ne "${bold}${yellow}Would you like to change sources list ?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+#   read -ep "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " responce
+    echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
 
     case $responce in
         [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
