@@ -9,7 +9,7 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.5
+INEXISTENCEVER=1.0.5.7
 INEXISTENCEDATE=2018.05.20
 # --------------------------------------------------------------------------------
 
@@ -573,7 +573,7 @@ if [[ $username_valid == empty ]]; then
 
 elif [[ $username_valid == false ]]; then
 
-    echo -e "${JG} The preset username doesn't pass the username check, please set a new username"
+  # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
     _input_username
 
 elif [[ $username_valid == true ]]; then
@@ -586,7 +586,7 @@ fi ; }
 
 
 # 录入用户名
-function _input_username(){ clear
+function _input_username(){
 
 local answerusername ; local reinput_name
 confirm_name=false
