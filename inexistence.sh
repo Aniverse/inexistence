@@ -558,7 +558,7 @@ if [[ $ANUSER = "" ]]; then
 
         addname=`  echo $answerusername | tr 'A-Z' 'a-z'  `
 
-        echo -n "${normal}${bold}Confirm that username is ${blue}${answerusername}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
         read  answer
         case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
