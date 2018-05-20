@@ -501,4 +501,4 @@ https://tieba.baidu.com/p/5532509017
 https://tieba.baidu.com/p/5158974574  
 https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade  
 https://github.com/Azure/azure-devops-utils  
-
+https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator  
