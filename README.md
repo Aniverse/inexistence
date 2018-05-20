@@ -500,5 +500,5 @@ https://tieba.baidu.com/p/5536354634
 https://tieba.baidu.com/p/5532509017  
 https://tieba.baidu.com/p/5158974574  
 https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade  
-https://blog.csdn.net/loveaborn/article/details/17269645  
+https://github.com/Azure/azure-devops-utils  
 
