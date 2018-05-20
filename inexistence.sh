@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.20.5
+INEXISTENCEDATE=2018.05.20.6
 # --------------------------------------------------------------------------------
 
 
@@ -650,12 +650,6 @@ if [[ $ANPASS = "" ]]; then
         elif ! echo "$password1" | grep -q '[0-9]'; then
 
             echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
-
-        # 排除 YYYYmmdd 的时间格式
-        # 吐槽下，用 Shell 这么搞很蛋疼，应该考虑别的实现方式……
-        elif ! echo "$password1" | grep -qE "[1-9][0-9]{3}(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])"; then
-
-            echo "${bold}${red}ERROR${normal} ${bold}Password should avoid dates and years${normal}" && continue
 
         # 至少有 1 位字母，无论大小还是小写
         elif ! echo "$UserPW" | grep -q '[a-z][A-Z]'; then
