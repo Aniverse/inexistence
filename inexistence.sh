@@ -599,6 +599,7 @@ while [[ $confirm_name == false ]]; do
         validate_username $answerusername
     done
 
+    addname=$answerusername
     echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
 
     read answer
