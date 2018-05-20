@@ -89,7 +89,8 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
 heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}
 jiacu=${normal}${bold}
-shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm) ; }
+shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}" ; }
 _colors
 # --------------------------------------------------------------------------------
 # 增加 swap
@@ -521,7 +522,6 @@ echo ; }
 # --------------------- 录入账号密码部分 --------------------- #
 
 # 向用户确认信息，Yes or No
-
 function _confirmation(){
 local answer
 while true ; do
@@ -534,50 +534,82 @@ done ; }
 
 
 # 生成随机密码，genln=密码长度
-
 function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 
 
-# 询问用户名。检查用户名是否有效的功能以后再做
-# 2018.05.20 转换成小写
+# 检查用户名的有效性，抄袭自：https://github.com/Azure/azure-devops-utils
+function validate_username() {
+  ANUSER="$1" ; local min=1 ; local max=32
+  # This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
+  local reserved_names=" adm admin audio backup bin cdrom crontab daemon dialout dip disk fax floppy fuse games gnats irc kmem landscape libuuid list lp mail man messagebus mlocate netdev news nobody nogroup operator plugdev proxy root sasl shadow src ssh sshd staff sudo sync sys syslog tape tty users utmp uucp video voice whoopsie www-data "
+  if [ -z "$ANUSER" ]; then
+      username_valid=empty
+  elif [ ${#ANUSER} -lt $min ] || [ ${#username} -gt $max ]; then
+      echo -e "${CW} The username must be between $min and $max characters${normal}"
+      username_valid=false
+  elif ! [[ "$ANUSER" =~ ^[a-z][-a-z0-9_]*$ ]]; then
+      echo -e "${CW} The username must contain only lowercase letters, numbers and underscores and starts with a letter${normal}"
+      username_valid=false
+  elif [[ "$reserved_names" =~ " $ANUSER " ]]; then
+      echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
+      username_valid=false
+  else
+      username_valid=true
+  fi
+}
 
+
+
+# 询问用户名
 function _askusername(){ clear
 
-if [[ $ANUSER = "" ]]; then
+validate_username $ANUSER
 
-    echo "${bold}${yellow}The script needs a username${jiacu}"
-    echo "This will be your primary user. It can be an existing user or a new user ${normal}"
+if [[ $username_valid == empty ]]; then
 
-    confirm_name=1
-    while [[ $confirm_name = 1 ]]; do
+    echo -e "${bold}${yellow}The script needs a username${jiacu}"
+    echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
+    _input_username
 
-        while [[ $answerusername = "" ]] || [[ $reinput_name = 1 ]]; do
-            reinput_name=0
-            read -ep "${bold}Enter username: ${blue}" answerusername
-        done
+elif [[ $username_valid == false ]]; then
 
-        addname=`  echo $answerusername | tr 'A-Z' 'a-z'  `
+    echo -e "${JG} The preset username doesn't pass the username check, please set a new username"
+    _input_username
 
-        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+elif [[ $username_valid == true ]]; then
 
-        read  answer
-        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=0 ;;
-                        [nN] | [nN][Oo]          ) reinput_name=1 ;;
-                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
-        esac
-
-        ANUSER=$addname
-
-    done
-
-    echo
-
-else
-
-    ANUSER=`  echo $ANUSER | tr 'A-Z' 'a-z'  `
+  # ANUSER=`  echo $ANUSER | tr 'A-Z' 'a-z'  `
     echo -e "${bold}Username sets to ${blue}$ANUSER${normal}\n"
 
 fi ; }
+
+
+
+# 录入用户名
+function _input_username(){ clear
+
+local answerusername ; local reinput_name
+confirm_name=false
+
+while [[ $confirm_name == false ]]; do
+
+    while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
+        reinput_name=false
+        read -ep "${bold}Enter username: ${blue}" answerusername
+        validate_username $answerusername
+    done
+
+    echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+
+    read answer
+    case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
+                    [nN] | [nN][Oo]          ) reinput_name=true ;;
+                    *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+    esac
+
+    ANUSER=$addname
+
+done ; echo ; }
 
 
 
@@ -587,10 +619,7 @@ fi ; }
 
 function _askpassword() {
 
-#local exitvalue=0
-local password1
-local password2
-
+local password1 ; local password2 ; #local exitvalue=0
 exec 3>&1 >/dev/tty
 
 if [[ $ANPASS = "" ]]; then
