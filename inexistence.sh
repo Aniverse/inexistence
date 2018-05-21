@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.21
+INEXISTENCEDATE=2018.05.21.2
 # --------------------------------------------------------------------------------
 
 
@@ -359,14 +359,14 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
 
-  echo -ne "  IPv4    : "
+  echo -ne "  IPv4      : "
   if [[ "${serveripv4}" ]]; then
       echo "${cyan}$serveripv4${normal}"
   else
       echo "${cyan}No Public IPv4 Address Found${normal}"
   fi
 
-  echo -ne "  IPv6    : "
+  echo -ne "  IPv6      : "
   if [[ "${serveripv6}" ]]; then
       echo "${cyan}$serveripv6${normal}"
   else
@@ -378,7 +378,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   [[ ! $cityyyy == "" ]] && echo -ne "$cityyyy, "
   [[ ! $regionn == "" ]] && echo -ne "$regionn, "
   [[ ! $country == "" ]] && echo -ne "$country"
-  [[ ! $ccoodde == "" ]] && echo -ne " / $ccoodde"
+# [[ ! $ccoodde == "" ]] && echo -ne " / $ccoodde"
   echo -e  "${normal}"
 
   echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
@@ -389,7 +389,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   echo -e  "  Kernel    : ${cyan}$kern${normal}"
   echo -e  "  Script    : ${cyan}$INEXISTENCEDATE${normal}"
 
-  echo -ne "  Virt    : "
+  echo -ne "  Virt      : "
   if [[ "${virtua}" ]]; then
       echo "${cyan}$virtua${normal}"
   else
