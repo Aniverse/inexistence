@@ -163,66 +163,6 @@ function _client_version_check(){
 ### 随机数 ###
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
-### 检查网站是否可以访问
-check_url() { if [[ `wget -S --spider --no-check-certificate -t1 -T6 $1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0; else return 1; fi ; }
-
-### 检查系统源是否可用 ###
-function _checkrepo1() {
-os_repo=0
-echo -e "\n${bold}Checking the web sites we will need are accessible${normal}"
-
-for i in $(cat /etc/apt/sources.list | grep "^deb http" | cut -d' ' -f2 | uniq ); do
-  echo -n $i": "
-  check_url $i && echo "${green}OK${normal}" || { echo "${bold}${red}FAIL${normal}"; os_repo=1; }
-done
-
-if [ $os_repo = 1 ]; then
-  echo "${bold}${baihongse}FAILED${normal} ${bold}Some of your $DISTRO mirrors are down, you need to fix it manually${normal}"
-fi
-}
-
-### 第三方源的网址 ###
-rt_url="http://rtorrent.net/downloads/"
-xmlrpc_url="https://github.com/Aniverse/xmlrpc-c"
-ru_url="https://github.com/Novik/ruTorrent"
-adl_url="https://github.com/autodl-community"
-inex_url="https://github.com/Aniverse/inexistence"
-qbt_url="https://github.com/qbittorrent/qBittorrent"
-de_url="http://download.deluge-torrent.org"
-lt_url="https://github.com/arvidn/libtorrent"
-rtinst_url="https://github.com/Aniverse/rtinst"
-libevent_url="https://github.com/libevent/libevent"
-tr_url="https://github.com/transmission/transmission"
-trweb_url="https://github.com/ronggang/transmission-web-control"
-rclone_url="https://downloads.rclone.org"
-
-### 检查第三方源是否可用 ###
-function _checkrepo2() {
-major_repo=0
-echo
-echo "Checking major 3rd party components"
-# echo -n ": "; check_url $_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}"; major_repo=1; }
-echo -n "Inexistence: "          ; check_url $inex_url     && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "qBittorrent: "          ; check_url $qbt_url      && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Deluge: "               ; check_url $de_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Libtorrent-rasterbar: " ; check_url $lt_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "rtinst Aniverse Mod: "  ; check_url $rtinst_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Rtorrent: "             ; check_url $rt_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "xmlrpc-c: "             ; check_url $xmlrpc_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "RuTorrent: "            ; check_url $ru_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Autodl-irssi: "         ; check_url $adl_url      && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "libevent: "             ; check_url $libevent_url && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Transmission: "         ; check_url $tr_url       && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "Transmission WebUI: "   ; check_url $trweb_url    && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo -n "rclone: "               ; check_url $rclone_url   && echo "${green}OK${normal}" || { echo "${red}FAIL${normal}" ; major_repo=1 ; }
-echo
-
-if [ $major_repo = 1 ]; then
-  echo "${bold}${baihongse}WARNING${normal} ${bold}Some of the repositories we need are not currently available"
-  echo "We will continue for now, but may not be able to finish${normal}"
-fi
-
-echo ; }
 
 ### 输入自己想要的软件版本 ###
 function _inputversion() {
@@ -260,39 +200,7 @@ spinner() {
 }
 
 # --------------------------------------------------------------------------------
-###   Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
-###   ("yakkety"|"xenial"|"wily"|"jessie"|"stretch"|"zesty"|"artful")
-# --------------------------------------------------------------------------------
 
-
-
-
-
-if [[ $DISABLE == 1 ]]; then clear ; echo "
-${heibaise}${bold}                                                                   ${normal}
-${heibaise}${bold}        :iLKW######Ef:                       ,fDKKEDj;::           ${normal}
-${heibaise}${bold}  #KE####j           f######f        tDW###Wf          ,W#######   ${normal}
-${heibaise}${bold}  ####j                   t#########EW#f                   #####   ${normal}
-${heibaise}${bold}  LW##                      ######KE#W                      ##WK   ${normal}
-${heibaise}${bold}    WG                      i###KG###i                      ##     ${normal}
-${heibaise}${bold}    WK                      f#t    ;#i                      WE     ${normal}
-${heibaise}${bold}    i#                      ##      ##                      #.     ${normal}
-${heibaise}${bold}     W                     D#.      :#E                     W      ${normal}
-${heibaise}${bold}     KL                   DW;        f#i                   fL      ${normal}
-${heibaise}${bold}      W,                 GWi          tW:                  #       ${normal}
-${heibaise}${bold}      :KW              ,#W              W#                #,       ${normal}
-${heibaise}${bold}         WW#W:     ,K#Kj                  WWD.        ,#Kf         ${normal}
-${heibaise}${bold}             .:W#:,                           :ftGWEf;             ${normal}
-${heibaise}${bold}                                                                   ${normal}
-
-###################################################################
-#                                                                 #
-#                       ${green}${bold}TOO YOUNG TOO SIMPLE  ${normal}                    #
-#                                                                 #
-#                   ${green}${bold}Please read README on GitHub${normal}                  #
-#                                                                 #
-###################################################################
-" ; exit 1 ; fi ; clear
 
 
 
