@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.21.7
+INEXISTENCEDATE=2018.05.21.8
 # --------------------------------------------------------------------------------
 
 
@@ -248,7 +248,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 
 
-  echo "${bold}Checking your server's public IPv4 address ...${normal}"
+  echo -e "\n${bold}Checking your server's public IPv4 address ...${normal}"
 # serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
 # serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
   serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
@@ -311,22 +311,25 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   tram=$( free -m | awk '/Mem/ {print $2}' )
   uram=$( free -m | awk '/Mem/ {print $3}' )
 
+  # 有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包的情况
+
+  [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7
   QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
+  QB_latest_ver=4.1.0
   QB_latest_ver=` wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 `
-# QB_latest_ver=4.1.0
+
+  [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
-# DE_github_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
+  DE_latest_ver=1.3.15
   DE_latest_ver=` wget -qO- https://dev.deluge-torrent.org/wiki/ReleaseNotes | grep wiki/ReleaseNotes | grep -Eo "[12]\.[0-9.]+" | sed 's/">/ /' | awk '{print $1}' | head -n1 `
-# DE_latest_ver=1.3.15
-  PYLT_repo_ver=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | head -n1 `
-# DELT_PPA_ver=1.0.11
 
-  DELT_PPA_ver=` wget -qO- https://launchpad.net/~deluge-team/+archive/ubuntu/ppa | grep -B1 xenial | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | tail -n1 `
-# QBLT_PPA_ver=` wget -qO- https://launchpad.net/~qbittorrent-team/+archive/ubuntu/qbittorrent-stable | grep -B1 xenial | grep -Eo "[012]\.[0-9.]+\.[0-9.]+" | tail -n1 `
+# DE_github_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
 
+  [[ $CODENAME == bionic ]] && TR_repo_ver=2.92 ; [[ $CODENAME == ]] && TR_repo_ver=2.84 ; [[ $CODENAME == jessie ]] && TR_repo_ver=2.84 ; [[ $CODENAME == stretch ]] && TR_repo_ver=2.92
   TR_repo_ver=` apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -n1 `
+  TR_latest_ver=2.94
   TR_latest_ver=` wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -n1 `
-# TR_latest_ver=2.94
+
 
   clear
 
@@ -377,10 +380,6 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 echo
 echo -e "${bold}For more information about this script, please refer the README on GitHub"
 echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ ! $ForceYes == 1 ]] && read input
-
-
-### fi
-
 
 }
 
@@ -1549,7 +1548,6 @@ MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
 QBVERSION=${QBVERSION}
 DEVERSION=${DEVERSION}
-DELTVERSION=${DELTVERSION}
 RTVERSION=${RTVERSION}
 TRVERSION=${TRVERSION}
 FLEXGET=${InsFlex}
