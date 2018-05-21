@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.21.8
+INEXISTENCEDATE=2018.05.21.9
 # --------------------------------------------------------------------------------
 
 
@@ -258,12 +258,12 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
 
   wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json >~/ipapi 2>&1
-  ccoodde=$( cat /tmp/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
-  country=$( cat /tmp/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
-  regionn=$( cat /tmp/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
-  cityyyy=$( cat /tmp/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
-  isppppp=$( cat /tmp/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-  asnnnnn=$( cat /tmp/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+  ccoodde=$( cat ~/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+  country=$( cat ~/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+  regionn=$( cat ~/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+  cityyyy=$( cat ~/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+  isppppp=$( cat ~/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+  asnnnnn=$( cat ~/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
   [[ $cityyyy == Singapore ]] && unset cityyyy
   [[ $isppppp == "" ]] && isp="No ISP detected"
   [[ $asnnnnn == "" ]] && isp="No ASN detected"
