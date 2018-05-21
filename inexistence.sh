@@ -10,7 +10,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.20.6
+INEXISTENCEDATE=2018.05.21
 # --------------------------------------------------------------------------------
 
 
@@ -354,14 +354,23 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 
   echo "${bold}Checking your server's public IPv4 address ...${normal}"
-  serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
+# serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
 # serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
-# serveripv4=$(ip route get 8.8.8.8 | awk '{print $3}' )
+  serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' ) ; }
+  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
 
+  resultt=$( wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json )
+  ccoodde=$( echo $resultt | awk -F '"' '{print $20}' )
+  country=$( echo $resultt | awk -F '"' '{print $24}' )
+  regionn=$( echo $resultt | awk -F '"' '{print $12}' )
+  cityyyy=$( echo $resultt | awk -F '"' '{print $8}'  )
+  isppppp=$( echo $resultt | awk -F '"' '{print $66}' )
+  asnnnnn=$( echo $resultt | awk -F '"' '{print $62}' )
+  [[ $isppppp == "" ]] && isp="No ISP detected"
+  [[ $asnnnnn == "" ]] && isp="No ASN detected"
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
 
@@ -372,6 +381,9 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 # wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n1 )
+
+
+
 
 
   echo "${bold}Checking your server's specification ...${normal}"
@@ -453,13 +465,21 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
       echo "${cyan}No IPv6 Address Found${normal}"
   fi
 
-  echo "  CPU     : ${cyan}$CPUNum$cname${normal}"
-  echo "  Cores   : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
-  echo "  Mem     : ${cyan}$tram MB ($uram MB Used)${normal}"
-  echo "  Disk    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-  echo "  OS      : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
-  echo "  Kernel  : ${cyan}$kern${normal}"
-  echo "  Script  : ${cyan}$INEXISTENCEDATE${normal}"
+  echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
+  echo -ne "  Location  : ${cyan}"
+  [[ ! $cityyyy == "" ]] && echo -ne "$cityyyy, "
+  [[ ! $regionn == "" ]] && echo -ne "$regionn, "
+  [[ ! $country == "" ]] && echo -ne "$country"
+  [[ ! $ccoodde == "" ]] && echo -ne " / $ccoodde"
+  echo -e  "${normal}"
+
+  echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
+  echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
+  echo -e  "  Mem       : ${cyan}$tram MB ($uram MB Used)${normal}"
+  echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
+  echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
+  echo -e  "  Kernel    : ${cyan}$kern${normal}"
+  echo -e  "  Script    : ${cyan}$INEXISTENCEDATE${normal}"
 
   echo -ne "  Virt    : "
   if [[ "${virtua}" ]]; then
@@ -1622,17 +1642,20 @@ export TZ="/usr/share/zoneinfo/Asia/Shanghai"
 
 cat>>/etc/inexistence/01.Log/installed.log<<EOF
 如果要截图请截完整点，包含下面所有信息
-CPU     : $cname"
-Cores   : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
-Mem     : $tram MB ($uram MB Used)"
-Disk    : $disk_total_size GB ($disk_used_size GB Used)
-OS      : $DISTRO $osversion $CODENAME ($arch)
-Kernel  : $kern
+CPU        : $cname"
+Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
+Mem        : $tram MB ($uram MB Used)"
+Disk       : $disk_total_size GB ($disk_used_size GB Used)
+OS         : $DISTRO $osversion $CODENAME ($arch)
+Kernel     : $kern
+ASN & ISP  : $asnnnnn, $isppppp
+Location   : $cityyyy, $regionn, $country / $ccoodde
 #################################
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
 MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+HOMEUSER=$(ls /home)
 #################################
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
