@@ -580,7 +580,7 @@ if [[ $ANPASS = "" ]]; then
             echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
 
         # 至少有 1 位字母，无论大小还是小写
-        elif ! echo "$password1" | grep -q '[a-z][A-Z]'; then
+        elif ! echo "$password1" | grep -q '[a-zA-Z]'; then
 
             echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letters${normal}" && continue
 
