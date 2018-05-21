@@ -232,32 +232,28 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 - **Version**  
 升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本  
 
-- **Seedbox**  
+- **Box**  
 考虑把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`banben` 中需要安装的时候直接调用  
-这个思路是从 QuickBox 那边想到的，最后的命令大概这样子  
-`seedbox install vnc`、`seedbox uninstall qbittorrent`、`seedbox restart deluge`  
+这个思路是从 QuickBox 那边学到的，最后的命令大概这样子  
+`box install vnc`、`box purge qbittorrent`  
 
 #### Under Consideration
 
 - **rTorrent installation rewrite**  
 说是 rewrite 其实我就是想把 `rtinst` 整合到 `inexistence` 体系里  
 
-- **不使用 root 运行**  
-将 Tr/De/Qb 的运行用户从 root 换成普通用户  
-不过本人习惯是用 root，所以 emmm …… 并且这样的话 mingling 也要重写，所以我很可能不会做  
-
+- **Multi-user**  
+1. 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
+2. 多用户模式，可以直接 adduser 并设置好 de/qb/rt/tr/flexget  
 
 #### Known Issues
 
 - **Debian 下 VNC 可能连不上**  
 求大佬们赐教  
-- **没有检查用户输入的账号、密码的有效性**  
-什么时候学好了正则再说  
-
 
 #### 碎碎念
 
-其实 `mingling`、`seedbox` 这些脚本做得再好，对于一般人而言也没有 QuickBox 那个 Dashboard 好，毕竟那个不需要用 SSH  
+其实 `mingling`、`box` 这些脚本做得再好，对于一般人而言也没有 QuickBox 那个 Dashboard 好，毕竟那个不需要用 SSH  
 
 
 
