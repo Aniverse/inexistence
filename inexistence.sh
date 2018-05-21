@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.21.5
+INEXISTENCEDATE=2018.05.21.6
 # --------------------------------------------------------------------------------
 
 
@@ -594,7 +594,7 @@ if [[ $ANPASS = "" ]]; then
             done
 
             if [ $password1 != $password2 ]; then
-                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
+                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
             else
                 localpass=$password1
             fi
