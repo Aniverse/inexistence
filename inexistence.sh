@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.21.6
+INEXISTENCEDATE=2018.05.21.7
 # --------------------------------------------------------------------------------
 
 
@@ -239,27 +239,11 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 # rTorrent 是否只能安装 feature-bind branch
 [[ $CODENAME =~ (stretch|bionic) ]] && rtorrent_dev=1
 
-
-### if [[ ! $distro_up == Yes ]]; then
-
-
-
-
-
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && [[ ! $distro_up == Yes ]] && _oscheck
 
-# 其实我也不知道 32位 系统行不行…… 也不知道这个能不能判断是不是 ARM
-# if [[ ! $lbit = 64 ]]; then
-#   echo '${title}${bold}Naive! Only 64bits system is supported${normal}'
-#   echo ' Exiting...'
-#   exit 1
-# fi
-
-
-
-# 装 wget 以防万一，不屏蔽错误输出
-if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget >> /dev/null ; fi
+# 装 wget 以防万一（虽然脚本一般情况下就是 wget 下来的……）
+if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget ; fi
 [[ ! $? -eq 0 ]] && echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID
 
 
@@ -273,15 +257,17 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
   isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
   isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
 
-  resultt=$( wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json )
-  ccoodde=$( echo $resultt | awk -F '"' '{print $20}' )
-  country=$( echo $resultt | awk -F '"' '{print $24}' )
-  regionn=$( echo $resultt | awk -F '"' '{print $12}' )
-  cityyyy=$( echo $resultt | awk -F '"' '{print $8}'  )
-  isppppp=$( echo $resultt | awk -F '"' '{print $66}' )
-  asnnnnn=$( echo $resultt | awk -F '"' '{print $62}' )
+  wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json >~/ipapi 2>&1
+  ccoodde=$( cat /tmp/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+  country=$( cat /tmp/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+  regionn=$( cat /tmp/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+  cityyyy=$( cat /tmp/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+  isppppp=$( cat /tmp/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+  asnnnnn=$( cat /tmp/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+  [[ $cityyyy == Singapore ]] && unset cityyyy
   [[ $isppppp == "" ]] && isp="No ISP detected"
   [[ $asnnnnn == "" ]] && isp="No ASN detected"
+  rm -f ~/ipapi 2>&1
 
   echo "${bold}Checking your server's public IPv6 address ...${normal}"
 
@@ -296,22 +282,9 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
 
 
-
   echo "${bold}Checking your server's specification ...${normal}"
 
-
-# DISTRO=$(lsb_release -is)
-# RELEASE=$(lsb_release -rs)
-# CODENAME=$(lsb_release -cs)
-# SETNAME=$(lsb_release -rc)
-# relno=$(lsb_release -sr | cut -d. -f1)
   kern=$( uname -r )
-  kv1=$(uname -r | cut  -d. -f1)
-  kv2=$(uname -r | cut  -d. -f2)
-  kv3=$(echo $kv1.$kv2)
-  kv4=$(uname -r | cut  -d- -f1)
-  kv5=$(uname -r | cut  -d- -f2)
-  kv6=$(uname -r | cut  -d- -f3)
 
 # Virt-what
   wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
@@ -340,7 +313,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
   QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
   QB_latest_ver=` wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 `
-# QB_latest_ver=4.0.4
+# QB_latest_ver=4.1.0
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
 # DE_github_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
   DE_latest_ver=` wget -qO- https://dev.deluge-torrent.org/wiki/ReleaseNotes | grep wiki/ReleaseNotes | grep -Eo "[12]\.[0-9.]+" | sed 's/">/ /' | awk '{print $1}' | head -n1 `
@@ -1357,11 +1330,15 @@ echo ; }
 # --------------------- BBR 相关 --------------------- #
 
 # 检查是否已经启用BBR、BBR 魔改版
-function check_bbr_status() { bbrstatus=$(sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}')
-if [[ $bbrstatus =~ ("bbr"|"bbr_powered"|"nanqinlang"|"tsunami") ]]; then bbrinuse=Yes ; else bbrinuse=No ; fi ; }
+function check_bbr_status() { tcp_control=$(cat /proc/sys/net/ipv4/tcp_congestion_control)
+if [[ $tcp_control =~ (bbr|bbr_powered|nanqinlang|tsunami) ]]; then bbrinuse=Yes ; else bbrinuse=No ; fi ; }
 
-# 检查系统内核版本是否大于4.9
-function check_kernel_version() { if [[ $kv1 -ge 4 ]] && [[ $kv2 -ge 9 ]]; then bbrkernel=Yes ; else bbrkernel=No ; fi ; }
+# 检查理论上内核是否支持原版 BBR
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+function check_kernel_version() { kernel_vvv=$(uname -r | cut -d- -f1)
+if version_ge $kernel_vvv 4.9  ; then bbrkernel=Yes ; else bbrkernel=No ; fi }
+
+# [[ ` ls /lib/modules/\$(uname -r)/kernel/net/ipv4 | grep tcp_bbr.ko ` ]]
 
 # 询问是否安装BBR
 function _askbbr() { check_bbr_status
@@ -1560,7 +1537,7 @@ Disk       : $disk_total_size GB ($disk_used_size GB Used)
 OS         : $DISTRO $osversion $CODENAME ($arch)
 Kernel     : $kern
 ASN & ISP  : $asnnnnn, $isppppp
-Location   : $cityyyy, $regionn, $country / $ccoodde
+Location   : $cityyyy, $regionn, $country
 #################################
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
