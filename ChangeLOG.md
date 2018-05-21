@@ -15,6 +15,13 @@
 2. 查错信息里加入 `ls /home`  
 主要是检查是否存在多用户的情况（多用户某些情况下会出错）  
 3. 暂时移除一些目前不启用的功能  
+4. 更新了下 BBR 是否启用以及内核是否支持的检查方式  
+5. 默认的 IP 检查方式不使用 ifconfig  
+6. 先指定 repo、PPA 对应软件的版本号，再检查是否正确  
+有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包  
+
+`README 1.1.2`  
+1. 更新 To Do List、Under Consideration、Known Issues  
 
 
 
