@@ -4,11 +4,12 @@
 # Author: Aniverse
 #
 # 2018.05.24
-# 1.0.5.test
+# 1.0.6.test
 
 OutputLOG="/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt" # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
 SCLocation=/etc/inexistence/01.Log/SourceCodes
+LOCKLocation=/etc/inexistence/01.Log/Lock
 
 cat>>$OutputLOG<<EOF
 
@@ -96,7 +97,10 @@ EOF
 
 # make install
 checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1
-cp -f libtorrent-rasterb*.deb $DebLocation ; }
+
+cp -f libtorrent-rasterb*.deb $DebLocation
+touch $LOCKLocation/libtorrent-rasterbar.lock
+touch $LOCKLocation/libtorrent-rasterbar.compile.$branch.lock ; }
 
 
 
@@ -115,15 +119,19 @@ elif [[ $CODENAME == bionic ]]; then
     wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
 fi
 
-dpkg -i lt.deb >> $OutputLOG 2>&1 ; }
+dpkg -i lt.deb >> $OutputLOG 2>&1
+touch $LOCKLocation/libtorrent-rasterbar.lock
+touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 
 
 # Install from repository
 function _install_lt_apt() { echo -e "Install from repository\n" >> $OutputLOG 2>&1
-apt-get -y install libtorrent-rasterbar-dev python-libtorrent    >> $OutputLOG 2>&1 ; }
+apt-get -y install libtorrent-rasterbar-dev python-libtorrent    >> $OutputLOG 2>&1
+touch $LOCKLocation/libtorrent-rasterbar.lock
+touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
 
-mkdir -p $SCLocation $DebLocation
+mkdir -p $SCLocation $DebLocation $LOCKLocation
 cd       $SCLocation
 
 case $mode in
