@@ -4,13 +4,13 @@
 # Author: Aniverse
 #
 # 2018.05.24
-# 1.0.4.test
+# 1.0.5.test
 
 OutputLOG="/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt" # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
 SCLocation=/etc/inexistence/01.Log/SourceCodes
 
-cat>$OutputLOG<<EOF
+cat>>$OutputLOG<<EOF
 
 $(date "+%Y.%m.%d.%H.%M.%S")
 
@@ -81,7 +81,7 @@ echo -e "Install from source code \nbracnh $branch, version $version\n" >> $Outp
 git clone --depth=1 -b $branch --single-branch https://github.com/arvidn/libtorrent libtorrent-$version >> $OutputLOG 2>&1
 cd libtorrent-$version
 
-# 修改源码，不然 C++11 编译完后 Deluge 无法使用
+# https://github.com/qbittorrent/qBittorrent/issues/6383
 sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py
 
 ./autotool.sh >> $OutputLOG 2>&1
@@ -121,7 +121,7 @@ dpkg -i lt.deb >> $OutputLOG 2>&1 ; }
 
 # Install from repository
 function _install_lt_apt() { echo -e "Install from repository\n" >> $OutputLOG 2>&1
-apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1 ; }
+apt-get -y install libtorrent-rasterbar-dev python-libtorrent    >> $OutputLOG 2>&1 ; }
 
 mkdir -p $SCLocation $DebLocation
 cd       $SCLocation
