@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 # --------------------------------------------------------------------------------
-VER=0.1.0
-DATE=2018.05.11
+VER=0.1.2
+DATE=2018.05.24
 # --------------------------------------------------------------------------------
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -16,6 +16,7 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
 heibaise=${black}${on_white}; jiacu=${normal}${bold}
 shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 # --------------------------------------------------------------------------------
 # 生成 12 位随机密码
 function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
@@ -48,7 +49,7 @@ tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut
 ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
 # --------------------------------------------------------------------------------
 
-#没安装的显示红色，安装了的显示绿色
+# 尝试做成没安装的显示红色，安装了的显示绿色
 
 # 00. Main menu
 function _main_menu() {
@@ -58,15 +59,17 @@ function _main_menu() {
   echo -e "${green}${bold}(02) ${jiacu}Change password for Transmission WebUI${normal}"
   echo -e "${green}${bold}(03) ${jiacu}Change password for qBittorrent WebUI${normal}"
   echo -e "${green}${bold}(04) ${jiacu}Change password for Deluge WebUI${normal}"
-  echo -e "${green}${bold}(05) ${jiacu}Change password for ruTorrent${normal}"
+  echo -e "${green}${bold}(05) ${jiacu}Change password for ruTorrent & h5ai${normal}"
   echo -e "${green}${bold}(06) ${jiacu}Change password for Flexget WebUI${normal}"
   echo -e "${green}${bold}(07) ${jiacu}Reset Flood authorization${normal}"
   echo -e "${green}${bold}(08) ${jiacu}Enable root login"
   echo -e "${green}${bold}(99) ${jiacu}Exit"
   echo -e "${normal}"
 
-  echo -e "注意 ${normal} To reset password the script will force restart the clients, resume data may be lost!"
+  echo -e "${normal}ZY${normal} To reset password the script will force restart the clients, fast resume data may be lost!"
 }
+
+
 
 
 
@@ -94,7 +97,7 @@ case $response in
             _askpassword
             _de_pass
             _read_response ;;
-    6 | 06) # Change password for ruTorrent
+    6 | 06) # Change password for ruTorrent and h5ai
             _askpassword
             _rut_pass
             _read_response ;;
@@ -167,7 +170,7 @@ systemctl start deluge-web ; }
 
 
 
-# 06 Change password for ruTorrent
+# 06 Change password for ruTorrent and h5ai
 function _rut_pass() {
 }
 
@@ -199,34 +202,44 @@ function _enable_root_login() { sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_co
 # 00 Ask password
 function _askpassword() {
 
-local password1
-local password2
-
+local password1 ; local password2 ; #local exitvalue=0
 exec 3>&1 >/dev/tty
 
 if [[ $ANPASS = "" ]]; then
 
-    while [ -z $localpass ] ; do
+    while [ -z $localpass ]; do
 
-        read -ep "${jiacu}Enter the password: ${blue}" password1
+      # echo -n "${bold}Enter the password: ${blue}" ; read -e password1
+        read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
 
         if [ -z $password1 ]; then
 
-            localpass=$(genpasswd)
+            localpass=$(genpasswd) ; # exitvalue=1
             echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
 
+        # 长度至少为 8 位
         elif [ ${#password1} -lt 8 ]; then
 
-            echo "${bold}${red}ERROR${normal} ${bold}Password needs to be at least ${red}[8]${jiacu} chars long${normal}" && continue
+            echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
+
+        # 至少有 1 位数字
+        elif ! echo "$password1" | grep -q '[0-9]'; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
+
+        # 至少有 1 位字母，无论大小还是小写
+        elif ! echo "$password1" | grep -q '[a-zA-Z]'; then
+
+            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letters${normal}" && continue
 
         else
 
             while [[ $password2 = "" ]]; do
-                read -ep "${jiacu}Enter the new password again: ${blue}" password2
+                read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
             done
 
             if [ $password1 != $password2 ]; then
-                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}"
+                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
             else
                 localpass=$password1
             fi
@@ -236,9 +249,7 @@ if [[ $ANPASS = "" ]]; then
     done
 
     ANPASS=$localpass
-    exec >&3-
-    echo
-  # return $exitvalue
+    exec >&3- ; echo ; # return $exitvalue
 
 else
 
@@ -251,8 +262,8 @@ fi ; }
 
 
 
-
-
+_main_menu
+_read_response
 
 
 
