@@ -4,9 +4,9 @@
 # Author: Aniverse
 #
 # 2018.05.24
-# 1.0.2.untest
+# 1.0.3.test
 
-OutputLOG=" >> /etc/inexistence/01.Log/install_libtorrent_rasterbar.txt 2>&1" # OutputLOG=" >> /dev/null 2>&1"
+OutputLOG="/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt" # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
 SCLocation=/etc/inexistence/01.Log/SourceCodes
 
@@ -67,23 +67,23 @@ build-essential pkg-config autoconf automake libtool git checkinstall           
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
-zlib1g-dev $OutputLOG ; }
+zlib1g-dev >> $OutputLOG  2>&1 ; }
 
 
 
 # Install from source code
 function _install_lt_compile() {
 
-git clone --depth=1 -b $branch --single-branch https://github.com/arvidn/libtorrent libtorrent-$version $OutputLOG
+git clone --depth=1 -b $branch --single-branch https://github.com/arvidn/libtorrent libtorrent-$version >> $OutputLOG  2>&1
 cd libtorrent-$version
 
 # 修改源码，不然 C++11 编译完后 Deluge 无法使用
 sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py
 
-./autotool.sh $OutputLOG
+./autotool.sh >> $OutputLOG  2>&1
 ./configure --enable-python-binding --with-libiconv \
-            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  $OutputLOG # 第一行是 Deluge 的参数，第二行是 qBittorrent 的参数
-make -j$MAXCPUS $OutputLOG
+            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG  2>&1 # 第一行是 Deluge 的参数，第二行是 qBittorrent 的参数
+make -j$MAXCPUS >> $OutputLOG  2>&1
 
 mkdir -p doc-pak
 cat >description-pak<<EOF
@@ -91,7 +91,7 @@ an efficient feature complete C++ bittorrent implementation
 EOF
 
 # make install
-checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version $OutputLOG
+checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version >> $OutputLOG  2>&1
 cp -f libtorrent-rasterb*.deb $DebLocation ; }
 
 
@@ -100,21 +100,21 @@ cp -f libtorrent-rasterb*.deb $DebLocation ; }
 function _install_lt_deb() {
 
 if [[ $CODENAME == jessie ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         $OutputLOG
+    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG  2>&1
 elif [[ $CODENAME == xenial ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         $OutputLOG
+    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         >> $OutputLOG  2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       $OutputLOG
+    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       >> $OutputLOG  2>&1
 elif [[ $CODENAME == bionic ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb $OutputLOG
+    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG  2>&1
 fi
 
-dpkg -i lt.deb $OutputLOG ; }
+dpkg -i lt.deb >> $OutputLOG  2>&1 ; }
 
 
 
 # Install from repository
-function _install_lt_apt() { apt-get -y install libtorrent-rasterbar-dev python-libtorrent $OutputLOG ; }
+function _install_lt_apt() { apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG  2>&1 ; }
 
 
 case $mode in
