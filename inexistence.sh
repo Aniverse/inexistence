@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.22
+INEXISTENCEDATE=2018.05.24
 # --------------------------------------------------------------------------------
 
 
@@ -548,20 +548,20 @@ if [[ $ANPASS = "" ]]; then
             localpass=$(genpasswd) ; # exitvalue=1
             echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
 
-        # 长度至少为 8 位
+        # At least [8] chars long
         elif [ ${#password1} -lt 8 ]; then
 
             echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
 
-        # 至少有 1 位数字
+        # At least [1] number
         elif ! echo "$password1" | grep -q '[0-9]'; then
 
             echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
 
-        # 至少有 1 位字母，无论大小还是小写
+        # At least [1] letter
         elif ! echo "$password1" | grep -q '[a-zA-Z]'; then
 
-            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letters${normal}" && continue
+            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
 
         else
 
