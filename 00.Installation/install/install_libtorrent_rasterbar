@@ -39,14 +39,14 @@ case $mode in
     apt     ) sleep 0  ;;
     deb     ) sleep 0  ;;
     compile ) sleep 0  ;;
-    ""   | *) echo -e "${CW} Install mode must be specified as apt, deb or compile."   ;;
+    ""   | *) echo -e "\n${CW} Install mode must be specified as apt, deb or compile.${normal}\n"   ;;
 esac
 
 
 # Transform version to branch
 [[ ` echo $version | grep -Eo "[012]\.[0-9]+\.[0-9]+" ` ]] && branch=` echo libtorrent-$version | sed "s/\./_/g" `
 # Check if input branch exists
-[[ ! -z $branch ]] && [[ ! ` wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ` ]] && { echo -e "${CW} No such branch!" ; exit 1 ; }
+[[ ! -z $branch ]] && [[ ! ` wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ` ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
 # Use RC_1_0 if not specified
 [[ -z $branch ]] && branch=RC_1_0
 # Determin RC_1_0 and RC_1_1's version
@@ -73,7 +73,7 @@ cd ; ldconfig
 
 
 
-# 安装依赖
+# Install dependency
 function dependency() {
 apt-get install -y                                                                  \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
@@ -84,7 +84,7 @@ zlib1g-dev $OutputLOG ; }
 
 
 
-# 编译安装
+# Install from source code
 function compile() {
 
 git clone --depth=1 -b $branch --single-branch https://github.com/arvidn/libtorrent libtorrent-$version $OutputLOG
@@ -109,7 +109,7 @@ cp -f libtorrent-rasterb*.deb $DebLocation ; }
 
 
 
-# 从 deb 包安装
+# Install from pre-compiled deb package
 function deb() {
 
 if [[ $CODENAME == jessie ]]; then
@@ -126,6 +126,6 @@ dpkg -i lt.deb $OutputLOG ; }
 
 
 
-# 从仓库安装
+# Install from repository
 function apt() { apt-get -y install libtorrent-rasterbar-dev python-libtorrent $OutputLOG ; }
 
