@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+# To be completed. Username needs to be set manually
+
+export username=black
+export password=demopass
+export rt_session=/home/$username/rtorrent/.session
+export torrent_r=$( ls -t "$rt_session" | grep .torrent.rtorrent | head -n1 )
+export torrent_n=$( echo $torrent_r | sed "s/.torrent.rtorrent/.torrent/" )
+export tempvar=$( cat "${rt_session}/${torrent_r}" | grep -oP "/.*7:hash" )
+export filepath_no_title=${tempvar%/*}
+export random=$(shuf -i 10000-99999 -n1)
+export optpath=/var/www/h5ai/rt_skip
+mkdir -p $optpath
+cp -f "$rt_session/$torrent_n" $optpath
+echo -e "\n-----------------------------------------"
+rtnew "$filepath_no_title" "$optpath/$torrent_n" "$optpath/$random.torrent"
+echo -e "\n-----------------------------------------\n"
+echo -e "$(tput setaf 3)$(tput bold)https://$username:$password@127.0.0.1/h5ai/rt_skip/$random.torrent"
+echo -e "$filepath_no_title$(tput sgr0)\n"
