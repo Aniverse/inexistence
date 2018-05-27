@@ -3,10 +3,10 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# 2018.05.24
-# 1.0.6.test
+# 2018.05.27
+# 1.0.7.test
 
-OutputLOG="/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt" # /dev/null
+OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
 SCLocation=/etc/inexistence/01.Log/SourceCodes
 LOCKLocation=/etc/inexistence/01.Log/Lock
@@ -87,7 +87,7 @@ sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/
 
 ./autotool.sh >> $OutputLOG 2>&1
 ./configure --enable-python-binding --with-libiconv \
-            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 # 第一行是 Deluge 的参数，第二行是 qBittorrent 的参数
+            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 # For both Deluge and qBittorrent
 make -j$MAXCPUS >> $OutputLOG 2>&1
 
 mkdir -p doc-pak
