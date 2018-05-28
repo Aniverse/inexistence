@@ -707,7 +707,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}"
     echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.0${normal}"
-    echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.1${normal}"
+    echo -e "${green}15)${normal} qBittorrent ${cyan}4.1.1${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
