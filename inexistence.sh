@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.24
+INEXISTENCEDATE=2018.05.28
 # --------------------------------------------------------------------------------
 
 
@@ -707,6 +707,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}"
     echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.0${normal}"
+    echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.1${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -728,6 +729,7 @@ while [[ $QBVERSION = "" ]]; do
         12) QBVERSION=4.0.3 ;;
         13) QBVERSION=4.0.4 ;;
         14) QBVERSION=4.1.0 ;;
+        15) QBVERSION=4.1.1 ;;
         21) QBVERSION='3.3.11 (Skip hash check)' ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
@@ -1635,14 +1637,33 @@ fi
 # _checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
 # _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 
-# dpkg --configure -a
-# apt-get -f -y install
+dpkg --configure -a
+apt-get -f -y install
+
+package_list="figlet toilet lolcat ruby tree
+gcc automake make gawk build-essential checkinstall python
+screen git sudo zsh curl nano zip unzip lrzsz rsync bc locales aptitude ntpdate
+software-properties-common python-software-properties apt-transport-https ca-certificates
+dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf3 speedtest-cli mtr wondershaper uuid"
+
+# for package_name in $package_list ; do
+#     if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+#         if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+#             install_list="$install_list $package_name"
+#         fi
+#     else
+#         echo "$package_name not found, skipping"
+#     fi
+# done
+
+# test -z "$install_list" || apt-get -y install $install_list
 
 apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli bc
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
     kill -s TERM $TOP_PID
+    exit 1
 fi
 
 echo -e "${bailvse}\n\n\n  STEP-ONE-COMPLETED  \n\n${normal}"
