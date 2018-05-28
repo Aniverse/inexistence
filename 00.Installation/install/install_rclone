@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+# 2018.05.27
+# 1.0.0
+
+OutputLOG=/etc/inexistence/01.Log/install_rclone.txt # /dev/null
+LOCKLocation=/etc/inexistence/01.Log/Lock
+
+mkdir -p $LOCKLocation
+
+cat>>$OutputLOG<<EOF
+
+$(date "+%Y.%m.%d.%H.%M.%S")
+
+EOF
+
+apt-get install -y nload htop fuse p7zip-full
+
+cd ; wget https://downloads.rclone.org/rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+unzip rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+cd rclone-*-linux-amd64
+cp rclone /usr/bin/
+chown root:root /usr/bin/rclone
+chmod 755 /usr/bin/rclone
+mkdir -p /usr/local/share/man/man1
+cp rclone.1 /usr/local/share/man/man1
+mandb >> $OutputLOG 2>&1
+cd ; rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+
+cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
+touch $LOCKLocation/rclone.lock
