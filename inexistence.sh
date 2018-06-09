@@ -993,7 +993,7 @@ while [[ $RTVERSION = "" ]]; do
 
     if [[ $rtorrent_dev == 1 ]]; then
 
-        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
