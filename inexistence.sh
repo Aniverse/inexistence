@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.6
-INEXISTENCEDATE=2018.05.28
+INEXISTENCEDATE=2018.06.09
 # --------------------------------------------------------------------------------
 
 
@@ -211,6 +211,8 @@ spinner() {
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
+
+clear
 
 # 检查是否以 root 权限运行脚本
 if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
@@ -982,6 +984,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support, feature-bind branch)"
+    echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support, untest)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
@@ -990,12 +993,13 @@ while [[ $RTVERSION = "" ]]; do
 
     if [[ $rtorrent_dev == 1 ]]; then
 
-        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 feature-bind branch${normal}"
+        echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${normal} and Ubuntu 18.04 ${bold}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
        #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
             14) RTVERSION='0.9.6 IPv6 supported' ;;
+            15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION='0.9.6 IPv6 supported' ;;
         esac
@@ -1014,6 +1018,7 @@ while [[ $RTVERSION = "" ]]; do
             12) RTVERSION='0.9.3 IPv6 supported' ;;
             13) RTVERSION='0.9.4 IPv6 supported' ;;
             14) RTVERSION='0.9.6 IPv6 supported' ;;
+            15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.4 ;;
         esac
@@ -1024,6 +1029,7 @@ done
 
 [[ $IPv6Opt == -i ]] && RTVERSION=`echo $RTVERSION IPv6 supported`
 [[ `echo $RTVERSION | grep IPv6` ]] && IPv6Opt=-i
+[[ $RTVERSION == 0.9.7 ]] && IPv6Opt=-i
 RTVERSIONIns=`echo $RTVERSION | grep -Eo [0-9].[0-9].[0-9]`
 
 if [[ $RTVERSION == No ]]; then
