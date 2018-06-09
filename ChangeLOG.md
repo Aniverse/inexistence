@@ -5,6 +5,37 @@
 
 
 
+
+
+## 2018.05.28
+
+`inexistence 1.0.7`  
+1. **Bump version to 1.0.7**  
+2. 增加 rTorrent 0.97 的安装选项  
+
+`rtinst`  
+1. 支持安装 rTorrent 0.9.7  
+2. 代码风格细微改动  
+3. 不再强制新系统安装 0.9.6  
+4. *粗暴地*修复 `Could not find xxx so using latest version instead` 版本的问题  
+
+
+
+
+
+## 2018.05.28
+
+`inexistence 1.0.6`  
+1. 增加 `dpkg --configure -a`、`apt-get -f -y install` 以防万一  
+2. 增加 qBittorrent 4.11 的安装选项  
+
+`install_rclone 1.0.0`
+1. 初始化  
+
+
+
+
+
 ## 2018.05.24
 
 `inexistence 1.0.6`  
