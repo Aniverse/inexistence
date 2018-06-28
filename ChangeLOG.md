@@ -7,7 +7,26 @@
 
 
 
-## 2018.05.28
+
+
+
+
+
+
+## 2018.06.28
+
+`inexistence 1.0.7`  
+1. Alias：完善 `sshr`，屏蔽 `del` 中 TotalTraffice 的日志部分  
+2. rTorrent feature-bind 分支版本号也已改为 0.9.7，同步一下  
+
+`ipv6`
+1. 尝试适配 Ubuntu 18.04（尚未测试）  
+
+
+
+
+
+## 2018.06.09
 
 `inexistence 1.0.7`  
 1. **Bump version to 1.0.7**  
