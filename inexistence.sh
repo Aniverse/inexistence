@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.06.09
+INEXISTENCEDATE=2018.06.28
 # --------------------------------------------------------------------------------
 
 
@@ -983,7 +983,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (with IPv6 support, feature-bind branch)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support, feature-bind branch)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
@@ -2154,8 +2154,6 @@ cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${norma
 
 function _installflood() {
 
-# [[ $tram -le 1900 ]] && _use_swap
-
 bash <(curl -sL https://deb.nodesource.com/setup_9.x)
 apt-get install -y nodejs build-essential python-dev
 npm install -g node-gyp
@@ -2168,8 +2166,6 @@ sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 npm run build 2>&1 | tee /tmp/flood.log
 rm -rf /etc/inexistence/01.Log/lock/flood.fail.lock
 # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
-
-# [[ $tram -le 1900 ]] && _disable_swap
 
 cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
@@ -2682,7 +2678,7 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,140!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,141!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
 
@@ -2725,7 +2721,7 @@ alias dea="systemctl start deluged"
 alias deb="systemctl stop deluged"
 alias dec="systemctl status deluged"
 alias der="systemctl restart deluged"
-alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
+alias del="grep -v TotalTraffic /etc/inexistence/01.Log/deluged.log | tail -n100"
 alias dewa="systemctl start deluge-web"
 alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
@@ -2764,6 +2760,7 @@ alias ruisua="/appex/bin/serverSpeeder.sh start"
 alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
+alias ruisus="nano /etc/serverSpeeder.conf"
 
 alias yongle="du -sB GB"
 alias rtyongle="du -sB GB /home/${ANUSER}/rtorrent/download"
@@ -2808,7 +2805,7 @@ alias sousuo2="find /home/${ANUSER} -name"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
-alias sshr="sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
+alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
