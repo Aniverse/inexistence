@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.06.28
+INEXISTENCEDATE=2018.07.06
 # --------------------------------------------------------------------------------
 
 
@@ -998,10 +998,10 @@ while [[ $RTVERSION = "" ]]; do
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
-            14) RTVERSION='0.9.6 IPv6 supported' ;;
+            14) RTVERSION='0.9.7 IPv6 supported' ;;
             15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
-            "" | *) RTVERSION='0.9.6 IPv6 supported' ;;
+            "" | *) RTVERSION='0.9.7 IPv6 supported' ;;
         esac
 
     else
@@ -1017,7 +1017,7 @@ while [[ $RTVERSION = "" ]]; do
             11) RTVERSION='0.9.2 IPv6 supported' ;;
             12) RTVERSION='0.9.3 IPv6 supported' ;;
             13) RTVERSION='0.9.4 IPv6 supported' ;;
-            14) RTVERSION='0.9.6 IPv6 supported' ;;
+            14) RTVERSION='0.9.7 IPv6 supported' ;;
             15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.4 ;;
@@ -2125,16 +2125,6 @@ openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb
 [[ -e /etc/php/7.0/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.0/fpm/php.ini
 [[ -e /etc/php/7.2/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.2/fpm/php.ini
 
-# Preparation for rtorrent_fast_resume.pl
-cd ; wget http://search.cpan.org/CPAN/authors/id/I/IW/IWADE/Convert-Bencode_XS-0.06.tar.gz
-wget https://rt.cpan.org/Ticket/Attachment/1433449/761974/patch-t_001_tests_t
-tar xf Convert-Bencode_XS-0.06.tar.gz
-cd Convert-Bencode_XS-0.06
-patch -uNp0 -i ../patch-t_001_tests_t
-perl Makefile.PL
-make ; make install ; cd
-rm -rf Convert-Bencode_XS-0.06 Convert-Bencode_XS-0.06.tar.gz patch-t_001_tests_t
-
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
 ln -s /home/${ANUSER} /var/www/h5ai/user.folder
@@ -2145,6 +2135,21 @@ cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/ir
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
 cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
 
+
+
+
+
+
+# --------------------- Preparation for rtorrent_fast_resume.pl --------------------- #
+function _rt_fast_resume() {
+cd ; wget http://search.cpan.org/CPAN/authors/id/I/IW/IWADE/Convert-Bencode_XS-0.06.tar.gz
+wget https://rt.cpan.org/Ticket/Attachment/1433449/761974/patch-t_001_tests_t
+tar xf Convert-Bencode_XS-0.06.tar.gz
+cd Convert-Bencode_XS-0.06
+patch -uNp0 -i ../patch-t_001_tests_t
+perl Makefile.PL
+make ; make install ; cd
+rm -rf Convert-Bencode_XS-0.06 Convert-Bencode_XS-0.06.tar.gz patch-t_001_tests_t ; }
 
 
 
