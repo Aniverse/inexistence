@@ -7,7 +7,10 @@
 
 
 
+## 2018.06.28
 
+`inexistence 1.0.7`  
+1. 上次改 rTorrent feature-bind 版本改为 0.9.7 后有些其他地方没改，这次修正下  
 
 
 
