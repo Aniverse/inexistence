@@ -141,15 +141,9 @@ schedules: no
 ### 首先在 SSH 输入 crontab -e，选择一个文本编辑器，默认的 nano 即可 （nano 使用教程：http://man.linuxde.net/nano）
 ### 设置 2 分钟执行一次 RSS，就在文件的最底下输入（这里的数字 2 就是 2 分钟执行一次的意思）
 ### */2 * * * * /usr/local/bin/flexget execute
-### 保存退出，然后在 SSH 输入下面的命令重启 cron
-### /etc/init.d/cron restart
-### 之后可以在 WebUI 中看 Log 来判断 Flexget 是否有在正常工作
+### 保存、退出，之后可以在 WebUI 中看 Log 来判断 Flexget 是否有在正常工作
 
 ### 以上两个办法都是最短 1 分钟执行 1 次 RSS，如果你想实现更高的频率得用别的办法
-
-### 3. 比如这样子就是 10 秒 RSS 1 次（不要问我这个怎么用，自己看着办）
-
-# while true ; do flexget --cron execute ; sleep 10 ; done
 
 # 提示：一般情况下不建议 RSS 频率太高，一是 Flexget 本身执行过程中会消耗一些系统资源，二是 RSS 频率太高可能有些站点认为你是在做恶意攻击……
 # 至于多久一次算是频率太高，你自己看着办吧……
