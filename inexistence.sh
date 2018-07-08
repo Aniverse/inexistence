@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.07.06
+INEXISTENCEDATE=2018.07.08
 # --------------------------------------------------------------------------------
 
 
@@ -983,7 +983,7 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support, feature-bind branch)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (feature-bind branch on Jun 6, 2018)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
@@ -998,10 +998,10 @@ while [[ $RTVERSION = "" ]]; do
         echo -ne "${bold}${yellow}Which version of rTorrent do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
-            14) RTVERSION='0.9.7 IPv6 supported' ;;
+            14) RTVERSION='0.9.6 IPv6 supported' ;;
             15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
-            "" | *) RTVERSION='0.9.7 IPv6 supported' ;;
+            "" | *) RTVERSION='0.9.6 IPv6 supported' ;;
         esac
 
     else
@@ -1017,7 +1017,7 @@ while [[ $RTVERSION = "" ]]; do
             11) RTVERSION='0.9.2 IPv6 supported' ;;
             12) RTVERSION='0.9.3 IPv6 supported' ;;
             13) RTVERSION='0.9.4 IPv6 supported' ;;
-            14) RTVERSION='0.9.7 IPv6 supported' ;;
+            14) RTVERSION='0.9.6 IPv6 supported' ;;
             15) RTVERSION=0.9.7 ;;
             99) RTVERSION=No ;;
             "" | *) RTVERSION=0.9.4 ;;
