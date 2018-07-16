@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.07.08
+INEXISTENCEDATE=2018.07.16
 # --------------------------------------------------------------------------------
 
 
@@ -229,7 +229,7 @@ SysSupport=0
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
 DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
-[[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
+[[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 [[ $CODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
 [[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
