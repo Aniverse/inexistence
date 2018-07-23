@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.07.16
+INEXISTENCEDATE=2018.07.23
 # --------------------------------------------------------------------------------
 
 
@@ -1664,7 +1664,7 @@ dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf
 
 # test -z "$install_list" || apt-get -y install $install_list
 
-apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli bc
+apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli bc htop atop iotop
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -1932,7 +1932,7 @@ fi ; }
 
 # --------------------- 下载安装 qBittorrent --------------------- #
 
-function _installqbt2() { git clone --depth=1 -b master--single-branch https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
+function _installqbt2() { git clone --depth=1 https://github.com/Aniverse/qBittorrent-nox /etc/iFeral/qb ; chmod -R +x /etc/iFeral/qb ; }
 
 
 
@@ -2119,7 +2119,7 @@ else
 fi
 
 rtwebmin
-openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
+# openssl req -x509 -nodes -days 3650 -subj /CN=$serveripv4 -config /etc/ssl/ruweb.cnf -newkey rsa:2048 -keyout /etc/ssl/private/ruweb.key -out /etc/ssl/ruweb.crt
 
 [[ -e /etc/php5/fpm/php.ini ]] && sed -i 's/^.*memory_limi.*/memory_limit = 512M/' /etc/php5/fpm/php.ini
 [[ -e /etc/php/7.0/fpm/php.ini ]] && sed -i 's/^.*memory_limit.*/memory_limit = 512M/' /etc/php/7.0/fpm/php.ini
@@ -2346,7 +2346,7 @@ function _installflex() {
 # --------------------- 安装 rclone --------------------- #
 
 function _installrclone() {
-apt-get install -y nload htop fuse p7zip-full
+apt-get install -y nload fuse p7zip-full
 [[ "$lbit" == '32' ]] && KernelBitVer='i386'
 [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
 [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
