@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.07.23
+INEXISTENCEDATE=2018.09.03
 # --------------------------------------------------------------------------------
 
 
@@ -321,7 +321,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
   QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
   [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
-  QB_latest_ver=4.1.0
+  QB_latest_ver=4.1.2
   QB_latest_ver=` wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 `
 
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
@@ -710,6 +710,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.0${normal}"
     echo -e "${green}15)${normal} qBittorrent ${cyan}4.1.1${normal}"
+    echo -e "${green}16)${normal} qBittorrent ${cyan}4.1.2${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -720,7 +721,7 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
    #read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
-    echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}13${normal}): " ; read -e version
+    echo -ne "${bold}${yellow}Which version of qBittorrent do you want?${normal} (Default ${cyan}15${normal}): " ; read -e version
 
     case $version in
         01 | 1) QBVERSION=3.3.7 ;;
@@ -732,12 +733,13 @@ while [[ $QBVERSION = "" ]]; do
         13) QBVERSION=4.0.4 ;;
         14) QBVERSION=4.1.0 ;;
         15) QBVERSION=4.1.1 ;;
+        16) QBVERSION=4.1.2 ;;
         21) QBVERSION='3.3.11 (Skip hash check)' ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
         50) QBVERSION='Install from PPA' ;;
         99) QBVERSION=No ;;
-        * | "") QBVERSION=4.0.4 ;;
+        * | "") QBVERSION=4.1.1 ;;
     esac
 
 done
@@ -1894,6 +1896,13 @@ else
     QBVERSION=`echo $QBVERSION | grep -oE [0-9.]+`
     git checkout release-$QBVERSION
 
+    if [[ $QBVERSION == 4.1.2 ]]; then
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git cherry-pick 262c3a7
+        echo -e "\n\n\nQB 4.1.2 WebUI Fix (FOR LOG)\n\n\n"
+    fi
+
     if [[ $QBPATCH == Yes ]]; then
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
@@ -2895,8 +2904,8 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 
 flexget daemon status 2>1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
 [[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
+[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
 
 clear
