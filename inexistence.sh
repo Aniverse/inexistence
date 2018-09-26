@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.09.03
+INEXISTENCEDATE=2018.09.26
 # --------------------------------------------------------------------------------
 
 
@@ -238,7 +238,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
-# rTorrent 是否只能安装 feature-bind branch
+# rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic) ]] && rtorrent_dev=1
 
 # 检查本脚本是否支持当前系统，可以关闭此功能
@@ -321,7 +321,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 
   QB_repo_ver=` apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -n1 `
   [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
-  QB_latest_ver=4.1.2
+  QB_latest_ver=4.1.3
   QB_latest_ver=` wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 `
 
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
@@ -705,12 +705,11 @@ while [[ $QBVERSION = "" ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.11${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}3.3.14${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}3.3.16${normal}"
-    echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.2${normal}"
-    echo -e "${green}12)${normal} qBittorrent ${cyan}4.0.3${normal}"
-    echo -e "${green}13)${normal} qBittorrent ${cyan}4.0.4${normal}"
-    echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.0${normal}"
-    echo -e "${green}15)${normal} qBittorrent ${cyan}4.1.1${normal}"
-    echo -e "${green}16)${normal} qBittorrent ${cyan}4.1.2${normal}"
+    echo -e "${green}11)${normal} qBittorrent ${cyan}4.0.4${normal}"
+    echo -e "${green}12)${normal} qBittorrent ${cyan}4.1.0${normal}"
+    echo -e "${green}13)${normal} qBittorrent ${cyan}4.1.1${normal}"
+    echo -e "${green}14)${normal} qBittorrent ${cyan}4.1.2${normal}"
+    echo -e "${green}15)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}30)${normal} Select another version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -728,12 +727,11 @@ while [[ $QBVERSION = "" ]]; do
         02 | 2) QBVERSION=3.3.11 ;;
         03 | 3) QBVERSION=3.3.14 ;;
         04 | 4) QBVERSION=3.3.16 ;;
-        11) QBVERSION=4.0.2 ;;
-        12) QBVERSION=4.0.3 ;;
-        13) QBVERSION=4.0.4 ;;
-        14) QBVERSION=4.1.0 ;;
-        15) QBVERSION=4.1.1 ;;
-        16) QBVERSION=4.1.2 ;;
+        11) QBVERSION=4.0.4 ;;
+        12) QBVERSION=4.1.0 ;;
+        13) QBVERSION=4.1.1 ;;
+        14) QBVERSION=4.1.2 ;;
+        15) QBVERSION=4.1.3 ;;
         21) QBVERSION='3.3.11 (Skip hash check)' ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
@@ -2669,14 +2667,14 @@ echo -e "${bailanse}\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n${norm
 # --------------------- 一些设置修改 --------------------- #
 function _tweaks() {
 
-#修改时区
+# 修改时区
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
 ntpdate time.windows.com
 hwclock -w
 
 
-#screen 设置
+# screen 设置
 cat>>/etc/screenrc<<EOF
 shell -$SHELL
 
@@ -2688,7 +2686,7 @@ defscrollback 23333
 EOF
 
 
-#设置编码与alias
+# 设置编码与alias
 
 # sed -i '$d' /etc/bash.bashrc
 
