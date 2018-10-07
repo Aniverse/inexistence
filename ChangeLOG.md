@@ -11,6 +11,34 @@
 
 
 
+
+
+社畜的日子……脚本都没怎么动了，要做的事情一堆啊……  
+
+## 2018.10.07
+
+`inexistence 1.0.7`  
+1. （修复 rTorrent 0.9.6 在 Debian 9 下的安装问题）  
+2. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
+3. 增加安装 socat、jq、iperf  
+4. 增加一个隐藏选项，可以安装可以显示硬盘剩余空间的 qBittorrent 4.1.1  
+
+`rtinst`  
+1. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
+
+
+
+
+
+## 2018.09.26
+
+`inexistence 1.0.7`  
+1. 增加 qbt 4.1.3 的选项  
+
+
+
+
+
 ## 2018.09.03
 
 `inexistence 1.0.7`  
@@ -82,7 +110,7 @@
 
 `inexistence 1.0.7`  
 1. **Bump version to 1.0.7**  
-2. 增加 rTorrent 0.97 的安装选项  
+2. 增加 rTorrent 0.9.7 的安装选项  
 
 `rtinst`  
 1. 支持安装 rTorrent 0.9.7  

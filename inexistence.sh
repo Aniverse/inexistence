@@ -733,6 +733,7 @@ while [[ $QBVERSION = "" ]]; do
         14) QBVERSION=4.1.2 ;;
         15) QBVERSION=4.1.3 ;;
         21) QBVERSION='3.3.11 (Skip hash check)' ;;
+        22) QBVERSION=4.1.1.1 ;;
         30) _inputversion && QBVERSION="${inputversion}"  ;;
         40) QBVERSION='Install from repo' ;;
         50) QBVERSION='Install from PPA' ;;
@@ -1905,6 +1906,14 @@ else
         git config --global user.name "Your Name"
         git cherry-pick 262c3a7
         echo -e "\n\n\nQB 4.1.2 WebUI Fix (FOR LOG)\n\n\n"
+    fi
+
+    # 这是 qBittorrent master 分支 merge pr #9375 #8217 以后，把版本号从 4.2.0.alpha 改成了 4.1.1
+    # 等官方 merge 都不知道要啥时候了，用着也没啥问题，自己先用用吧……
+    if [[ $QBVERSION == 4.1.1.1 ]]; then
+        cd ..
+        git clone --depth=1 https://github.com/Aniverse/qbt411master
+        cd qbt411master
     fi
 
     if [[ $QBPATCH == Yes ]]; then
