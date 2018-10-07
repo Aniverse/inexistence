@@ -2705,7 +2705,7 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,142!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,148!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
 
@@ -2779,6 +2779,10 @@ alias fll="echo ; tail -n100 /root/.config/flexget/flexget.log ; echo"
 alias fls="nano /root/.config/flexget/config.yml"
 alias flcheck="flexget check"
 alias fle="flexget execute"
+alias flooda="systemctl start flood"
+alias floodb="systemctl stop flood"
+alias floodc="systemctl status flood"
+alias floodr="systemctl restart flood"
 alias ssa="/etc/init.d/shadowsocks-r start"
 alias ssb="/etc/init.d/shadowsocks-r stop"
 alias ssc="/etc/init.d/shadowsocks-r status"
@@ -2828,8 +2832,10 @@ alias ios="iostat -dxm 1"
 alias vms="vmstat 1 10"
 alias vns="vnstat -l -i $wangka"
 
-alias sousuo1="find / -name"
+alias sousuo="find / -name"
 alias sousuo2="find /home/${ANUSER} -name"
+alias enableswap="dd if=/dev/zero of=/root/.swapfile bs=1M count=1024;mkswap /root/.swapfile;swapon /root/.swapfile;swapon -s"
+alias disableswap="swapoff /root/.swapfile;rm -f /.swapfile"
 
 alias yuan="nano /etc/apt/sources.list"
 alias cronr="/etc/init.d/cron restart"
