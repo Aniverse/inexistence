@@ -18,13 +18,21 @@
 ## 2018.10.07
 
 `inexistence 1.0.7`  
-1. （修复 rTorrent 0.9.6 在 Debian 9 下的安装问题）  
-2. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
-3. 增加安装 socat、jq、iperf  
-4. 增加一个隐藏选项，可以安装可以显示硬盘剩余空间的 qBittorrent 4.1.1  
+1. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
+2. 增加安装 socat、jq、iperf  
+3. 增加一个隐藏选项，可以安装可以显示硬盘剩余空间的 qBittorrent 4.1.1  
+4. qBittorrent 默认连接端口从默认的 8999 改成 9002  
+这个操作可以让我判断有多少盒子是用我脚本装的，233  
+5. 增加一些 alias
+6. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
+7. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1  
+8. 重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代  
+不过默认网址还是用端口号的。以后可以考虑结合 acme.sh 脚本使用  
 
 `rtinst`  
 1. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
+2. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1  
+3. 重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代  
 
 
 
@@ -184,7 +192,6 @@
 3. **New Feature：检查用户名、密码的有效性**  
 用户名检查应该没问题了；密码复杂性还不够完善，目前只实现了要求必须同时带字母和数字  
 对于常见密码比如 `12345678` 这样的密码还无法识别，以后再改进  
-4. 
 
 `rtinst`  
 1. rar/unrar 的下载目录改到了 /root（避免用户没创建成功时 rar 也没装成功的问题）  
