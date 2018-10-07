@@ -12,7 +12,7 @@
 SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
-INEXISTENCEVER=1.0.7
+INEXISTENCEVER=1.0.8
 INEXISTENCEDATE=2018.10.07
 # --------------------------------------------------------------------------------
 
@@ -2117,6 +2117,15 @@ systemctl start deluged
 systemctl start deluge-web
 # systemctl enable {deluged,deluge-web}@${ANUSER}
 # systemctl start {deluged,deluge-web}@${ANUSER}
+
+# Deluge update-tracker，用于 AutoDL-Irssi
+deluged_ver_2=`deluged --version | grep deluged | awk '{print $2}'`
+deluged_port=$( grep daemon_port /root/.config/deluge/core.conf | grep -oP "\d+" )
+
+cp "${local_packages}"/script/special/update-tracker.py /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py
+sed -i "s/ANUSER/$ANUSER/g" /usr/local/bin/deluge-update-tracker
+sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
+sed -i "s/DAEMONPORT/58846/g" /usr/local/bin/deluge-update-tracker
 
 touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
