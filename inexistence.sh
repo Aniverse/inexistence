@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.7
-INEXISTENCEDATE=2018.09.26
+INEXISTENCEDATE=2018.10.07
 # --------------------------------------------------------------------------------
 
 
@@ -737,7 +737,7 @@ while [[ $QBVERSION = "" ]]; do
         40) QBVERSION='Install from repo' ;;
         50) QBVERSION='Install from PPA' ;;
         99) QBVERSION=No ;;
-        * | "") QBVERSION=4.1.1 ;;
+        * | "") QBVERSION=4.1.3 ;;
     esac
 
 done
@@ -892,7 +892,7 @@ while [[ $DELTVERSION = "" ]]; do
 
       # echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
         echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
-        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.7 ${normal}"
+        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.10 ${normal}"
         echo -e "${green}30)${normal} Select another version"
         echo -e "${green}40)${normal} libtorrent-rasterbar ${cyan}$PYLT_repo_ver${normal} from ${cyan}repo${normal}"
         [[ $DISTRO == Ubuntu ]] &&
@@ -979,11 +979,11 @@ while [[ $RTVERSION = "" ]]; do
     echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
     echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
-    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal}" &&
+    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} (released on Sep 04, 2015)" &&
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} (with IPv6 support)" &&
     echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} (with IPv6 support)" &&
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
-    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (feature-bind branch on Jun 6, 2018)"
+    echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (feature-bind branch on Jan 30, 2018)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support)"
     echo -e   "${red}99)${normal} Do not install rTorrent"
 
@@ -1664,7 +1664,13 @@ dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf
 
 # test -z "$install_list" || apt-get -y install $install_list
 
-apt-get install -y python dstat sysstat vnstat wondershaper lrzsz mtr tree figlet toilet lolcat psmisc dirmngr zip unzip locales aptitude ntpdate smartmontools ruby screen git sudo zsh virt-what lsb-release curl checkinstall ca-certificates apt-transport-https iperf3 uuid gcc make gawk build-essential rsync speedtest-cli bc htop atop iotop
+# 其实很多包可能对于很多人没用，私货私货……
+apt-get install -y \
+screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
+speedtest-cli mtr iperf iperf3 wondershaper \
+htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
+ca-certificates apt-transport-https gcc make checkinstall build-essential \
+tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -2690,7 +2696,7 @@ EOF
 
 # sed -i '$d' /etc/bash.bashrc
 
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,141!{P;N;D;};N;ba' /etc/bash.bashrc
+[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,142!{P;N;D;};N;ba' /etc/bash.bashrc
 
 cat>>/etc/bash.bashrc<<EOF
 
@@ -2773,6 +2779,7 @@ alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
 alias ruisus="nano /etc/serverSpeeder.conf"
+alias nginxr="/etc/init.d/nginx restart"
 
 alias yongle="du -sB GB"
 alias rtyongle="du -sB GB /home/${ANUSER}/rtorrent/download"
