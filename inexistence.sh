@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.07
+INEXISTENCEDATE=2018.10.08
 # --------------------------------------------------------------------------------
 
 
@@ -2010,7 +2010,7 @@ function _installde() {
 
 if [[ $DEVERSION == "Install from repo" ]]; then
 
-    apt-get install -y deluged deluge-web
+    apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk 
 
 elif [[ $DEVERSION == "Install from PPA" ]]; then
 
@@ -2018,9 +2018,11 @@ elif [[ $DEVERSION == "Install from PPA" ]]; then
     add-apt-repository -y ppa:deluge-team/ppa
     apt-get update
     apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8 python-libtorrent
+    # 写两次是为了防止以后 Deluge PPA 升级后指定版本无效（不过其实我可以设定检测版本的，暂时懒得搞了）
+    # 指定版本是为了在同时启用 Deluge 和 qBittorrent PPA 的情况下使用 libtorrent-rasterbar 1.0.11，毕竟 Deluge 1.3.15 对 libtorrent 1.1 支持还不完善
     apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1
     apt-mark hold libtorrent-rasterbar8 python-libtorrent
-    apt-get install -y deluged deluge-web
+    apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk 
 
 else
 
@@ -2125,7 +2127,7 @@ deluged_port=$( grep daemon_port /root/.config/deluge/core.conf | grep -oP "\d+"
 cp "${local_packages}"/script/special/update-tracker.py /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py
 sed -i "s/ANUSER/$ANUSER/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
-sed -i "s/DAEMONPORT/58846/g" /usr/local/bin/deluge-update-tracker
+sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
 
 touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
