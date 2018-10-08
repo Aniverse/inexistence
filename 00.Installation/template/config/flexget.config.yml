@@ -4,7 +4,7 @@
 # https://npchk.info/linux-flexget-rss/
 # https://linkthis.me/2018/02/15/the-note-of-using-flexget/
 # 
-# 提示1：最好在 SSH 或者 WebUI 下编辑 Flexget 配置文件；在 Windows 下也不要用系统自带的记事本编辑，容易出错（换行问题之类的）
+# 提示1：新手最好在 SSH 或者 WebUI 下编辑 Flexget 配置文件；在 Windows 下也不要用系统自带的记事本编辑，容易出错（换行问题之类的）
 # 提示2：Flexget 配置文件遵循 YAML 格式，请注意空格和缩进
 # 本脚本安装完 Flexget 后默认不启用 RSS 功能，如果需要使用 RSS 功能，主要有两个办法
 # 1. 使用 daemon 模式的 schedules
@@ -113,12 +113,14 @@ tasks:
     download: /home/SCRIPTUSERNAME/deluge/watch
 
 
-# Flexget WebUI 设定，保持默认即可
+# Flexget WebUI 设定，可以不改
+# base_url 是为了反代设置的，需要使用反代的话就取消这个的注释，然后在安装了 rTorrent 的情况下（不装 rt 的话没有 nginx），Flexget WebUI 地址就变成了 https://你盒子的 IP 地址/flexget
 web_server:
   port: 6566
   web_ui: yes
+# base_url: /flexget
 
-# 默认关闭了 RSS 功能，需要自行打开，操作步骤见本文底部
+# 默认关闭了 RSS 功能（这个配置文件只是示范并没有配置好，当然不会打开 RSS），需要自行打开，操作步骤见本文底部
 schedules: no
 
 
