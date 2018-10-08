@@ -8,6 +8,10 @@
 
 
 
+## 2018.10.07
+
+`inexistence 1.0.8`  
+1. apt 安装 deluge 时，也安装 deluge、deluge-console、deluge-gtk  
 
 
 
@@ -17,16 +21,19 @@
 
 ## 2018.10.07
 
-`inexistence 1.0.7`  
-1. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
-2. 增加安装 socat、jq、iperf  
-3. 增加一个隐藏选项，可以安装可以显示硬盘剩余空间的 qBittorrent 4.1.1  
-4. qBittorrent 默认连接端口从默认的 8999 改成 9002  
+`inexistence 1.0.8`  
+1. **Bump version to 1.0.8**  
+这次内容多一些，也好久没更新版本号了，升级下吧 _(:з」∠)_  
+2. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
+3. 增加安装 socat、jq、iperf  
+4. 增加一个隐藏选项，可以安装可以显示硬盘剩余空间的 qBittorrent 4.1.1  
+5. qBittorrent 默认连接端口从默认的 8999 改成 9002  
 这个操作可以让我判断有多少盒子是用我脚本装的，233  
-5. 增加一些 alias
-6. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
-7. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1  
-8. 重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代  
+6. 增加一些 alias  
+7. 增加 update-tracker.sh 和 .py，用于 Deluge 配合 Auto-Irssi 解决 Unregistered Torrents 问题  
+8. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
+9. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1  
+10. 重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代  
 不过默认网址还是用端口号的。以后可以考虑结合 acme.sh 脚本使用  
 
 `rtinst`  
