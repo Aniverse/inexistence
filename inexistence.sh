@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.08
+INEXISTENCEDATE=2018.10.10
 # --------------------------------------------------------------------------------
 
 
@@ -2632,12 +2632,11 @@ wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Anivers
 chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
-
-cd ; wget --no-check-certificate -qO ffmpeg-3.4.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-3.4.2-64bit-static.tar.xz
-tar xf ffmpeg-3.4.2-64bit-static.tar.xz
-rm -rf ffmpeg-*-64bit-static/{manpages,GPLv3.txt,readme.txt}
+cd ; wget --no-check-certificate -qO ffmpeg-4.0.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-4.0.2-64bit-static.tar.xz
+tar xf ffmpeg-4.0.2-64bit-static.tar.xz
+rm -rf ffmpeg-*bit-static/{manpages,presets,model,readme.txt,GPLv3.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
-chmod 777 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
+chmod 755 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
 rm -rf ffmpeg-*-64bit-static*
 
 ########## 安装 新版 mkvtoolnix 与 mediainfo ##########
@@ -2737,13 +2736,14 @@ jiacu=\${normal}\${bold}
 shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; }
 _colors
 
+function gclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
 
 wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
 
-ulimit -SHn 666666
+ulimit -SHn 999999
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -2834,7 +2834,6 @@ alias cdb="cd .."
 alias tree="tree --dirsfirst"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
-alias gclone="git clone --depth=1"
 
 alias cesu="echo;spdtest --share;echo"
 alias cesu2="echo;spdtest --share --server"
