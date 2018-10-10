@@ -8,7 +8,57 @@
 
 
 
-## 2018.10.07
+
+
+
+
+
+
+
+
+
+
+
+## 2018.10.10
+
+`inexistence 1.0.8`  
+1. **更新 bluray**  
+2. 更新 ffmpeg 到 4.0.2（inexistence）  
+3. 更新 gclone 命令  
+4. 新增 vnss alias  
+5. 启用对网卡的检测（之前是为什么关掉了？……）  
+
+`bluray 2.7.2`  
+1. **优化运行完成后的排版，BDinfo 改为可选显示**  
+2. 更新自带库的 ffmpeg 到 4.0.2  
+3. 更新 README  
+
+
+
+
+
+## 2018.10.09
+
+`inexistence 1.0.8`  
+1. 增加 BDinfoCLI 0.7.5  
+
+`bluray 2.6.9.UHD`  
+1. **支持 UHD Blu-ray**  
+2. **增加 BDinfoCLI 0.7.5**  
+3. **改进 debug 模式，界面排版调整，增加信息量**  
+4. **截图增加 2160p 可选分辨率**  
+5. 修复指定分辨率时没有出现默认分辨率数值的问题  
+6. 有 root 权限的盒子，安装 ffmepg 时使用 4.0.2 static builds  
+7. 修复选择制作含有空 tracker 的种子时无提示信息的问题  
+8. 屏蔽 xargs 的错误输出  
+9. 修复检查带多个视频轨（Dolby Vision, eg.）的原盘时检测到两个分辨率没有选择第一个分辨率的问题  
+10. 部分界面调整以及代码缩进调整  
+
+
+
+
+
+## 2018.10.08
 
 `inexistence 1.0.8`  
 1. apt 安装 deluge 时，也安装 deluge、deluge-console、deluge-gtk  
@@ -17,11 +67,10 @@
 
 
 
-社畜的日子……脚本都没怎么动了，要做的事情一堆啊……  
-
 ## 2018.10.07
 
 `inexistence 1.0.8`  
+1. 社畜的日子……脚本都没怎么动了，要做的事情一堆啊……  
 1. **Bump version to 1.0.8**  
 这次内容多一些，也好久没更新版本号了，升级下吧 _(:з」∠)_  
 2. 修复 qBittorrent 默认版本不是 4.1.3 的问题  
@@ -30,11 +79,13 @@
 5. qBittorrent 默认连接端口从默认的 8999 改成 9002  
 这个操作可以让我判断有多少盒子是用我脚本装的，233  
 6. 增加一些 alias  
-7. 增加 update-tracker.sh 和 .py，用于 Deluge 配合 Auto-Irssi 解决 Unregistered Torrents 问题  
-8. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
-9. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1  
-10. 重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代  
-不过默认网址还是用端口号的。以后可以考虑结合 acme.sh 脚本使用  
+7. 增加 update-tracker.sh 和 .py，用于 Deluge 配合 Auto-Irssi 使用时解决 Unregistered Torrents 问题  
+8. **修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 失败的问题（rtinst）**  
+使用了 2018.01.30 的 feature-bind 版本  
+9. 更新 ffmpeg 到 4.0.2、rar/unrar 到 5.6.1（rtinst）  
+10. **重新启用 Deluge/qBittorrent/Transmission 的反代，新增 Flexget 的反代（rtinst）**  
+不过默认网址还是用端口号的。以后可以考虑结合 acme.sh 脚本使用；Flood 反代还有问题，先不管了  
+
 
 `rtinst`  
 1. 修复 Debian 9、Ubuntu 18.04 下安装 rTorrent 0.9.6 的问题  
@@ -48,7 +99,7 @@
 ## 2018.09.26
 
 `inexistence 1.0.7`  
-1. 增加 qbt 4.1.3 的选项  
+1. 增加 qbt 4.1.3 的选项，并将其设置为默认选项  
 
 
 
@@ -61,7 +112,7 @@
 反正这更新日志也没人看的，我就多吐槽一些吧 ←_←  
 2. 增加 qBittorrent 4.1.2 的安装选项，并修复了原版 WebUI 可能打不开的问题  
 3. qBittorrent 的默认选项设置为 4.1.1  
-（其实似乎国内站对一定版本的还没发布的 qb 直接白名单了吧，刚发布几个小时我去测试发现国内主流站点全都支持 ←_←）  
+（其实似乎国内站对一定版本的还没发布的 qb 直接白名单了吧，刚发布几个小时我去测试发现国内主流站点全都支持）  
 4. 修复 Flexget 报错时检查密码和检查配置文件弄反了的问题  
 
 
@@ -182,7 +233,7 @@
 4. 更新了下 BBR 是否启用以及内核是否支持的检查方式  
 5. 默认的 IP 检查方式不使用 ifconfig  
 6. 先指定 repo、PPA 对应软件的版本号，再检查是否正确  
-有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包  
+有可能出现刚开的机器在没有 apt update 的情况下直接 apt-cache policy 会提示找不到包的情况  
 
 `README 1.1.2`  
 1. 更新 To Do List、Under Consideration、Known Issues  
