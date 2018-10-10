@@ -2875,19 +2875,20 @@ EOF
 
 sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
 sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
-echo "fs.file-max = 666666" >> /etc/sysctl.conf
-echo "fs.nr_open = 666666" >> /etc/sysctl.conf
+echo "fs.file-max = 1048576" >> /etc/sysctl.conf
+echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
 
 sed -i '/.*nofile.*/'d /etc/security/limits.conf
 sed -i '/.*nproc.*/'d /etc/security/limits.conf
 
 cat>>/etc/security/limits.conf<<EOF
-* - nofile 666666
-* - nproc 666666
-$ANUSER soft nofile 666666
-$ANUSER hard nofile 666666
-root soft nofile 666666
-root hard nofile 666666
+* - nofile 1048575
+* - nproc 1048575
+root soft nofile 1048574
+root hard nofile 1048574
+$ANUSER hard nofile 1048573
+$ANUSER soft nofile 1048573
+
 EOF
 
 sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
