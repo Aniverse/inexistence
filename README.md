@@ -189,7 +189,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 默认启用，具体操作如下：  
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
-- 设置 `alias` 简化命令  
+- 设置 `alias` 简化命令（私货夹带）  
 - 提高系统文件打开数  
 - 修改 screen 设置  
 - 释放最大分区的保留空间  
@@ -232,11 +232,6 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 - **Version**  
 升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本  
 
-- **Box**  
-考虑把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`banben` 中需要安装的时候直接调用  
-这个思路是从 QuickBox 那边学到的，最后的命令大概这样子  
-`box install vnc`、`box purge qbittorrent`  
-
 #### Under Consideration
 
 - **rTorrent installation rewrite**  
@@ -245,6 +240,11 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 - **Multi-user**  
 1. 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
 2. 多用户模式，可以直接 adduser 并设置好 de/qb/rt/tr/flexget  
+
+- **Box**  
+考虑把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`banben` 中需要安装的时候直接调用  
+这个思路是从 QuickBox 那边学到的，最后的命令大概这样子  
+`box install vnc`、`box purge qbittorrent`  
 
 #### Known Issues
 
