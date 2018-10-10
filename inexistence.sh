@@ -2893,8 +2893,8 @@ EOF
 
 sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
 sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
-echo "DefaultLimitNOFILE=666666" >> /etc/systemd/system.conf
-echo "DefaultLimitNPROC=666666" >> /etc/systemd/system.conf
+echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
+echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
 # 将最大的分区的保留空间设置为 0%
 echo `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
