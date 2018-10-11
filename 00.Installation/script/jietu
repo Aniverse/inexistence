@@ -82,13 +82,18 @@ echo
 
 # Screenshots
 for c in {01..10} ; do
+
     i=`expr $i + $timestampsetting` ; timestamp=`date -u -d @$i +%H:%M:%S`
     echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${normal} from timestamp ${blue}${timestamp}${normal} ...  "
     ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
-    [[ $(command -v nconvert)]] && {
-    nconvert -out png -clevel 6 -o "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" ; echo
-    mv -f "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" ；}
     echo -e "${green}DONE${normal}"
+
+    [[ $(command -v nconvert) ]] && {
+    echo -n "Compressing ${blue}${file_title_clean}.scr${c}.png${normal} ${normal} ...  "
+    nconvert -out png -clevel 6 -o "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
+    mv -f "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1 ; }
+    echo -e "${green}DONE${normal}"
+
 done
 
 # mediainfo
