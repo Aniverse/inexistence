@@ -32,6 +32,8 @@ templates:
       path: /home/SCRIPTUSERNAME/transmission/download/
       host: localhost
       port: 9099
+      username: SCRIPTUSERNAME
+      password: SCRIPTPASSWORD
   de:
     deluge:
       path: /home/SCRIPTUSERNAME/deluge/download/
