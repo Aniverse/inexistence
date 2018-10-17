@@ -1,8 +1,10 @@
 #!/bin/bash
 # https://www.reddit.com/r/seedboxes/comments/6qhuig/deluge_is_better_at_the_initial_downloads/
 # https://github.com/wseedbox/deluge-to-rtorrent
-# Thanks to the original author: woodsdog.
+# Thanks to the original author: woodsdog
+# MOdified by Aniverse
 
+# 
 if [[ -z "${SKIP_SLEEP+x}" ]]; then
   sleep 900
 fi
@@ -19,10 +21,10 @@ tmpdir=$(mktemp -d)
 dc=/usr/bin/deluge-console
 deluge_state_dir=/root/.config/deluge/state
 rtfr=/usr/local/bin/rtnew
-torrent_download_dir=/home/$ANUSER/deluge/download
+torrent_download_dir=/home/ANUSER/deluge/download
 rtxmlrpc=/usr/local/bin/rtxmlrpc
 xmlrpc_endpoint=127.0.0.1
-xmlrpc_command="${xmlrpc} ${xmlrpc_endpoint}"
+xmlrpc_command="${rtxmlrpc} ${xmlrpc_endpoint}"
 ##############################################################
 
 function on_exit() {
@@ -30,23 +32,6 @@ function on_exit() {
 }
 
 #trap on_exit EXIT
-
-function set_tracker {
-  case $1 in
-    *alpharatio*)
-   	  tracker=ar
-      ;;
-    *empire*|*stackoverflow*|*iptorrent*)
-   	  tracker=ipt
-      ;;
-    *torrentleech*)
-   	  tracker=tl
-      ;;
-   	*)
-   	  tracker=$1
-	  ;;
-  esac
-}
 
 tracker_line=$($dc info $torrentid | grep "^Tracker" | awk -F: '{print $2}' | tr -d " ")
 set_tracker $tracker_line
@@ -67,9 +52,8 @@ fi
 # remove the torrent from deluge
 $dc rm $torrentid
 
-$rtxmlrpc load_start ${tmpdir}/${torrentid}_fast.torrent
+$rtxmlrpc load.start ${tmpdir}/${torrentid}_fast.torrent
 sleep 3
-$rtxmlrpc d.set_custom1 ${torrentid} ${tracker}
 $rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}
 
 /usr/bin/rm -rf $tmpdir
