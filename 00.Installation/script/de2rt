@@ -6,54 +6,54 @@
 
 # 
 if [[ -z "${SKIP_SLEEP+x}" ]]; then
-  sleep 900
+  sleep SLEEPTIME
 fi
 
 torrentid=$1
 torrentname=$2
 torrentpath=$3
 
-tmpdir=$(mktemp -d)
-
 ##############################################################
 # Define these vars to the path where they are located
 ##############################################################
-dc=/usr/bin/deluge-console
-deluge_state_dir=/root/.config/deluge/state
-rtfr=/usr/local/bin/rtnew
-torrent_download_dir=/home/ANUSER/deluge/download
-rtxmlrpc=/usr/local/bin/rtxmlrpc
-xmlrpc_endpoint=127.0.0.1
-xmlrpc_command="${rtxmlrpc} ${xmlrpc_endpoint}"
+export tmpdir=/log/000.de2rt.torrent
+export logfile=/log/001.de2rt.log
+# export logfile=/dev/null
+export ratio_log=/log/002.deluge.log
+export dc=/usr/bin/deluge-console
+export deluge_state_dir=/root/.config/deluge/state
+export rtfr=/usr/local/bin/rtnew
+export torrent_download_dir=RTDOWNLOADPATH
+export rtxmlrpc=/usr/local/bin/rtxmlrpc
+export rtorrent_watch=/home/ANUSER/rtorrent/watch
 ##############################################################
+# cat /log/000.de2rt.log ; ll /log
+# rm -f /usr/local/bin/de2rt && nano /usr/local/bin/de2rt && chmod +x /usr/local/bin/de2rt
+# chmod 777 $ratio_log
 
-function on_exit() {
-    rm -rf "${tmpdir}"
-}
+mkdir -p $tmpdir
 
-#trap on_exit EXIT
+export ratio=$($dc info $torrentid | grep Ratio: | awk -F "Ratio: " '{print $2}')
 
-tracker_line=$($dc info $torrentid | grep "^Tracker" | awk -F: '{print $2}' | tr -d " ")
-set_tracker $tracker_line
-ratio=$($dc info $torrentid | grep Ratio: | awk -F "Ratio: " '{print $2}')
-
-#echo $tracker
-#echo $ratio
+# DeBUG
+echo -e "\n\n\n$(date "+%Y.%m.%d.%H:%M:%S")\ntorrentid=$torrentid\ntorrentname=$torrentname\ntorrentpath=$torrentpath\nratio=$ratio\n" >> $logfile
 
 cp ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}
 
-$rtfr $torrent_download_dir ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}/${torrentid}_fast.torrent
-if [[ $? -ne 0 ]]; then
-  echo "Something went wrong when converting the torrent file with $(basename ${torrent_download_dir})"
-  echo "exiting..."
-  exit 10
-fi
+$rtfr $torrent_download_dir ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>1
 
 # remove the torrent from deluge
 $dc rm $torrentid
 
-$rtxmlrpc load.start ${tmpdir}/${torrentid}_fast.torrent
-sleep 3
-$rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}
+mv ${tmpdir}/${torrentid}_fast.torrent $rtorrent_watch
 
-/usr/bin/rm -rf $tmpdir
+# rtxmlrpc are not able to work properly under root even with runuser, so use another way instead
+echo -e "$torrentid   $ratio" >> $ratio_log
+
+# $rtxmlrpc load.start ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>1
+# su black -c 'rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}' >> $logfile 2>1
+# runuser -l black -c 'rtxmlrpc d.set_custom ${torrentid} deluge_ratio 2.333'
+
+rm -rf $tmpdir
+
+# sleep 320 ; rm -f /log/002.deluge.log
