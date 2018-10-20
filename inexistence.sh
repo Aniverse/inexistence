@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.10
+INEXISTENCEDATE=2018.10.20
 # --------------------------------------------------------------------------------
 
 
@@ -892,7 +892,6 @@ while [[ $DELTVERSION = "" ]]; do
 
     else
 
-      # echo -e "${green}00)${normal} libtorrent-rasterbar ${cyan}0.16.19${normal} (NOT recommended)"
         echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal}"
         echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.10 ${normal}"
         echo -e "${green}30)${normal} Select another version"
@@ -912,7 +911,6 @@ while [[ $DELTVERSION = "" ]]; do
         echo -ne "${bold}${yellow}Which version of libtorrent do you want?${normal} (Default ${cyan}01${normal}): " ; read -e version
 
         case $version in
-              00 | 0) DELTVERSION=RC_0_16 ;;
               01 | 1) DELTVERSION=1.0.11 && DeLTDefault=1 ;;
               02 | 2) DELTVERSION=RC_1_1 ;;
               03 | 3) DELTVERSION=RC_1_0 ;;
@@ -2129,6 +2127,7 @@ cp "${local_packages}"/script/special/update-tracker.py /usr/lib/python2.7/dist-
 sed -i "s/ANUSER/$ANUSER/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
+chmod +x /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py /usr/local/bin/deluge-update-tracker
 
 touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
@@ -2342,6 +2341,12 @@ function _installflex() {
   /usr/local/bin/pip install markdown
   /usr/local/bin/pip install flexget 
   /usr/local/bin/pip install transmissionrpc
+  
+  # 2018.10.20。Flexget 搞出了个 bug，连 de 有点问题，先用老版本吧……
+  git clone --depth=1 --branch 2.16.2 https://github.com/Flexget/Flexget
+  cd Flexget
+  python setup.py install
+  cd ; rm -rf Flexget
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
@@ -2754,13 +2759,13 @@ alias qba="systemctl start qbittorrent"
 alias qbb="systemctl stop qbittorrent"
 alias qbc="systemctl status qbittorrent"
 alias qbr="systemctl restart qbittorrent"
-alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbl="tail -n300 /etc/inexistence/01.Log/qbittorrent.log"
 alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
 alias dea="systemctl start deluged"
 alias deb="systemctl stop deluged"
 alias dec="systemctl status deluged"
 alias der="systemctl restart deluged"
-alias del="grep -v TotalTraffic /etc/inexistence/01.Log/deluged.log | tail -n100"
+alias del="grep -v TotalTraffic /etc/inexistence/01.Log/deluged.log | grep -v 'Successfully loaded' | grep -v 'Saving the state' | tail -n300"
 alias dewa="systemctl start deluge-web"
 alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
