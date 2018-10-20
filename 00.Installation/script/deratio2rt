@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ -f /log/002.deluge.log ]]; then
+    cat /log/002.deluge.log | while read line; do
+        torrentid=$(echo $line | awk '{print $1}') ; ratio=$(echo $line | awk '{print $2}')
+        rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}
+    done
+fi
