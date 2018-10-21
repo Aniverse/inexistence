@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.20
+INEXISTENCEDATE=2018.10.21
 # --------------------------------------------------------------------------------
 
 
@@ -2339,14 +2339,8 @@ function _installflex() {
   apt-get -y install python-pip
   pip install --upgrade pip setuptools
   /usr/local/bin/pip install markdown
-  /usr/local/bin/pip install flexget 
+  /usr/local/bin/pip install flexget==2.16.2
   /usr/local/bin/pip install transmissionrpc
-  
-  # 2018.10.20。Flexget 搞出了个 bug，连 de 有点问题，先用老版本吧……
-  git clone --depth=1 --branch 2.16.2 https://github.com/Flexget/Flexget
-  cd Flexget
-  python setup.py install
-  cd ; rm -rf Flexget
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
