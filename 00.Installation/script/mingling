@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.0.4
-SCRIPTUPDATE=2018.05.05
+SCRIPTVER=0.9.1
+SCRIPTUPDATE=2018.10.23
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -215,13 +215,13 @@ echo -e " ${green}qbb${jiacu} = 关闭 qBittorrent-nox  ${green}deb${jiacu} = �
 echo -e " ${green}qbc${jiacu} = 检查 qBittorrent-nox  ${green}dec${jiacu} = 检查 Deluged  ${green}dewc${jiacu} = 检查 Deluge WebUI  ${green}rtc${jiacu} = 检查 rTorrent"
 echo -e " ${green}qbr${jiacu} = 重启 qBittorrent-nox  ${green}der${jiacu} = 重启 Deluged  ${green}dewr${jiacu} = 重启 Deluge WebUI  ${green}rtr${jiacu} = 重启 rTorrent"
 echo
-echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fla${jiacu} = 运行 Flexget Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
-echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}flb${jiacu} = 关闭 Flexget Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
-echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}flc${jiacu} = 检查 Flexget Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
-echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}flr${jiacu} = 重启 Flexget Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
+echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 Flexget Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
+echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 Flexget Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
+echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 Flexget Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
+echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 Flexget Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
 echo
-echo -e " ${green}cdqb${jiacu}  = 切换目录到  qBittorrent 的下载目录   ${green}ruisua${jiacu} = 开启锐速    ${green}  fll  ${jiacu} = 查看 Flexget 日志"
-echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录   ${green}ruisub${jiacu} = 关闭锐速    ${green}  fls  ${jiacu} = 修改 Flexget 设置"
+echo -e " ${green}cdqb${jiacu}  = 切换目录到  qBittorrent 的下载目录   ${green}ruisua${jiacu} = 开启锐速    ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
+echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录   ${green}ruisub${jiacu} = 关闭锐速    ${green}  fgs  ${jiacu} = 修改 Flexget 设置"
 echo -e " ${green}cdrt${jiacu}  = 切换目录到   rTorrent   的下载目录   ${green}ruisuc${jiacu} = 检查锐速   ${green}shanchu${jiacu}  = rm -rf，删除     "
 echo -e " ${green}cdtr${jiacu}  = 切换目录到 Transmission 的下载目录   ${green}ruisur${jiacu} = 重启锐速   ${green}quanxian${jiacu} = 递归赋予 777 权限"
 echo
@@ -240,7 +240,7 @@ echo
 echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
 echo -e "           ${yellow}guazai ${underline}\"/root/Pitch.Perfect.3.2017.BluRay.1080p.AVC.DTS-HD.MA7.1-CHDBits.iso\"${reset_underline}"
 echo
-echo -e " ${blue}bluray${jiacu}    转发蓝光原盘时可用的脚本，能完成挂载BDISO、扫描BDinfo、截图、制作种子等一系列操作"
+echo -e " ${blue}bluray${jiacu}    转发原盘时可用的脚本，能完成挂载 BDISO、扫描 BDinfo、截图、制作种子等一系列操作"
 echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
 echo
 echo -e " ${blue}bdinfo${jiacu}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
@@ -549,7 +549,7 @@ case $response in
     01 |  1) # 安装 inexistence
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh )" ;;
     02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
-             bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A)" ;;
+             bash -c "$( wget --no-check-certificate -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A )" ;;
     03 |  3) # 安装 Shadowsocks
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh )" ;;
     04 |  4) # 安装 V2Ray
