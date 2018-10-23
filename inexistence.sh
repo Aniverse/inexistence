@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.21
+INEXISTENCEDATE=2018.10.23
 # --------------------------------------------------------------------------------
 
 
@@ -2339,7 +2339,8 @@ function _installflex() {
   apt-get -y install python-pip
   pip install --upgrade pip setuptools
   /usr/local/bin/pip install markdown
-  /usr/local/bin/pip install flexget==2.16.2
+  /usr/local/bin/pip install flexget
+# /usr/local/bin/pip install flexget==2.16.2
   /usr/local/bin/pip install transmissionrpc
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
@@ -2717,6 +2718,8 @@ EOF
 
 [[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,148!{P;N;D;};N;ba' /etc/bash.bashrc
 
+# 以后这堆私货另外处理吧，以后。上边那个检测也应该要改下
+
 cat>>/etc/bash.bashrc<<EOF
 
 
@@ -2779,25 +2782,25 @@ alias irssib="su ${ANUSER} -c 'rt -i -k stop'"
 alias irssic="su ${ANUSER} -c 'rt -i'"
 alias irssir="su ${ANUSER} -c 'rt -i -k restart'"
 alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
-alias fla="systemctl start flexget"
-alias flaa="flexget daemon start --daemonize"
-alias flb="systemctl stop flexget"
-alias flc="systemctl status flexget"
-alias flcc="flexget daemon status"
-alias flr="systemctl restart flexget"
-alias flrr="flexget daemon reload-config"
-alias fll="echo ; tail -n100 /root/.config/flexget/flexget.log ; echo"
-alias fls="nano /root/.config/flexget/config.yml"
-alias flcheck="flexget check"
-alias fle="flexget execute"
-alias flooda="systemctl start flood"
-alias floodb="systemctl stop flood"
-alias floodc="systemctl status flood"
-alias floodr="systemctl restart flood"
-alias ssa="/etc/init.d/shadowsocks-r start"
-alias ssb="/etc/init.d/shadowsocks-r stop"
-alias ssc="/etc/init.d/shadowsocks-r status"
-alias ssr="/etc/init.d/shadowsocks-r restart"
+alias fga="systemctl start flexget"
+alias fgaa="flexget daemon start --daemonize"
+alias fgb="systemctl stop flexget"
+alias fgc="systemctl status flexget"
+alias fgcc="flexget daemon status"
+alias fgr="systemctl restart flexget"
+alias fgrr="flexget daemon reload-config"
+alias fgl="echo ; tail -n300 /root/.config/flexget/flexget.log ; echo"
+alias fgs="nano /root/.config/flexget/config.yml"
+alias fgcheck="flexget check"
+alias fge="flexget execute"
+alias fla="systemctl start flood"
+alias flb="systemctl stop flood"
+alias flc="systemctl status flood"
+alias flr="systemctl restart flood"
+alias ssra="/etc/init.d/shadowsocks-r start"
+alias ssrb="/etc/init.d/shadowsocks-r stop"
+alias ssrc="/etc/init.d/shadowsocks-r status"
+alias ssrr="/etc/init.d/shadowsocks-r restart"
 alias ruisua="/appex/bin/serverSpeeder.sh start"
 alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
