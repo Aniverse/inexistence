@@ -166,7 +166,7 @@ function _main_menu() {
   echo -e "${green}(09) ${jiacu}退出脚本"
   echo -e "${normal}"
 
-read response
+read -e response
 
 case $response in
     1 | 01) # 查看 SSH 命令
