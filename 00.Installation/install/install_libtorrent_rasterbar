@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # 2018.10.26
-# 1.0.8.test
+# 1.0.9
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -13,7 +13,11 @@ LOCKLocation=/etc/inexistence/01.Log/Lock
 
 cat>>$OutputLOG<<EOF
 
+
+
 $(date "+%Y.%m.%d.%H.%M.%S")
+
+
 
 EOF
 
@@ -73,12 +77,13 @@ esac
 # Install dependency
 function _install_lt_dependency() {
 echo -e "Install libtorrent-rasterbar build dependency ..." | tee -a $OutputLOG
-apt-get install -y                                                                  \
+{ apt-get install -y                                                                \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
-zlib1g-dev >> $OutputLOG 2>&1 ; }
+zlib1g-dev >> $OutputLOG 2>&1 ; } && \
+echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}" ; }
 
 
 
@@ -103,7 +108,8 @@ an efficient feature complete C++ bittorrent implementation
 EOF
 
 # make install
-checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1
+{ checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1
+} && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
 
 cp -f libtorrent-rasterb*.deb $DebLocation
 touch $LOCKLocation/libtorrent-rasterbar.lock
@@ -117,16 +123,16 @@ function _install_lt_deb() {
 echo -e "Install libtorrent-rasterbar 1.0.11 from pre-compiled deb package ..." | tee -a $OutputLOG
 
 if [[ $CODENAME == jessie ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG 2>&1
 elif [[ $CODENAME == xenial ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       >> $OutputLOG 2>&1
 elif [[ $CODENAME == bionic ]]; then
-    wget -O lt.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
 fi
 
-dpkg -i lt.deb >> $OutputLOG 2>&1
+{ dpkg -i lt.deb >> $OutputLOG 2>&1 ; } && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
 touch $LOCKLocation/libtorrent-rasterbar.lock
 touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
@@ -135,7 +141,7 @@ touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 # Install from repository
 function _install_lt_apt() {
 echo -e "Install libtorrent-rasterbar from repository" | tee -a $OutputLOG
-apt-get -y install libtorrent-rasterbar-dev python-libtorrent    >> $OutputLOG 2>&1
+{ apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1 ; } && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
 touch $LOCKLocation/libtorrent-rasterbar.lock
 touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
 
