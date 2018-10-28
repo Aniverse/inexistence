@@ -4,22 +4,37 @@
 # https://github.com/Aniverse/bluray
 #
 # --------------------------------------------------------------------------------
+# nano $(which bluray)
+BDDATE=2018.10.28
+BDVER=2.7.9
+DeBUG=0
+# sed -i "s/DeBUG=0/DeBUG=1/" $(which bluray)
+# --------------------------------------------------------------------------------
 # 如果你要自定义脚本生成的文件（种子、截图、BDinfo 等）的输出路径
 # 请把 CustomedOutput 改成 1，然后 OUTPUT 写上你想要的路径
+#
+# You are able to assing a specific folder for output files (bdinfo,screenshots etc.) by editing the following line
+# Jusr set CustomedOutput=1 and change the OUTPUT path
+#
 CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 # 如果你用的是没有 root 权限的盒子，对每次都询问是否使用内置软件库感到厌烦的话，
 # 可以把 NoInstall 改为 1，这样脚本每次都会自动使用脚本的软件库去运行
+#
+# You could set NoInstall=1 on shared seedbox without root privilege, so there will be no more question asking if you would like to use built-in library
+#
 NoInstall=0
 # --------------------------------------------------------------------------------
 # 使用 rar 打包文件，最后给出下载链接（需要开启 http 下载以及安装了 rar）
+# 以下预设主要针对使用了 inexistence 脚本的用户，其他用户请根据实际情况修改
+#
 BATCH=0
 DOWNLOAD_LINK_BASE="https://$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )/h5ai/inexistence/04.Upload"
 WEB_FOLDER="/etc/inexistence/04.Upload"
 # --------------------------------------------------------------------------------
-# 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径
-# 请确保 rclone 命令可用
+# 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径（请确保 rclone 命令可用）
+#
 RCLONE=0
 RCLONEPATH="Replace:/here/with/your/remote/path"
 # --------------------------------------------------------------------------------
@@ -32,12 +47,9 @@ reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta}; jiacu=${normal}${bold}
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 # --------------------------------------------------------------------------------
-BDDATE=2018.05.03
-BDVER=2.6.1
-DeBUG=0
-# --------------------------------------------------------------------------------
-bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
+bdinfocli_path="/etc/inexistence/02.Tools/BDinfoCli/BDInfo.exe"
 # --------------------------------------------------------------------------------
 
 # 获取参数
@@ -66,6 +78,7 @@ if [[ $fenbianlv ]]; then
     [[ $fenbianlv == auto   ]] &&   resolution=auto
     [[ $fenbianlv == autoar ]] &&   resolution=autoar
     [[ $fenbianlv == 1080p  ]] && { resolution=1080p ; fenbianlv=1920x1080 ;  }
+    [[ $fenbianlv == 2160p  ]] && { resolution=2160p ; fenbianlv=3840x2160 ;  }
     [[ ! $resolution ]]        &&   resolution=input_opt
 fi
 
@@ -98,19 +111,28 @@ function _logo() { clear ; wget --no-check-certificate -t1 -T7 -qO- https://gith
 function _check_install(){
 app_location=$( command -v ${app_name} )
 if [[ ! -e $app_location ]]; then
-eval "${app_name}"_installed=No
-echo "${app_name} " >> tmpmissingapp
-sed -i ':t;N;s/\n//;b t' tmpmissingapp
-tmpmissingapp=$(cat tmpmissingapp)
-appmissing="Yes" ; fi ; }
+    eval "${app_name}"_installed=No
+    echo "${app_name} " >> tmpmissingapp
+    sed -i ':t;N;s/\n//;b t' tmpmissingapp
+    tmpmissingapp=$(cat tmpmissingapp)
+    appmissing="Yes"
+fi ; }
 
 
 # 检查必要软件是否齐全
-function _check_install_2(){ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut bc ; do app_name=$apps; _check_install; done; rm -rf tmpmissingapp ; }
+function _check_install_2(){ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut nconvert bc expr; do app_name=$apps; _check_install; done; rm -rf tmpmissingapp ; }
 
 
 # 有 root 权限的盒子安装 ffmpeg
 function _install_ffmpeg(){
+cd ; wget --no-check-certificate -qO ffmpeg-4.0.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-4.0.2-64bit-static.tar.xz
+tar xf ffmpeg-4.0.2-64bit-static.tar.xz
+rm -rf ffmpeg-*bit-static/{manpages,presets,model,readme.txt,GPLv3.txt}
+cp -f ffmpeg-*-64bit-static/* /usr/bin
+chmod 755 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
+rm -rf ffmpeg-*-64bit-static* ; }
+
+function _install_ffmpeg_2(){
 if [[ `cat /etc/os-release | grep "(" | cut -d '(' -f2 | cut -d ')' -f1 | head -n1 | awk '{print $1}' | tr '[A-Z]' '[a-z]'` == jessie ]]; then
 grep "deb http://www.deb-multimedia.org jessie main" /etc/apt/sources.list >> /dev/null || echo "deb http://www.deb-multimedia.org jessie main" >> /etc/apt/sources.list
 apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 5C808C2B65558117
@@ -120,24 +142,31 @@ else apt-get -y install ffmpeg ; fi ; }
 
 
 # 有 root 权限的盒子安装 vcs
-function _install_vcs() { wget --no-check-certificate -qO /usr/local/bin/vcs https://raw.githubusercontent.com/Aniverse/inexistence/master/03.Files/app/vcs && chmod 777 /usr/local/bin/vcs ; }
+function _install_vcs() { wget --no-check-certificate -qO /usr/local/bin/vcs https://raw.githubusercontent.com/Aniverse/bluray/master/tools/vcs && chmod 755 /usr/local/bin/vcs ; }
+
+
+# 有 root 权限的盒子安装 nconvert
+function _install_nconvert() { wget --no-check-certificate -qO /usr/local/bin/vcs https://raw.githubusercontent.com/Aniverse/bluray/master/tools/nconvert && chmod 755 /usr/local/bin/vcs ; }
 
 
 # 有 root 权限的盒子安装 bdinfo
 function _install_bdinfo() {
-if [[ ! $bdinfocli_path ]]; then
-mkdir -p /etc/inexistence/02.Tools
-wget --no-check-certificate -qO /etc/inexistence/02.Tools/bdinfocli.exe https://raw.githubusercontent.com/Aniverse/inexistence/master/02.Tools/bdinfocli.exe
-chmod 755 /etc/inexistence/02.Tools/bdinfocli.exe ; fi ; }
+if [[ ! -f $bdinfocli_path ]]; then
+    mkdir -p /etc/inexistence/02.Tools
+    cd /etc/inexistence/02.Tools
+  # svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli
+    wget -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/BDTools/BDinfoCli.0.7.5.tar.gz && tar zxf BDinfoCli.0.7.5.tar.gz && rm -f BDinfoCli.0.7.5.tar.gz
+    chmod 755 /etc/inexistence/02.Tools/BDinfoCli/BDInfo.exe
+fi ; }
 
 
 # 检查内置库是否存在、指定路径
 function _check_library() {
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ ! `ls "${DIR}" | grep -E "mono.net-4.0"` ]] && [[ `command -v git` ]]; then
-    echo -e "\n${bold}Git found, cloning library ...\n"
-    cd "${DIR}" ; rm -rf bluray-$BDVER
-    [[ $DeBUG == 1 ]] && echo -e "\n${DIR}\n" && ls
+    echo -e "\n${bold}Git found, cloning library ...${normal}\n"
+    cd "${DIR}" ; rm -rf bluray-2*
+    [[ $DeBUG == 1 ]] && echo -e "\nDIR = ${DIR}\n" && ls
     git clone --depth=1 https://github.com/Aniverse/bluray bluray-$BDVER
     [[ ! $? -eq 0 ]] && echo "Failed to git clone repo ..."
     rm -rf bluray-$BDVER/{bluray,README.md}
@@ -146,8 +175,8 @@ if [[ ! `ls "${DIR}" | grep -E "mono.net-4.0"` ]] && [[ `command -v git` ]]; the
 elif [[ ! `ls "${DIR}" | grep -E "mono.net-4.0"` ]] && [[ ! `command -v git` ]]; then
     echo "\n${bold}Git not found, downloading library via wget ...\n"
     cd "${DIR}"
-    [[ $DeBUG == 1 ]] && echo -e "\n${DIR}\n" && ls
-    BDVER=2.0.8
+    [[ $DeBUG == 1 ]] && echo -e "\nDIR = ${DIR}\n" && ls
+    BDVER=2.7.0
     wget --no-check-certificate -O $BDVER.tar.gz https://github.com/Aniverse/bluray/archive/$BDVER.tar.gz
     tar zxf $BDVER.tar.gz
     rm -rf bluray-$BDVER/{bluray,README.md}
@@ -159,7 +188,8 @@ fi
 chmod -R 755 "${DIR}/tools"
 export PATH="$DIR":"$DIR"/tools:$PATH
 export MONO_PATH="$DIR"/mono.net-4.0
-bdinfocli_path="$DIR"/tools/bdinfocli.exe ; }
+# bdinfocli_path="$DIR"/tools/bdinfocli.exe
+bdinfocli_path="$DIR"/tools/BDinfoCli/BDInfo.exe ; }
 # --------------------------------------------------------------------------------
 
 
@@ -183,23 +213,20 @@ while [[ $appmissing == Yes ]]; do
 
     echo -e "\n01) ${cyan}Install them to system with root privilege${normal}"
     echo "02) ${cyan}Use bluray script built-in library${normal}"
-    echo "03) ${cyan}Exit${normal}"
+    echo "03) ${cyan}Carry on anyway${normal}"
+    echo "04) ${cyan}Exit${normal}"
 
-    echo -e "${bold}Oooops, ${baihongse}${tmpmissingapp%?}${normal}${bold} is missing, without them the script can't work"
+    echo -e "${bold}Oooops, ${baihongse}${tmpmissingapp%?}${normal}${bold} is missing, without them the script could't work properly"
 
     installdone=0
-
-
 
     while [[ $installdone = 0 ]]; do
 
         installresponce=0
 
-
-
         while [[ $installresponce = 0 ]]; do
             installresponce=1
-            echo -n "${yellow}${bold}What would you like to do?${normal} (Default 02) " ; read -e responce ; echo
+            echo -n "${yellow}${bold}What would you like to do?${normal} (Default ${cyan}02${normal}) " ; read -e responce ; echo
         done
 
         case $responce in
@@ -207,16 +234,19 @@ while [[ $appmissing == Yes ]]; do
                          if [[ $NoRoot == 1 ]]; then
                              installresponce=0 && echo -e "${baihongse}${bold}ERROR${normal}${bold} You DONOT have ROOT privilege${normal}\n"
                          else
-                             apt-get install -y mono-complete mktorrent imagemagick
-                             [[ ! $( command -v ffmpeg ) ]] && _install_ffmpeg
-                             [[ ! $( command -v vcs ) ]] && _install_vcs
+                             apt-get install -y mono-complete mktorrent imagemagick bc
+                             [[ ! $( command -v ffmpeg   ) ]] && _install_ffmpeg
+                             [[ ! $( command -v vcs      ) ]] && _install_vcs
+                             [[ ! $( command -v nconvert ) ]] && _install_nconvert
                              _install_bdinfo ; installdone=1 ; appmissing=No ; _check_install_2
                          fi ;;
             02 | 2 | "") # 无需 root，使用脚本内置库运行
                          echo "${bold}The script will use built-in library ...${normal}"
                          _check_library
                          installdone=1 ; appmissing=No ; _check_install_2 ;;
-            03 | 3)      # 退出脚本
+            03 | 3)      # 继续运行
+						 installdone=1 ; appmissing=No2 ;;
+            04 | 4)      # 退出脚本
                          echo "${bold}Exiting script ...${normal}" ; exit 0 ;;
             *)           # 重新输入
                          installresponce=0 ;;
@@ -224,14 +254,16 @@ while [[ $appmissing == Yes ]]; do
 
     done
 
-
-
 done
 
 
 _logo
-[[ $NoRoot == 1 ]] && echo -e "\n${bold}Since you run this script without root privileges, BDISO is not supported${normal}"
-echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}" ; }
+[[ $NoRoot == 1 ]] && echo -e "\n${ZY}Since you run this script without root privileges, BDISO is not supported${normal}"
+if [[ $appmissing == No2 ]]; then
+    echo -e "\n${JG}There might be some issues since ${baihongse}${tmpmissingapp%?}${normal}${bold} is missing ...${normal}"
+else
+    echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}"
+fi ; }
 
 
 
@@ -243,6 +275,8 @@ function _askpath() {
 BDdetect=0
 [[ $opt_path == 1 ]] && { echo -e "\n${bold}Read Blu-ray from:\n${blue}$pathtostuff${normal}" ; _stuff_check_existence ; }
 
+# NoRoot=0 && _umount_all_disk
+
 while [[ $pathtostuff == "" ]]; do
 #   echo ; read -ep "${yellow}${bold}Input full path to your Blu-ray Disk: ${jiacu}${underline}" pathtostuff ; echo -n "${reset_underline}"
     echo ; echo -e "${yellow}${bold}Input path to your stuff: ${normal}${underline}" ; read -e pathtostuff ; echo -n "${reset_underline}"
@@ -251,26 +285,48 @@ done ; }
 
 
 
+# 先全部解除挂载（其实没必要）
+function _umount_all_disk() {
+disknumber=` df -lh | grep -c "/dev/loop" `
+if [[ ! $disknumber == 0 ]]; then
+  # echo -e "\n${bold}You're now mounting ${green}${disknumber}${normal}${bold} disks,the script will unmount all of them ${normal}\n"
+    for disk in ` df -lh | grep -Eo "/dev/loop[0-9]+" ` ; do
+        ppaatthh=$(basename `df -lh | grep -E "${disk}\>" | awk '{print $6}' `)
+        umount ${disk} # && echo "${cyan}${ppaatthh}${normal} has been unmounted"
+    done
+  # echo -e "\n${bold}All ${green}${disknumber}${normal}${bold} disks had been unmounted${normal}\n"
+fi ; }
+
+
+
+# 检查文件是否存在
 function _stuff_check_existence() {
 if [[ ` ls "$pathtostuff" 2>/dev/null ` ]]; then
     FileExists=1 ; _stufftype
 else
     FileExists=0 ; echo -e "\n${bold}${red}ERROR${jiacu} This file or dictionary doesn't exist, or it's empty${normal}" ; unset pathtostuff
 fi
-[[ $DeBUG == 1 ]] && echo -e "\n${bold}${blue}FileExists=$FileExists\n${cyan}$pathtostuff${normal}\n" ; }
+[[ $DeBUG == 1 ]] && echo -e "\n\n${bold}${blue}FileExists = $FileExists\n${normal}${bold}${cyan}pathtostuff = $pathtostuff${normal}" ; }
 
 
 
-# 检查是不是 BDMV 或者 BDISO，是不是 UHD BD
+# 检查是不是 BDMV 或者 BDISO
 function _stufftype() {
 
 BDname=` basename "$pathtostuff" `
-UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
-[[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
-[[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
-[[   $UHDBD == 1 ]] && unset pathtostuff
 
-if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
+# UHDBD=0 ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
+# [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
+# [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && echo -e "\n${bold}${red}ERROR${jiacu} It seems this is a UHD Blu-ray, which is not supported${normal}" && UHDBD=1
+# [[   $UHDBD == 1 ]] && unset pathtostuff
+
+UHDBD=0              ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && UHDBD=1
+[[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]]         && UHDBD=1
+[[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && UHDBD=1
+
+# if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
+if [[ -d "${pathtostuff}" ]]; then
+
 #   文件夹路径下包含名为 BDMV 的文件，认为是 BDMV
     if [[ ` ls "${pathtostuff}" | grep BDMV ` ]]; then
         stufftype=BDMV ; BDdetect=1 ; opt_path=2
@@ -285,33 +341,56 @@ if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
     else
         echo -e "\n${bold}${red}ERROR${jiacu} This folder does not contain BDMV or BDISO${normal}" ; unset pathtostuff
     fi
-elif [[ ! $UHDBD == 1 ]] && [[ ! -d "${pathtostuff}" ]]; then
+
+# elif [[ ! $UHDBD == 1 ]] && [[ ! -d "${pathtostuff}" ]]; then
+elif [[ ! -d "${pathtostuff}" ]]; then
+
     ifBDISO="${pathtostuff##*.}"
 #   文件扩展名为 ISO
     if [[ `echo "${ifBDISO}" | grep -E [Ii][Ss][Oo]` = [Ii][Ss][Oo] ]]; then
         _iso_check
     else
-       #echo -e "\n${bold}${red}ERROR${jiacu} This is a ${underline}${ifBDISO}${reset_underline} file, not BDISO${normal}"
+      # echo -e "\n${bold}${red}ERROR${jiacu} This is a ${underline}${ifBDISO}${reset_underline} file, not BDISO${normal}"
         echo -e "\n${bold}${red}ERROR${jiacu} This is not an ${underline}ISO${reset_underline} file${normal}" ; unset pathtostuff
     fi
 fi ; }
 
 
 
-# 检查 ISO 是不是可用的 BDISO（这个功能可能会引发 bug：明明确实是原盘但却无法识别出来，原因不明，故暂时搁置，不做处理）
+# 检查 ISO 是不是可用的 BDISO #####（这个功能可能会引发 bug：明明确实是原盘但却无法识别出来，原因不明，故暂时搁置，不做处理）
 function _iso_check() {
 mkdir -p /mnt/mountbluraydisk
 mount -o loop "$pathtostuff" /mnt/mountbluraydisk > /dev/null 2>&1
-[[ $DeBUG == 1 ]] && echo -e "\n$pathtostuff\n" && df -lh && echo && ls /mnt/mountbluraydisk
+
+
+[[ $DeBUG == 1 ]] && {
+echo -e "${normal}\n${bold}${baihongse}               DEBUG INFO START               ${normal}\n"
+echo -e "pathtostuff: ${bold}${blue}${underline}${pathtostuff}${reset_underline}${normal}"
+echo -e "\n${bold}The followings are current file system disk${normal}${blue}" ; df -lh
+echo -e "${normal}\n${bold}The followings are files in mounted folder ${normal}${blue}"
+ls /mnt/mountbluraydisk
+echo -e "${normal}\n${bold}${baihongse}                DEBUG INFO END                ${normal}\n" ; }
+
+
 if [[ `ls /mnt/mountbluraydisk | grep BDMV` ]]; then
     stufftype=BDISO ; BDdetect=1 ; opt_path=2
     echo -ne "\n${bold}${magenta}BDISO${jiacu} detected ... ${normal}"
 elif [[ `ls /mnt/mountbluraydisk | grep VIDEO_TS` ]]; then
     echo -e "\n${bold}${red}ERROR${jiacu} This is a DVDISO, not BDISO${normal}" ; unset pathtostuff
 else
-    echo -e "\n${bold}${red}ERROR${jiacu} This is not a valid BDISO or you do not have root privileges to mount it${normal}" ; unset pathtostuff
+    echo -e "\n${bold}${red}ERROR${jiacu} This is not a valid BDISO or you are not able to mount it${normal}" ; unset pathtostuff
 fi
+
 umount /mnt/mountbluraydisk > /dev/null 2>&1 ; }
+
+
+
+# 这里还没做好。其实如果已经挂载了的话，直接用之前挂载的不就好了？不过这样子要改的东西有点多……
+# 注意 already mounted 和 busy 是同时可能存在的情况，其实可能是没挂载上去的
+function _mount_check() {
+mount -o loop "$pathtostuff" /mnt/mountbluraydisk > /tmp/mount.check.log 2>&1
+[[ `grep "already mounted" /tmp/mount.check.log` ]] && {
+echo -e "\n${bold}You're now mounting this blu-ray disk, the script will unmount it for futher detection ${normal}\n" ; } ; }
 
 
 
@@ -351,9 +430,10 @@ if [[ "${stufftype}" == "BDISO" ]]; then
     mount -o loop "$bdisopath" "$bdpath" >> /dev/null 2>&1
 fi
 
-main_m2ts_path=$(  find "$bdpath" -name "*.m2ts" -print0 | xargs -0 ls -1S | head -n1  )
+main_m2ts_path=$(  find "$bdpath" -name "*.m2ts" -print0 | xargs -0 ls -1S 2>/dev/null | head -n1  )
 duration1=$(  ffmpeg -i "$main_m2ts_path" 2>&1 | egrep '(Duration:)' | cut -d ' ' -f4 | cut -c1-8  )
 duration2=`  date -u -d "1970-01-01 $duration1" +%s  `
+VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -n1 `
 
 if [[ $CustomedOutput == 1 ]] && [[ $OUTPUT ]]; then
     mkdir -p "$OUTPUT/$file_title_clean"
@@ -366,9 +446,19 @@ elif [[ $CustomedOutput == 0 ]] && [[ $NoRoot == 0 ]]; then
     outputpath="/etc/inexistence/04.Upload/$file_title_clean"
 fi
 
-[[ $DeBUG == 1 ]] && { echo -e "\n${bold}Output path sets to ${outputpath}${normal}" ; echo -e "\n$bdpath\n" ; df -lh ; echo ; ls "$bdpath" ; }
+[[ $DeBUG == 1 ]] && {
+echo -e "${normal}\n${bold}${baizise}               DEBUG INFO START               ${normal}\n"
+echo -e "Output path sets to ${bold}${blue}${underline}${outputpath}${reset_underline}${normal}"
+echo -e "BDMV   path sets to ${bold}${blue}${underline}${bdpath}${reset_underline}${normal}"
+echo -e "Filepath   of m2ts: ${bold}${blue}${underline}${main_m2ts_path}${reset_underline}${normal}"
+echo -e "Duration   of m2ts: ${bold}${blue}${underline}${duration1}${reset_underline}${normal}"
+echo -e "Resolution of m2ts: ${bold}${blue}${underline}${VideoResolution}${reset_underline}${normal}"
+echo -e "\n${bold}The followings are current file system disk${normal}${blue}" ; df -lh
+echo -e "${normal}\n${bold}The followings are files in BDMV path ${normal}${blue}"
+ls "$bdpath"
+echo -e "${normal}\n${bold}${baizise}                DEBUG INFO END                ${normal}\n" ; }
 
-echo ; }
+echo -e "${normal}" ; }
 
 
 
@@ -395,9 +485,9 @@ while [[ $bdscan = "" ]]; do
 done
 
 if [[ $bdscan == auto ]]; then
-    echo "${bold}The script will scan the first longest playlist ${cyan}automaticly${normal}"
+    echo "${bold}The script will scan the first longest playlist ${blue}automaticly${normal}"
 elif [[ $bdscan == manual ]]; then
-    echo "${bold}Auto scan disabled, you need to select the mpls ${cyan}manually${normal}"
+    echo "${bold}Auto scan disabled, you need to select the mpls ${blue}manually${normal}"
 elif [[ $bdscan == no ]]; then
     echo "${bold}${red}BDinfo will not be scanned${normal}"
 fi
@@ -406,58 +496,72 @@ echo ; }
 
 
 
-function _response_jietu() { echo -e "${jiacu}The script will take 10 screenshots in ${green}$fenbianlv${normal}" ; }
+
 
 # 询问截图的分辨率
 function _askresolution() {
 
 while [[ $resolution = "" ]]; do
 
-    echo -e "01) ${cyan}1920x1080${normal}"
-    echo -e "02) ${cyan}Auto detect${normal}"
-    echo -e "03) ${cyan}Auto detect with DAR${normal}"
-    echo -e "04) ${cyan}Input a specific resolution${normal}"
-    echo -e "05) ${cyan}Do not take screenshots${normal}"
-    echo -ne "${yellow}${bold}Which resolution of the screenshots do you want?${normal} (Default: ${cyan}03${normal})"; read response
+    echo -e "01) ${cyan}1920 x 1080${normal}"
+    echo -e "02) ${cyan}3840 x 2160${normal}"
+    echo -e "03) ${cyan}Auto detect${normal}"
+    echo -e "04) ${cyan}Auto detect with DAR${normal}"
+    echo -e "05) ${cyan}Input a specific resolution${normal}"
+    echo -e "06) ${cyan}Do not take screenshots${normal}"
+
+    [[   $UHDBD == 1 ]] && echo -e "${bold}${red}ATTENTION${jiacu} For now there are some issues when taking screenshots of ${blue}UHD Blu-ray${normal}"
+
+    echo -ne "${yellow}${bold}Which resolution of the screenshots would you like?${normal} (Default: ${cyan}04${normal}) "; read response
 
     case $response in
         01 | 1 ) resolution=1080p ;;
-        02 | 2 ) resolution=auto ;;
-        03 | 3 ) resolution=autoar && echo ;;
-        04 | 4 ) resolution=input ;;
-        05 | 5 ) resolution=no ;;
+        02 | 2 ) resolution=2160p ;;
+        03 | 3 ) resolution=auto ;;
+        04 | 4 ) resolution=autoar && echo ;;
+        05 | 5 ) resolution=input ;;
+        06 | 6 ) resolution=no ;;
         "" | * ) resolution=autoar ;;
     esac
 
 done
 
 if [[ $resolution == autoar ]]; then
-    echo -e "Calculating resolution ..."
-    VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
-    echo -ne "Original resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
+  # echo -e "Calculating resolution ..."
+  # VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
+    echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
     VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
     VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" ` ; DW=$VideoHeight
     DAR=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
-    echo -e "display aspect ratio is ${underline}${bold}$DAR${normal}${reset_underline}"
+    echo -e "Display Aspect Ratio (DAR) is ${underline}${bold}$DAR${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
   # DH0=` expr $VideoHeight / $DARW  `
   # DH=` expr $DH0 \* $DARH  `
-    DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
+
+    [[   $(command -v bc) ]] && DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
+    [[ ! $(command -v bc) ]] && DH=` echo "$VideoHeight/$DARW*$DARH" | awk '{print int($0)}' `
+
     fenbianlv="${DH}x${DW}"
 
     echo -n "${yellow}${bold}The correct resolution may be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse "
-    if [[ $ForceYes == 1 ]] ; then echo ; _response_jietu ; else
-    read responce
-    case $responce in
-        [Tt] | [Tt][Ru][Uu][eE]     )  _response_jietu ;;
-        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
-        ""   | *                    )  _response_jietu ;;
-    esac
-fi ; fi
 
-if [[ $resolution == 1080p ]]; then
+    if [[ $ForceYes == 1 ]] ; then 
+        echo ; _response_jietu
+    else
+        read responce
+        case $responce in
+            [Tt] | [Tt][Ru][Uu][eE]     )  _response_jietu ;;
+            [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
+            ""   | *                    )  _response_jietu ;;
+        esac
+    fi
+fi
+
+if   [[ $resolution == 1080p ]]; then
     echo -e "${bold}The script will take 10 screenshots in ${green}1920×1080${normal}"
+elif [[ $resolution == 2160p ]]; then
+    echo -e "${bold}The script will take 10 screenshots in ${green}3840x2160${normal}"
 elif [[ $resolution == auto ]]; then
     echo -e "${bold}The script will take 10 screenshots in ${green}original${jiacu} resolution${normal}"
 elif [[ $resolution == input ]]; then
@@ -470,6 +574,8 @@ elif [[ $resolution == no ]]; then
 fi
 
 echo ; }
+
+function _response_jietu() { echo -e "${jiacu}The script will take 10 screenshots in ${green}$fenbianlv${normal}" ; }
 
 
 
@@ -491,6 +597,7 @@ done
 
 [[ $sstn == Yes ]] && echo -e "${bold}The script will generate a ${cyan}thumbnail${normal}"
 [[ $sstn == No  ]] && echo -e "${bold}${red}The script will not generate a thumbnail${normal}"
+
 echo ; }
 
 
@@ -509,7 +616,7 @@ echo -e "01) ${cyan}Create a new torrent with empty announce${normal}
 09) ${cyan}Do not create new torrent${normal}"
 echo -ne "${yellow}${bold}Would you like to create a new torrent file?${normal} "
 
-if [[ "${stufftype}" == "BDISO" ]]; then
+if [[ $stufftype == BDISO ]]; then
     echo -ne "(Default: ${cyan}01${normal}) " ; read responce
     case $responce in
         01 | 1 ) newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ;;
@@ -517,7 +624,7 @@ if [[ "${stufftype}" == "BDISO" ]]; then
         03 | 3 ) newtorrent=Yes3 ; ANNOUNCE="-a http://hdts-announce.ru/announce.php" ;;
         08 | 8 ) newtorrent=Yes8 ;;
         09 | 9 ) newtorrent=No   ;;
-        "" | * ) newtorrent=Yes; ANNOUNCE="-a \"\"" ;;
+        "" | * ) newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ;;
     esac
 else
     echo -ne "(Default: ${cyan}09${normal}) " ; read responce
@@ -553,7 +660,9 @@ elif [[ $newtorrent == Yes4 ]]; then
 elif [[ $newtorrent == Yes8 ]]; then
     newtorrent=Yes ; echo -e "${bold}The script will create a new torrent with ${cyan}public trackers${jiacu} announce${normal}"
     ANNOUNCE="-a udp://tracker.coppersurfer.tk:6969/announce -a http://open.kickasstracker.com:80/announce -a http://bt.dl1234.com:80/announce  -a udp://tracker.safe.moe:6969/announce -a udp://9.rarbg.to:2710/announce -a udp://tracker.piratepublic.com:1337/announce -a http://tracker.opentrackr.org:1337/announce -a http://retracker.telecom.by:80/announce -a https://open.acgnxtracker.com:443/announce -a udp://tracker.xku.tv:6969/announce -a udp://thetracker.org:80/announce -a udp://bt.xxx-tracker.com:2710/announce -a http://0d.kebhana.mx:443/announce -a http://share.camoe.cn:8080/announce -a udp://inferno.demonoid.pw:3418/announce -a udp://tracker.cypherpunks.ru:6969/announce"
-fi ; echo ; }
+fi
+
+echo ; }
 
 
 
@@ -565,9 +674,9 @@ function _input_announce() { echo "${yellow}${bold}" ; read -e -p "Input your tr
 # 询问制作种子时是否要暂时移除 BD 文件夹里的非必要文件
 function _askuselessfiles() {
 
-echo "${bold}Some non-essential files are inclueded in Blu-ray, such as ${red}${BDUSELESS}${normal}${bold}"
-[[ "${stufftype}" == "BDISO" ]] && echo -e "For BDISO, as it's mounted as read-only file system, it will take some time to copy files"
-echo -n "${yellow}Would you like to remove these files temporarily when creating new torrents? ${normal}[Y/${cyan}n${normal}]" ; read responce
+echo "${bold}Some unnecessary files are inclueded in Blu-ray, such as ${red}${BDUSELESS}${normal}${bold}"
+[[ "${stufftype}" == "BDISO" ]] && echo -e "For BDISO, as it's mounted as read-only file system, it will take some time to copy files (filesize is $(du -sB GB $bdpath | awk '{print $1}'))"
+echo -n "${yellow}Would you like to remove these files temporarily when creating new torrents? ${normal}[y/${cyan}N${normal}] " ; read responce
 
 case $responce in
     [yY] | [yY][Ee][Ss] )  movefile=Yes ;;
@@ -576,17 +685,22 @@ case $responce in
 esac
 
 if [[ $movefile == Yes ]]; then
-    echo -e "${bold}The script will create a new torrent without non-essential files${normal}"
-    mkdir -p "/etc/inexistence/06.BluRay/temp/$file_title_clean"
+    echo -e "${bold}The script will create a new torrent without unnecessary files${normal}"
+    new_bdpath="/etc/inexistence/06.BluRay/temp/$file_title_clean"
+    mkdir -p "$new_bdpath"
     if [[ "${stufftype}" == "BDISO" ]]; then
         copy_bdiso_to_bdmv=1
     else
         move_when_complete=1 ; working_path="$(pwd)"
         cd "$bdpath"
-        mv `ls | grep -v BDMV | grep -v CERTIFICATE` "/etc/inexistence/06.BluRay/temp/$file_title_clean"
+        mv `ls | grep -v BDMV | grep -v CERTIFICATE` "$new_bdpath"
         cd "$working_path"
     fi
-else echo "${bold}${red}The script will not remove non-essential files${normal}" ; fi ; echo ; }
+else
+    echo "${bold}${red}The script will not remove unnecessary files${normal}"
+fi
+
+echo ; }
 
 
 
@@ -595,15 +709,22 @@ else echo "${bold}${red}The script will not remove non-essential files${normal}"
 # 询问是否上传到其他地方
 function _askrclone() {
 
-echo -n "${yellow}${bold}Would you like to upload result files to some cloud drives via rclone?${normal} [${cyan}Y${normal}]es or [N]o "; read responce
+echo -n "${yellow}${bold}Would you like to upload generated files to cloud drive via rclone?${normal} [${cyan}Y${normal}]es or [N]o "; read responce
 case $responce in
     [yY] | [yY][Ee][Ss] )  rcloneup=Yes ;;
     [nN] | [nN][Oo]     )  rcloneup=No  ;;
-    ""   | *            )  rcloneup=No  ;;
+    ""   | *            )  rcloneup=Yes ;;
 esac
 
 [[ $rcloneup == Yes ]]  && echo -e "${bold}The script will upload results to ${cyan}$RCLONEPATH${normal}"
-[[ $rcloneup == No ]]   && echo -e "${bold}${red}The script will not upload results elsewhere${normal}"   ; echo ; }
+[[ $rcloneup == No ]]   && echo -e "${bold}${red}The script will not upload results elsewhere${normal}" 
+
+echo ; }
+
+
+
+
+
 
 
 
@@ -616,14 +737,31 @@ clear ; starttime=$(date +%s) ; echo -e "${bold}${blue}Work start!\n${normal}" ;
 
 # Debug
 function _debug() {
-echo -e "${yellow}${bold}DeBUG${jiacu}
-outputpath = $outputpath
-bdpath = $bdpath
-bdinfocli_path = $bdinfocli_path
-PATH = $PATH${normal}\n" ; }
+echo -e "${normal}\n${bold}${baihongse}               DEBUG INFO START               ${normal}\n"
+echo -e "bdinfocli_path = ${bold}${underline}$bdinfocli_path${reset_underline}${normal}"
+echo -e "PATH = ${bold}${underline}$PATH${reset_underline}${normal}"
+echo -e ""
+echo -e "Output path sets to ${bold}${blue}${underline}${outputpath}${reset_underline}${normal}"
+echo -e "Filepath   of m2ts: ${bold}${blue}${underline}${main_m2ts_path}${reset_underline}${normal}"
+echo -e "Duration   of m2ts: ${bold}${blue}${underline}${duration1}${reset_underline}${normal}"
+echo -e "Resolution of m2ts: ${bold}${blue}${underline}${VideoResolution}${reset_underline}${normal}"
 
+echo -e "\n${bold}The followings are current file system disk${normal}${blue}" ; df -lh ; echo -e "${normal}"
 
+echo -e "${normal}${bold}BDMV folder information${normal}"
+echo -e "Path = ${bold}${blue}${underline}${bdpath}${reset_underline}${normal}"
+echo -e "Size = ${bold}${blue}$(du -sB KB $bdpath | awk '{print $1}' | sed "s/kB/ KB/")${normal}"
+echo -e "File = ${bold}${blue}$(echo $(ls "$bdpath") | sed "s/ /  /g")${normal}"
+echo -e "${normal}"
 
+[[ $movefile == Yes ]] && { 
+echo -e "${normal}${bold}NEW BDMV folder(without useless files) information${normal}"
+echo -e "Path = ${bold}${blue}${underline}${new_bdpath}${reset_underline}${normal}"
+echo -e "Size = ${bold}${blue}$(du -sB KB "$new_bdpath" | awk '{print $1}' | sed "s/kB/ KB/")${normal}"
+echo -e "File = ${bold}${blue}$(echo $(ls "$new_bdpath") | sed "s/ /  /g")${normal}"
+echo -e "${normal}" ; }
+
+echo -e "${normal}${bold}${baihongse}                DEBUG INFO END                ${normal}\n" ; }
 
 
 
@@ -637,14 +775,17 @@ PATH = $PATH${normal}\n" ; }
 # 获取BD info
 function _getinfo() {
 
-[[ $bdscan == auto   ]] && echo -ne '1\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
+# [[ $bdscan == auto   ]] && echo -ne '1\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
+[[ $bdscan == auto   ]] && echo -ne '1\nq\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 [[ $bdscan == manual ]] && mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 
 if [[ ! $bdscan == no ]]; then
-    sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
-    count=`wc -l temptext | awk '{print $1-1}' `
-    head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
-    rm temptext
+
+  # BDinfoCLI 里不输出 Quick Summary
+  # sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
+  # count=`wc -l temptext | awk '{print $1-1}' `
+  # head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
+  # rm temptext
 
     sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-2}' `
@@ -653,6 +794,7 @@ if [[ ! $bdscan == no ]]; then
 
     mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.full.txt"
     echo -e "\n\n${bold}${green}Scanning BDinfo DONE${normal}\n\n"
+
 fi ; }
 
 
@@ -675,6 +817,7 @@ fi
 
 # png 截图
 [[ $resolution == 1080p ]] && fenbianlv=1920x1080
+[[ $resolution == 2160p ]] && fenbianlv=3840x2160
 
 for c in {01..10} ; do
 
@@ -684,7 +827,7 @@ for c in {01..10} ; do
     [[ $DeBUG == 0 ]] && echo -ne "Writing screenshot$c.png from timestamp $timestamp ... "
     [[ $DeBUG == 1 ]] && echo -e "\n${bailanse}Writing screenshot$c.png from timestamp $timestamp\n${normal}"
 
-    if [[ $resolution == 1080p ]] || [[ $resolution == input ]] || [[ $resolution == input_opt ]] || [[ $resolution == autoar ]]; then
+    if [[ $resolution == 2160p ]] || [[ $resolution == 1080p ]] || [[ $resolution == input ]] || [[ $resolution == input_opt ]] || [[ $resolution == autoar ]]; then
         [[ $DeBUG == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
         [[ $DeBUG == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png"
     elif [[ $resolution == auto ]]; then
@@ -733,6 +876,8 @@ function _rcloneup() { rclone copy -v --stats 5s "${outputpath}" "${RCLONEPATH}"
 function _end() {
 
 [[ $move_when_complete == 1 ]] && mv ` ls "/etc/inexistence/06.BluRay/temp/$file_title_clean" ` "$bdpath" && rm -rf "/etc/inexistence/06.BluRay/temp/$file_title_clean"
+
+# 不要解除挂载，解除挂载了等会儿怎么 seeding？
 # [[ $stufftype == "BDISO" ]] && umount "$bdisopath" # && rm -rf "/etc/inexistence/06.BluRay/$file_title_clean" "/etc/inexistence/06.BluRay/temp/$file_title_clean"
 
 file_title_short=` echo "${file_title_clean}" | cut -c1-40  `
@@ -741,31 +886,46 @@ file_title_short=` echo "${file_title_clean}" | cut -c1-40  `
 endtime=$(date +%s) 
 timeused=$(( $endtime - $starttime ))
 
-clear ; echo -e "${bold}Done. Files created in ${yellow}\"${outputpath}\"${normal}"
+clear ; echo -e "${bold}Done. Files are stored in ${yellow}\"${outputpath}\"${normal}"
+
+[[ ! $resolution == no ]] && [[ $UHDBD == 1 ]] && echo -e "\n${bold}${red}ATTENTION${jiacu} Some of screenshots may be ${red}broken${jiacu}, you need to check it manually"
 
 echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
 
-[[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}"
+[[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}\n"
 
-[[ $BATCH == 1 ]] && echo -e "${bold}Download batch via this link: ${green}${DOWNLOAD_LINK_BASE}/${file_title_short}.rar${normal}"
-
-if [[ ! $bdscan == no ]] ; then
-    echo -e "\n${bold}${blue}--------------------------------------------- BDinfo Main Summary ----------------------------------------------${normal}\n"
-    cat "${outputpath}/bdinfo.main.txt"
-    echo -e "\n${bold}${blue}------------------------------------ Just copy them, no need to download txt -----------------------------------${normal}"
-fi
+[[ $BATCH == 1 ]] && echo -e "${bold}Download batch via the following link: \n${green}${DOWNLOAD_LINK_BASE}/${file_title_short}.rar${normal}\n"
 
 if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
     timeusedmin=$(expr $timeused / 60) ; timeusedsec=$(expr $timeused % 60)
-    echo -e "\n${bold}${yellow}Time used: ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "${bold}${yellow}Time used: ${timeusedmin} min ${timeusedsec} sec${normal}"
 elif [[ $timeused -ge 3600 ]]; then
     timeusedhour=$(expr $timeused / 3600) ; timeusedmin=$(expr $(expr $timeused % 3600) / 60) ; timeusedsec=$(expr $timeused % 60)
-    echo -e "\n${bold}${yellow}Time used: ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    echo -e "${bold}${yellow}Time used: ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
 else
-   echo -e "\n${bold}${yellow}Time used: ${timeused} sec${normal}"
+   echo -e "${bold}${yellow}Time used: ${timeused} sec${normal}"
+fi
+
+if [[ ! $bdscan == no ]] ; then
+    echo -ne "\n${yellow}${bold}Would you like to show BDinfo summary in ssh?${normal} [${cyan}Y${normal}]es or [N]o " ; read responce
+    case $responce in
+        [yY] | [yY][Ee][Ss] )  showinfo=Yes ;;
+        [nN] | [nN][Oo]     )  showinfo=No  ;;
+        ""   | *            )  showinfo=Yes ;;
+    esac
+    echo
+    if [[ $showinfo == Yes ]] ; then
+        echo -e "\n${bold}${blue}-------------------------------------- BDinfo Main Summary ---------------------------------------${normal}\n"
+        cat "${outputpath}/bdinfo.main.txt"
+        echo -e "\n${bold}${blue}------------------------------------------- BDinfo END -------------------------------------------${normal}"
+    fi
 fi
 
 echo ; }
+
+
+
+
 
 
 
@@ -781,7 +941,7 @@ _askresolution
 _askthumbnail
 _askmktorrent
 [[ $USELESS == 1 ]] && _askuselessfiles
-[[ $rclone == 1 ]] && _askrclone
+[[ $RCLONE == 1 ]] && _askrclone
 
 [[ $DeBUG == 1 ]] && _debug
 _preparation
