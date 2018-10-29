@@ -1,0 +1,129 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+# 2018.07.09
+# 1.0.0.test
+
+OutputLOG=/etc/inexistence/01.Log/install_deluge.txt # /dev/null
+SCLocation=/etc/inexistence/01.Log/SourceCodes
+LOCKLocation=/etc/inexistence/01.Log/Lock
+
+cat>>$OutputLOG<<EOF
+
+$(date "+%Y.%m.%d.%H.%M.%S")
+
+EOF
+
+# Colors
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
+on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4); on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
+dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso); reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green}; baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
+heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}; jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
+
+# Sustem check
+CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
+
+# Get options
+OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
+
+
+
+DeSource="http://download.deluge-torrent.org/source"
+
+eval set -- "$OPTS"
+
+while true; do
+  case "$1" in
+    -m | --install-mode ) mode="$2"     ; shift ; shift ;;
+    -v | --version      ) version="$2"  ; shift ; shift ;;
+     * ) break ;;
+  esac
+done
+
+case $mode in
+    apt     ) sleep 0  ;;
+    ppa     ) sleep 0  ;;
+    source  ) sleep 0  ;;
+    ""   | *) echo -e "\n${CW} Install mode must be specified as apt, ppa or source${normal}\n"   ;;
+esac
+
+AvailableVersion=$(  wget -qO - $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
+
+
+
+
+
+# Install from source code
+# Guide from
+# https://dev.deluge-torrent.org/wiki/Installing/Source#BuildingandInstalling
+function _install_de_source() {
+
+echo -e "Install from source code \nbracnh $branch, version $version\n" >> $OutputLOG 2>&1
+
+# Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
+apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1
+# Fetch source files
+wget $DeSource/deluge-$version.tar.gz
+tar xf deluge-$version.tar.gz && rm -f deluge-$version.tar.gz && cd deluge-$version
+
+python setup.py build  > /dev/null ; python setup.py install --install-layout=deb  > /dev/null ; cd
+
+touch $LOCKLocation/deluge
+touch $LOCKLocation/deluge.source.$version.lock ; }
+
+
+
+# Install from PPA
+function _install_de_ppa() {
+
+echo -e "Install from pre-compiled deb package\n" >> $OutputLOG 2>&1
+
+if [[ $DISTRO == Debian ]]; then
+
+    add-apt-repository 'deb http://ppa.launchpad.net/deluge-team/ppa/ubuntu trusty main'  >> $OutputLOG 2>&1
+    apt-get update                                                                        >> $OutputLOG 2>&1
+    apt-get install -t trusty libtorrent-rasterbar8 python-libtorrent                     >> $OutputLOG 2>&1
+    apt-get install -t trusty deluged deluge-web                                          >> $OutputLOG 2>&1
+
+elif [[ $DISTRO == Ubuntu ]]; then
+
+    add-apt-repository -y ppa:deluge-team/ppa         >> $OutputLOG 2>&1
+    apt-get update                                    >> $OutputLOG 2>&1
+    apt-get install python-libtorrent                 >> $OutputLOG 2>&1
+    apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1 >> $OutputLOG 2>&1
+    apt-mark hold python-libtorrent                   >> $OutputLOG 2>&1
+    apt-mark hold libtorrent-rasterbar8               >> $OutputLOG 2>&1
+    apt-get install -y deluged deluge-web             >> $OutputLOG 2>&1
+
+fi
+
+touch $LOCKLocation/deluge.lock
+touch $LOCKLocation/deluge.ppa.lock ; }
+
+
+
+# Install from repository
+function _install_de_apt() { echo -e "Install from repository\n" >> $OutputLOG 2>&1
+apt-get install -y deluged deluge-web                            >> $OutputLOG 2>&1
+touch $LOCKLocation/deluge.lock
+touch $LOCKLocation/deluge.apt.lock ; }
+
+
+
+
+
+
+mkdir -p $SCLocation $LOCKLocation
+cd       $SCLocation
+
+case $mode in
+    apt     ) _install_de_apt     ;;
+    ppa     ) _install_de_ppa     ;;
+    source  ) _install_de_source  ;;
+esac
+
+cd
