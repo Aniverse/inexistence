@@ -3,23 +3,15 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# 2018.10.26
-# 1.0.9
+# 2018.10.29
+# 1.1.0
+# wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar && bash ltr -v 1.1.6
+# wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar && bash ltr -m deb
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
 SCLocation=/etc/inexistence/01.Log/SourceCodes
 LOCKLocation=/etc/inexistence/01.Log/Lock
-
-cat>>$OutputLOG<<EOF
-
-
-
-$(date "+%Y.%m.%d.%H.%M.%S")
-
-
-
-EOF
 
 # Colors
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -34,6 +26,8 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 # Get options
 OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
+
+
 
 eval set -- "$OPTS"
 
@@ -57,59 +51,77 @@ case $mode in
 esac
 
 
+
+
+
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
+
 # Transform version to branch
 [[ ` echo $version | grep -Eo "[012]\.[0-9]+\.[0-9]+" ` ]] && branch=` echo libtorrent-$version | sed "s/\./_/g" `
+
 # Check if input branch exists
-[[ ! -z $branch ]] && [[ ! ` wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ` ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
+[[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
+
 # Use RC_1_0 if not specified
 [[ -z $branch ]] && branch=RC_1_0
+
 # Determin RC_1_0 and RC_1_1's version
-[[ $branch == RC_1_0 ]] && version=1.0.11
-[[ $branch == RC_1_1 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
-[[ $branch == RC_1_2 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_2_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
-[[ $branch == master ]] && version=1.2.0
+# [[ $branch == RC_1_0 ]] && version=1.0.11
+# [[ $branch == RC_1_1 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
+# [[ $branch == RC_1_2 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_2_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
+# [[ $branch == master ]] && version=1.2.0
+
 # Use 6.6.6 when version cannot be determind
+[ ! -z $branch ] && [ -z $version ] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+" )
 [ ! -z $branch ] && [ -z $version ] && version=6.6.6
+
+# Random Number，用于区分下载下来的 lt 源码是哪一次下来的
+[[ $mode == compile ]] && RN=$(shuf -i 1-999 -n1)
+
+
 
 
 
 # Install dependency
 function _install_lt_dependency() {
-echo -e "Install libtorrent-rasterbar build dependency ..." | tee -a $OutputLOG
+echo -ne "Install libtorrent-rasterbar build dependency ... " | tee -a $OutputLOG
 { apt-get install -y                                                                \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
 zlib1g-dev >> $OutputLOG 2>&1 ; } && \
-echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}" ; }
+echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}" ; }
+
+
 
 
 
 # Install from source code
 function _install_lt_compile() {
 
-echo -e "Install libtorrent-rasterbar from source code, bracnh $branch, version $version ..." | tee -a $OutputLOG
-git clone --depth=1 -b $branch --single-branch https://github.com/arvidn/libtorrent libtorrent-$version >> $OutputLOG 2>&1
-cd libtorrent-$version
+if [[ $branch =~ (RC_1_0|RC_1_1|RC_1_2|master) ]]; then
+    echo -ne "Install libtorrent-rasterbar $branch($version) from source code ... " | tee -a $OutputLOG
+else
+    echo -ne "Install libtorrent-rasterbar $version from source code ... " | tee -a $OutputLOG
+fi
 
-# https://github.com/qbittorrent/qBittorrent/issues/6383
+git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$version-$RN >> $OutputLOG 2>&1
+cd libtorrent-$version-$RN
+
+# See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
 sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py
+
+mkdir -p doc-pak && echo "an efficient feature complete C++ bittorrent implementation" > description-pak
 
 ./autotool.sh >> $OutputLOG 2>&1
 ./configure --enable-python-binding --with-libiconv \
             --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 # For both Deluge and qBittorrent
 make -j$MAXCPUS >> $OutputLOG 2>&1
 
-mkdir -p doc-pak
-cat >description-pak<<EOF
-an efficient feature complete C++ bittorrent implementation
-EOF
-
-# make install
-{ checkinstall -y --pkgname=libtorrent-rasterbar-seedbox --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1
-} && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
+# 如果之前 dpkg 安装过一次，包名不一样的话，这一次 checkinstall 就会失败，所以失败后保险起见再 make install 试一次
+{ checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1
+} && echo "${green}${bold}DONE${normal}" || { make install >> $OutputLOG 2>&1 || echo "${red}${bold}FAILED${normal}" ;}
 
 cp -f libtorrent-rasterb*.deb $DebLocation
 touch $LOCKLocation/libtorrent-rasterbar.lock
@@ -117,36 +129,54 @@ touch $LOCKLocation/libtorrent-rasterbar.compile.$branch.lock ; }
 
 
 
+
+
 # Install from pre-compiled deb package
 function _install_lt_deb() {
 
-echo -e "Install libtorrent-rasterbar 1.0.11 from pre-compiled deb package ..." | tee -a $OutputLOG
+echo -ne "Install libtorrent-rasterbar 1.0.11 from pre-compiled deb package ... " | tee -a $OutputLOG
 
-if [[ $CODENAME == jessie ]]; then
+if   [[ $CODENAME == jessie  ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG 2>&1
-elif [[ $CODENAME == xenial ]]; then
+elif [[ $CODENAME == xenial  ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       >> $OutputLOG 2>&1
-elif [[ $CODENAME == bionic ]]; then
+elif [[ $CODENAME == bionic  ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
 fi
 
-{ dpkg -i lt.deb >> $OutputLOG 2>&1 ; } && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
+{ dpkg -i lt.deb >> $OutputLOG 2>&1 ; } && echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
 touch $LOCKLocation/libtorrent-rasterbar.lock
 touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 
 
+
+
 # Install from repository
 function _install_lt_apt() {
-echo -e "Install libtorrent-rasterbar from repository" | tee -a $OutputLOG
-{ apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1 ; } && echo -n "${green}${bold}DONE${normal}" || echo -n "${red}${bold}FAILED${normal}"
+echo -ne "Install libtorrent-rasterbar from repository ... " | tee -a $OutputLOG
+{ apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1 ; } && echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
 touch $LOCKLocation/libtorrent-rasterbar.lock
 touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
 
+
+
+
+
 mkdir -p $SCLocation $DebLocation $LOCKLocation
 cd       $SCLocation
+
+cat>>$OutputLOG<<EOF
+
+
+
+$(date "+%Y.%m.%d.%H.%M.%S")   $RN
+
+
+
+EOF
 
 case $mode in
     apt     ) _install_lt_apt                                ;;
