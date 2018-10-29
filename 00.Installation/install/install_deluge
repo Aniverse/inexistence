@@ -4,9 +4,9 @@
 # Author: Aniverse
 #
 # 2018.10.29
-# 1.0.1
+# 1.0.2
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
-# bash de -v 1.3.9
+# bash de -v 1.3.9        bash de -m alt -b develop
 
 OutputLOG=/etc/inexistence/01.Log/install_deluge.txt # /dev/null
 SCLocation=/etc/inexistence/01.Log/SourceCodes
@@ -50,14 +50,68 @@ esac
 
 DeSource="http://download.deluge-torrent.org/source"
 
-# Check available version
-AvailableVersion=$(  wget -qO - $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
+# Check if input version is available
+AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
+[[ ! -z $version ]] && [[ ! $( echo $AvailableVersion | grep $version ) ]] && { echo -e "\n${CW} The version you input is not available!\n" ; exit 1 ; }
 
 # Check if input branch exists
 [[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/deluge-torrent/deluge" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
 
+[[ ! -z $version ]] && source_type=release
+[[ ! -z $branch  ]] && source_type=git     && version=$branch
+
 # Random Number
-[[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
+# [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
+
+
+
+
+
+# Install build dependencies for deluge 
+function _install_de_dependencies() {
+
+echo -ne "Install deluge build dependencies ... " | tee -a $OutputLOG
+
+# Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
+apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && \
+echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+
+touch $LOCKLocation/deluge.dependencies.lock ; }
+
+
+
+
+
+# Fetch source files (release)
+function _get_sources_releases() {
+
+wget $DeSource/deluge-$version.tar.gz         >> $OutputLOG 2>&1
+tar xf deluge-$version.tar.gz                 >> $OutputLOG 2>&1
+rm -f deluge-$version.tar.gz                  >> $OutputLOG 2>&1
+cd deluge-$version                            >> $OutputLOG 2>&1
+
+touch $LOCKLocation/deluge.dependencies.lock ; }
+
+
+
+
+
+# Fetch source files (release)
+function _get_sources_releases() {
+wget $DeSource/deluge-$version.tar.gz         >> $OutputLOG 2>&1
+tar xf deluge-$version.tar.gz                 >> $OutputLOG 2>&1
+rm -f deluge-$version.tar.gz                  >> $OutputLOG 2>&1
+cd deluge-$version                            >> $OutputLOG 2>&1 ; }
+
+
+
+
+
+# Fetch source files (git)
+function _get_sources_git() {
+git clone https://github.com/deluge-torrent/deluge deluge-$version  >> $OutputLOG 2>&1
+cd deluge-$version   >> $OutputLOG 2>&1
+git checkout $branch >> $OutputLOG 2>&1 ; }
 
 
 
@@ -66,26 +120,53 @@ AvailableVersion=$(  wget -qO - $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\
 # Install from source code
 function _install_de_source() {
 
-echo -ne "Install deluge build dependencies ... " | tee -a $OutputLOG
+[[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
 
-# Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
-apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
-
-# Fetch source files
 echo -e "Install deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
 
-wget $DeSource/deluge-$version.tar.gz         >> $OutputLOG 2>&1
-tar xf deluge-$version.tar.gz                 >> $OutputLOG 2>&1
-rm -f deluge-$version.tar.gz                  >> $OutputLOG 2>&1
-cd deluge-$version
+if   [[ source_type == release ]]; then
+    _get_sources_releases
+elif [[ source_type ==   git   ]]; then
+    _get_sources_git
+fi
 
 python setup.py build                         >> $OutputLOG 2>&1
 python setup.py install --install-layout=deb  >> $OutputLOG 2>&1 && \
 echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
 
-touch $LOCKLocation/deluge
+rm -rf deluge-$version                        >> $OutputLOG 2>&1
+
+touch $LOCKLocation/deluge.lock
 touch $LOCKLocation/deluge.source.$version.lock ; }
+
+
+
+
+
+# Install another version of deluge (e.g. 1.3.9 for KeepFRDS)
+function _install_de_alt() {
+
+[[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
+
+echo -e "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
+
+if   [[ source_type == release ]]; then
+    _get_sources_releases
+elif [[ source_type ==   git   ]]; then
+    _get_sources_git
+fi
+
+python setup.py install --user                >> $OutputLOG 2>&1 && \
+echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+
+for de in deluge deluged deluge-web deluge-console deluge-gtk ; do
+    mv -f ~/.local/bin/${de} /usr/bin/${de}2  >> $OutputLOG 2>&1
+done
+
+rm -rf deluge-$version                        >> $OutputLOG 2>&1
+
+touch $LOCKLocation/deluge.alt.lock
+touch $LOCKLocation/deluge.alt.$version.lock ; }
 
 
 
