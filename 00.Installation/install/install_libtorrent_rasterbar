@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # 2018.10.29
-# 1.1.0
+# 1.1.1
 # wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar && bash ltr -v 1.1.6
 # wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar && bash ltr -m deb
 
@@ -72,7 +72,7 @@ esac
 # [[ $branch == master ]] && version=1.2.0
 
 # Use 6.6.6 when version cannot be determind
-[ ! -z $branch ] && [ -z $version ] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+" )
+[ ! -z $branch ] && [ -z $version ] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
 [ ! -z $branch ] && [ -z $version ] && version=6.6.6
 
 # Random Number，用于区分下载下来的 lt 源码是哪一次下来的
@@ -100,10 +100,16 @@ echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}" ; }
 # Install from source code
 function _install_lt_compile() {
 
-if [[ $branch =~ (RC_1_0|RC_1_1|RC_1_2|master) ]]; then
-    echo -ne "Install libtorrent-rasterbar $branch($version) from source code ... " | tee -a $OutputLOG
-else
+# if [[ $branch =~ (RC_1_0|RC_1_1|RC_1_2|master) ]]; then
+#     echo -ne "Install libtorrent-rasterbar $branch ($version) from source code ... " | tee -a $OutputLOG
+# else
+#     echo -ne "Install libtorrent-rasterbar $version from source code ... " | tee -a $OutputLOG
+# fi
+
+if [[ ` echo $branch | grep -Eo "[012]_[0-9]_[0-9]+" ` ]]; then
     echo -ne "Install libtorrent-rasterbar $version from source code ... " | tee -a $OutputLOG
+else
+    echo -ne "Install libtorrent-rasterbar $branch ($version) from source code ... " | tee -a $OutputLOG
 fi
 
 git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$version-$RN >> $OutputLOG 2>&1
