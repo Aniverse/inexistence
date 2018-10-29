@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # 2018.10.29
-# 1.1.2
+# 1.1.3
 #
 # wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash ltr -v 1.1.10       bash ltr -m deb       bash ltr -b RC_1_1
@@ -84,16 +84,20 @@ esac
 
 
 
-# Install dependency
+# Install build dependencies for libtorrent-rasterbar
 function _install_lt_dependencies() {
+
 echo -ne "Install libtorrent-rasterbar build dependencies ... " | tee -a $OutputLOG
+
 { apt-get install -y                                                                \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
 zlib1g-dev >> $OutputLOG 2>&1 ; } && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}" ; }
+echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+
+touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
 
 
 
@@ -101,6 +105,8 @@ echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}" ; }
 
 # Install from source codes
 function _install_lt_source() {
+
+[[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && _install_lt_dependencies
 
 # if [[ $branch =~ (RC_1_0|RC_1_1|RC_1_2|master) ]]; then
 #     echo -ne "Install libtorrent-rasterbar $branch ($version) from source code ... " | tee -a $OutputLOG
@@ -141,6 +147,8 @@ touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
 
 # Install from pre-compiled deb package
 function _install_lt_deb() {
+
+[[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && _install_lt_dependencies
 
 echo -ne "Install libtorrent-rasterbar ${bold}${cyan}1.0.11${normal} from pre-compiled deb package ... " | tee -a $OutputLOG
 
@@ -196,8 +204,8 @@ EOF
 
 case $mode in
     apt     ) _install_lt_apt                                ;;
-    deb     ) _install_lt_dependencies && _install_lt_deb      ;;
-    source  ) _install_lt_dependencies && _install_lt_source  ;;
+    deb     ) _install_lt_deb      ;;
+    source  ) _install_lt_source  ;;
 esac
 
 cd ; ldconfig
