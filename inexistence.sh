@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.8
-INEXISTENCEDATE=2018.10.23
+INEXISTENCEDATE=2018.11.02
 # --------------------------------------------------------------------------------
 
 
@@ -2342,6 +2342,7 @@ function _installflex() {
   /usr/local/bin/pip install flexget
 # /usr/local/bin/pip install flexget==2.16.2
   /usr/local/bin/pip install transmissionrpc
+  /usr/local/bin/pip install deluge-client
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
