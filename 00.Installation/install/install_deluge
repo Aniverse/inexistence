@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # 2018.11.02
-# 1.0.4
+# 1.0.5
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash de -v 1.3.9        bash de -m alt -b develop
 
@@ -27,7 +27,23 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 # Get options
 OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
 
+DeSource="http://download.deluge-torrent.org/source"
 
+# Check if input version is available
+AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
+[[ ! -z $version ]] && [[ ! $( echo $AvailableVersion | grep $version ) ]] && { echo -e "\n${CW} The version you input is not available!\n" ; exit 1 ; }
+
+[[ -z $mode ]] && [[ ! -z $version ]] && mode=source
+[[ -z $mode ]] && [[ ! -z $branch  ]] && mode=source
+
+# Check if input branch exists
+[[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/deluge-torrent/deluge" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
+
+[[ ! -z $version ]] && source_type=release
+[[ ! -z $branch  ]] && source_type=git     && version=$branch
+
+# Random Number
+# [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
 
 eval set -- "$OPTS"
 
@@ -47,24 +63,6 @@ case $mode in
     alt     ) sleep 0  ;;
     ""   | *) echo -e "\n${CW} Install mode must be specified as apt, ppa, source or alt${normal}\n"   ;;
 esac
-
-DeSource="http://download.deluge-torrent.org/source"
-
-# Check if input version is available
-AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
-[[ ! -z $version ]] && [[ ! $( echo $AvailableVersion | grep $version ) ]] && { echo -e "\n${CW} The version you input is not available!\n" ; exit 1 ; }
-
-[[ -z $mode ]] && [[ ! -z $version ]] && mode=source
-[[ -z $mode ]] && [[ ! -z $branch  ]] && mode=source
-
-# Check if input branch exists
-[[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/deluge-torrent/deluge" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
-
-[[ ! -z $version ]] && source_type=release
-[[ ! -z $branch  ]] && source_type=git     && version=$branch
-
-# Random Number
-# [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
 
 
 
@@ -107,7 +105,7 @@ function _install_de_source() {
 
 [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
 
-echo -e "Install deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
+echo -ne "Install deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
 
 _get_source_codes
 
@@ -129,7 +127,7 @@ function _install_de_alt() {
 
 [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
 
-echo -e "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
+echo -ne "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
 
 _get_source_codes
 
