@@ -66,6 +66,7 @@ while true; do
     --mt-double     ) MAXCPUS=2         ; shift ;;
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
+    --skip-apps     ) SKIPAPPS=Yes      ; shift ;;
 
     -- ) shift; break ;;
      * ) break ;;
@@ -1668,12 +1669,10 @@ dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf
 # test -z "$install_list" || apt-get -y install $install_list
 
 # 其实很多包可能对于很多人没用，私货私货……
-apt-get install -y \
-screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
-speedtest-cli mtr iperf iperf3 wondershaper \
-htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
-ca-certificates apt-transport-https gcc make checkinstall build-essential \
-tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat
+[[ ! $SKIPAPPS ==Yes ]] &&
+apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
+speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
+ca-certificates apt-transport-https gcc make checkinstall build-essential     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat
 
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
@@ -3050,9 +3049,9 @@ echo ; }
 _intro
 _askusername
 _askpassword
-_askaptsource
-_askmt
-_askswap
+aptsources=Yes                      ; _askaptsource
+MAXCPUS=$(nproc)                    ; _askmt
+[[ $tram -le 1926 ]] && USESWAP=Yes ; _askswap
 _askdeluge
 # [[ ! $DEVERSION == No ]] && 
 # _askdelt
