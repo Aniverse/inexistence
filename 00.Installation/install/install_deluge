@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# 2018.11.02
-# 1.0.5
+# 2018.11.03
+# 1.0.7
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash de -v 1.3.9        bash de -m alt -b develop
 
@@ -24,12 +24,29 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
 
-# Get options
+
+
+
+
 OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
 
-DeSource="http://download.deluge-torrent.org/source"
+eval set -- "$OPTS"
+
+while true; do
+  case "$1" in
+    -m | --install-mode ) mode="$2"     ; shift ; shift ;;
+    -v | --version      ) version="$2"  ; shift ; shift ;;
+    -b | --branch       ) branch="$2"   ; shift ; shift ;;
+     * ) break ;;
+  esac
+done
+
+
+
+
 
 # Check if input version is available
+DeSource="http://download.deluge-torrent.org/source"
 AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
 [[ ! -z $version ]] && [[ ! $( echo $AvailableVersion | grep $version ) ]] && { echo -e "\n${CW} The version you input is not available!\n" ; exit 1 ; }
 
@@ -45,16 +62,9 @@ AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{
 # Random Number
 # [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
 
-eval set -- "$OPTS"
 
-while true; do
-  case "$1" in
-    -m | --install-mode ) mode="$2"     ; shift ; shift ;;
-    -v | --version      ) version="$2"  ; shift ; shift ;;
-    -b | --branch       ) branch="$2"   ; shift ; shift ;;
-     * ) break ;;
-  esac
-done
+
+
 
 case $mode in
     apt     ) sleep 0  ;;
@@ -71,7 +81,7 @@ esac
 # Install build dependencies for deluge 
 function _install_de_dependencies() {
 
-echo -ne "Install deluge build dependencies ... " | tee -a $OutputLOG
+echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG
 
 # Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
 apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && \
@@ -105,7 +115,7 @@ function _install_de_source() {
 
 [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
 
-echo -ne "Install deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
+echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
 
 _get_source_codes
 
@@ -153,7 +163,7 @@ function _install_de_ppa() {
 latest_stable=` wget -qO- https://dev.deluge-torrent.org/wiki/ReleaseNotes | grep wiki/ReleaseNotes | grep -Eo "[12]\.[0-9.]+" | sed 's/">/ /' | awk '{print $1}' | head -n1 `
 [[ -z $latest_stable ]] && latest_stable=1.3.15
 
-echo -ne "Install deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ... " | tee -a $OutputLOG
+echo -ne "Instaling deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ... " | tee -a $OutputLOG
 
 if   [[ $DISTRO == Debian ]]; then
 
@@ -190,7 +200,7 @@ version=` apt-cache policy deluge | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9
 [[ $CODENAME == bionic  ]] && version=1.3.15 ; [[ $CODENAME == xenial ]] && version=1.3.12 ; [[ $CODENAME == trusty ]] && version=1.3.6
 [[ $CODENAME == stretch ]] && version=1.3.13 ; [[ $CODENAME == jessie ]] && version=1.3.10 ; }
 
-echo -ne "Install deluge ${bold}${cyan}$version${normal} from repository ... " | tee -a $OutputLOG
+echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from repository ... " | tee -a $OutputLOG
 
 apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && \
 echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
