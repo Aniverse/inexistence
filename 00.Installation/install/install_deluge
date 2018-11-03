@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # 2018.11.03
-# 1.0.7
+# 1.0.8
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash de -v 1.3.9        bash de -m alt -b develop
 
@@ -78,10 +78,26 @@ esac
 
 
 
+spinner() {
+    local pid=$1
+    local delay=0.25
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+
+
+
+
 # Install build dependencies for deluge 
 function _install_de_dependencies() {
-
-echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG
 
 # Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
 apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && \
@@ -113,10 +129,6 @@ fi ; }
 # Install from source code
 function _install_de_source() {
 
-[[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
-
-echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
-
 _get_source_codes
 
 python setup.py build                         >> $OutputLOG 2>&1
@@ -134,10 +146,6 @@ touch $LOCKLocation/deluge.source.$version.lock ; }
 
 # Install another version of deluge (e.g. 1.3.9 for KeepFRDS)
 function _install_de_alt() {
-
-[[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && _install_de_dependencies
-
-echo -ne "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
 
 _get_source_codes
 
@@ -228,8 +236,12 @@ EOF
 case $mode in
     apt     ) _install_de_apt     ;;
     ppa     ) _install_de_ppa     ;;
-    source  ) _install_de_source  ;;
-    alt     ) _install_de_alt     ;;
+    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; echo
+              echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG ; _install_de_source & spinner $! ; echo
+              ;;
+    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; echo
+              echo -ne "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG ; _install_de_alt & spinner $! ; echo
+              ;;
 esac
 
 cd
