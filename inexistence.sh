@@ -1669,7 +1669,7 @@ dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf
 # test -z "$install_list" || apt-get -y install $install_list
 
 # 其实很多包可能对于很多人没用，私货私货……
-[[ ! $SKIPAPPS ==Yes ]] && \
+[[ ! $SKIPAPPS == Yes ]] && \
 apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
 speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
 ca-certificates apt-transport-https gcc make checkinstall build-essential     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat
