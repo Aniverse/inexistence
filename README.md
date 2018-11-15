@@ -83,14 +83,16 @@ bash inexistence.sh
 
 
 7. ***qBittorrent***  
-**`--qb '3.3.11 (Skip hash check)'`**、**`--qb 3.3.16`**、**`--qb ppa`**、**`--qb No`**  
-`Debian 8` 下安装 qBittorrent 4.0 目前还在测试阶段……  
-隐藏选项 21，是可以在 WebUI 下跳过校验的 3.3.11 版本  
-**使用修改版客户端、跳过校验 存在风险，后果自负**  
+**`--qb 4.1.4`**、**`--qb ppa`**、**`--qb No`**  
+都快 2019 年了，向前看吧，不推荐使用 qBittorrent 4.1.4 以前的版本  
+下一个版本将会移除 3.3.11 和 3.3.16 的安装选项，如果你仍然需要的话可以手动输入对应的版本号进行安装  
+可以跳过校验的 3.3.11 修改版已移除，不用再试了  
 
 
 8. ***Deluge***  
 **`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
+1.3.9 这个古董版本主要针对那些不支持新版本 Deluge 也不支持 qBittorrent 的站点，比如 HD4FANS，KeepFRDS  
+2.0 版仍在开发中，不建议普通用户使用，基本上没有几个 PT 站的白名单内有它（有它的基本上都是采用黑名单而不是白名单的）  
 默认选项为从源码安装 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtkUI  
@@ -99,38 +101,40 @@ bash inexistence.sh
 - `Stats` 和 `TotalTraffic`、`Pieces` 分别可以实现速度曲线和流量统计、区块统计  
 - `LabelPlus` 是加强版的标签管理，支持自动根据 Tracker 对种子限速，刷 Frds 可用；也只有 GUI 可用    
 - `YaRSS2` 是用于 RSS 的插件；`NoFolder` 可以让 Deluge 在下载种子时不生成文件夹，辅种可用  
-隐藏选项 11-15 ，分别对应 1.3.5-1.3.9 版本  
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
 9. ***libtorrent-rasterbar***  
-本来这里是有个询问 libtorrent-rasterbar 版本的，现在直接移除了  
-现在脚本安装的 Deluge 和 qBittorrent 都会使用来自 RC_1_0 分支的 1.0.11 版，可以正确地汇报双栈 IP 地址  
+要安装 Deluge 或者 qBittorrent 中的任意一个，就必须安装 libtorrent-rasterbar，因为 libtorrent-rasterbar 是这两个软件所使用的后端  
+从 Deluge 2.0 和 qBittorrent 4.2.0 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
+需要注意的是，这个 libtorrent-rasterbar 和 rTorrent 所使用的 libtorrent 是不一样的，切勿混淆  
+Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/arvidn/libtorrent)，rTorrent 使用的则是 [libtorrent-rakshasa](https://github.com/rakshasa/libtorrent)  
 
 
 10. ***rTorrent***  
 **`--rt 0.9.4`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
-这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的，默认选项为安装原版 0.9.4  
+这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的  
+注意，Ubuntu 18.04 和 Debian 9 因为 OpenSSL 的原因，只能使用新版本的 0.9.6 或 0.9.7，更低版本无法直接安装  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
 - 0.9.2-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
-- 0.9.6 支持 IPv6 用的是 feature-bind 分支，原生支持 IPv6（Debian 9 强制使用此版本）  
+- 0.9.6 支持 IPv6 用的是 2018.01.30 的 feature-bind 分支，原生支持 IPv6  
 - 不修改 SSH 端口，FTP 使用 `vsftpd`，端口号 21，监听 IPv6  
 - 设置了 Deluge、qBittorrent、Transmission WebUI 的反代  
 - ruTorrent 版本为来自 master 分支的 3.8 版，此外还安装了如下的插件和主题  
 - `club-QuickBox` `MaterialDesign` 第三方主题  
 - `AutoDL-Irssi` （原版 rtinst 自带）  
 - `Filemanager` 插件可以在 ruTorrent 上管理文件、右键创建压缩包、生成 mediainfo 和截图  
-- `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果（不需要的话可以手动禁用插件）  
+- `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果（不需要的话可以手动禁用此插件）  
 - `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
-- `Fileshare` 插件创建有时限、可自定义密码的文件分享链接  
+- `Fileshare` 插件创建有时限、可自定义密码的文件分享链接（有点问题，以后再修复）  
 - `Mediastream` 插件可以在线观看盒子的视频文件  
 
 
 11. **Flood**  
 **`--flood-yes`**、**`--flood-no`**  
 选择不安装 rTorrent 的话这个选项不会出现  
-Flood 是 rTorrent 的另一个 WebUI，界面美观，加载速度快，不过功能上不如 ruTorrent  
+Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
 
 
 12. ***Transmission***  
@@ -164,7 +168,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 - `eac3to` 需要 wine 来运行，做 remux 时用得上  
 - `mktorrent` 由于 1.1 版的实际表现不是很理想，因此选择从系统源安装 1.0 版本  
 - `BDinfoCLI` 已经自带了，需要 mono 来运行  
-- `bluray` 其实也自带了，不过有的时候我会忘记同步这里的版本，所以还是更新下  
+- `bluray` 其实也自带了，不过这里的版本不是及时更新的，所以还是更新下  
 
 
 16. ***Flexget***  
@@ -233,26 +237,17 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 实现起来不难，主要是现在没空做  
 
 - **Version**  
-升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本  
+升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本，也是调用单独的脚本去实现  
+
+- **Box**  
+把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`version` 中需要安装的时候直接调用  
+这个思路是从 QuickBox 那边学到的，最后的命令可能会长这样子：`box install vnc`、`box purge qbittorrent`  
 
 #### Under Consideration
-
-- **rTorrent installation rewrite**  
-说是 rewrite 其实我就是想把 `rtinst` 整合到 `inexistence` 体系里  
 
 - **Multi-user**  
 1. 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
 2. 多用户模式，可以直接 adduser 并设置好 de/qb/rt/tr/flexget  
-
-- **Box**  
-考虑把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`banben` 中需要安装的时候直接调用  
-这个思路是从 QuickBox 那边学到的，最后的命令大概这样子  
-`box install vnc`、`box purge qbittorrent`  
-
-#### Known Issues
-
-- **Debian 下 VNC 可能连不上**  
-求大佬们赐教  
 
 #### 碎碎念
 
@@ -269,7 +264,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 ## mingling
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
-此外有些功能还没做完  
+有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更，以后可能还会删掉  
 不做具体的介绍了，直接看图吧  
 
 ![mingling.00](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.00.png)
@@ -328,16 +323,16 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 
 ## IPv6
 
-用于配置 IPv6 的脚本  
-如果第一次运行不成功，可以试着再跑一遍  
+用于配置 IPv6 的脚本，如果第一次运行不成功，可以试着再跑一遍  
 如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
+**2018.11.15 Update：可能跑完后机器会失联，如果这样的话试试后台重启下？**  
 
 ``` 
 bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
 ``` 
 
 可以在命令里写上 IPv6 的信息（复制粘贴更方便一些）  
-第四项的网卡可以让脚本自动检测，也可以手动指定  
+第四项参数网卡名称可以让脚本自动检测，也可以手动指定  
 ```
 wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
 bash ipv6 [address] [subnet] [DUID] [interface]  
@@ -402,7 +397,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ## guazai
 
 用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此需要 root 权限才能运行  
-
 
 ![guazai.03](https://github.com/Aniverse/filesss/raw/master/Images/guazai.03.png)
 
