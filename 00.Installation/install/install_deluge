@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # update=2018.11.17
-# version=1.14
+# version=1.15
 #
 # --------- Usage ---------
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
@@ -268,7 +268,7 @@ case $mode in
 
     source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
               echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
-              _install_lt_dependencies & spinner $!
+              _install_de_dependencies & spinner $!
               _check_status ded ; }
 
               echo -ne "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."     | tee -a $OutputLOG
@@ -277,7 +277,7 @@ case $mode in
 
     alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
               echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
-              _install_lt_dependencies & spinner $!
+              _install_de_dependencies & spinner $!
               _check_status ded ; }
 
               echo -ne "Installing another deluge ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG 
@@ -287,6 +287,3 @@ esac
 
 cd
 _check_status de
-
-
-_check_status ded
