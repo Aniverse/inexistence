@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # update=2018.11.17
-# version=1.13
+# version=1.14
 #
 # --------- Usage ---------
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
@@ -27,6 +27,12 @@ DISTRO=$( awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release )
 CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
 
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+
+function _check_status() {
+local LockName=$1
+[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
+[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
+[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
 
 # Don't know why [ && Success=Yes || Success=No ] doesn't work，so use lock file instead
 rm -f /tmp/de.1.lock /tmp/de.2.lock
@@ -88,7 +94,7 @@ case $mode in
     ppa     ) sleep 0  ;;
     source  ) sleep 0  ;;
     alt     ) sleep 0  ;;
-    ""   | *) echo -e "\n${CW} Install mode must be specified as apt, ppa, source or alt${normal}\n"   ;;
+    ""   | *) echo -e "\n${CW} Installation mode must be specified as apt, ppa, source or alt${normal}\n"   ;;
 esac
 
 
@@ -117,7 +123,7 @@ spinner() {
 function _install_de_dependencies() {
 
 # Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
-apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
+apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && touch /tmp/ded.1.lock || touch /tmp/ded.2.lock
 
 touch $LOCKLocation/deluge.dependencies.lock ; }
 
@@ -256,18 +262,31 @@ echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n" >> $OutputLOG
 case $mode in
     apt     ) echo -ne "Installing deluge ${bold}${cyan}$version${normal} from repository ..."       | tee -a $OutputLOG ; _install_de_apt & spinner $!
               ;;
+
     ppa     ) echo -ne "Installing deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ..." | tee -a $OutputLOG ; _install_de_ppa & spinner $!
               ;;
-    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ..." | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
-              echo -ne "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."     | tee -a $OutputLOG ; _install_de_source & spinner $!
+
+    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
+              echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
+              _install_lt_dependencies & spinner $!
+              _check_status ded ; }
+
+              echo -ne "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."     | tee -a $OutputLOG
+              _install_de_source & spinner $!
               ;;
-    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ..." | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
-              echo -ne "Installing another deluge ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG ; _install_de_alt & spinner $!
+
+    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
+              echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
+              _install_lt_dependencies & spinner $!
+              _check_status ded ; }
+
+              echo -ne "Installing another deluge ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG 
+              _install_de_alt & spinner $!
               ;;
 esac
 
 cd
+_check_status de
 
-[[ -f /tmp/de.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
-[[ -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
-[[ ! -f /tmp/de.1.lock ]] && [[ ! -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}"
+
+_check_status ded
