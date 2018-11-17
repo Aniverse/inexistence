@@ -3,9 +3,9 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# 2018.11.03
-# 1.0.9
-# wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
+# 2018.11.17
+# 1.1.10
+# wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
 # bash de -v 1.3.9        bash de -m alt -b develop
 
 OutputLOG=/etc/inexistence/01.Log/install_deluge.txt # /dev/null
@@ -23,6 +23,8 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 # Sustem check
 DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
+
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
 
 
@@ -58,6 +60,13 @@ AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{
 
 [[ ! -z $version ]] && source_type=release
 [[ ! -z $branch  ]] && source_type=git     && version=$branch
+
+# Check if ssl issue should be fix
+[[ ! version_ge $version 1.3.11 ]] && DESSL=Yes
+
+# Check if libtorrent below 1.1.2 is supported
+[[ version_ge $version 2.0 ]] && export lt8_support=No
+[[ branch == develop ]]       && export lt8_support=No
 
 # Random Number
 # [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
@@ -111,6 +120,7 @@ touch $LOCKLocation/deluge.dependencies.lock ; }
 
 # Fetch source files
 function _get_source_codes() {
+cd $SCLocation
 if   [[ $source_type == release ]]; then
     wget $DeSource/deluge-$version.tar.gz         >> $OutputLOG 2>&1
     tar xf deluge-$version.tar.gz                 >> $OutputLOG 2>&1
@@ -122,6 +132,18 @@ elif [[ $source_type ==   git   ]]; then
     git checkout $branch >> $OutputLOG 2>&1
 fi ; }
 
+# Fix older deluged ssl issue
+function _de_ssl_fix() {
+sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
+sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py ; }
+
+# Install deluged to another path which is $SCLocation/deluge-$version-tmp/bin/deluged
+function _de_install_diff() {
+DeTmpPath=$SCLocation/deluge-$version-tmp
+DeTmpPath2=$SCLocation/deluge-$version-tmp/lib/python2.7/site-packages
+mkdir -p $DeTmpPath2
+PYTHONPATH=$DeTmpPath2 python setup.py install --prefix=$DeTmpPath >> $OutputLOG 2>&1 ; }
+
 
 
 
@@ -131,11 +153,18 @@ function _install_de_source() {
 
 _get_source_codes
 
-python setup.py build                         >> $OutputLOG 2>&1
-python setup.py install --install-layout=deb  >> $OutputLOG 2>&1 && \
+[[ $DESSL == Yes ]] && { _de_ssl_fix && _de_install_diff ; version_o=$version ; version=1.3.15 && _get_source_codes ; }
+
+python setup.py build >> $OutputLOG 2>&1
+python setup.py install --install-layout=deb --record /etc/inexistence/01.Log/install_deluge_$version.txt >> $OutputLOG 2>&1 && \
 echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
 
-rm -rf deluge-$version                        >> $OutputLOG 2>&1
+[[ $DESSL == Yes ]] && {
+mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged
+rm -rf deluge-$version ; version=$version_o
+rm -rf $DeTmpPath ; }
+
+rm -rf deluge-$version
 
 touch $LOCKLocation/deluge.lock
 touch $LOCKLocation/deluge.source.$version.lock ; }
@@ -149,14 +178,13 @@ function _install_de_alt() {
 
 _get_source_codes
 
-python setup.py install --user                >> $OutputLOG 2>&1 && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+[[ $DESSL == Yes ]] && _de_ssl_fix
 
-for de in deluge deluged deluge-web deluge-console deluge-gtk ; do
-    mv -f ~/.local/bin/${de} /usr/bin/${de}2  >> $OutputLOG 2>&1
-done
+_de_install_diff
 
-rm -rf deluge-$version                        >> $OutputLOG 2>&1
+mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged2 && echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+
+rm -rf $DeTmpPath
 
 touch $LOCKLocation/deluge.alt.lock
 touch $LOCKLocation/deluge.alt.$version.lock ; }
