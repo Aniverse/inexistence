@@ -3,8 +3,10 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# 2018.11.17
-# 1.1.10
+# update=2018.11.17
+# version=1.1.11
+#
+# --- Usage ---
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
 # bash de -v 1.3.9        bash de -m alt -b develop
 
@@ -62,11 +64,14 @@ AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{
 [[ ! -z $branch  ]] && source_type=git     && version=$branch
 
 # Check if ssl issue should be fix
-[[ ! version_ge $version 1.3.11 ]] && DESSL=Yes
+version_ge $version 1.3.11 || DESSL=Yes
 
 # Check if libtorrent below 1.1.2 is supported
-[[ version_ge $version 2.0 ]] && export lt8_support=No
-[[ branch == develop ]]       && export lt8_support=No
+version_ge $version  2.0 && export lt8_support=No || lt8_support=Yes
+[[ $branch == develop ]] && export lt8_support=No || lt8_support=Yes
+lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+ )
+[[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_newer=Yes || lt_ver_newer=No
+[[ $lt8_support == No ]] && [[ $lt_ver_newer == No ]] && echo -e "\n${CW} libtorrent-rasterbar 1.1.3 and above is required when installing deluge 2.0 and above\n" && exit 1
 
 # Random Number
 # [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
