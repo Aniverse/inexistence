@@ -4,11 +4,11 @@
 # Author: Aniverse
 #
 # update=2018.11.17
-# version=1.14
+# version=1.15
 #
 # --------- Usage ---------
-# wget -qO ltr https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
-# bash ltr -v 1.1.11       bash ltr -m deb       bash ltr -b RC_1_1
+# wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
+# bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt    # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -28,6 +28,18 @@ CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 # Get options
 OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
+
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+
+function _check_status() {
+local LockName=$1
+#[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}√${normal}"
+#[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}×${normal}"
+[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
+[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
+[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
+
+
 
 spinner() {
     local pid=$1
@@ -63,7 +75,7 @@ case $mode in
     apt     ) sleep 0  ;;
     deb     ) sleep 0  ;;
     source  ) sleep 0  ;;
-    ""   | *) echo -e "\n${CW} Install mode must be specified as apt, deb or source${normal}\n"   ;;
+    ""   | *) echo -e "\n${CW} Installation mode must be specified as apt, deb or source${normal}\n"   ;;
 esac
 
 
@@ -94,7 +106,7 @@ esac
 # Random Number，用于区分下载下来的 lt 源码是哪一次下来的
 [[ $mode == source ]] && RN=$(shuf -i 1-999 -n1)
 
-rm -f /tmp/lt.1.lock /tmp/lt.2.lock
+rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 
 
 
@@ -102,14 +114,12 @@ rm -f /tmp/lt.1.lock /tmp/lt.2.lock
 # Install build dependencies for libtorrent-rasterbar
 function _install_lt_dependencies() {
 
-echo -ne "Install libtorrent-rasterbar build dependencies ... " | tee -a $OutputLOG
-
 apt-get install -y                                                                \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
-zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 
 touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
 
@@ -119,8 +129,6 @@ touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
 
 # Install from source codes
 function _install_lt_source() {
-
-[[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && _install_lt_dependencies
 
 git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$version-$RN >> $OutputLOG 2>&1
 cd libtorrent-$version-$RN
@@ -151,8 +159,6 @@ touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
 # Install from pre-compiled deb package
 function _install_lt_deb() {
 
-[[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && _install_lt_dependencies
-
 if   [[ $CODENAME == jessie  ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG 2>&1
 elif [[ $CODENAME == xenial  ]]; then
@@ -163,7 +169,7 @@ elif [[ $CODENAME == bionic  ]]; then
     wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
 fi
 
-dpkg -i lt.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 touch $LOCKLocation/libtorrent-rasterbar.lock
 touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
@@ -194,23 +200,33 @@ cd       $SCLocation
 echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n" >> $OutputLOG
 
 case $mode in
-    apt     ) echo -ne "Install libtorrent-rasterbar ${bold}${cyan}$version${normal} from repository ... " | tee -a $OutputLOG
+    apt     ) echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from repository ..." | tee -a $OutputLOG
               _install_lt_apt & spinner $!
               ;;
-    deb     ) echo -ne "Install libtorrent-rasterbar ${bold}${cyan}1.0.11${normal} from pre-compiled deb package ... " | tee -a $OutputLOG
+
+    deb     ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
+              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
+              _install_lt_dependencies & spinner $!
+              _check_status ltd ; }
+
+              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.0.11${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               _install_lt_deb & spinner $!
               ;;
-    source  ) if [[ ` echo $branch | grep -Eo "[012]_[0-9]_[0-9]+" ` ]]; then
-                  echo -ne "Install libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG
+
+    source  ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
+              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
+              _install_lt_dependencies & spinner $!
+              _check_status ltd ; }
+
+              if [[ ` echo $branch | grep -Eo "[012]_[0-9]_[0-9]+" ` ]]; then
+                  echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG
               else
-                  echo -ne "Install libtorrent-rasterbar ${bold}$branch branch (${cyan}$version${jiacu})${normal} from source codes ... " | tee -a $OutputLOG
+                  echo -ne "Installing libtorrent-rasterbar ${bold}$branch branch (${cyan}$version${jiacu})${normal} from source codes ..." | tee -a $OutputLOG
               fi
+
               _install_lt_source & spinner $!
               ;;
 esac
 
 cd ; ldconfig
-
-[[ -f /tmp/de.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
-[[ -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
-[[ ! -f /tmp/de.1.lock ]] && [[ ! -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}"
+_check_status lt
