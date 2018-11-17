@@ -33,8 +33,6 @@ function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" 
 
 function _check_status() {
 local LockName=$1
-#[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}√${normal}"
-#[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}×${normal}"
 [[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
 [[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
 [[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
