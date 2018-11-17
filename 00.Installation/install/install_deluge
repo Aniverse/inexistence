@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # update=2018.11.17
-# version=1.1.11
+# version=1.1.12
 #
 # --- Usage ---
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
@@ -28,6 +28,8 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
+# Don't know why [ && Success=Yes || Success=No ] doesn't work，so use lock file instead
+rm -f /tmp/de.1.lock /tmp/de.2.lock
 
 
 
@@ -115,7 +117,7 @@ function _install_de_dependencies() {
 
 # Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
 apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 touch $LOCKLocation/deluge.dependencies.lock ; }
 
@@ -161,11 +163,10 @@ _get_source_codes
 [[ $DESSL == Yes ]] && { _de_ssl_fix && _de_install_diff ; version_o=$version ; version=1.3.15 && _get_source_codes ; }
 
 python setup.py build >> $OutputLOG 2>&1
-python setup.py install --install-layout=deb --record /etc/inexistence/01.Log/install_deluge_$version.txt >> $OutputLOG 2>&1 && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+python setup.py install --install-layout=deb --record /etc/inexistence/01.Log/install_deluge_$version.txt >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 [[ $DESSL == Yes ]] && {
-mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged
+mv -f $SCLocation/deluge-$version_o-tmp/bin/deluged /usr/bin/deluged
 rm -rf deluge-$version ; version=$version_o
 rm -rf $DeTmpPath ; }
 
@@ -179,6 +180,7 @@ touch $LOCKLocation/deluge.source.$version.lock ; }
 
 
 # Install another version of deluge (e.g. 1.3.9 for KeepFRDS)
+# Have bugs to be fixed
 function _install_de_alt() {
 
 _get_source_codes
@@ -187,7 +189,7 @@ _get_source_codes
 
 _de_install_diff
 
-mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged2 && echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged2 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 rm -rf $DeTmpPath
 
@@ -208,8 +210,7 @@ if   [[ $DISTRO == Debian ]]; then
 
     echo 'deb http://ppa.launchpad.net/deluge-team/ppa/ubuntu trusty main'        >> /etc/apt/sources.list
     apt-get update                                                                >> $OutputLOG 2>&1
-    apt-get install -t trusty deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && \
-    echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+    apt-get install -t trusty deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 elif [[ $DISTRO == Ubuntu ]]; then
 
@@ -219,8 +220,7 @@ elif [[ $DISTRO == Ubuntu ]]; then
   # apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8=1.0.11-1~xenial~ppa1.1 python-libtorrent=1.0.11-1~xenial~ppa1.1 >> $OutputLOG 2>&1
   # apt-mark hold python-libtorrent                   >> $OutputLOG 2>&1
   # apt-mark hold libtorrent-rasterbar8               >> $OutputLOG 2>&1
-    apt-get install -t trusty deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && \
-    echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+    apt-get install -t trusty deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 fi
 
@@ -234,16 +234,16 @@ touch $LOCKLocation/deluge.ppa.lock ; }
 # Install from repository
 function _install_de_apt() {
 
-version=` apt-cache policy deluge | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -n1 `
-[[ -z $version ]] && {
-[[ $CODENAME == bionic  ]] && version=1.3.15 ; [[ $CODENAME == xenial ]] && version=1.3.12 ; [[ $CODENAME == trusty ]] && version=1.3.6
-[[ $CODENAME == stretch ]] && version=1.3.13 ; [[ $CODENAME == jessie ]] && version=1.3.10 ; }
-
-apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && \
-echo "${green}${bold}DONE${normal}" || echo "${red}${bold}FAILED${normal}"
+apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
 touch $LOCKLocation/deluge.lock
 touch $LOCKLocation/deluge.apt.lock ; }
+
+[[ $mode == apt ]] && {
+version=$( apt-cache policy deluge | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -n1 )
+[[ -z $version ]] && {
+[[ $CODENAME == bionic  ]] && version=1.3.15 ; [[ $CODENAME == xenial ]] && version=1.3.12 ; [[ $CODENAME == trusty ]] && version=1.3.6
+[[ $CODENAME == stretch ]] && version=1.3.13 ; [[ $CODENAME == jessie ]] && version=1.3.10 ; } ; }
 
 
 
@@ -251,26 +251,20 @@ touch $LOCKLocation/deluge.apt.lock ; }
 
 mkdir -p $SCLocation $LOCKLocation
 cd       $SCLocation
-
-cat>>$OutputLOG<<EOF
-
-
-
-$(date "+%Y.%m.%d.%H.%M.%S")   $RN
-
-
-
-EOF
+echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n" >> $OutputLOG
 
 case $mode in
-    apt     ) echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from repository ... "       | tee -a $OutputLOG ; _install_de_apt & spinner $! ;;
-    ppa     ) echo -ne "Instaling deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ... " | tee -a $OutputLOG ; _install_de_ppa & spinner $! ;;
-    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
-              echo -ne "Instaling deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG ; _install_de_source & spinner $!
+    apt     ) echo -ne "Installing deluge ${bold}${cyan}$version${normal} from repository ..."       | tee -a $OutputLOG ; _install_de_apt & spinner $! ;;
+    ppa     ) echo -ne "Installing deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ..." | tee -a $OutputLOG ; _install_de_ppa & spinner $! ;;
+    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ..." | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
+              echo -ne "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."     | tee -a $OutputLOG ; _install_de_source & spinner $!
               ;;
-    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ... " | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
-              echo -ne "Install another deluge ${bold}${cyan}$version${normal} from source codes ... " | tee -a $OutputLOG ; _install_de_alt & spinner $!
+    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && { echo -ne "Instaling deluge build dependencies ..." | tee -a $OutputLOG ; _install_de_dependencies & spinner $! ; }
+              echo -ne "Installing another deluge ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG ; _install_de_alt & spinner $!
               ;;
 esac
 
+[[ -f /tmp/de.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
+[[ -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
+[[ ! -f /tmp/de.1.lock ]] && [[ ! -f /tmp/de.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}"
 cd
