@@ -119,7 +119,7 @@ geoip-database libgeoip-dev                                                     
 libboost-python-dev                                                                 \
 zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 
-touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
+[[ -f /tmp/ltd.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
 
 
 
@@ -147,8 +147,8 @@ touch /tmp/lt.1.lock || {
 make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
 
 cp -f libtorrent-rasterb*.deb $DebLocation
-touch $LOCKLocation/libtorrent-rasterbar.lock
-touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
 
 
 
@@ -168,8 +168,9 @@ elif [[ $CODENAME == bionic  ]]; then
 fi
 
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
-touch $LOCKLocation/libtorrent-rasterbar.lock
-touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
+
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 
 
@@ -180,8 +181,8 @@ function _install_lt_apt() {
 
 apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
-touch $LOCKLocation/libtorrent-rasterbar.lock
-touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
 
 [[ $mode == apt ]] && {
 version=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -n1 `
