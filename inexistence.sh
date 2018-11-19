@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.11.18
+INEXISTENCEDATE=2018.11.19
 # --------------------------------------------------------------------------------
 
 
@@ -80,6 +80,8 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 export local_packages=/etc/inexistence/00.Installation
+export SCLocation=/etc/inexistence/01.Log/SourceCodes
+export LOCKLocation=/etc/inexistence/01.Log/Lock
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
@@ -165,8 +167,8 @@ function _client_version_check(){
 [[ $rt_installed == Yes ]] && rtorrent_ver=$( rtorrent -h 2>&1 | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p' )
 [[ $tr_installed == Yes ]] && trd_ver=$( transmission-daemon --help 2>&1 | head -n1 | awk '{print $2}' )
 lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+ )
-lt_ver_qb3_yes=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_yes=Yes
-lt_ver_newer=No   ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_newer=Yes ; }
+lt_ver_qb3_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_ok=Yes
+lt_ver_de2_ok=No   ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=Yes ; }
 
 # --------------------------------------------------------------------------------
 ### 随机数 ###
@@ -865,6 +867,7 @@ echo ; }
 
 
 
+
 # 2018.04.26 禁用这个问题，统一使用 1.0.11
 # 2018.11.15 随着 RC_1_1 分支的进步，准备重新启用
 # 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
@@ -881,7 +884,7 @@ lt8_support=Yes
 
 [[ $DeBUG == 1 ]] && {
 echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
-echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_yes=$lt_ver_qb3_yes  lt_ver_newer=$lt_ver_newer" ; }
+echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok" ; }
 
 while [[ $libtorrent_rasterbar_ver = "" ]]; do
 
@@ -890,12 +893,12 @@ while [[ $libtorrent_rasterbar_ver = "" ]]; do
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.11${normal} (${blue}RC_1_1${normal} branch)"
     echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.0 ${normal} (${blue}master${normal} branch, ${blue}unstable${normal})"
     echo -e  "${blue}30)${normal} Select another version      "
-    [[ $lt_ver ]] && [[ $lt_ver_qb3_yes == Yes ]] &&
+    [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
   # echo -e "${bailanse}${bold} ATTENTION ${normal}${blue} both Deluge and qBittorrent use libtorrent-rasterbar \n            as torrent backend"
 
     # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
-    if [[ $lt_ver ]] && [[ $lt_ver_qb3_yes == Yes ]] && [[ $lt8_support == Yes ]]; then
+    if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
             while [[ $libtorrent_rasterbar_ver == "" ]]; do
 					read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}99${normal}): " version
                     case $version in
@@ -910,7 +913,7 @@ while [[ $libtorrent_rasterbar_ver = "" ]]; do
             done
 
     # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
-    elif [[ $lt_ver ]] && [[ $lt_ver_qb3_yes == No ]] && [[ ! $qb_version == No ]]; then
+    elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ ! $qb_version == No ]]; then
             while [[ $libtorrent_rasterbar_ver == "" ]]; do
                     read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
                     case $version in
@@ -973,7 +976,7 @@ while [[ $libtorrent_rasterbar_ver = "" ]]; do
             while [[ $libtorrent_rasterbar_ver == "" ]]; do
                     echo -e "\n${bold}${yellow}你发现了一个 Bug！请带着以下信息联系作者……${normal}\n"
                     echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
-                    echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_yes=$lt_ver_qb3_yes  lt_ver_newer=$lt_ver_newer"
+                    echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok"
                     echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
                           01 | 1) libtorrent_rasterbar_ver=RC_1_0 ;;
@@ -1564,9 +1567,6 @@ function _askcontinue() {
 
 function _setuser() {
 
-export SCLocation=/etc/inexistence/01.Log/SourceCodes
-export LOCKLocation=/etc/inexistence/01.Log/Lock
-
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
 mkdir -p $SCLocation $LOCKLocation
@@ -1829,8 +1829,6 @@ elif [[ $qb_version == "Install from PPA" ]]; then
 
 else
 
-    _install_lt
-
     [[ `  dpkg -l | grep -v qbittorrent-headless | grep qbittorrent-nox  ` ]] && apt-get purge -y qbittorrent-nox
 
     if [[ $CODENAME == jessie ]]; then
@@ -1947,8 +1945,6 @@ elif [[ $de_version == "Install from PPA" ]]; then
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk 
 
 else
-
-    _install_lt
 
     # 安装 Deluge 依赖
     apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
@@ -3018,12 +3014,9 @@ else
      echo -e  "Skip BBR installation\n\n\n\n\n"
 fi
 
-if  [[ $de_version == No ]]; then
-    echo -e  "Skip Deluge installation \n\n\n\n"
-else
-    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
-    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
-fi
+
+# [[ -f $LOCKLocation/libtorrent-rasterbar.lock ]]
+[[ ! -z $libtorrent_rasterbar_ver ]] && _install_lt
 
 
 if  [[ $qb_version == No ]]; then
@@ -3031,6 +3024,14 @@ if  [[ $qb_version == No ]]; then
 else
     echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
     echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
+fi
+
+
+if  [[ $de_version == No ]]; then
+    echo -e  "Skip Deluge installation \n\n\n\n"
+else
+    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
+    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
 fi
 
 
