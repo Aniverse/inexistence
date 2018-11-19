@@ -33,7 +33,7 @@ while true; do
     --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift ; shift ;;
     --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift ; shift ;;
     --rt            ) rt_version=$2               ; shift ; shift ;;
-    --lt            ) libtorrent_rasterbar_ver=$2 ; shift ; shift ;;
+    --lt            ) lt_version=$2 ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
@@ -821,14 +821,15 @@ while [[ $de_version = "" ]]; do
 
 done
 
-version_ge $de_version 1.3.11 || Deluge_ssl_fix_patch=Yes
-version_ge $de_version 2.0 && Deluge_2_later=Yes || Deluge_2_later=No
+[[ ! $de_version == No ]] && { version_ge $de_version 1.3.11 || Deluge_ssl_fix_patch=Yes ; }
+[[ ! $de_version == No ]] && { version_ge $de_version 2.0 && Deluge_2_later=Yes || Deluge_2_later=No ; }
+
 [[ $de_version == '1.3.15_skip_hash_check' ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
 
 if [[ $de_version == No ]]; then
 
     echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-#   libtorrent_rasterbar_ver=NoDeluge
+#   lt_version=NoDeluge
 
 elif [[ $de_version == "Install from repo" ]]; then 
 
@@ -873,20 +874,20 @@ echo ; }
 # 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
 # 2018.11.15 qb 开发者打算要求使用 C++14 了的样子，不知道这对于同时使用 Deluge 的用户是否有影响
 # --------------------- 询问需要安装的 libtorrent-rasterbar 版本 --------------------- #
-# libtorrent_rasterbar_ver=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+# lt_version=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
 function _lt_ver_ask() {
 
 # 默认 lt 1.0 可用
 lt8_support=Yes
 # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.3；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
-[[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && unset libtorrent_rasterbar_ver && lt8_support=No
+[[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && unset lt_version && lt8_support=No
 
 [[ $DeBUG == 1 ]] && {
 echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
 echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok" ; }
 
-while [[ $libtorrent_rasterbar_ver = "" ]]; do
+while [[ $lt_version = "" ]]; do
 
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
@@ -899,92 +900,92 @@ while [[ $libtorrent_rasterbar_ver = "" ]]; do
 
     # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
 					read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}99${normal}): " version
                     case $version in
-                          01 | 1) libtorrent_rasterbar_ver=RC_1_0 ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
-                          99    ) libtorrent_rasterbar_ver=system ;;
-                          ""    ) libtorrent_rasterbar_ver=system ;;
+                          01 | 1) lt_version=RC_1_0 ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          99    ) lt_version=system ;;
+                          ""    ) lt_version=system ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
 
     # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
     elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ ! $qb_version == No ]]; then
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
                     read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
                     case $version in
-                          01 | 1) libtorrent_rasterbar_ver=RC_1_0 ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
+                          01 | 1) lt_version=RC_1_0 ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
                           99    ) echo -e "\n${CW} qBittorrent 3.3 and later requires libtorrent-rasterbar 1.0.6 and later${normal}\n" ;;
-                          ""    ) libtorrent_rasterbar_ver=RC_1_0 ;;
+                          ""    ) lt_version=RC_1_0 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
 
     # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
     elif [[ $lt_ver ]] && [[ $lt8_support == No ]]; then
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
                     read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
                           99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
-                          ""    ) libtorrent_rasterbar_ver=RC_1_1 ;;
+                          ""    ) lt_version=RC_1_1 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
 
     # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     elif [[ ! $lt_ver ]] && [[ $lt8_support == Yes ]]; then
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
                     read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
                     case $version in
-                          01 | 1) libtorrent_rasterbar_ver=RC_1_0 ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
+                          01 | 1) lt_version=RC_1_0 ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
-                          ""    ) libtorrent_rasterbar_ver=RC_1_0 ;;
+                          ""    ) lt_version=RC_1_0 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
 
     # 未安装 libtorrent-rasterbar 且要使用 Deluge 2.0 或者 qBittorrent 4.2.0
     elif [[ ! $lt_ver ]] && [[ $lt8_support == No ]]; then
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
                     echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
-                          ""    ) libtorrent_rasterbar_ver=RC_1_1 ;;
+                          ""    ) lt_version=RC_1_1 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
 
     else
-            while [[ $libtorrent_rasterbar_ver == "" ]]; do
+            while [[ $lt_version == "" ]]; do
                     echo -e "\n${bold}${yellow}你发现了一个 Bug！请带着以下信息联系作者……${normal}\n"
                     echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
                     echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok"
                     echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
-                          01 | 1) libtorrent_rasterbar_ver=RC_1_0 ;;
-                          02 | 2) libtorrent_rasterbar_ver=RC_1_1 ;;
-                          03 | 3) libtorrent_rasterbar_ver=master ;;
-                          30    )_input_version_lt && libtorrent_rasterbar_ver="${input_version_num}" ;;
-                          99    ) libtorrent_rasterbar_ver=system ;;
-                          ""    ) libtorrent_rasterbar_ver=system ;;
+                          01 | 1) lt_version=RC_1_0 ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          99    ) lt_version=system ;;
+                          ""    ) lt_version=system ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
             done
@@ -993,16 +994,16 @@ while [[ $libtorrent_rasterbar_ver = "" ]]; do
 
 done
 
-lt_display_ver=$( echo "$libtorrent_rasterbar_ver" | sed "s/_/\./g" | sed "s/libtorrent-//" )
-[[ $libtorrent_rasterbar_ver == RC_1_0  ]] && lt_display_ver=1.0.11
-[[ $libtorrent_rasterbar_ver == RC_1_1  ]] && lt_display_ver=1.1.11
-[[ $libtorrent_rasterbar_ver == RC_1_2  ]] && lt_display_ver=1.2.0
-[[ $libtorrent_rasterbar_ver == master  ]] && lt_display_ver=1.2.0
+lt_display_ver=$( echo "$lt_version" | sed "s/_/\./g" | sed "s/libtorrent-//" )
+[[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
+[[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.11
+[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.0
+[[ $lt_version == master  ]] && lt_display_ver=1.2.0
 # 检测版本号速度慢了点，所以还是手动指定
-#[[ $libtorrent_rasterbar_ver == RC_1_0  ]] && lt_display_ver=$( wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_0_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" )
-#[[ $libtorrent_rasterbar_ver == RC_1_1  ]] && lt_display_ver=$( wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" )
+#[[ $lt_version == RC_1_0  ]] && lt_display_ver=$( wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_0_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" )
+#[[ $lt_version == RC_1_1  ]] && lt_display_ver=$( wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//" )
 
-    if [[ $libtorrent_rasterbar_ver == system ]]; then
+    if [[ $lt_version == system ]]; then
 
         echo "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
 
@@ -1605,6 +1606,7 @@ qb_version=${qb_version}
 de_version=${de_version}
 rt_version=${rt_version}
 tr_version=${tr_version}
+lt_version=${lt_version}
 FLEXGET=${InsFlex}
 RCLONE=${InsRclone}
 BBR=${InsBBR}
@@ -1803,7 +1805,7 @@ exit 0 ; }
 
 # --------------------- 安装 libtorrent-rasterbar --------------------- #
 
-function _install_lt() { bash $local_packages/install/install_libtorrent_rasterbar -b $libtorrent_rasterbar_ver ; }
+function _install_lt() { bash $local_packages/install/install_libtorrent_rasterbar -b $lt_version ; }
 
 
 
@@ -3016,7 +3018,7 @@ fi
 
 
 # [[ -f $LOCKLocation/libtorrent-rasterbar.lock ]]
-[[ ! -z $libtorrent_rasterbar_ver ]] && _install_lt
+[[ ! -z $lt_version ]] && [[ ! $lt_version == system ]] && _install_lt
 
 
 if  [[ $qb_version == No ]]; then
