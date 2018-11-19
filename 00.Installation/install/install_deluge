@@ -125,7 +125,7 @@ function _install_de_dependencies() {
 # Install Dependencies without python-libtorrent (libtorrent-rasterbar should have been built before)
 apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako >> $OutputLOG 2>&1 && touch /tmp/ded.1.lock || touch /tmp/ded.2.lock
 
-touch $LOCKLocation/deluge.dependencies.lock ; }
+[[ -f /tmp/ded.1.lock ]] && touch $LOCKLocation/deluge.dependencies.lock ; }
 
 
 
@@ -178,8 +178,8 @@ rm -rf $DeTmpPath ; }
 
 rm -rf deluge-$version
 
-touch $LOCKLocation/deluge.lock
-touch $LOCKLocation/deluge.source.$version.lock ; }
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.lock
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.source.$version.lock ; }
 
 
 
@@ -199,8 +199,8 @@ mv -f $SCLocation/deluge-$version-tmp/bin/deluged /usr/bin/deluged2 && touch /tm
 
 rm -rf $DeTmpPath
 
-touch $LOCKLocation/deluge.alt.lock
-touch $LOCKLocation/deluge.alt.$version.lock ; }
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.alt.lock
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.alt.$version.lock ; }
 
 
 
@@ -230,8 +230,8 @@ elif [[ $DISTRO == Ubuntu ]]; then
 
 fi
 
-touch $LOCKLocation/deluge.lock
-touch $LOCKLocation/deluge.ppa.lock ; }
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.lock
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.ppa.lock ; }
 
 
 
@@ -242,8 +242,8 @@ function _install_de_apt() {
 
 apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
 
-touch $LOCKLocation/deluge.lock
-touch $LOCKLocation/deluge.apt.lock ; }
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.lock
+[[ -f /tmp/de.1.lock ]] && touch $LOCKLocation/deluge.apt.lock ; }
 
 [[ $mode == apt ]] && {
 version=$( apt-cache policy deluge | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -n1 )
