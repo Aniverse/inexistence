@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.11.19
+INEXISTENCEDATE=2018.11.25
 # --------------------------------------------------------------------------------
 
 
@@ -191,7 +191,7 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num
 function _oscheck() {
 if [[ ! "$SysSupport" == 1 ]]; then
     echo -e "\n${bold}${red}Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script${normal}"
-    echo -e "${bold}If you want to run this script on unsupported distro, please edit this script to skip system check\nExiting...${normal}\n"
+    echo -e "${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
     exit 1
 fi ; }
 
@@ -1948,7 +1948,10 @@ elif [[ $de_version == "Install from PPA" ]]; then
 else
 
     # 安装 Deluge 依赖
-    apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+    apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-pip
+    # Deluge 2.0 需要高版本的这些
+    pip install --upgrade pip
+    /usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl
 
     cd /etc/inexistence/00.Installation/MAKE
 
@@ -2262,7 +2265,6 @@ function _installflex() {
   pip install --upgrade pip setuptools
   /usr/local/bin/pip install markdown
   /usr/local/bin/pip install flexget
-# /usr/local/bin/pip install flexget==2.16.2
   /usr/local/bin/pip install transmissionrpc
   /usr/local/bin/pip install deluge-client
 
