@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# update=2018.11.25
-# version=1.16
+# update=2018.11.26
+# version=1.17
 #
 # --------- Usage ---------
 # wget -qO de https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge
@@ -126,8 +126,8 @@ function _install_de_dependencies() {
 apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako pip >> $OutputLOG 2>&1 && touch /tmp/ded.1.lock || touch /tmp/ded.2.lock
 
 # This is for deluge 2.0
-pip install --upgrade pip
-/usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl
+pip install --upgrade pip >> $OutputLOG 2>&1
+/usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl >> $OutputLOG 2>&1
 
 [[ -f /tmp/ded.1.lock ]] && touch $LOCKLocation/deluge.dependencies.lock ; }
 
