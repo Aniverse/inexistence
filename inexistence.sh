@@ -13,14 +13,14 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.11.25
+INEXISTENCEDATE=2018.11.27
 # --------------------------------------------------------------------------------
 
 
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:" -- "$@")
+OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -39,7 +39,8 @@ while true; do
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
-    --tr-skip       ) TRdefault=No      ; shift ;;
+    --skip-apps     ) SKIPAPPS="Yes"    ; shift ;;
+    --tr-skip       ) TRdefault="No"    ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
     --apt-yes       ) aptsources="Yes"  ; shift ;;
     --apt-no        ) aptsources="No"   ; shift ;;
@@ -66,7 +67,6 @@ while true; do
     --mt-double     ) MAXCPUS=2         ; shift ;;
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
-    --skip-apps     ) SKIPAPPS=Yes      ; shift ;;
 
     -- ) shift; break ;;
      * ) break ;;
