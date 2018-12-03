@@ -734,7 +734,7 @@ done
 
 [[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
 
-version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes || qBittorrent_4_2_0_later=No
+version_ge $qb_version 4.1.9 && qBittorrent_4_2_0_later=Yes || qBittorrent_4_2_0_later=No
 
 if [[ $qb_version == No ]]; then
 
