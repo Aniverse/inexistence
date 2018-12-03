@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.03.3
+INEXISTENCEDATE=2018.12.03.4
 # --------------------------------------------------------------------------------
 
 
@@ -929,8 +929,24 @@ while [[ $lt_version = "" ]]; do
                     esac
             done
 
+    # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，且系统里已经安装的 libtorrent-rasterbar 支持
+    # 2018.12.03 发现这里写的有问题，试着更正下
+    elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == Yes ]]; then
+            while [[ $lt_version == "" ]]; do
+                    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}99${normal}): " version
+                    case $version in
+                          01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
+                          02 | 2) lt_version=RC_1_1 ;;
+                          03 | 3) lt_version=master ;;
+                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          99    ) lt_version=system ;;
+                          ""    ) lt_version=system ;;
+                          *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                    esac
+            done
+
     # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
-    elif [[ $lt_ver ]] && [[ $lt8_support == No ]]; then
+    elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == No ]]; then
             while [[ $lt_version == "" ]]; do
                     read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
                     case $version in
