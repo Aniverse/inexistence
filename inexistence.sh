@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.03
+INEXISTENCEDATE=2018.12.03.3
 # --------------------------------------------------------------------------------
 
 
@@ -877,9 +877,7 @@ echo ; }
 
 function _lt_ver_ask() {
 
-[[ $DeBUG == 1 ]] && {
-echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
-echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok" ; }
+[[ $DeBUG == 1 ]] && echo "lt_ver=$lt_ver  lt8_support=$lt8_support  qb_version=$qb_version  de_version=$de_version"
 
 # 默认 lt 1.0 可用
 lt8_support=Yes
