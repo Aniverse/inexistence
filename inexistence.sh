@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.11.27
+INEXISTENCEDATE=2018.12.03
 # --------------------------------------------------------------------------------
 
 
@@ -877,6 +877,10 @@ echo ; }
 
 function _lt_ver_ask() {
 
+[[ $DeBUG == 1 ]] && {
+echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
+echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok" ; }
+
 # 默认 lt 1.0 可用
 lt8_support=Yes
 # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.3；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
@@ -1708,7 +1712,8 @@ dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf
 if [[ $SKIPAPPS == Yes ]]; then echo -e "\n${baizise}Skip useful apps installation${normal}\n" ; else
 apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
 speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
-ca-certificates apt-transport-https gcc make checkinstall build-essential     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat
+ca-certificates apt-transport-https gcc make checkinstall build-essential     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat \
+ethtool
 fi
 
 if [ ! $? = 0 ]; then
@@ -2571,9 +2576,9 @@ wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunku
 echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
-wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-5_all.deb
-dpkg -i repo-mediaarea_1.0-5_all.deb
-rm -rf repo-mediaarea_1.0-5_all.deb
+wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
+dpkg -i repo-mediaarea_1.0-6_all.deb
+rm -rf repo-mediaarea_1.0-6_all.deb
 
 apt-get -y update
 apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
