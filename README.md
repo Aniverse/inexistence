@@ -11,7 +11,7 @@
 ## Usage
 
 ```
-bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
+bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
 ```
 ```
 wget --no-check-certificate -qO inexistence.sh https://github.com/Aniverse/inexistence/raw/master/inexistence.sh
@@ -449,10 +449,13 @@ inexistence 自带 bluray，不过不包括它的软件库
 2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
 3. 有意见或者改进也欢迎告知  
 
+## Issues
+
 如需提交 bug ，请告诉我如下的信息：  
-1. 具体日志，日志的查看方法在最后安装出错后会有提示  
-2. 你使用的是什么盒子  
-3. 你具体碰到了什么问题  
+1. 具体的日志，日志的查看方法在最后安装出错后会有提示  
+2. 你使用的是什么盒子（有些问题可能在特定的盒子上才会出现）  
+3. 你安装时使用的选项，比如安装 qb 出错了，你需要告诉我你 qb 和 lt 的版本是怎么选的？  
+4. 你具体碰到了什么问题  
 
 ## Some references
 
