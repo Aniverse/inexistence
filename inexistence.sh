@@ -13,14 +13,15 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.04.1
+INEXISTENCEDATE=2018.12.04.2
+script_lang=eng
 # --------------------------------------------------------------------------------
 
 
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -39,6 +40,8 @@ while true; do
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
+    --eng           ) script_lang=eng   ; shift ;;
+    --chs           ) script_lang=chs   ; shift ;;
     --skip-apps     ) SKIPAPPS="Yes"    ; shift ;;
     --tr-skip       ) TRdefault="No"    ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
@@ -196,6 +199,23 @@ if [[ ! "$SysSupport" == 1 ]]; then
 fi ; }
 
 # --------------------------------------------------------------------------------
+
+
+if [[ $script_lang == eng ]]; then
+
+language_do_not_install="Do not install"
+language_select_another_version="Select another version"
+
+elif [[ $script_lang == chs ]]; then
+
+language_do_not_install="不安装"
+language_select_another_version="自己输入一个想要的版本号"
+
+fi
+
+
+
+
 
 
 
@@ -704,11 +724,11 @@ while [[ $qb_version = "" ]]; do
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.4${normal}"
     echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
-    echo -e  "${blue}30)${normal} Select another version  "
+    echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
     echo -e "${green}50)${normal} qBittorrent ${cyan}$QB_latest_ver${normal} from ${cyan}Stable PPA${normal}"
-    echo -e   "${red}99)${normal} Do not install qBittorrent"
+    echo -e   "${red}99)${normal} $language_do_not_install qBittorrent"
 
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
@@ -792,11 +812,11 @@ while [[ $de_version = "" ]]; do
     echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
 #   echo -e "${green}05)${normal} Deluge ${cyan}2.0${normal}"
     echo -e  "${blue}11)${normal} Deluge ${blue}2.0 dev${normal} ${blue}(unstable)${normal}"
-    echo -e  "${blue}30)${normal} Select another version "
+    echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
     echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
-    echo -e   "${red}99)${normal} Do not install Deluge"
+    echo -e   "${red}99)${normal} $language_do_not_install Deluge"
 
     [[ $de_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
@@ -894,7 +914,7 @@ while [[ $lt_version = "" ]]; do
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.11${normal} (${blue}RC_1_1${normal} branch)"
     echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.0 ${normal} (${blue}master${normal} branch, ${blue}unstable${normal})"
-    echo -e  "${blue}30)${normal} Select another version      "
+    echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
   # echo -e "${bailanse}${bold} ATTENTION ${normal}${blue} both Deluge and qBittorrent use libtorrent-rasterbar \n            as torrent backend"
@@ -1059,7 +1079,7 @@ while [[ $rt_version = "" ]]; do
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} (with IPv6 support)"
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} (feature-bind branch on Jan 30, 2018)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} (with IPv6 support)"
-    echo -e   "${red}99)${normal} Do not install rTorrent"
+    echo -e   "${red}99)${normal} $language_do_not_install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}rTorrent ${rtorrent_ver}${normal}"
@@ -1182,11 +1202,11 @@ while [[ $tr_version = "" ]]; do
     echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
     echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
     echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
-    echo -e  "${blue}30)${normal} Select another version"
+    echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
     echo -e "${green}50)${normal} Transmission ${cyan}$TR_latest_ver${normal} from ${cyan}PPA${normal}"
-    echo -e   "${red}99)${normal} Do not install Transmission"
+    echo -e   "${red}99)${normal} $language_do_not_install Transmission"
 
     [[ $tr_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Transmission ${trd_ver}${normal}"
@@ -1325,7 +1345,7 @@ while [[ $InsRDP = "" ]]; do
 
     echo -e "${green}01)${normal} VNC  with xfce4"
     echo -e "${green}02)${normal} X2Go with xfce4"
-    echo -e   "${red}99)${normal} Do not install remote desktop"
+    echo -e   "${red}99)${normal} $language_do_not_install remote desktop"
     read -ep "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
   # echo -ne "${bold}${yellow}Would you like to install remote desktop?${normal} (Default ${cyan}99${normal}): " ; read -e responce
 
