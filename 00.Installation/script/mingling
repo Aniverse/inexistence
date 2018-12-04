@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.1
-SCRIPTUPDATE=2018.10.23
+SCRIPTVER=0.9.2
+SCRIPTUPDATE=2018.12.04.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -532,11 +532,11 @@ function _show_scripts_menu() { clear ; echo
   echo -e "  ${green}(02) ${jiacu}安装 BBR 或 魔改版 BBR 或 锐速"
   echo -e "  ${green}(03) ${jiacu}安装 Shadowsocks"
   echo -e "  ${green}(04) ${jiacu}安装 V2Ray"
-  echo -e "  ${green}(05) ${jiacu}重装 系统 "
+# echo -e "  ${green}(05) ${jiacu}重装 系统 "
   echo -e "  ${green}(06) ${jiacu}运行 Bench"
-  echo -e "  ${green}(07) ${jiacu}运行 UnixBench"
-  echo -e "  ${green}(08) ${jiacu}配置 IPv6"
-  echo -e "  ${green}(09) ${jiacu}更改 终端语言为中文"
+  echo -e "  ${green}(07) ${jiacu}运行 ABench"
+  echo -e "  ${green}(08) ${jiacu}配置 IPv6 (Online.net 独服适用)"
+# echo -e "  ${green}(09) ${jiacu}更改 终端语言为中文"
   echo -e "  ${green}(10) ${jiacu}返回 main menu"
   echo -e "  ${normal}"
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
@@ -547,7 +547,7 @@ function _scripts_menu_response() {
 read response
 case $response in
     01 |  1) # 安装 inexistence
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh )" ;;
+             bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) ;;
     02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
              bash -c "$( wget --no-check-certificate -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A )" ;;
     03 |  3) # 安装 Shadowsocks
@@ -561,9 +561,9 @@ case $response in
     06 |  6) # 运行 Bench
              clear ; echo -e "运行 Bench ...\n"
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
-    07 |  7) # 运行 UnixBench
-             clear ; echo -e "运行 UnixBench ...\n"
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/across/master/unixbench.sh )" ;;
+    07 |  7) # 运行 A Bench
+             clear ; echo -e "运行 A Bench ...\n"
+             bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/A/raw/i/a) ;;
     08 |  8) # 配置 IPv6
              bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/ipv6 )" ;;
     09 |  9) # 更改 Linux 服务器终端显示语言为中文的脚本
