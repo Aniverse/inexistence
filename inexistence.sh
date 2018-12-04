@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.03.4
+INEXISTENCEDATE=2018.12.04.1
 # --------------------------------------------------------------------------------
 
 
@@ -908,6 +908,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -923,6 +924,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} qBittorrent 3.3 and later requires libtorrent-rasterbar 1.0.6 and later${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -939,6 +941,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -954,6 +957,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -969,6 +973,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -984,6 +989,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -1001,6 +1007,7 @@ while [[ $lt_version = "" ]]; do
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=master ;;
                           30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
@@ -2535,12 +2542,8 @@ elif [[ $InsWineMode == apt ]]; then
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 
     if [[ $DISTRO == Ubuntu ]]; then
-        if [[ $CODENAME == bionic ]]; then # 暂时没有 Ubuntu 18.04 的源，只能手动加 17.10 的了
-            echo "deb https://dl.winehq.org/wine-builds/ubuntu/ artful main" > /etc/apt/sources.list.d/wine.list
-        else
-            apt-get install -y software-properties-common
-            apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
-        fi
+        apt-get install -y software-properties-common
+        apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
     elif [[ $DISTRO == Debian ]]; then
         echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
     fi
@@ -2553,6 +2556,16 @@ fi
 wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x winetricks
 mv winetricks /usr/local/bin
+
+# https://blog.gloriousdays.pw/2018/12/01/optimize-wine-font-rendering/
+
+/usr/local/bin/winetricks settings fontsmooth=rgb
+
+cd ~/.wine/drive_c/windows/Fonts
+wget --no-check-certificate https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
+tar cJvf wine_fonts.tar.xz
+rm wine_fonts.tar.xz
+cd
 
 touch /etc/inexistence/01.Log/lock/winemono.lock
 
