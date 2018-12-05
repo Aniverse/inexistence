@@ -5,13 +5,84 @@
 
 
 
+## 2018.12.05
+
+`inexistence 1.0.9.10`  
+1. 继续完善能汉化的部分，不急慢慢来……  
+2. 更新无交互的语言和时区设定方法  
+3. wine 字体包的下载链接以防万一加上防超时设定  
 
 
 
 
 
 
-## inexistence 1.0.9
+## 2018.12.04
+
+`inexistence 1.0.9.9`  
+1. 安装 lt 时增加 98 `lt_version=system` 的隐藏选项，以防万一  
+2. 由于 18.04 已有 wine 的 ppa 源，因此不再使用 artful 的源  
+3. 优化 wine 的字体显示  
+抄袭自：https://blog.gloriousdays.pw/2018/12/01/optimize-wine-font-rendering/  
+4. **New Feature，WIP：语言选项，脚本以后会加入中文显示**  
+
+`mingling 0.9.2`  
+1. 放弃治疗  
+2. 更新 `inexistence` 的运行命令  
+3. 用自己的 A bench 代替 UnixBench  
+4. 隐藏更改终端语言为中文的选项  
+5. 说明 IPv6 配置脚本是为了 Online.net 独服设计的  
+
+`README 1.1.6`  
+1. **更新 Usage**  
+2. 更新 Issues 的要求  
+
+
+
+
+
+## 2018.12.03
+
+`inexistence 1.0.9.6`  
+1. Apps 部分增加 ethtool  
+2. DeBUG：完善 lt 选择部分 debug 的输出内容  
+3. 升级 mediaarea 到 1.0.6  
+4. **Bug Fix：修复选择 qBittorrent 4.1.3 也会强制要求安装 lt 1.1 的问题**  
+5. **Bug Fix：修复已安装 lt 1.1 的情况下还强制要求安装 lt 1.1 的问题**  
+
+
+
+
+
+## 2018.11.27
+
+`inexistence 1.0.9.3`  
+1. Bug Fix：修复 `--skip-apps` 无效的问题  
+
+`install_deluge 1.17`  
+1. UI：隐藏 pip 的输出日志  
+
+
+
+
+
+## 2018.11.25
+
+`inexistence 1.0.9.2`  
+1. Bug Fix：修复老系统安装 Deluge 2.0 依赖不够新的问题  
+2. UI：提示可以使用 `-s` 参数跳过校验  
+原先是让你自己修改脚本里的内容  
+3. UI：增加 `SKIPAPPS=Yes` 的提示  
+
+`install_deluge 1.15`  
+1. **Bug Fix：修复老系统安装 Deluge 2.0 依赖不够新的问题导致无法运行的问题**  
+
+
+
+
+
+
+## inexistence 1.0.9 Full ChangeLOG
 1. **Feature：使用 `install_libtorrent_rasterbar` 脚本安装 lt**  
 2. **Feature：重写 libtorrent-rasterbar 的安装判断**  
 3. **Feature：qBittorrent 可选版本调整，去掉了 3.3.11 可跳校验的隐藏选项**  
@@ -43,7 +114,7 @@
 
 ## 2018.11.18
 
-`inexistence 1.0.9`  
+`inexistence 1.0.9.1`  
 1. 修改之前安装过 `inexistence` 时对之前文件夹的处理，不删除只重命名  
 2. UI：去掉了 `use it at your own risk` 的说明  
 3. UI：其他界面调整，提示文字调整（最花时间了……）  
@@ -61,19 +132,19 @@
 ## 2018.11.17
 
 `install_libtorrent_rasterbar 1.14`  
-1. 进一步优化安装第二个 Deluge 的逻辑  
-但发现逻辑是搞清楚了但是装的有问题，以后再说吧  
-2. 修复 `version_ge` 使用不当的问题  
-3. 检测 libtorrent 是否需要使用 1.1.3 及以上的版本  
-4. 修复 apt 安装时显示版本号为空的问题  
-5. 改进进度显示功能（花了我好几个小时 orz……）  
-6. 修改版本号，代码微调  
+1. 修复 `version_ge` 使用不当的问题  
+2. 检测 libtorrent 是否需要使用 1.1.3 及以上的版本  
+3. 修复 apt 安装时显示版本号为空的问题  
+4. 改进进度显示功能（花了我好几个小时 orz……）  
+5. 修改版本号，代码微调  
 
 `install_deluge 1.15`  
-1. 修复 apt 安装时显示版本号为空的问题  
+1. 进一步优化安装第二个 Deluge 的逻辑  
 但发现逻辑是搞清楚了但是装的有问题，以后再说吧  
-2. 增加进度显示功能  
-3. 修改版本号，代码微调  
+2. 修复 apt 安装时显示版本号为空的问题  
+但发现逻辑是搞清楚了但是装的有问题，以后再说吧  
+3. 增加进度显示功能  
+4. 修改版本号，代码微调  
 
 
 
@@ -83,7 +154,7 @@
 
 实际上是 15 号写的，只是没弄到 git 上（一是没空测试，二是 lt 1.1.11 和 qb 4.1.4 还没发布）  
 
-`inexistence 1.0.9`  
+`inexistence 1.0.9.0`  
 1. **Bump version to 1.0.9**  
 2. **Feature：qBittorrent 可选版本调整，去掉了 3.3.11 和 4.1.1.1 两个隐藏选项**  
 增加了 4.1.4，并作为默认选项  
