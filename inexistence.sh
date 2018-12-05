@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.04.2
+INEXISTENCEDATE=2018.12.05
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -205,11 +205,13 @@ if [[ $script_lang == eng ]]; then
 
 language_do_not_install="Do not install"
 language_select_another_version="Select another version"
+which_version_do_you_want="Which version do you want?"
 
 elif [[ $script_lang == chs ]]; then
 
 language_do_not_install="不安装"
 language_select_another_version="自己输入一个想要的版本号"
+which_version_do_you_want="你想要装什么版本？"
 
 fi
 
@@ -733,8 +735,8 @@ while [[ $qb_version = "" ]]; do
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}05${normal}): " version
-  # echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}05${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " ; read -e version
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
@@ -821,8 +823,8 @@ while [[ $de_version = "" ]]; do
     [[ $de_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
 
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " version
-  # echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}04${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " ; read -e version
 
     case $version in
         01 | 1) de_version=1.3.9 ;;
@@ -922,7 +924,7 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-					read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}99${normal}): " version
+					read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -938,7 +940,7 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
     elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ ! $qb_version == No ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -955,7 +957,7 @@ while [[ $lt_version = "" ]]; do
     # 2018.12.03 发现这里写的有问题，试着更正下
     elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}99${normal}): " version
+                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -971,7 +973,7 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
     elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == No ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " version
+                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -987,7 +989,7 @@ while [[ $lt_version = "" ]]; do
     # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     elif [[ ! $lt_ver ]] && [[ $lt8_support == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}01${normal}): " version
+                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -1003,7 +1005,7 @@ while [[ $lt_version = "" ]]; do
     # 未安装 libtorrent-rasterbar 且要使用 Deluge 2.0 或者 qBittorrent 4.2.0
     elif [[ ! $lt_ver ]] && [[ $lt8_support == No ]]; then
             while [[ $lt_version == "" ]]; do
-                    echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -1021,7 +1023,7 @@ while [[ $lt_version = "" ]]; do
                     echo -e "\n${bold}${yellow}你发现了一个 Bug！请带着以下信息联系作者……${normal}\n"
                     echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
                     echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok"
-                    echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}02${normal}): " ; read -e version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
@@ -1088,8 +1090,8 @@ while [[ $rt_version = "" ]]; do
     if [[ $rtorrent_dev == 1 ]]; then
 
         echo "${bold}${red}Note that${normal} ${bold}${green}Debian 9${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
-        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}14${normal}): " version
-      # echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
+      # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
             14) rt_version='0.9.6 IPv6 supported' ;;
@@ -1100,8 +1102,8 @@ while [[ $rt_version = "" ]]; do
 
     else
 
-        read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}14${normal}): " version
-      # echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}14${normal}): " ; read -e version
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
+      # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " ; read -e version
 
         case $version in
             01 | 1) rt_version=0.9.2 ;;
@@ -1211,8 +1213,8 @@ while [[ $tr_version = "" ]]; do
     [[ $tr_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}You have already installed ${underline}Transmission ${trd_ver}${normal}"
 
-    read -ep "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " version
-  # echo -ne "${bold}${yellow}Which version do you want?${normal} (Default ${cyan}40${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}40${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}40${normal}): " ; read -e version
 
     case $version in
             01 | 1) tr_version=2.77 ;;
@@ -2673,8 +2675,16 @@ function _tweaks() {
 # 修改时区
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+dpkg-reconfigure -f noninteractive tzdata
+
 ntpdate time.windows.com
 hwclock -w
+
+# 修改语言
+sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+echo 'LANG="en_US.UTF-8"'>/etc/default/locale
+dpkg-reconfigure --frontend=noninteractive locales
+update-locale LANG=en_US.UTF-8
 
 
 # screen 设置
