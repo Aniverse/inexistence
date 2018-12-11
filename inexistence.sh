@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.05
+INEXISTENCEDATE=2018.12.11
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -756,7 +756,9 @@ done
 
 [[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
 
-version_ge $qb_version 4.1.9 && qBittorrent_4_2_0_later=Yes || qBittorrent_4_2_0_later=No
+# 2018.12.11 改来改去，我现在有点懵逼……
+qBittorrent_4_2_0_later=No
+[[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
 
 if [[ $qb_version == No ]]; then
 
@@ -843,10 +845,11 @@ while [[ $de_version = "" ]]; do
 
 done
 
-[[ ! $de_version == No ]] && { version_ge $de_version 1.3.11 || Deluge_ssl_fix_patch=Yes ; }
-[[ ! $de_version == No ]] && { version_ge $de_version 2.0 && Deluge_2_later=Yes || Deluge_2_later=No ; }
 
-[[ $de_version == '1.3.15_skip_hash_check' ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
+[[ $(echo $de_version | grep -oP "[0-9.]+") ]] && { version_ge $de_version 1.3.11 || Deluge_ssl_fix_patch=Yes ; }
+[[ $(echo $de_version | grep -oP "[0-9.]+") ]] && { version_ge $de_version 2.0 && Deluge_2_later=Yes || Deluge_2_later=No ; }
+[[ $de_version == '1.3.15_skip_hash_check'  ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
+
 
 if [[ $de_version == No ]]; then
 
@@ -2584,9 +2587,9 @@ mv winetricks /usr/local/bin
 /usr/local/bin/winetricks settings fontsmooth=rgb
 
 cd ~/.wine/drive_c/windows/Fonts
-wget --no-check-certificate https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
+wget --no-check-certificate -t1 -T5 https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
 tar cJvf wine_fonts.tar.xz
-rm wine_fonts.tar.xz
+rm -f wine_fonts.tar.xz
 cd
 
 touch /etc/inexistence/01.Log/lock/winemono.lock
