@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.11
+INEXISTENCEDATE=2018.12.13
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -2701,6 +2701,17 @@ encoding utf8 utf8
 defscrollback 23333
 EOF
 
+
+# 升级 vnstat
+
+if [[ $CODENAME == jessie ]]; then
+cd ; wget https://humdi.net/vnstat/vnstat-1.18.tar.gz
+tar zxf vnstat-1.18.tar.gz
+cd vnstat-1.18
+./configure --prefix=/usr
+make -j${MAXCPUS}
+make install
+cd ; rm -rf vnstat-1.18.tar.gz vnstat-1.18 ; fi
 
 # 设置编码与alias
 
