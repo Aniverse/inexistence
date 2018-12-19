@@ -103,7 +103,7 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 _colors
 # --------------------------------------------------------------------------------
 # 增加 swap
-function _use_swap() { dd if=/dev/zero of=/root/.swapfile bs=1M count=1024  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
+function _use_swap() { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
 
 # 关掉之前开的 swap
 function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /.swapfile ; }
@@ -2170,7 +2170,9 @@ rm -rf Convert-Bencode_XS-0.06 Convert-Bencode_XS-0.06.tar.gz patch-t_001_tests_
 
 function _installflood() {
 
-bash <(curl -sL https://deb.nodesource.com/setup_9.x)
+# https://github.com/nodesource/distributions/blob/master/README.md
+# curl -sL https://deb.nodesource.com/setup_11.x | bash -
+curl -sL https://deb.nodesource.com/setup_10.x | bash -
 apt-get install -y nodejs build-essential python-dev
 npm install -g node-gyp
 git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
@@ -2588,7 +2590,8 @@ mv winetricks /usr/local/bin
 
 cd ~/.wine/drive_c/windows/Fonts
 wget --no-check-certificate -t1 -T5 https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
-tar cJvf wine_fonts.tar.xz
+xz -d wine_fonts.tar.xz
+tar -xvf wine_fonts.tar
 rm -f wine_fonts.tar.xz
 cd
 
@@ -2606,8 +2609,6 @@ echo -e "${bailanse}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n${normal}" 
 # --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
 function _installtools() {
-
-# DISTROL=debian ; CODENAME=jessie
 
 ########## Blu-ray ##########
 
