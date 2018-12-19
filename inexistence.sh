@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.15
+INEXISTENCEDATE=2018.12.19
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -1855,7 +1855,19 @@ exit 0 ; }
 
 # --------------------- 安装 libtorrent-rasterbar --------------------- #
 
-function _install_lt() { bash $local_packages/install/install_libtorrent_rasterbar -b $lt_version ; }
+function _install_lt() {
+
+if [[ $arch == x86_64 ]]; then
+
+if   [[ $lt_version == RC_1_0 ]]; then
+    bash $local_packages/install/install_libtorrent_rasterbar -m deb
+elif [[ $lt_version == RC_1_1 ]]; then
+    bash $local_packages/install/install_libtorrent_rasterbar -m deb2
+else
+    bash $local_packages/install/install_libtorrent_rasterbar -b $lt_version
+fi
+
+fi ; }
 
 
 
