@@ -1759,7 +1759,7 @@ if [[ $SKIPAPPS == Yes ]]; then echo -e "\n${baizise}Skip useful apps installati
 apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
 speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
 ca-certificates apt-transport-https gcc make checkinstall build-essential     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat \
-ethtool
+ethtool net-tools
 fi
 
 if [ ! $? = 0 ]; then
