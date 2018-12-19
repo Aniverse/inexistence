@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.19
+INEXISTENCEDATE=2018.12.20
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -1921,7 +1921,7 @@ else
 
     cd qBittorrent-$qb_version
 
-    if [[ $qb_version == 4.2.0.alpha ]]; then
+    if [[ $qb_version == 4.2.0 ]]; then
         git checkout master
     elif [[ $qb_version == 4.1.2 ]]; then
         git checkout release-$qb_version
