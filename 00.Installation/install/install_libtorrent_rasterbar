@@ -3,12 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# update=2018.11.17
-# version=1.15
+# update=2018.12.19
+# version=1.1.6
 #
 # --------- Usage ---------
 # wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
+# bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) -m deb2
+# bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) -b RC_1_1
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt    # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -154,20 +156,42 @@ cp -f libtorrent-rasterb*.deb $DebLocation
 
 
 
-# Install from pre-compiled deb package
-function _install_lt_deb() {
+# Install from pre-compiled deb package (libtorrent-rasterbar8, based on RC_1_0 #62c96797a06a024dc17a44931c19afe6f7bd7d6c with python-binding fix)
+function _install_lt8_deb() {
 
 if   [[ $CODENAME == jessie  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Jessie/libtorrent-rasterbar_1.0.11_jessie_amd64.deb         >> $OutputLOG 2>&1
-elif [[ $CODENAME == xenial  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Xenial/libtorrent-rasterbar_1.0.11_xenial_amd64.deb         >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.0.11.jessie.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Stretch/libtorrent-rasterbar_1.0.11_stretch_amd64.deb       >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.0.11.stretch.amd64.deb    >> $OutputLOG 2>&1
+elif [[ $CODENAME == xenial  ]]; then
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.0.11.xenial.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == bionic  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deb%20Package/Bionic/libtorrent-rasterbar-seedbox_1.0.11_bionic_amd64.deb >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.0.11.bionic.amd64.deb      >> $OutputLOG 2>&1
 fi
 
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
+
+
+
+
+
+# Install from pre-compiled deb package (libtorrent-rasterbar9, based on RC_1_1 #a44ddddede236d5bf0efb575ab652d26a9a39133 with python-binding fix)
+function _install_lt9_deb() {
+
+if   [[ $CODENAME == jessie  ]]; then
+    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.1.11.jessie.amd64.deb      >> $OutputLOG 2>&1
+elif [[ $CODENAME == stretch ]]; then
+    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.1.11.stretch.amd64.deb    >> $OutputLOG 2>&1
+elif [[ $CODENAME == xenial  ]]; then
+    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.1.11.xenial.amd64.deb      >> $OutputLOG 2>&1
+elif [[ $CODENAME == bionic  ]]; then
+    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.1.11.bionic.amd64.deb      >> $OutputLOG 2>&1
+fi
+
+dpkg -i lt.$CODENAME.1.1.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
@@ -209,7 +233,16 @@ case $mode in
               _check_status ltd ; }
 
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.0.11${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
-              _install_lt_deb & spinner $!
+              _install_lt8_deb & spinner $!
+              ;;
+
+    deb2    ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
+              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
+              _install_lt_dependencies & spinner $!
+              _check_status ltd ; }
+
+              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.11${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              _install_lt9_deb & spinner $!
               ;;
 
     source  ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
