@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # update=2018.12.19
-# version=1.1.7
+# version=1.1.8
 #
 # --------- Usage ---------
 # wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
@@ -76,7 +76,7 @@ case $mode in
     deb     ) sleep 0  ;;
     deb2    ) sleep 0  ;;
     source  ) sleep 0  ;;
-    ""   | *) echo -e "\n${CW} Installation mode must be specified as apt, deb or source${normal}\n"   ;;
+    ""  |  *) echo -e "\n${CW} Installation mode must be specified as apt, deb, deb2 or source${normal}\n"   ;;
 esac
 
 
