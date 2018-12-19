@@ -4,13 +4,13 @@
 # Author: Aniverse
 #
 # update=2018.12.19
-# version=1.1.6
+# version=1.1.7
 #
 # --------- Usage ---------
 # wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 # bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
-# bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) -m deb2
-# bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) -b RC_1_1
+# bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2
+# bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_1
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt    # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -74,6 +74,7 @@ done
 case $mode in
     apt     ) sleep 0  ;;
     deb     ) sleep 0  ;;
+    deb2    ) sleep 0  ;;
     source  ) sleep 0  ;;
     ""   | *) echo -e "\n${CW} Installation mode must be specified as apt, deb or source${normal}\n"   ;;
 esac
