@@ -26,6 +26,8 @@
 # The following resources were useful in writing this script:
 # . http://dmo.ca/blog/detecting-virtualization-on-linux/
 
+# Modified by Aniverse, 2018.12.21
+
 # Do not allow unset variables, and set defaults.
 set -u
 root=''
@@ -131,6 +133,8 @@ fi
 # container)
 # /proc/bc - exists on node, but not inside container.
 
+# [[ -f /proc/user_beancounters ]] && echo OpenVZ
+
 if [ -d "${root}/proc/vz" -a ! -d "${root}/proc/bc" ]; then
     echo OpenVZ
 fi
@@ -138,6 +142,9 @@ fi
 # Check for LXC containers
 # http://www.freedesktop.org/wiki/Software/systemd/ContainerInterface
 # Added by Marc Fournier
+
+# grep lxc /proc/1/cgroup -qa && echo LXC
+# grep -qa container=lxc /proc/1/environ && echo LXC
 
 if [ -e "${root}/proc/1/environ" ] &&
     cat "${root}/proc/1/environ" | tr '\000' '\n' | grep -Eiq '^container='; then
@@ -249,3 +256,8 @@ if ! "$skip_qemu_kvm"; then
 	fi
     fi
 fi
+
+# Check for Docker
+# Added by Aniverse
+# Copied codes from SuperBench by oldking
+grep docker /proc/1/cgroup -qa && echo Docker
