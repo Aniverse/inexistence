@@ -1773,7 +1773,7 @@ if [ ! $? = 0 ]; then
     exit 1
 fi
 
-echo -e "${bailvse}\n\n\n  STEP-ONE-COMPLETED  \n\n${normal}"
+echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 
 # apt-get remove --purge -y libgnutls-deb0-28
 
@@ -1886,7 +1886,7 @@ function _installqbt() {
 if [[ $qb_version == "Install from repo" ]]; then
 
     apt-get install -y qbittorrent-nox
-    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    echo -e "\n\n\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 
 elif [[ $qb_version == "Install from PPA" ]]; then
 
@@ -1894,7 +1894,7 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
     apt-get update
     apt-get install -y qbittorrent-nox
-    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    echo -e "\n\n\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 
 else
 
@@ -1953,7 +1953,7 @@ else
     fi
 
     cd
-    echo -e "${bailvse}\n\n\n\n\n  QBITTORRENT-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+    echo -e "\n\n\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 
 fi ; }
 
@@ -2074,7 +2074,7 @@ fi
 
     fi
 
-cd ; echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
+cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
 
@@ -2172,7 +2172,7 @@ cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system
 cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
-cd ; echo -e "${baihongse}\n\n\n\n\n  RT-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
+cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
 
@@ -2219,7 +2219,7 @@ systemctl enable flood
 
 touch /etc/inexistence/01.Log/lock/flood.lock
 
-cd ; echo -e "${baihongse}\n\n\n\n\n  FLOOD-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
+cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
 
@@ -2296,7 +2296,7 @@ else
 
 fi
 
-cd ; echo -e "${baizise}\n\n\n\n\n  TR-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
+cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
 
@@ -2375,7 +2375,7 @@ function _installflex() {
 # systemctl start flexget@${ANPASS}
 
   touch /etc/inexistence/01.Log/lock/flexget.lock
-  echo -e "${bailvse}\n\n\n  FLEXGET-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+  echo -e "\n\n\n${bailvse}  FLEXGET-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
@@ -2403,7 +2403,7 @@ cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
 cp "${local_packages}"/script/dalao/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
 touch /etc/inexistence/01.Log/lock/rclone.lock
-echo -e "${bailvse}\n\n\n  RCLONE-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+echo -e "\n\n\n${bailvse}  RCLONE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
@@ -2422,7 +2422,7 @@ else
     _bbr_kernel_4_11_12
     _enable_bbr
 fi
-echo -e "${bailvse}\n\n\n  BBR-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n" ; }
 
 # 安装 4.11.12 的内核
 function _bbr_kernel_4_11_12() {
@@ -2498,7 +2498,7 @@ systemctl status vncserver
 
 touch /etc/inexistence/01.Log/lock/vnc.lock
 
-echo -e "${bailvse}\n\n\n  VNC-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
@@ -2538,7 +2538,7 @@ apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
 touch /etc/inexistence/01.Log/lock/x2go.lock
 
-echo -e "${bailvse}\n\n\n  X2GO-INSTALLATION-COMPLETED  \n\n${normal}" ; }
+echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
@@ -2574,7 +2574,7 @@ elif [[ $InsMonoMode == apt ]]; then
 
 fi
 
-echo -e "${bailanse}\n\n\n\n\n  MONO-INSTALLATION-COMPLETED  \n\n\n\n${normal}"
+echo -e "\n\n\n${bailanse}  MONO-INSTALLATION-COMPLETED  ${normal}\n\n"
 
 # wine
 # https://wiki.winehq.org/Debian
@@ -2628,7 +2628,7 @@ touch /etc/inexistence/01.Log/lock/winemono.lock
 echo -e "\n\n\n${bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
-echo -e "${bailanse}\n\n\n\n\n  WINE-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
+echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
@@ -2695,7 +2695,7 @@ mktorrent -h | head -n1
 mkvmerge --version
 echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
 echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
-echo -e "${bailanse}\n\n\n\n\n  UPTOOLBOX-INSTALLATION-COMPLETED  \n\n\n\n${normal}" ; }
+echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 
