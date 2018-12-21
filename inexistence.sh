@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.20
+INEXISTENCEDATE=2018.12.21
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -726,6 +726,7 @@ while [[ $qb_version = "" ]]; do
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.4${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.5${normal}"
     echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -745,6 +746,7 @@ while [[ $qb_version = "" ]]; do
         03 | 3) qb_version=4.0.4 ;;
         04 | 4) qb_version=4.1.3 ;;
         05 | 5) qb_version=4.1.4 ;;
+      # 06 | 6) qb_version=4.1.5 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
@@ -837,7 +839,9 @@ while [[ $de_version = "" ]]; do
 #       05 | 5) de_version=2.0 ;;
         11) de_version=2.0.dev ;;
         21) de_version='1.3.15_skip_hash_check' ;;
-        30) _input_version && de_version="${input_version_num}"  ;;
+        30) _input_version && de_version="${input_version_num}" ;;
+        31) _input_version && de_version="${input_version_num}" && de_test=yes &&  de_branch=yes ;;
+        32) _input_version && de_version="${input_version_num}" && de_test=yes && de_version=yes ;;
         40) de_version='Install from repo' ;;
         50) de_version='Install from PPA' ;;
         99) de_version=No ;;
@@ -1996,6 +2000,15 @@ touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
 
 function _installde() {
 
+    if [[ $de_test == yes ]]; then
+
+        [[ $de_version == yes ]] && bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -v $de_version
+
+        [[ $de_branch  == yes ]] && bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -b $de_version &&
+        wget -q https://github.com/Aniverse/filesss/raw/master/TorrentGrid.js -O /usr/lib/python2.7/dist-packages/deluge-1.3.15.dev0-py2.7.egg/deluge/ui/web/js/deluge-all/TorrentGrid.js
+
+    else
+
 if [[ $de_version == "Install from repo" ]]; then
 
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk 
@@ -2058,6 +2071,8 @@ else
     [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
 
 fi
+
+    fi
 
 cd ; echo -e "${bailanse}\n\n\n\n  DELUGE-INSTALLATION-COMPLETED  \n\n\n${normal}" ; }
 
