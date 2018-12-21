@@ -1739,7 +1739,7 @@ apt-get -f -y install
 package_list="figlet toilet lolcat ruby tree
 gcc automake make gawk build-essential checkinstall python
 screen git sudo zsh curl nano zip unzip lrzsz rsync bc locales aptitude ntpdate
-software-properties-common python-software-properties apt-transport-https ca-certificates
+software-properties-common apt-transport-https ca-certificates
 dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf3 speedtest-cli mtr wondershaper uuid"
 
 # for package_name in $package_list ; do
@@ -1885,7 +1885,7 @@ if [[ $qb_version == "Install from repo" ]]; then
 
 elif [[ $qb_version == "Install from PPA" ]]; then
 
-    apt-get install -y software-properties-common python-software-properties
+    apt-get install -y software-properties-common
     add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
     apt-get update
     apt-get install -y qbittorrent-nox
@@ -2001,7 +2001,7 @@ if [[ $de_version == "Install from repo" ]]; then
 
 elif [[ $de_version == "Install from PPA" ]]; then
 
-    apt-get install -y software-properties-common python-software-properties
+    apt-get install -y software-properties-common
     add-apt-repository -y ppa:deluge-team/ppa
     apt-get update
   # apt-get install -y --allow-change-held-packages --allow-downgrades libtorrent-rasterbar8 python-libtorrent
@@ -2220,7 +2220,7 @@ if [[ "${tr_version}" == "Install from repo" ]]; then
 
 elif [[ "${tr_version}" == "Install from PPA" ]]; then
 
-    apt-get install -y software-properties-common python-software-properties
+    apt-get install -y software-properties-common
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
     apt-get install -y transmission-daemon
