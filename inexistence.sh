@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.21
+INEXISTENCEDATE=2018.12.22
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -726,7 +726,7 @@ while [[ $qb_version = "" ]]; do
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.4${normal}"
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.5${normal}"
+  # echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.5${normal}"
     echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
