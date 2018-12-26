@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.25
+INEXISTENCEDATE=2018.12.26
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num
 ### 检查系统是否被支持 ###
 function _oscheck() {
 if [[ ! "$SysSupport" == 1 ]]; then
-    echo -e "\n${bold}${red}Too young too simple! Only Debian 8, Debian 9 and Ubuntu 16.04 is supported by this script${normal}"
+    echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9 and Ubuntu 16.04/18.04 is supported by this script${normal}"
     echo -e "${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
     exit 1
 fi ; }
@@ -2618,11 +2618,12 @@ mv winetricks /usr/local/bin
 
 /usr/local/bin/winetricks settings fontsmooth=rgb
 
+mkdir -p ~/.wine/drive_c/windows/Fonts
 cd ~/.wine/drive_c/windows/Fonts
 wget --no-check-certificate -t1 -T5 https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
 xz -d wine_fonts.tar.xz
 tar -xvf wine_fonts.tar
-rm -f wine_fonts.tar.xz
+rm -f wine_fonts.tar
 cd
 
 touch /etc/inexistence/01.Log/lock/winemono.lock
