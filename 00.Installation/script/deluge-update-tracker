@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# 2019.01.02
+
 torrentid=$1
 torrentname=$2
 torrentpath=$3
@@ -8,9 +11,6 @@ log=/etc/inexistence/01.Log/deluge-update-tracker.log
 
 ddport=$(grep '"daemon_port": [0-9]*' /root/.config/deluge/core.conf | grep -oE "[0-9]+")
 [[ -z $ddport ]] && echo "ERROR: No daemon port detected!" >> $log
-
-Usernamee=ANUSER
-Passwordd=ANPASS
 
 x=1
 while [ $x -le 45 ]; do
@@ -34,11 +34,14 @@ done
 
 #######################################################
 
+Usernamee=ANUSER
+Passwordd=ANPASS
+
 unused_codes_ignore_these() {
-    line=$(/usr/bin/deluge-console "connect 127.0.0.1:DAEMONPORT ANUSER ANPASS; info" $1 | grep "Tracker status")
+    line=$(/usr/bin/deluge-console "connect 127.0.0.1:$ddport $Usernamee $Passwordd; info" $1 | grep "Tracker status")
     echo $line >> $log
     case "$line" in
-        *unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*) eval /usr/bin/deluge-console "connect 127.0.0.1:DAEMONPORT ANUSER ANPASS\; update-tracker '$torrentid'";;
+        *unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*) eval /usr/bin/deluge-console "connect 127.0.0.1:$ddport $Usernamee $Passwordd\; update-tracker '$torrentid'";;
         *) echo "Found working torrent: $torrentname $torrentpath $torrentid" >> ~/script.log ; exit 1 ;;
     esac
 }
