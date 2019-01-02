@@ -9,7 +9,8 @@ torrentpath=$3
 log=/etc/inexistence/01.Log/deluge-update-tracker.log
 [[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch /etc/inexistence/01.Log/deluge-update-tracker.log ; }
 
-ddport=$(grep '"daemon_port": [0-9]*' /root/.config/deluge/core.conf | grep -oE "[0-9]+")
+# ddport=58846
+ddport=$(grep '"daemon_port": [0-9]*' ~/.config/deluge/core.conf | grep -oE "[0-9]+")
 [[ -z $ddport ]] && echo "ERROR: No daemon port detected!" >> $log
 
 x=1
