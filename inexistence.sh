@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2018.12.26
+INEXISTENCEDATE=2019.01.01
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ _colors
 function _use_swap() { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
 
 # 关掉之前开的 swap
-function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /.swapfile ; }
+function _disable_swap() { swapoff /root/.swapfile  ;  rm -f /root/.swapfile ; }
 
 # 用于退出脚本
 export TOP_PID=$$
@@ -198,6 +198,10 @@ if [[ ! "$SysSupport" == 1 ]]; then
     echo -e "${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
     exit 1
 fi ; }
+
+# Ctrl+C 时恢复样式
+cancel() { echo -e "${normal}" ; exit ; }
+trap cancel SIGINT
 
 # --------------------------------------------------------------------------------
 
