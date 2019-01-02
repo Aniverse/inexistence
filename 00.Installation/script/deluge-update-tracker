@@ -3,16 +3,42 @@ torrentid=$1
 torrentname=$2
 torrentpath=$3
 
+log=/etc/inexistence/01.Log/deluge-update-tracker.log
+[[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch /etc/inexistence/01.Log/deluge-update-tracker.log ; }
+
+ddport=$(grep '"daemon_port": [0-9]*' /root/.config/deluge/core.conf | grep -oE "[0-9]+")
+[[ -z $ddport ]] && echo "ERROR: No daemon port detected!" >> $log
+
+Usernamee=ANUSER
+Passwordd=ANPASS
+
 x=1
 while [ $x -le 45 ]; do
     sleep 2
-    echo "Running $x times" >> ~/script.log
-    echo "TorrentID: $torrentid" >> ~/script.log
+    echo "$(date "+%Y.%m.%d %H:%M:%S"), Running $x times" >> $log
+    echo "TorrentID: $torrentid" >> $log
+    line=$(deluge-console "connect 127.0.0.1:$ddport; info" $1 | grep "Tracker status")
+    echo $line >> $log
+    case "$line" in
+        *unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*)
+            deluge-console "connect 127.0.0.1:$ddport; pause '$torrentid'"
+            sleep 2
+            deluge-console "connect 127.0.0.1:$ddport; resume '$torrentid'"
+            ;;
+        *)
+            echo "Found working torrent: $torrentname $torrentpath $torrentid" >> $Log
+            exit 1;;
+    esac
+    x=$(( $x + 1 ))
+done
+
+#######################################################
+
+unused_codes_ignore_these() {
     line=$(/usr/bin/deluge-console "connect 127.0.0.1:DAEMONPORT ANUSER ANPASS; info" $1 | grep "Tracker status")
-    echo $line >> script.log
+    echo $line >> $log
     case "$line" in
         *unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*) eval /usr/bin/deluge-console "connect 127.0.0.1:DAEMONPORT ANUSER ANPASS\; update-tracker '$torrentid'";;
         *) echo "Found working torrent: $torrentname $torrentpath $torrentid" >> ~/script.log ; exit 1 ;;
     esac
-    x=$(( $x + 1 ))
-done
+}
