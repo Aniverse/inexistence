@@ -1,25 +1,19 @@
-# Flexget 功能强大，但相对而言设置也繁琐一些，进阶的使用请参考官方文档或其他大佬的教程（排名按照链接长短排序）：
-# https://flexget.com/Plugins
+# Here are some guides
+#
 # https://ymgblog.com/2018/04/30/396/
 # https://npchk.info/linux-flexget-rss/
 # https://linkthis.me/2018/02/15/the-note-of-using-flexget/
-# 
-# 提示1：新手最好在 SSH 或者 WebUI 下编辑 Flexget 配置文件；在 Windows 下也不要用系统自带的记事本编辑，容易出错（换行问题之类的）
-# 提示2：Flexget 配置文件遵循 YAML 格式，请注意空格和缩进
-# 本脚本安装完 Flexget 后默认不启用 RSS 功能，如果需要使用 RSS 功能，主要有两个办法
-# 1. 使用 daemon 模式的 schedules
-# 2. 使用 cron
-# 这两个办法在本文底部有介绍
+#
+# https://github.com/Aniverse/WiKi/blob/master/Flexget.md
+# https://github.com/Aniverse/WiKi/blob/master/How.to.use.RSS.md#flexget-rss
+#
+# For more usages, check the offical site: https://flexget.com
 
-# 预设模板
 templates:
-# 剩余空间模板，当 path 对应的路径的剩余空间小于 space 规定的数值的时候停止 RSS 下载
   freespace:
     free_space:
       path: /home/SCRIPTUSERNAME
       space: 10240
-# qb 的模板，之后写 qb 就是指把种子推送到 qb 进行下载；下面 tr de rt 也是如此
-# 除非你修改了对应客户端的账号密码或者端口号，不然不需要修改这些客户端的模板
   qb:
     qbittorrent:
       path: /home/SCRIPTUSERNAME/qbittorrent/download/
@@ -41,43 +35,25 @@ templates:
       port: 58846
       username: SCRIPTUSERNAME
       password: SCRIPTPASSWORD
-# 体积过滤模板，min 是符合条件的最小种子体积，max 是符合条件的最大种子体积，单位均为 MB
-# strict 默认是 yes，表示在无法确定大小的情况下就不下载，这里把它改成 no 了
-# 也就是说，这段 size 的意思是，只下载体积为 6000-666666 MB 的种子，其他不满足条件的种子不下载
   size:
     content_size:
       min: 6000
       max: 666666
       strict: no
-
-
-# 任务
 tasks:
-
-# HDChina 是任务名称，不一定要和网站名称一样
   HDChina:
-# RSS 地址请自己修改成你需要的地址
     rss: https://hdchina.org/torrentrss.php
-# 关闭对于 ssl 的验证
-    verify_ssl_certificates: no
-# 如果种子标题中有 HDChina 或 HDCTV，那就执行下载
     if:
       - "'HDChina' in title and '1080p' in title": accept
       - "'HDCTV' in title": accept
-# HDChina 这个 RSS 任务所调用的模板，这里用了剩余空间、体积过滤、qb下载 这三个模板
-# 实现的效果即为：使用 qb 下载，只下载体积介于 6000MB-666666MB 的种子，剩余空间小于 10GB 时候停止 RSS
     template:
       - freespace
       - size
       - qb
-# 添加到 qbittorrent 的时候，自动对 RSS 到的种子添加 HDChina 的标签
     qbittorrent:
       label: HDChina
-
   MTeam:
     rss: https://tp.m-team.cc/torrentrss.php
-    verify_ssl_certificates: no
-# 正则表达式；标题带 OneHD 的种子就下载（accept，接受），带 MTeamPAD 的就不下载（reject，拒绝）
     regexp:
       accept:
         - OneHD
@@ -85,69 +61,14 @@ tasks:
         - MTeamPAD
     template:
       - de
-# 可以不使用模板的体积过滤，针对每个任务单独设置体积过滤
     content_size:
       min: 15000
       max: 100000
       strict: no
-# 添加到 deluge 的时候，自动对 RSS 到的种子设置 12800KB/s 的上传速度限制
     deluge:
       maxupspeed: 12800.0
-
-
-# 这里再以 BitMe 为例介绍下 cookies 的用法
-# BitMe 的 RSS 链接需要登录网站才能访问，且 RSS 链接没有直接的种子下载页面，需要自己设置规则来进行 url 替换
-  BitMe:
-    rss: http://www.bitme.org/rss.php
-# 使用 cookies 和 headers 插件，使得站点认为我们是使用浏览器、在已登录的情况下访问网站
-# cookies 可以用 Chrome 的 EditThisCookie 插件来导出，具体使用本文不做介绍，请自行解决
-    cookies: /home/SCRIPTUSERNAME/cookies.txt
-    headers:
-      User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:54.0) Gecko/20100101 Firefox/54.0"
-# urlrewrite，对网址进行替换。将原本形如 http://www.bitme.org/details.php?id=123456&hit=1 的种子描述页面链接替换为形如 http://www.bitme.org/download.php/123456/123456.torrent 的种子下载链接
-    urlrewrite:
-      sitename:
-        regexp: 'http://www.bitme.org/details.php\?id=(?P<id>\d+)&hit=1'
-        format: 'https://www.bitme.org/download.php/\g<id>/\g<id>.torrent'
-# accept_all 是指把 RSS 链接里的所有种子都下载下来，不做过滤
-    accept_all: yes
-# download 是说要把下载下来的种子文件存放在哪里，一般我们都将其存放在 BT 客户端的监控目录，比如以下的 Deluge 监控目录
-    download: /home/SCRIPTUSERNAME/deluge/watch
-
-
-# Flexget WebUI 设定，可以不改
-# base_url 是为了反代设置的，需要使用反代的话就取消这个的注释，然后在安装了 rTorrent 的情况下（不装 rt 的话没有 nginx），Flexget WebUI 地址就变成了 https://你盒子的 IP 地址/flexget
 web_server:
   port: 6566
   web_ui: yes
 # base_url: /flexget
-
-# 默认关闭了 RSS 功能（这个配置文件只是示范并没有配置好，当然不会打开 RSS），需要自行打开，操作步骤见本文底部
 schedules: no
-
-
-
-### 以上只是一些简单的用法，更多的用法自己看官方文档吧
-
-### 1. schedules 的使用
-### tasks 处写要执行 RSS 的任务名称，minutes 3 表示每隔 3 分钟执行一次上述任务
-### 可以针对不同的 tasks 采用不同的 RSS 周期
-### schedules:
-###   - tasks: [HDChina,TTG]
-###     interval:
-###       minutes: 3
-###   - tasks: [Gods]
-###     interval:
-###       minutes: 1
-
-### 2. cron 的使用（推荐）
-### 使用 cron 的话，schedules 最好改成 no，正如本设置默认的那样（schedules: no）
-### 首先在 SSH 输入 crontab -e，选择一个文本编辑器，默认的 nano 即可 （nano 使用教程：http://man.linuxde.net/nano）
-### 设置 2 分钟执行一次 RSS，就在文件的最底下输入（这里的数字 2 就是 2 分钟执行一次的意思）
-### */2 * * * * /usr/local/bin/flexget execute
-### 保存、退出，之后可以在 WebUI 中看 Log 来判断 Flexget 是否有在正常工作
-
-### 以上两个办法都是最短 1 分钟执行 1 次 RSS，如果你想实现更高的频率得用别的办法
-
-# 提示：一般情况下不建议 RSS 频率太高，一是 Flexget 本身执行过程中会消耗一些系统资源，二是 RSS 频率太高可能有些站点认为你是在做恶意攻击……
-# 至于多久一次算是频率太高，你自己看着办吧……
