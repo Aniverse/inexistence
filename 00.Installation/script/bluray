@@ -4,39 +4,56 @@
 # https://github.com/Aniverse/bluray
 #
 # --------------------------------------------------------------------------------
-# nano $(which bluray)
-BDDATE=2018.10.28
-BDVER=2.7.9
-DeBUG=0
-# sed -i "s/DeBUG=0/DeBUG=1/" $(which bluray)
-# --------------------------------------------------------------------------------
-# 如果你要自定义脚本生成的文件（种子、截图、BDinfo 等）的输出路径
+#
+# (For Chinese Users) 如果你要自定义脚本生成的文件（种子、截图、BDinfo 等）的输出路径
 # 请把 CustomedOutput 改成 1，然后 OUTPUT 写上你想要的路径
 #
 # You are able to assing a specific folder for output files (bdinfo,screenshots etc.) by editing the following line
-# Jusr set CustomedOutput=1 and change the OUTPUT path
+# Jusr set  CustomedOutput=1  and change the OUTPUT path
 #
 CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
-# 如果你用的是没有 root 权限的盒子，对每次都询问是否使用内置软件库感到厌烦的话，
+#
+# (For Chinese Users) 如果你用的是没有 root 权限的盒子，对每次都询问是否使用内置软件库感到厌烦的话，
 # 可以把 NoInstall 改为 1，这样脚本每次都会自动使用脚本的软件库去运行
 #
-# You could set NoInstall=1 on shared seedbox without root privilege, so there will be no more question asking if you would like to use built-in library
+# You could set  NoInstall=1  on shared seedbox without root privilege,
+# so there will be no more question asking if you would like to use built-in library
 #
 NoInstall=0
 # --------------------------------------------------------------------------------
-# 使用 rar 打包文件，最后给出下载链接（需要开启 http 下载以及安装了 rar）
-# 以下预设主要针对使用了 inexistence 脚本的用户，其他用户请根据实际情况修改
 #
+# (For Chinese Users) 使用 rar 打包文件，最后给出下载链接（需要开启 http 下载以及安装了 rar）
+# 以下预设主要针对使用了 inexistence 脚本的用户，其他用户请根据实际情况修改（非 inexistence 脚本用户需要修改 DOWNLOAD_LINK_BASE 和 WEB_FOLDER）
+# 把 BACTH=0 改成 BATCH=1 以启用这个功能
+#
+# If you would like to use rar to pack output files, set  BATCH=0  to  BATCH=1
+# And if you have used my inexistence script to install rTorrent, you could download the rar pack via https links,
+# the download link would be given to you after all the work is done, but if you haven't used inexistence script that link
+# won't be actually usable unless you have changed the following DOWNLOAD_LINK_BASE and WEB_FOLDER
+# 
 BATCH=0
-DOWNLOAD_LINK_BASE="https://$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )/h5ai/inexistence/04.Upload"
+[[ $BATCH == 1 ]] && DOWNLOAD_LINK_BASE="https://$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )/h5ai/inexistence/04.Upload"
 WEB_FOLDER="/etc/inexistence/04.Upload"
 # --------------------------------------------------------------------------------
+#
 # 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径（请确保 rclone 命令可用）
 #
 RCLONE=0
 RCLONEPATH="Replace:/here/with/your/remote/path"
+# --------------------------------------------------------------------------------
+#
+# DO NOT CHANGE THE FOLLOWING LINES
+#
+# 下面的内容无需修改
+#
+#
+#
+#
+#
+# bash <(curl -s https://raw.githubusercontent.com/Aniverse/bluray/master/bluray)
+# wget -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray && chmod +x /usr/local/bin/bluray
 # --------------------------------------------------------------------------------
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -49,25 +66,33 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 # --------------------------------------------------------------------------------
-bdinfocli_path="/etc/inexistence/02.Tools/BDinfoCli/BDInfo.exe"
+BDDATE=2019.01.14
+BDVER=2.9.0
+DeBUG=0
+# --------------------------------------------------------------------------------
+using_bdinfo=new
+bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
+[[ $using_bdinfo == new ]] && bdinfocli_path="/etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe"
+convert=1
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o bdyp:i:s:t: --long "debug,default,yes,path:,bdinfo:,screenshot:,tracker:" -- "$@")
+OPTS=$(getopt -n "$0" -o bdyp:i:s:t: --long "debug,default,yes,no-convert,path:,bdinfo:,screenshot:,tracker:" -- "$@")
 
 eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -p | --path       ) pathtostuff="$2" && opt_path=1 ; shift ; shift ;;
-    -i | --bdinfo     ) bdscan="$2"       ; shift ; shift ;;
-    -s | --screenshot ) fenbianlv="$2"    ; shift ; shift ;;
-    -t | --tracker    ) TRACKERA="$2"     ; shift ; shift ;;
-    -d | --default    ) Default=1         ; shift ;;
-    -b | --debug      ) DeBUG=1           ; shift ;;
-    -y | --yes        ) ForceYes=1        ; shift ;;
-         --no-vcs     ) sstn=No           ; shift ;;
+    -p | --path        ) pathtostuff="$2" && opt_path=1 ; shift ; shift ;;
+    -i | --bdinfo      ) bdscan="$2"       ; shift ; shift ;;
+    -s | --screenshot  ) fenbianlv="$2"    ; shift ; shift ;;
+    -t | --tracker     ) TRACKERA="$2"     ; shift ; shift ;;
+    -d | --default     ) Default=1         ; shift ;;
+    -b | --debug       ) DeBUG=1           ; shift ;;
+    -y | --yes         ) ForceYes=1        ; shift ;;
+         --no-vcs      ) sstn=No           ; shift ;;
+         --no-convert  ) convert=0         ; shift ;;
      * ) break ;;
   esac
 done
@@ -99,6 +124,7 @@ if [[ $Default == 1 ]]; then
     [[ ! $TRACKERA  ]] && { newtorrent=Yes1 ; ANNOUNCE="-a \"\"" ; }
 fi
 
+
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
@@ -120,7 +146,13 @@ fi ; }
 
 
 # 检查必要软件是否齐全
-function _check_install_2(){ for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut nconvert bc expr; do app_name=$apps; _check_install; done; rm -rf tmpmissingapp ; }
+function _check_install_2(){
+for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut nconvert bc expr ; do
+    app_name=$apps ; _check_install
+done
+rm -rf tmpmissingapp
+[[ $NoRoot == 0 ]] && _install_bdinfo
+}
 
 
 # 有 root 权限的盒子安装 ffmpeg
@@ -146,17 +178,20 @@ function _install_vcs() { wget --no-check-certificate -qO /usr/local/bin/vcs htt
 
 
 # 有 root 权限的盒子安装 nconvert
-function _install_nconvert() { wget --no-check-certificate -qO /usr/local/bin/vcs https://raw.githubusercontent.com/Aniverse/bluray/master/tools/nconvert && chmod 755 /usr/local/bin/vcs ; }
+function _install_nconvert() { wget --no-check-certificate -qO /usr/local/bin/nconvert https://raw.githubusercontent.com/Aniverse/bluray/master/tools/nconvert && chmod 755 /usr/local/bin/nconvert ; }
 
 
 # 有 root 权限的盒子安装 bdinfo
 function _install_bdinfo() {
-if [[ ! -f $bdinfocli_path ]]; then
+if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
     mkdir -p /etc/inexistence/02.Tools
     cd /etc/inexistence/02.Tools
-  # svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli
-    wget -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/BDTools/BDinfoCli.0.7.5.tar.gz && tar zxf BDinfoCli.0.7.5.tar.gz && rm -f BDinfoCli.0.7.5.tar.gz
-    chmod 755 /etc/inexistence/02.Tools/BDinfoCli/BDInfo.exe
+    svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
+    mv -f BDinfoCli.0.7.3 BDinfoCli
+  # wget -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/BDTools/BDinfoCli.0.7.5.tar.gz && tar zxf BDinfoCli.0.7.5.tar.gz && rm -f BDinfoCli.0.7.5.tar.gz
+fi
+if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
+    wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/inexistence/02.Tools/bdinfocli.exe
 fi ; }
 
 
@@ -176,7 +211,7 @@ elif [[ ! `ls "${DIR}" | grep -E "mono.net-4.0"` ]] && [[ ! `command -v git` ]];
     echo "\n${bold}Git not found, downloading library via wget ...\n"
     cd "${DIR}"
     [[ $DeBUG == 1 ]] && echo -e "\nDIR = ${DIR}\n" && ls
-    BDVER=2.7.0
+    BDVER=2.9.0
     wget --no-check-certificate -O $BDVER.tar.gz https://github.com/Aniverse/bluray/archive/$BDVER.tar.gz
     tar zxf $BDVER.tar.gz
     rm -rf bluray-$BDVER/{bluray,README.md}
@@ -188,8 +223,13 @@ fi
 chmod -R 755 "${DIR}/tools"
 export PATH="$DIR":"$DIR"/tools:$PATH
 export MONO_PATH="$DIR"/mono.net-4.0
-# bdinfocli_path="$DIR"/tools/bdinfocli.exe
-bdinfocli_path="$DIR"/tools/BDinfoCli/BDInfo.exe ; }
+bdinfocli_path="$DIR"/tools/bdinfocli.exe
+[[ $using_bdinfo == new ]] && bdinfocli_path="$DIR"/tools/BDinfoCli.0.7.3/BDInfo.exe
+USE_Built_IN=1 ; }
+
+# Ctrl+C 时恢复样式
+cancel() { echo -e "${normal}" ; exit ; }
+trap cancel SIGINT
 # --------------------------------------------------------------------------------
 
 
@@ -201,10 +241,10 @@ bdinfocli_path="$DIR"/tools/BDinfoCli/BDInfo.exe ; }
 # 简介与检查
 function _intro() {
 
+NoRoot=0 ; [[ $EUID != 0 ]] && NoRoot=1
+
 [[ $NoInstall == 0 ]] && _check_install_2
 [[ $appmissing == Yes ]] && _logo
-
-NoRoot=0 ; [[ $EUID != 0 ]] && NoRoot=1
 
 [[ $NoInstall == 1 ]] && echo -e "${bold}We will use bulit-in library ...${normal}" && _check_library
 
@@ -292,7 +332,7 @@ if [[ ! $disknumber == 0 ]]; then
   # echo -e "\n${bold}You're now mounting ${green}${disknumber}${normal}${bold} disks,the script will unmount all of them ${normal}\n"
     for disk in ` df -lh | grep -Eo "/dev/loop[0-9]+" ` ; do
         ppaatthh=$(basename `df -lh | grep -E "${disk}\>" | awk '{print $6}' `)
-        umount ${disk} # && echo "${cyan}${ppaatthh}${normal} has been unmounted"
+        umount $disk # && echo "${cyan}${ppaatthh}${normal} has been unmounted"
     done
   # echo -e "\n${bold}All ${green}${disknumber}${normal}${bold} disks had been unmounted${normal}\n"
 fi ; }
@@ -323,6 +363,9 @@ BDname=` basename "$pathtostuff" `
 UHDBD=0              ; [[ ` echo "${BDname}" | grep -E "[He][Ee][Vv][Cc]" ` ]] && UHDBD=1
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "2160[Pp]" ` ]]         && UHDBD=1
 [[ ! $UHDBD == 1 ]] && [[ ` echo "${BDname}" | grep -E "\b[Uu][Hh][Dd]\b" ` ]] && UHDBD=1
+
+# [[ $UHDBD == 1 ]] && [[   $USE_Built_IN == 1 ]] && using_bdinfo=new && bdinfocli_path="$DIR"/tools/BDinfoCli.0.7.3/BDInfo.exe
+# [[ $UHDBD == 1 ]] && [[ ! $USE_Built_IN == 1 ]] && using_bdinfo=new && bdinfocli_path="/etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe"
 
 # if [[ ! $UHDBD == 1 ]] && [[ -d "${pathtostuff}" ]]; then
 if [[ -d "${pathtostuff}" ]]; then
@@ -475,6 +518,8 @@ while [[ $bdscan = "" ]]; do
     echo -e "03) ${cyan}Do not scan BDinfo${normal}"
     echo -ne "${yellow}${bold}Whould you like to scan BDinfo?${normal} (Default: ${cyan}01${normal}) "; read response
 
+    [[ $UHDBD == 1 ]] && echo -e "${bold}${red}ATTENTION${jiacu} Scanning BDinfo of ${blue}UHD Blu-ray${jiacu} maybe failed${normal}"
+
     case $response in
         01 | 1 ) bdscan=auto ;;
         02 | 2 ) bdscan=manual ;;
@@ -510,7 +555,7 @@ while [[ $resolution = "" ]]; do
     echo -e "05) ${cyan}Input a specific resolution${normal}"
     echo -e "06) ${cyan}Do not take screenshots${normal}"
 
-    [[   $UHDBD == 1 ]] && echo -e "${bold}${red}ATTENTION${jiacu} For now there are some issues when taking screenshots of ${blue}UHD Blu-ray${normal}"
+#   [[ $UHDBD == 1 ]] && echo -e "${bold}${red}ATTENTION${jiacu} For now there are some issues when taking screenshots of ${blue}UHD Blu-ray${normal}"
 
     echo -ne "${yellow}${bold}Which resolution of the screenshots would you like?${normal} (Default: ${cyan}04${normal}) "; read response
 
@@ -754,6 +799,13 @@ echo -e "Size = ${bold}${blue}$(du -sB KB $bdpath | awk '{print $1}' | sed "s/kB
 echo -e "File = ${bold}${blue}$(echo $(ls "$bdpath") | sed "s/ /  /g")${normal}"
 echo -e "${normal}"
 
+echo -e "Built-in  Used = $USE_Built_IN"
+echo -e "nconvert  Used = $convert"
+echo -e "bdinfocli Used = $using_bdinfo"
+echo -e "bdinfocli Path = $bdinfocli_path"
+ls -la $bdinfocli_path
+echo -e "${normal}"
+
 [[ $movefile == Yes ]] && { 
 echo -e "${normal}${bold}NEW BDMV folder(without useless files) information${normal}"
 echo -e "Path = ${bold}${blue}${underline}${new_bdpath}${reset_underline}${normal}"
@@ -775,17 +827,19 @@ echo -e "${normal}${bold}${baihongse}                DEBUG INFO END             
 # 获取BD info
 function _getinfo() {
 
-# [[ $bdscan == auto   ]] && echo -ne '1\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
-[[ $bdscan == auto   ]] && echo -ne '1\nq\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
+[[ $using_bdinfo == old ]] && [[ $bdscan == auto ]] && echo -ne '1\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
+[[ $using_bdinfo == new ]] && [[ $bdscan == auto ]] && echo -ne '1\nq\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 [[ $bdscan == manual ]] && mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 
 if [[ ! $bdscan == no ]]; then
 
-  # BDinfoCLI 里不输出 Quick Summary
-  # sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
-  # count=`wc -l temptext | awk '{print $1-1}' `
-  # head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
-  # rm temptext
+  # BDinfoCLI 0.7.3 也能输出 Quick Summary
+  # [[ $using_bdinfo == old ]] && {
+    sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
+    count=`wc -l temptext | awk '{print $1-1}' `
+    head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
+    rm temptext
+  # }
 
     sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
     count=`wc -l temptext | awk '{print $1-2}' `
@@ -827,15 +881,29 @@ for c in {01..10} ; do
     [[ $DeBUG == 0 ]] && echo -ne "Writing screenshot$c.png from timestamp $timestamp ... "
     [[ $DeBUG == 1 ]] && echo -e "\n${bailanse}Writing screenshot$c.png from timestamp $timestamp\n${normal}"
 
+#   if [[ $resolution == 2160p ]] || [[ $resolution == 1080p ]] || [[ $resolution == input ]] || [[ $resolution == input_opt ]] || [[ $resolution == autoar ]]; then
+#       [[ $DeBUG == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
+#       [[ $DeBUG == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png"
+#   elif [[ $resolution == auto ]]; then
+#       [[ $DeBUG == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
+#       [[ $DeBUG == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/screenshot${c}.png"
+#   fi
+
+# https://forum.videohelp.com/threads/389847-How-to-take-perfect-screenshots-of-UHD-HEVC-vddeos
+
     if [[ $resolution == 2160p ]] || [[ $resolution == 1080p ]] || [[ $resolution == input ]] || [[ $resolution == input_opt ]] || [[ $resolution == autoar ]]; then
-        [[ $DeBUG == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
-        [[ $DeBUG == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 -s $fenbianlv "${outputpath}/screenshot${c}.png"
+        [[ $DeBUG   == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -ss 00:00:01 -frames:v 1 -s $fenbianlv "${outputpath}/screenshot${c}.orgin.png" > /dev/null 2>&1 &&
+        [[ $convert == 1 ]] && nconvert -out png -clevel 6 -o "${outputpath}/screenshot${c}.png" "${outputpath}/screenshot${c}.orgin.png" > /dev/null 2>&1
+        [[ $DeBUG   == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -ss 00:00:01 -frames:v 1 -s $fenbianlv "${outputpath}/screenshot${c}.orgin.png" &&
+        [[ $convert == 1 ]] && nconvert -out png -clevel 6 -o "${outputpath}/screenshot${c}.png" "${outputpath}/screenshot${c}.orgin.png"
     elif [[ $resolution == auto ]]; then
-        [[ $DeBUG == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/screenshot${c}.png" >> /dev/null 2>&1
-        [[ $DeBUG == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -vframes 1 "${outputpath}/screenshot${c}.png"
+        [[ $DeBUG   == 0 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -ss 00:00:01 -frames:v 1 "${outputpath}/screenshot${c}.orgin.png" > /dev/null 2>&1 &&
+        [[ $convert == 1 ]] && nconvert -out png -clevel 6 -o "${outputpath}/screenshot${c}.png" "${outputpath}/screenshot${c}.orgin.png" > /dev/null 2>&1
+        [[ $DeBUG   == 1 ]] && ffmpeg -y -ss $timestamp -i "$main_m2ts_path" -ss 00:00:01 -frames:v 1 "${outputpath}/screenshot${c}.orgin.png" &&
+        [[ $convert == 1 ]] && nconvert -out png -clevel 6 -o "${outputpath}/screenshot${c}.png" "${outputpath}/screenshot${c}.orgin.png"
     fi
 
-    [[ $DeBUG == 0 ]] && echo -e "${green}DONE${normal}"
+    [[ $DeBUG == 0 ]] && echo -e "${green}DONE${normal}" && rm -f "${outputpath}/screenshot${c}.orgin.png"
     [[ $DeBUG == 1 ]] && echo -e "\n${green}DONE${normal}\n"
 
 done
@@ -888,9 +956,10 @@ timeused=$(( $endtime - $starttime ))
 
 clear ; echo -e "${bold}Done. Files are stored in ${yellow}\"${outputpath}\"${normal}"
 
-[[ ! $resolution == no ]] && [[ $UHDBD == 1 ]] && echo -e "\n${bold}${red}ATTENTION${jiacu} Some of screenshots may be ${red}broken${jiacu}, you need to check it manually"
+# [[ ! $resolution == no ]] && [[ $UHDBD == 1 ]] && echo -e "\n${bold}${red}ATTENTION${jiacu} Some of screenshots may be ${red}broken${jiacu}, you need to check it manually"
 
-echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
+# echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
+echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -2 -t ; echo
 
 [[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}\n"
 
