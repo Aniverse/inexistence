@@ -3,14 +3,16 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# update=2018.12.19
-# version=1.1.8
+update=2019.01.17
+version=1.1.9
 #
-# --------- Usage ---------
-# wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
-# bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
-# bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2
-# bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_1
+usage() {
+wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
+bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_2
+}
+
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt    # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -183,16 +185,16 @@ dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 function _install_lt9_deb() {
 
 if   [[ $CODENAME == jessie  ]]; then
-    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.1.11.jessie.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.1.12.jessie.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.1.11.stretch.amd64.deb    >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.1.12.stretch.amd64.deb    >> $OutputLOG 2>&1
 elif [[ $CODENAME == xenial  ]]; then
-    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.1.11.xenial.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.1.12.xenial.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == bionic  ]]; then
-    wget -O lt.$CODENAME.1.1.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.1.11.bionic.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.1.12.bionic.amd64.deb      >> $OutputLOG 2>&1
 fi
 
-dpkg -i lt.$CODENAME.1.1.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+dpkg -i lt.$CODENAME.1.1.12.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
