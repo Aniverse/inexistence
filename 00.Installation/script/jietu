@@ -2,7 +2,9 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.10.11
+#
+Date=2019.01.17
+Version=2.1.2
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -10,13 +12,28 @@ CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 
+function Deprecated() {
+    DW=$VideoHeight
+    DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
+    DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
+  # DH0=` expr $VideoHeight / $DARW  `
+  # DH=` expr $DH0 \* $DARH  `
+    DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
 
+    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
+    case $responce in
+        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
+        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+    esac
+
+}
 
 
 # Colors
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
-mediapath=`echo "$1"`; fenbianlv=`echo "$2"`
+mediapath="$1" ; fenbianlv="$2"
 
 [[ ! ` command -v bc ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} bc not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
@@ -25,9 +42,10 @@ mediapath=`echo "$1"`; fenbianlv=`echo "$2"`
 
 [[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
 [[ ! ` ls "$mediapath" 2>/dev/null ` ]] && echo -e "\n${red}${bold}WARNING${jiacu} This file or dictionary doesn't exist, or it's empty\n${normal}" && exit 1
-[[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` && echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nThat file is ${underline}${mediapath}${reset_underline}\n${normal}"
+[[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` &&
+echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nThat file is ${underline}${mediapath}${reset_underline}\n${normal}"
 
-file_title=`basename "$mediapath"`
+file_title=$(basename "$mediapath")
 file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
@@ -39,27 +57,18 @@ if [[ "$fenbianlv" == "" ]]; then
     VideoResolution=` ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
     echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
     VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
-    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" ` ; DW=$VideoHeight
+    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" `
     DAR=` ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
     echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
+    DW=$VideoWidth
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-  # DH0=` expr $VideoHeight / $DARW  `
-  # DH=` expr $DH0 \* $DARH  `
-    DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
-    fenbianlv="${DH}x${DW}"
-  # echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
-    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
-    case $responce in
-        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
-        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
-        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
-    esac
-fi
 
-if [[ $resolution == input ]]; then
-    echo ; read -ep "Input the screenshots' resolution you want: ${green}" -i $VideoResolution fenbianlv
-    echo -e "${normal}\nThe script will take 10 screenshots in ${green}$fenbianlv${normal}"
+    [[   $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
+    [[ ! $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' `
+
+    fenbianlv="${DW}x${DH}"
+    echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
 fi
 
 # Calculating timestampsetting
@@ -75,7 +84,7 @@ elif [[ "${duration2}" -lt 600 ]]; then
     timestampsetting=21
 fi
 
-[[ $CustomedOutput == 0 ]] && mkdir -p "/etc/inexistence/07.Screenshots" && outputpath="/etc/inexistence/07.Screenshots"
+[[   $CustomedOutput == 0 ]] && mkdir -p "/etc/inexistence/07.Screenshots" && outputpath="/etc/inexistence/07.Screenshots"
 [[ ! $CustomedOutput == 0 ]] && mkdir -p "$OUTPUT" && outputpath="$OUTPUT"
 
 echo
@@ -85,13 +94,14 @@ for c in {01..10} ; do
 
     i=`expr $i + $timestampsetting` ; timestamp=`date -u -d @$i +%H:%M:%S`
     echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${normal} from timestamp ${blue}${timestamp}${normal} ...  "
-    ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
+  # ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
+    ffmpeg -y -ss $timestamp -i "$mediapath" -ss 00:00:01 -frames:v 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
     echo -e "${green}DONE${normal}"
 
     [[ $(command -v nconvert) ]] && {
     echo -n "Compressing ${blue}${file_title_clean}.scr${c}.png${normal} ${normal} ...  "
-    nconvert -out png -clevel 6 -o "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
-    mv -f "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" >> /dev/null 2>&1
+    nconvert -out png -clevel 6 -o "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
+    mv -f "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
     echo -e "${green}DONE${normal}" ; }
 
 done
