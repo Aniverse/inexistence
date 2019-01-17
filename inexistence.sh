@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.01.14
+INEXISTENCEDATE=2019.01.17
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ while true; do
     --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift ; shift ;;
     --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift ; shift ;;
     --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift ; shift ;;
-    --rt            ) rt_version=$2               ; shift ; shift ;;
+    --rt            ) rt_version=$2 ; shift ; shift ;;
     --lt            ) lt_version=$2 ; shift ; shift ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
@@ -220,8 +220,8 @@ lang_would_you_like_to_install="Would you like to install"
 
 elif [[ $script_lang == chs ]]; then
 
-lang_do_not_install="不安装"
-language_select_another_version="自己输入一个想要的版本号"
+lang_do_not_install="我不想安装"
+language_select_another_version="以上版本都不要，我要另选一个版本"
 which_version_do_you_want="你想要装什么版本？"
 lang_yizhuang="你已经安装了"
 lang_will_be_installed="将会被安装"
@@ -761,7 +761,7 @@ while [[ $qb_version = "" ]]; do
         04 | 4) qb_version=4.1.3 ;;
         05 | 5) qb_version=4.1.4 ;;
         06 | 6) qb_version=4.1.5 ;;
-#       11) qb_version=4.2.0.alpha ;;
+        11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
@@ -936,8 +936,8 @@ while [[ $lt_version = "" ]]; do
 
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
-    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.11${normal} (${blue}RC_1_1${normal} branch)"
-    echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.0 ${normal} (${blue}RC_1_2${normal} branch)${normal})"
+    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.12${normal} (${blue}RC_1_1${normal} branch)"
+    echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.0 ${normal} (${blue}RC_1_2${normal} branch)"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
@@ -1064,7 +1064,7 @@ done
 
 lt_display_ver=$( echo "$lt_version" | sed "s/_/\./g" | sed "s/libtorrent-//" )
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
-[[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.11
+[[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.12
 [[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.0
 [[ $lt_version == master  ]] && lt_display_ver=1.2.0
 # 检测版本号速度慢了点，所以还是手动指定
@@ -1080,6 +1080,11 @@ lt_display_ver=$( echo "$lt_version" | sed "s/_/\./g" | sed "s/libtorrent-//" )
         echo "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}"
 
     fi
+
+[[ $DeBUG == 1 ]] && {
+echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
+lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok
+lt_version=$lt_version" ; }
 
 echo ; }
 
@@ -1584,11 +1589,21 @@ echo ; }
 # --------------------- 询问是否重启 --------------------- #
 
 function _askreboot() {
+if [[ $script_lang == eng ]]; then
+lang_1="Would you like to reboot the system now?"
+lang_2="WTF, try reboot manually?"
+lang_3="Reboot has been canceled..."
+elif [[ $script_lang == chs ]]; then
+lang_1="你现在想要重启系统么？"
+lang_2="emmmm，重启失败，你手动重启试试？"
+lang_3="已取消重启……"
+fi
+
 # read -ep "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: " is_reboot
-echo -ne "${bold}${yellow}Would you like to reboot the system now? ${normal} [y/${cyan}N${normal}]: "
-if [[ $ForceYes == 1 ]];then reboot || echo "WTF, try reboot manually?" ; else read -e is_reboot ; fi
+echo -ne "${bold}${yellow}$lang_1 ${normal} [y/${cyan}N${normal}]: "
+if [[ $ForceYes == 1 ]];then reboot || echo "$lang_2" ; else read -e is_reboot ; fi
 if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
-else echo -e "${bold}Reboot has been canceled...${normal}\n" ; fi ; }
+else echo -e "${bold}$lang_3${normal}\n" ; fi ; }
 
 
 
@@ -1621,36 +1636,43 @@ fi ; }
 
 function _askcontinue() {
 
-  echo -e "\n${bold}Please check the following information${normal}"
-  echo
-  echo '####################################################################'
-  echo
-  echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
-  echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
-  echo
-  echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
-  echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
-  [[ ! $de_version == No ]] || [[ ! $qb_version == No ]] &&
-  echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_display_ver}${normal}"
-  echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
-  [[ ! $rt_version == No ]] &&
-  echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
-  echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
-  echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}${InsRDP}${normal}"
-  echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}${InsWine}${normal}"
-  echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
-  echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
-  echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
-  echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
-  echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
-  echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
-  echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
-  echo
-  echo '####################################################################'
-  echo
-  echo -e "${bold}If you want to stop, Press ${on_red}Ctrl+C${normal} ${bold}; or Press ${on_green}ENTER${normal} ${bold}to start${normal}" ; [[ ! $ForceYes == 1 ]] && read input
-  echo -e "\n${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}"
-  echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n" ; }
+[[ $script_lang == eng ]] && echo -e "\n${bold}Please check the following information${normal}"
+[[ $script_lang == chs ]] && echo -e "\n${bold}请确认以下安装信息：${normal}"
+echo
+echo '####################################################################'
+echo
+echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
+echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
+echo
+echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
+echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
+[[ ! $de_version == No ]] || [[ ! $qb_version == No ]] &&
+echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_display_ver}${normal}"
+echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
+[[ ! $rt_version == No ]] &&
+echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
+echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
+echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}${InsRDP}${normal}"
+echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}${InsWine}${normal}"
+echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
+echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
+echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
+echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
+echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
+echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
+echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+echo
+echo '####################################################################'
+echo
+[[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse}Ctrl+C${jiacu} ; or Press ${bailvse}ENTER${normal} ${bold}to start${normal}"
+[[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse}Ctrl+C${jiacu} 取消安装，或者敲 ${bailvse}ENTER${normal}${bold} 开始安装${normal}"
+[[ ! $ForceYes == 1 ]] && read input
+[[ $script_lang == eng ]] && 
+echo -e "\n${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
+echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
+[[ $script_lang == chs ]] && 
+echo -e "\n${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
+}
 
 
 
@@ -1900,12 +1922,20 @@ exit 0 ; }
 
 function _install_lt() {
 
+[[ $DeBUG == 1 ]] && {
+echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
+lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok
+lt_version=$lt_version" ; }
+
 if [[ $arch == x86_64 ]]; then
 
 if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/install/install_libtorrent_rasterbar -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
     bash $local_packages/install/install_libtorrent_rasterbar -m deb2
+elif [[ $lt_version == RC_1_2 ]]; then
+  # bash $local_packages/install/install_libtorrent_rasterbar -m deb3
+    bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_2
 else
     bash $local_packages/install/install_libtorrent_rasterbar -b $lt_version
 fi
