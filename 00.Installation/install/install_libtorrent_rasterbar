@@ -4,15 +4,14 @@
 # Author: Aniverse
 #
 update=2019.01.17
-version=1.1.9
-#
+script_version=1.2.0
+################################
 usage() {
 wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
 bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_2
-}
-
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_2 ; }
+################################
 
 OutputLOG=/etc/inexistence/01.Log/install_libtorrent_rasterbar.txt    # /dev/null
 DebLocation=/etc/inexistence/01.Log/DebPackages
@@ -29,9 +28,6 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 
 # Sustem check
 CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
-
-# Get options
-OPTS=$(getopt -n "$0" -o m:v:b: --long "install-mode:,version:,branch:" -- "$@")
 
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
@@ -57,7 +53,8 @@ spinner() {
     printf "    \b\b\b\b"
 }
 
-
+# Get options
+OPTS=$(getopt -n "$0" -o m:v:b: --long "debug,install-mode:,version:,branch:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -66,6 +63,7 @@ while true; do
     -m | --install-mode ) mode="$2"     ; shift ; shift ;;
     -v | --version      ) version="$2"  ; shift ; shift ;;
     -b | --branch       ) branch="$2"   ; shift ; shift ;;
+         --debug        ) debug=1       ; shift ;;
      * ) break ;;
   esac
 done
@@ -89,6 +87,8 @@ esac
 
 # Transform version to branch
 [[ $( echo $version | grep -Eo "[012]\.[0-9]+\.[0-9]+" ) ]] && branch=$( echo libtorrent-$version | sed "s/\./_/g" )
+
+[[ $debug == 1 ]] && echo -e "version=$version, branch=$branch"
 
 # Check if input branch exists
 [[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
