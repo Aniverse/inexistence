@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-update=2019.01.17
-script_version=1.2.1
+update=2019.01.20
+script_version=1.2.2
 ################################################################################################
 
 usage_guide() {
@@ -77,8 +77,9 @@ case $mode in
     apt     ) sleep 0  ;;
     deb     ) sleep 0  ;;
     deb2    ) sleep 0  ;;
+    deb3    ) sleep 0  ;;
     source  ) sleep 0  ;;
-    ""  |  *) echo -e "\n${CW} Installation mode must be specified as apt, deb, deb2 or source${normal}\n"   ;;
+    ""  |  *) echo -e "\n${CW} Installation mode must be specified as apt, deb, deb2, deb3 or source${normal}\n"   ;;
 esac
 
 cancel() { echo -e "${normal}" ; rm -f ~/.lt.git.tag ; exit ; }
@@ -138,7 +139,7 @@ rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 # Install build dependencies for libtorrent-rasterbar
 function _install_lt_dependencies() {
 
-apt-get install -y                                                                \
+apt-get install -y                                                                  \
 build-essential pkg-config autoconf automake libtool git checkinstall               \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
@@ -202,7 +203,8 @@ dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 
 
 
-# Install from pre-compiled deb package (libtorrent-rasterbar9, based on RC_1_1 #a44ddddede236d5bf0efb575ab652d26a9a39133 with python-binding fix)
+# Install from pre-compiled deb package
+# libtorrent-rasterbar9, based on RC_1_1 #434272519fa8cc25a518e6d9ae1161b552d28c04, with python-binding fix and #5a48292aefd6ebffd5be6b237081ba2d978a2caa fix (Announce only once to private trackers)
 function _install_lt9_deb() {
 
 if   [[ $CODENAME == jessie  ]]; then
@@ -265,7 +267,7 @@ case $mode in
               _install_lt_dependencies & spinner $!
               _check_status ltd ; }
 
-              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.11${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.12${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               _install_lt9_deb & spinner $!
               ;;
 
