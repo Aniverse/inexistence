@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Date=2019.01.22
-Version=2.1.4
+Version=2.1.5
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -59,17 +59,31 @@ DARW=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
 DARH=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
 SARW=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
+SARH=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 
-
+# 第一种，720×480 16:9，算出来 720×405
+# $VideoWidth/$DARH*$DARW=720÷16×9=405
+DAR1_W=$VideoWidth
 DAR1_H_BC=$( echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
 DAR1_H=$( echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' )
-DAR1_W=$VideoWidth
 DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
 DAR1_R="${DAR1_W}x${DAR1_H}"
 
+# 第二种，720×480 16:9，算出来 853×480
+# $VideoHeight/$DARW*$DARH=480÷9×16=853
+DAR2_H=$VideoWidth
+DAR2_W_BC=$( echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' )
+DAR2_W=$( echo "$VideoHeight/$DARW*$DARH" | awk '{print int($0)}' )
+DAR2_R_BC="${DAR2_W_BC}x${DAR2_H}"
+DAR2_R="${DAR2_W}x${DAR2_H}"
 
-
-
+# 第三种，看 SAR，720×480 32:27，算出来 853×480
+# $VideoWidth/$SARW*$SARH=720÷27×32=853
+SAR1_H=$VideoWidth
+SAR1_W_BC=$( echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' )
+SAR1_W=$( echo "$VideoHeight/$DARW*$DARH" | awk '{print int($0)}' )
+SAR1_R_BC="${DAR2_W_BC}x${DAR2_H}"
+SAR1_R="${DAR2_W}x${DAR2_H}"
 
 echo -e "
 ${cyan}${bold}FileName               ${yellow}$mediapath
@@ -78,14 +92,21 @@ ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
 ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
-${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$
-${cyan}${bold}DAR-2 Resolution       ${yellow}$
-${cyan}${bold}SAR   Resolution       ${yellow}$
-${cyan}${bold}SAR   Resolution (bc)  ${yellow}$
+${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
+${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
+${cyan}${bold}SAR   Resolution (bc)  ${yellow}$SAR1_R_BC
+${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
 
 ${red}ffmpeg -i \"$mediapath\"
 ${normal}"
 exit 0 ; }
+
+
+
+
+720x480
+
+16:9
 
 
 
