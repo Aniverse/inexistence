@@ -2,9 +2,11 @@
 #
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2018.03.21
+# 2019.01.22
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
+
+[[ $EUID != 0 ]] && { echo -e "${jiacu}${red}大哥，这脚本需要 root 权限 ……${normal}" ; exit 1 ; }
 
 disknumber=` df -lh | grep -c "/dev/loop" `
 
