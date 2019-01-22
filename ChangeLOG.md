@@ -5,12 +5,7 @@
 
 
 
-## 2019.01.
 
-`inexistence 1.0.9 `  
-1. Bug Fix：修复
-2. Feature：
-3. Improvement：
 
 
 
@@ -74,7 +69,7 @@
 1. 更新 usage 的写法  
 2. 把 deb2 方式用的 1.1.11 升级到 1.1.12  
 
-（引入了一个重大 bug ……现已修复）
+（这一次引入了一个重大 bug ……现已修复）
 
 
 
@@ -100,24 +95,13 @@
 
 ## 2019.01.13
 
-`inexistence 1.0.9 26`  
+`inexistence 1.0.9`  
 1. Improvement：简化 flexget 配置文件模板，删除其中的所有中文字符  
 2. Improvement：优化文件夹内文件分布  
-3. Other：删除 qbittorrent.autoremove.py
-反正这破脚本也不负责安装和教学，需要的自己装吧  
+3. Other：删除 qbittorrent.autoremove.py  
+反正我这脚本也不负责安装和教学，需要的自己装吧  
 
 PS：没动 `inexistence.sh` 文件的话小版本号就不动  
-
-
-
-
-
-## 2019.01.02
-
-`inexistence 1.0.9 26`  
-1. Bug Fix：修复开了 swap 但没删掉临时文件的问题  
-2. Feature：Ctrl+C 退出时恢复字体样式    
-3. Improvement：更新 deluge-update-tracker 脚本 
 
 
 
@@ -139,7 +123,7 @@ PS：没动 `inexistence.sh` 文件的话小版本号就不动
 
 
 
-# ===== 2019 分割线 =====
+# ================ 2019 分割线 ================
 
 
 
