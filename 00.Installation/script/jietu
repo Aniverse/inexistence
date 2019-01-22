@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.23
-Script_Version=2.2.7
+Script_Version=2.2.8
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -266,3 +266,11 @@ echo -e "${green}DONE${normal}" ; }
 # finished
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
 rm -f ./bc
+
+
+
+
+usage() {
+rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+wget -qO https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+}
