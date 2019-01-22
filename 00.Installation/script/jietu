@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.22
-Script_Version=2.2.2
+Script_Version=2.2.3
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -33,7 +33,7 @@ function Deprecated() {
 function even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
 
 # Cleanup when cancel
-cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}.mediainfo.txt" "${outputpath}/${file_title_clean}.scr${c}.png" ; exit ; }
+cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}*" ; exit ; }
 trap cancel SIGINT
 
 # Colors
@@ -41,14 +41,11 @@ black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput
 
 mediapath="$1" ; fenbianlv="$2"
 
-[[ ! $(command -v bc) ]] && {
 #if [[ $EUID != 0 ]]; then
 #    yum install bc -y
 #    apt-get install bc -y
 #    [[ $(command -v bc) ]] && bc_cli="bc"
-wget --no-check-certificate https://github.com/Aniverse/MissingCLI/raw/master/bc
-chmod +x bc
-bc_cli="./bc" ; }
+[[ ! $(command -v bc) ]] && { wget --no-check-certificate https://github.com/Aniverse/MissingCLI/raw/master/bc ; chmod +x bc ; bc_cli="./bc" ; }
 [[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
@@ -62,7 +59,7 @@ echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we fi
 
 
 
-# test mode
+# TEST MODE
 [[ $fenbianlv == -t ]] && {
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
@@ -75,7 +72,7 @@ SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" )
 
-# 第一种，720×480 16:9，算出来 720×405
+# 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
 # $VideoWidth/$DARY*$DARX=720÷16×9=405
 DAR1_W=$VideoWidth
 DAR1_H_BC=$( echo "$VideoWidth/$DARX*$DARY" | bc -l | awk '{print int($0)}' )
@@ -84,8 +81,9 @@ DAR1_H=$( expr $(expr $VideoWidth / $DARX) \* $DARY )
 DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
 DAR1_R="${DAR1_W}x${DAR1_H}"
 
-# 第二种，720×480 16:9，算出来 853×480
+# 第二种，720×480 16:9，算出来 853×480，也就是重新计算 X
 # $VideoHeight/$DARX*$DARY=480÷9×16=853
+# 
 DAR2_H=$VideoHeight
 DAR2_W_BC=$( echo "$VideoHeight/$DARY*$DARX" | bc -l | awk '{print int($0)}' )
 even_number DAR2_W_BC $DAR2_W_BC
@@ -107,8 +105,17 @@ SAR1_R="${SAR1_W}x${SAR1_H}"
 
 # https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
 # 有一种算法，是用 DAR 比视频分辨率的 AR 大时，重新算 X，反之 算 Y
-# 蛋疼的是 shell 自带的那些不支持浮点数比较，expr
-
+# 蛋疼的是 shell 自带的那些不支持浮点数比较，不过 expr 似乎是取整算法，比如
+# expr 8 / 9  = 0
+# expr 17 / 9 = 1
+# 这样子的话可以根据 expr SAR 的数值来选择怎么操作
+if [[ $( expr $SARX / $SARY ) == 0 ]] ; then
+resize=Y
+TrueRes="${DAR1_W}x${DAR1_H_BC}"
+else
+resize=X
+TrueRes="${DAR2_W_BC}x${DAR2_H}"
+fi
 
 
 
@@ -124,6 +131,7 @@ ${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
 ${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
 ${cyan}${bold}SAR   Resolution (bc)  ${yellow}$SAR1_R_BC
 ${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
+${cyan}${bold}True  Resolution       ${yellow}$TrueRes
 ${green}
 mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
@@ -138,32 +146,34 @@ exit 0 ; }
 # Calculating resolution
 if [[ "$fenbianlv" == "" ]]; then
 ########################################################################################################################
-
 echo -e "${bold}Calculating resolution ...${normal} "
+
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
-#echo -e "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
-
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
-SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
-SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
-SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-#echo -e "Display Aspect Ratio is ${underline}${bold}${DAR}${normal}${reset_underline}, Sample Aspect Ratio is ${underline}${bold}${SAR}${normal}${reset_underline}"
+DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
 
-SH=$VideoHeight
-[[   $(command -v bc) ]] && SW=$( echo "$VideoHeight/$SARY*$SARX" | bc -l | awk '{print int($0)}' )
-[[ ! $(command -v bc) ]] && SW=$( expr $(expr $VideoWidth / $SARY) \* $SARX )
-even_number SW $SW
-fenbianlv="${SW}x${SH}"
-#echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}"
+if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
+    resize=Y
+    SSR_W=$VideoWidth
+    SSR_H=$( echo "$VideoWidth/$DARX*$DARY" | bc -l | awk '{print int($0)}' )
+    even_number SSR_H $SSR_H
+    fenbianlv="${SSR_W}x${SSR_H}"
+else                                          # Re-calculate X (Width)
+    resize=X
+    SSR_H=$VideoHeight
+    SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | bc -l | awk '{print int($0)}' )
+    even_number SSR_W $SSR_W
+    fenbianlv="${SSR_W}x${SSR_H}"
+fi
 
 echo -e "${bold}
 ${cyan}Display Aspect Ratio   ${yellow}$DAR
-${cyan}Sample  Aspect Ratio   ${yellow}$SAR
+${cyan}Resize                 ${yellow}$resize
 ${cyan}Video Resolution       ${yellow}$VideoResolution
 ${cyan}Screenshot Resolution  ${yellow}$fenbianlv${normal}"
-
 ########################################################################################################################
 fi
 
