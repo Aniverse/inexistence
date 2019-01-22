@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Date=2019.01.22
-Version=2.1.9
+Script_UpDate=2019.01.22
+Script_Version=2.2.0
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -29,6 +29,7 @@ function Deprecated() {
 
 }
 
+function even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
 
 # Colors
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
@@ -66,6 +67,7 @@ PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE 
 # $VideoWidth/$DARH*$DARW=720÷16×9=405
 DAR1_W=$VideoWidth
 DAR1_H_BC=$( echo "$VideoWidth/$DARW*$DARH" | bc -l | awk '{print int($0)}' )
+even_number DAR1_H_BC $DAR1_H_BC
 DAR1_H=$( expr $(expr $VideoWidth / $DARW) \* $DARH )
 DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
 DAR1_R="${DAR1_W}x${DAR1_H}"
@@ -74,6 +76,7 @@ DAR1_R="${DAR1_W}x${DAR1_H}"
 # $VideoHeight/$DARW*$DARH=480÷9×16=853
 DAR2_H=$VideoHeight
 DAR2_W_BC=$( echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
+even_number DAR2_W_BC $DAR2_W_BC
 DAR2_W=$( expr $(expr $VideoHeight / $DARH) \* $DARW )
 DAR2_R_BC="${DAR2_W_BC}x${DAR2_H}"
 DAR2_R="${DAR2_W}x${DAR2_H}"
@@ -82,6 +85,7 @@ DAR2_R="${DAR2_W}x${DAR2_H}"
 # $VideoWidth/$SARW*$SARH=720÷27×32=853
 SAR1_H=$VideoHeight
 SAR1_W_BC=$( echo "$VideoWidth/$SARH*$SARW" | bc -l | awk '{print int($0)}' )
+even_number SAR1_W_BC $SAR1_W_BC
 SAR1_W=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
 SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
 SAR1_R="${SAR1_W}x${SAR1_H}"
@@ -105,7 +109,6 @@ ffmpeg -i \"\$mediapath\"
 mediainfo -f \"\$mediapath\"
 ${normal}"
 exit 0 ; }
-
 
 
 
@@ -135,6 +138,7 @@ SARH=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 SH=$VideoHeight
 [[   $(command -v bc) ]] && SW=$( echo "$VideoHeight/$SARH*$SARW" | bc -l | awk '{print int($0)}' )
 [[ ! $(command -v bc) ]] && SW=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
+even_number SW $SW
 fenbianlv="${SW}x${SH}"
 #echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}"
 
