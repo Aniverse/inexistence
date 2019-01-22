@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Date=2019.01.22
-Version=2.1.8
+Version=2.1.9
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -120,23 +120,29 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 if [[ "$fenbianlv" == "" ]]; then
 ########################################################################################################################
 
-echo -ne "${bold}Calculating resolution ...${normal} "
+echo -e "${bold}Calculating resolution ...${normal} "
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
-echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
+#echo -e "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
 
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
 SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
 SARW=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 SARH=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-echo -e "Display Aspect Ratio is ${underline}${bold}${DAR}${normal}${reset_underline}, Sample Aspect Ratio is ${underline}${bold}${SAR}${normal}${reset_underline}"
+#echo -e "Display Aspect Ratio is ${underline}${bold}${DAR}${normal}${reset_underline}, Sample Aspect Ratio is ${underline}${bold}${SAR}${normal}${reset_underline}"
 
 SH=$VideoHeight
-[[   $(command -v bc) ]] && SW=$( echo "$VideoHeight/$SARW*$SARH" | bc -l | awk '{print int($0)}' )
+[[   $(command -v bc) ]] && SW=$( echo "$VideoHeight/$SARH*$SARW" | bc -l | awk '{print int($0)}' )
 [[ ! $(command -v bc) ]] && SW=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
 fenbianlv="${SW}x${SH}"
-echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+#echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}"
+
+echo -e "${bold}
+${cyan}Display Aspect Ratio   ${yellow}$DAR
+${cyan}Sample  Aspect Ratio   ${yellow}$SAR
+${cyan}Video Resolution       ${yellow}$VideoResolution
+${cyan}Screenshot Resolution  ${yellow}$fenbianlv${normal}"
 
 ########################################################################################################################
 fi
