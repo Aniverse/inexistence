@@ -5,6 +5,12 @@
 
 
 
+## 2019.01.
+
+`inexistence 1.0.9 `  
+1. Bug Fix：修复
+2. Feature：
+3. Improvement：
 
 
 
@@ -14,6 +20,77 @@
 
 
 
+## 2019.01.22
+
+`inexistence 1.0.9 27-28`  
+1. Codes：不再使用 `local_packages` 这个变量  
+主要是我自己复制粘贴都变得麻烦了 emmm  
+2. UI： 中文的开始安装所需软件前去掉一个空行  
+3. Codes：`QB_latest_ver=4.1.5`  
+4. **Feature：不再默认启用 ltconfig 的 High Performance Seed**  
+5. Improvement：修改 deluge 配置方法，注释部分也一并改了  
+
+
+
+
+
+## 2019.01.20
+
+`install_libtorrent_rasterbar 1.22`  
+1. Bug Fix：增加 -m 错误时 deb3 的提示（其实还没编译 1.2.0 的 deb）  
+2. Codes：优化排版，注释补充  
+
+
+
+
+
+## 2019.01.17
+
+`inexistence 1.0.9 `  
+1. Chinese：继续汉化，正式开始安装前的确认信息部分完成  
+2. Debug：加点更多的信息（那时候找不出问题所在……）  
+3. Bug Fix：修复安装的 lt 版本没改为 1.1.12 的问题  
+
+`install_libtorrent_rasterbar 1.20-1.21`  
+1. Bug Fix：修复版本号强制指定为 1.1.9 导致一系列错误发生的问题  
+2. Feature：加入 debug 模式  
+3. Bug Fix：修复分支检测方式失效的问题  
+4. Codes：优化排版  
+
+
+
+
+
+## 2019.01.15
+
+`jietu 2.1.2`  
+1. **Improvement：升级、修复分辨率的计算方法**    
+但之后发现其实这也有问题，真是蛋疼  
+2. **Improvement：不再询问计算出来的分辨率是否正确，直接截图，方便无交互的操作**  
+对于用于 `for` 等批量处理的情况会方便得多，如果分辨率有问题的话可以自己手动指定  
+3. **Improvement：使用新的截图方式，解决 UHD BDMV 截图花屏问题**  
+
+`install_libtorrent_rasterbar 1.19`  
+1. 更新 usage 的写法  
+2. 把 deb2 方式用的 1.1.11 升级到 1.1.12  
+
+（引入了一个重大 bug ……现已修复）
+
+
+
+
+## 2019.01.14
+
+`inexistence 1.0.9 27`  
+1. Chinese：汉化一小部分，rTorrent 安装问题部分完成  
+2. Improvement：lt 的 master 分支换成 RC_1_2 分支  
+3. Bug Fix：对应昨天的改动，修改 rcloned 的位置  
+4. Bug Fix：修复注释里 deluge.old 的 `rm -rf` 写成 `rm-rf` 的问题
+5. Bug Fix：隐藏 qBittorrent 4.2.0 的选项  
+因为 qb master 分支已经升级了对依赖的要求，Debian 8 用脚本已经编译不出来了……  
+6. **Improvement：BDinfoCLI 版本从我瞎几把编译的 0.7.5 降级到原作者自己编译的 0.7.3**  
+原先 bug 一堆其实都是我搞出来的，这个 0.7.3 目前我测试下来没啥毛病 orz  
+7. Improvement：脚本自带的 `bluray` 脚本升级到 2.9.0  
 
 
 
@@ -21,33 +98,38 @@
 
 
 
+## 2019.01.13
+
+`inexistence 1.0.9 26`  
+1. Improvement：简化 flexget 配置文件模板，删除其中的所有中文字符  
+2. Improvement：优化文件夹内文件分布  
+3. Other：删除 qbittorrent.autoremove.py
+反正这破脚本也不负责安装和教学，需要的自己装吧  
+
+PS：没动 `inexistence.sh` 文件的话小版本号就不动  
+
+
+
+
+
+## 2019.01.02
+
+`inexistence 1.0.9 26`  
+1. Bug Fix：修复开了 swap 但没删掉临时文件的问题  
+2. Feature：Ctrl+C 退出时恢复字体样式    
+3. Improvement：更新 deluge-update-tracker 脚本 
 
 
 
 
 
 
+## 2019.01.02
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+`inexistence 1.0.9 26`  
+1. Bug Fix：修复开了 swap 但没删掉临时文件的问题  
+2. Feature：Ctrl+C 退出时恢复字体样式    
+3. Improvement：更新 deluge-update-tracker 脚本  
 
 
 
@@ -110,7 +192,7 @@ Ubuntu 18.04 没这名字的包了，导致 ppa 都没加上……
 6. Virt-what：增加 Docker 的检测  
 7. 安装完后删除 qt.5.5.1.deb  
 
-`install_libtorrent_rasterbar 1.19`  
+`install_libtorrent_rasterbar 1.18？`  
 1. 修复使用方式的手滑  
 2. 修复未检测到 lt 时的报错文字未重置样式为初始设定的问题  
 
