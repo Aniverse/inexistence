@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.01.17
+INEXISTENCEDATE=2019.01.22
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -354,7 +354,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
   [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
 
   QB_latest_ver=$( wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 )
-  [[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.3
+  [[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.5
 
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
   [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
@@ -1637,7 +1637,7 @@ fi ; }
 function _askcontinue() {
 
 [[ $script_lang == eng ]] && echo -e "\n${bold}Please check the following information${normal}"
-[[ $script_lang == chs ]] && echo -e "\n${bold}请确认以下安装信息：${normal}"
+[[ $script_lang == chs ]] && echo -e "\n${bold}                请确认以下安装信息${normal}"
 echo
 echo '####################################################################'
 echo
@@ -1668,10 +1668,10 @@ echo
 [[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse}Ctrl+C${jiacu} 取消安装，或者敲 ${bailvse}ENTER${normal}${bold} 开始安装${normal}"
 [[ ! $ForceYes == 1 ]] && read input
 [[ $script_lang == eng ]] && 
-echo -e "\n${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
+echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
 echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
 [[ $script_lang == chs ]] && 
-echo -e "\n${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
+echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
 }
 
 
@@ -1769,7 +1769,7 @@ mkdir -p /var/www/h5ai
 
 ln -s /etc/inexistence /var/www/h5ai/inexistence
 ln -s /etc/inexistence /home/${ANUSER}/inexistence
-cp -f "${local_packages}"/script/* /usr/local/bin ; }
+cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
 
 
 
@@ -2043,14 +2043,14 @@ rm -rf /var/www/h5ai/qbittorrent
 ln -s /home/${ANUSER}/qbittorrent/download /var/www/h5ai/qbittorrent
 # chown www-data:www-data /var/www/h5ai/qbittorrent
 
-cp -f "${local_packages}"/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
-QBPASS=$(python "${local_packages}"/script/special/qbittorrent.userpass.py ${ANPASS})
+cp -f /etc/inexistence/00.Installation/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
+QBPASS=$(python /etc/inexistence/00.Installation/script/special/qbittorrent.userpass.py ${ANPASS})
 sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf  #/home/${ANUSER}/.config/qBittorrent/qBittorrent.conf
 
 touch /etc/inexistence/01.Log/qbittorrent.log
 
-cp -f "${local_packages}"/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
+cp -f /etc/inexistence/00.Installation/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
 systemctl daemon-reload
 systemctl enable qbittorrent
 systemctl start qbittorrent
@@ -2166,26 +2166,26 @@ touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log
 
 # mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
-# cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
+# cp -f -r /etc/inexistence/00.Installation/template/config/deluge /home/${ANUSER}/.config
 mkdir -p /root/.config && cd /root/.config
 [[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv /root/.config/deluge /root/.config/deluge.old ; }
-cp -f "${local_packages}"/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
+cp -f /etc/inexistence/00.Installation/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
 tar zxf deluge.config.tar.gz
 chmod -R 666 /root/.config
 rm -rf deluge.config.tar.gz ; cd
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-DWP=$(python "${local_packages}"/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
+DWP=$(python /etc/inexistence/00.Installation/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
 echo "${ANUSER}:${ANPASS}:10" >> /root/.config/deluge/auth  #/home/${ANUSER}/.config/deluge/auth
 sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf  #/home/${ANUSER}/.config/deluge/core.conf
 sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
 sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf  #/home/${ANUSER}/.config/deluge/web.conf
 
-cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
-cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
+cp -f /etc/inexistence/00.Installation/template/systemd/deluged.service /etc/systemd/system/deluged.service
+cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
 [[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
-# cp -f "${local_packages}"/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
-# cp -f "${local_packages}"/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
+# cp -f /etc/inexistence/00.Installation/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
+# cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
 
 systemctl daemon-reload
 systemctl enable /etc/systemd/system/deluge-web.service
@@ -2199,7 +2199,7 @@ systemctl start deluge-web
 deluged_ver_2=`deluged --version | grep deluged | awk '{print $2}'`
 deluged_port=$( grep daemon_port /root/.config/deluge/core.conf | grep -oP "\d+" )
 
-cp "${local_packages}"/script/special/update-tracker.py /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py
+cp /etc/inexistence/00.Installation/script/special/update-tracker.py /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py
 sed -i "s/ANUSER/$ANUSER/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
@@ -2238,8 +2238,8 @@ mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
 mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
 ln -s /home/${ANUSER} /var/www/h5ai/user.folder
 
-cp -f "${local_packages}"/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
-cp -f "${local_packages}"/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
+cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
+cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
@@ -2283,7 +2283,7 @@ npm run build 2>&1 | tee /tmp/flood.log
 rm -rf /etc/inexistence/01.Log/lock/flood.fail.lock
 # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
 
-cp -f "${local_packages}"/template/systemd/flood.service /etc/systemd/system/flood.service
+cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
 systemctl enable flood
 
@@ -2388,9 +2388,9 @@ rm -rf /var/www/h5ai/transmission
 ln -s /home/${ANUSER}/transmission/download /var/www/h5ai/transmission
 # chown -R www-data:www-data /var/www/h5ai
 
-cp -f "${local_packages}"/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
-cp -f "${local_packages}"/template/systemd/transmission.service /etc/systemd/system/transmission.service
-# cp -f "${local_packages}"/template/systemd/transmission@.service /etc/systemd/system/transmission@.service
+cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
+cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
+# cp -f /etc/inexistence/00.Installation/template/systemd/transmission@.service /etc/systemd/system/transmission@.service
 [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
 
 sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json  #/home/${ANUSER}/.config/transmission-daemon/settings.json
@@ -2421,7 +2421,7 @@ function _installflex() {
 
   mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget   #/home/${ANUSER}/.config/flexget
 
-  cp -f "${local_packages}"/template/config/flexget.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
+  cp -f /etc/inexistence/00.Installation/template/config/flexget.config.yml /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml  #/home/${ANUSER}/.config/flexget/config.yml
 # chmod -R 666 /home/${ANUSER}/.config/flexget
@@ -2436,8 +2436,8 @@ function _installflex() {
   
 # [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 
-  cp -f "${local_packages}"/template/systemd/flexget.service /etc/systemd/system/flexget.service
-# cp -f "${local_packages}"/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
+  cp -f /etc/inexistence/00.Installation/template/systemd/flexget.service /etc/systemd/system/flexget.service
+# cp -f /etc/inexistence/00.Installation/template/systemd/flexget@.service /etc/systemd/system/flexget@.service
   systemctl daemon-reload
   systemctl enable /etc/systemd/system/flexget.service
   systemctl start flexget
@@ -2470,7 +2470,7 @@ mkdir -p /usr/local/share/man/man1
 cp rclone.1 /usr/local/share/man/man1
 mandb
 cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
-cp "${local_packages}"/script/rcloned /etc/init.d/recloned
+cp /etc/inexistence/00.Installation/script/rcloned /etc/init.d/recloned
 # bash /etc/init.d/recloned init
 touch /etc/inexistence/01.Log/lock/rclone.lock
 echo -e "\n\n\n${bailvse}  RCLONE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
@@ -2557,9 +2557,9 @@ $ANPASS
 EOF
 vncserver && vncserver -kill :1
 cd; mkdir -p .vnc
-cp -f "${local_packages}"/template/xstartup.1.xfce4 /root/.vnc/xstartup
+cp -f /etc/inexistence/00.Installation/template/xstartup.1.xfce4 /root/.vnc/xstartup
 chmod +x /root/.vnc/xstartup
-cp -f "${local_packages}"/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
+cp -f /etc/inexistence/00.Installation/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
 
 systemctl daemon-reload
 systemctl enable vncserver
@@ -2749,7 +2749,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
 
 # MkTorrent WebUI，存在 bug 不可用，且就算能用好像也不是那么的实用，就算了
 mkdir -p /var/www/mktorrent
-cp -f "${local_packages}"/template/mktorrent.php /var/www/mktorrent/index.php
+cp -f /etc/inexistence/00.Installation/template/mktorrent.php /var/www/mktorrent/index.php
 sed -i "s/REPLACEUSERNAME/${ANUSER}/g" /var/www/mktorrent/index.php
 
 ######################  eac3to  ######################
