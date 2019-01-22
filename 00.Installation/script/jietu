@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.22
-Script_Version=2.2.1
+Script_Version=2.2.2
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -29,14 +29,26 @@ function Deprecated() {
 
 }
 
+# Transform numbers
 function even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
+
+# Cleanup when cancel
+cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}.mediainfo.txt" "${outputpath}/${file_title_clean}.scr${c}.png" ; exit ; }
+trap cancel SIGINT
 
 # Colors
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 mediapath="$1" ; fenbianlv="$2"
 
-[[ ! ` command -v bc ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} bc not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ ! $(command -v bc) ]] && {
+#if [[ $EUID != 0 ]]; then
+#    yum install bc -y
+#    apt-get install bc -y
+#    [[ $(command -v bc) ]] && bc_cli="bc"
+wget --no-check-certificate https://github.com/Aniverse/MissingCLI/raw/master/bc
+chmod +x bc
+bc_cli="./bc" ; }
 [[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
@@ -93,7 +105,9 @@ SAR1_W=$( expr $(expr $VideoWidth / $SARY) \* $SARX )
 SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
 SAR1_R="${SAR1_W}x${SAR1_H}"
 
-# 有一种算法，
+# https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
+# 有一种算法，是用 DAR 比视频分辨率的 AR 大时，重新算 X，反之 算 Y
+# 蛋疼的是 shell 自带的那些不支持浮点数比较，expr
 
 
 
@@ -206,4 +220,4 @@ echo -e "${green}DONE${normal}"
 
 # finished
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
-
+rm -f ./bc
