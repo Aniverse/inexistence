@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Date=2019.01.22
-Version=2.1.6
+Version=2.1.7
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -51,8 +51,6 @@ echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we fi
 
 # test mode
 [[ $fenbianlv == -t ]] && {
-
-
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
@@ -82,11 +80,11 @@ DAR2_R="${DAR2_W}x${DAR2_H}"
 
 # 第三种，看 SAR，720×480 32:27，算出来 853×480
 # $VideoWidth/$SARW*$SARH=720÷27×32=853
-SAR1_H=$VideoWidth
+SAR1_H=$VideoHeight
 SAR1_W_BC=$( echo "$VideoHeight/$SARW*$SARH" | bc -l | awk '{print int($0)}' )
 SAR1_W=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
-SAR1_R_BC="${DAR2_W_BC}x${DAR2_H}"
-SAR1_R="${DAR2_W}x${DAR2_H}"
+SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
+SAR1_R="${SAR1_W}x${SAR1_H}"
 
 echo -e "
 ${cyan}${bold}FileName               ${yellow}$mediapath
@@ -102,6 +100,7 @@ ${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
 ${red}
 mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
+mediainfo -f \"\$mediapath\"
 ${normal}"
 exit 0 ; }
 
@@ -117,22 +116,27 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 
 # Calculating resolution
 if [[ "$fenbianlv" == "" ]]; then
-    echo -ne "${bold}Calculating resolution ...${normal} "
-    VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
-    echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
-    VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
-    VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
-    DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
-    echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
-    DW=$VideoWidth
-    DARW=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-    DARH=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+########################################################################################################################
 
-    [[   $(command -v bc) ]] && DH=$( echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
-    [[ ! $(command -v bc) ]] && DH=$( expr $(expr $VideoWidth / $DARH) \* $DARW )
+echo -ne "${bold}Calculating resolution ...${normal} "
+VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
+VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
+VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
+echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}"
 
-    fenbianlv="${DW}x${DH}"
-    echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
+SARW=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
+SARH=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+echo -e "Display Aspect Ratio is ${underline}${bold}${DAR}${normal}${reset_underline}, Sample Aspect Ratio is ${underline}${bold}${SAR}${normal}${reset_underline}"
+
+SH=$VideoHeight
+[[   $(command -v bc) ]] && SW=$( echo "$VideoHeight/$SARW*$SARH" | bc -l | awk '{print int($0)}' )
+[[ ! $(command -v bc) ]] && SW=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
+fenbianlv="${SW}x${SH}"
+echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
+
+########################################################################################################################
 fi
 
 # Calculating timestampsetting
