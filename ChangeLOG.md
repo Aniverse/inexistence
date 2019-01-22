@@ -5,13 +5,107 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2018.12.21
+
+`inexistence 1.0.9 18-22`  
+1. Bug Fix：删除 `python-software-properties` 这个包的安装  
+Ubuntu 18.04 没这名字的包了，导致 ppa 都没加上……  
+2. Improvement：在一开始安装的一堆软件包里增加 `pkg-config`  
+3. Improvement：`find /usr/lib -name libtorrent-rasterbar*` 检测 lt 是否已经安装  
+4. DeBUG：安装 deluge 加入 31、32 选项测试 `install_deluge`  
+5. UI：减少安装完后提示文字的空格行数  
+6. Virt-what：增加 Docker 的检测  
+7. 安装完后删除 qt.5.5.1.deb  
+
+`install_libtorrent_rasterbar 1.19`  
+1. 修复使用方式的手滑  
+2. 修复未检测到 lt 时的报错文字未重置样式为初始设定的问题  
+
+`install_deluge 1.19`  
+1. 修复使用方式的手滑  
+2. 样式修复  
+
+
+
+
+
+## 2018.12.19
+
+`inexistence 1.0.9.14-17`  
+1. Improvement：在一开始安装的一堆软件包里增加 `net-tools`  
+因为有些系统里不带 `ifconfig`  
+2. Bug Fix：修复安装 qBittorrent 4.2.0 装不上的 bug  
+3. **Improvement：安装 libtorrent-rasterbar 重新使用 deb 包，加快速度**  
+4. Feature：使用 2GB 的 swap  
+5. Improvement：修复 wine 字体包的解压问题  
+6. Feature：升级 NodeJS 到 10.X  
+
+`install_libtorrent_rasterbar 1.18`  
+1. 更新使用方式  
+2. 增加 deb2 的选项，安装预编译好的 lt 1.11.1 deb  
+3. 这次 lt 包名都统一成 `libtorrent-rasterbar` 了，搞了个脚本编译，省事一些  
+
+
+
+
+
+## 2018.12.13
+
+`inexistence 1.0.9.13`  
+1. Bug Fix：继续修复 lt 版本检查的问题  
+
+
+
+
+
+## 2018.12.13
+
+`inexistence 1.0.9.12`  
+1. Feature：为 Debian 8 系统升级 vnstat 到 1.18  
+
+`install_deluge 1.18`  
+1. 更新 usage  
+2. 修复手滑导致 pip 包名写错的问题  
+
+
+
+
+
+## 2018.12.11
+
+`inexistence 1.0.9.11`  
+1. wine 字体包的下载链接以防万一加上防超时设定  
+2. Bug Fix：修复 lt 版本判断的一些问题……  
+人菜，心累  
+
+
+
+
+
 ## 2018.12.05
 
 `inexistence 1.0.9.10`  
-1. 继续完善能汉化的部分，不急慢慢来……  
-2. 更新无交互的语言和时区设定方法  
-3. wine 字体包的下载链接以防万一加上防超时设定  
-
+1. Feature：继续完善能汉化的部分，不急慢慢来……  
+2. Feature：更新无交互的语言和时区设定方法  
 
 
 
