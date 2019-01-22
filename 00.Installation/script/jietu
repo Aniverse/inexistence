@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Date=2019.01.22
-Version=2.1.3
+Version=2.1.4
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -45,15 +45,51 @@ mediapath="$1" ; fenbianlv="$2"
 [[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` &&
 echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nThat file is ${underline}${mediapath}${reset_underline}\n${normal}"
 
+
+
+
+
 # test mode
 [[ $fenbianlv == -t ]] && {
+VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
+VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
+VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
+DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
+DARW=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
+DARH=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
+SARW=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
+
+
+DAR1_H_BC=$( echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
+DAR1_H=$( echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' )
+DAR1_W=$VideoWidth
+DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
+DAR1_R="${DAR1_W}x${DAR1_H}"
+
+
+
+
+
 echo -e "
 ${cyan}${bold}FileName               ${yellow}$mediapath
-${cyan}${bold}VideoResolution        ${yellow}$(ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}")
-${cyan}${bold}Display Aspect Ratio   ${yellow}$(ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //")
-${cyan}${bold}Sample  Aspect Ratio   ${yellow}$(ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/DAR //")
+${cyan}${bold}VideoResolution        ${yellow}$VideoResolution
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
+${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
+${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
+${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
+${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$
+${cyan}${bold}DAR-2 Resolution       ${yellow}$
+${cyan}${bold}SAR   Resolution       ${yellow}$
+${cyan}${bold}SAR   Resolution (bc)  ${yellow}$
+
+${red}ffmpeg -i \"$mediapath\"
 ${normal}"
 exit 0 ; }
+
+
+
+
 
 file_title=$(basename "$mediapath")
 file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
@@ -64,18 +100,18 @@ file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
 # Calculating resolution
 if [[ "$fenbianlv" == "" ]]; then
     echo -ne "${bold}Calculating resolution ...${normal} "
-    VideoResolution=` ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
+    VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
     echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
-    VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
-    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" `
-    DAR=` ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
+    VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
+    VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
+    DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
     echo -e "Display aspect ratio is ${underline}${bold}${DAR}${normal}${reset_underline}"
     DW=$VideoWidth
-    DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
-    DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
+    DARW=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
+    DARH=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 
-    [[   $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
-    [[ ! $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' `
+    [[   $(command -v bc) ]] && DH=$( echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
+    [[ ! $(command -v bc) ]] && DH=$( echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' )
 
     fenbianlv="${DW}x${DH}"
     echo -e "The correct resolution should be ${underline}${bold}${fenbianlv}${normal}${reset_underline}\n"
