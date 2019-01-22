@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.22
-Script_Version=2.2.3
+Script_Version=2.2.4
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -154,6 +154,9 @@ VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
 DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
+SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 
 if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
     resize=Y
