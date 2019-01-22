@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Date=2019.01.22
-Version=2.1.7
+Version=2.1.8
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -55,49 +55,51 @@ VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep 
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
-DARW=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-DARH=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+DARW=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+DARH=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
 SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
-SARW=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-SARH=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARW=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARH=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" )
 
 # 第一种，720×480 16:9，算出来 720×405
 # $VideoWidth/$DARH*$DARW=720÷16×9=405
 DAR1_W=$VideoWidth
-DAR1_H_BC=$( echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
-DAR1_H=$( expr $(expr $VideoWidth / $DARH) \* $DARW )
+DAR1_H_BC=$( echo "$VideoWidth/$DARW*$DARH" | bc -l | awk '{print int($0)}' )
+DAR1_H=$( expr $(expr $VideoWidth / $DARW) \* $DARH )
 DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
 DAR1_R="${DAR1_W}x${DAR1_H}"
 
 # 第二种，720×480 16:9，算出来 853×480
 # $VideoHeight/$DARW*$DARH=480÷9×16=853
 DAR2_H=$VideoHeight
-DAR2_W_BC=$( echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' )
-DAR2_W=$( expr $(expr $VideoHeight / $DARW) \* $DARH )
+DAR2_W_BC=$( echo "$VideoHeight/$DARH*$DARW" | bc -l | awk '{print int($0)}' )
+DAR2_W=$( expr $(expr $VideoHeight / $DARH) \* $DARW )
 DAR2_R_BC="${DAR2_W_BC}x${DAR2_H}"
 DAR2_R="${DAR2_W}x${DAR2_H}"
 
 # 第三种，看 SAR，720×480 32:27，算出来 853×480
 # $VideoWidth/$SARW*$SARH=720÷27×32=853
 SAR1_H=$VideoHeight
-SAR1_W_BC=$( echo "$VideoHeight/$SARW*$SARH" | bc -l | awk '{print int($0)}' )
+SAR1_W_BC=$( echo "$VideoWidth/$SARH*$SARW" | bc -l | awk '{print int($0)}' )
 SAR1_W=$( expr $(expr $VideoWidth / $SARH) \* $SARW )
 SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
 SAR1_R="${SAR1_W}x${SAR1_H}"
 
+# ${cyan}${bold}FileName               ${yellow}$mediapath
+
 echo -e "
-${cyan}${bold}FileName               ${yellow}$mediapath
 ${cyan}${bold}VideoResolution        ${yellow}$VideoResolution
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
 ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
+${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
 ${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
 ${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
 ${cyan}${bold}SAR   Resolution (bc)  ${yellow}$SAR1_R_BC
 ${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
-${red}
+${green}
 mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
 mediainfo -f \"\$mediapath\"
@@ -126,8 +128,8 @@ echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}$
 
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
 SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
-SARW=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-SARH=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARW=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARH=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 echo -e "Display Aspect Ratio is ${underline}${bold}${DAR}${normal}${reset_underline}, Sample Aspect Ratio is ${underline}${bold}${SAR}${normal}${reset_underline}"
 
 SH=$VideoHeight
