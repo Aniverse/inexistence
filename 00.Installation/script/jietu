@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.23
-Script_Version=2.2.8
+Script_Version=2.2.9
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -62,7 +62,7 @@ dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapat
 if [[ $Source == DVD ]]; then
 #   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
 #   echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
-    echo -e "\n${bold}This is a DVD, we will take screenshots of the main vob file and mediainfo reports of both vob and ifo file${normal}"
+    echo -e "\n${bold}This is a DVD, we will take screenshots for a main VOB file,\nand mediainfo reports of a main VOB file and the right IFO file${normal}"
 else
 #   echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots,\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
     echo -e "\n${bold}You have input a dictionary, we find the biggest file for taking screenshots,\nwhich is ${blue}${mediapath}${normal}"
@@ -134,9 +134,9 @@ fi
 
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
-${cyan}${bold}bc                     ${yellow}$bc_cli
+${cyan}${bold}bc Command             ${yellow}$bc_cli
 ${cyan}${bold}Source Type            ${yellow}$Source
-${cyan}${bold}DVD ifo File           ${yellow}$ifo
+${cyan}${bold}DVD IFO File           ${yellow}$ifo
 
 ${cyan}${bold}VideoResolution        ${yellow}$VideoResolution
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
@@ -192,8 +192,8 @@ else                                          # Re-calculate X (Width)
 fi
 
 echo -e "${bold}
-${cyan}Display Aspect Ratio   ${yellow}$DAR
-${cyan}Screenshot Resolution  ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
+${cyan}AspectRatio   ${yellow}$DAR
+${cyan}Definition    ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
 
@@ -202,8 +202,8 @@ fi
 
 
 [[ $Source == DVD ]] && {
-echo -e "${bold}${cyan}DVD IFO File           ${yellow}$ifo
-${cyan}DVD VOB File           ${yellow}$$mediapath${normal}" ; }
+echo -e "${bold}${cyan}DVD IFO File  ${yellow}$ifo
+${cyan}DVD VOB File  ${yellow}$mediapath${normal}" ; }
 
 
 
