@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.23
-Script_Version=2.2.9
+Script_Version=2.3.0
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -192,8 +192,8 @@ else                                          # Re-calculate X (Width)
 fi
 
 echo -e "${bold}
-${cyan}AspectRatio   ${yellow}$DAR
-${cyan}Definition    ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
+${cyan}Aspect Ratio  ${yellow}$DAR
+${cyan}Resolution    ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
 
