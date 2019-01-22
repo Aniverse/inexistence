@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.23
-Script_Version=2.2.6
+Script_Version=2.2.7
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -60,12 +60,13 @@ omediapath="$mediapath"
 mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
 dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | tail -1 )
 if [[ $Source == DVD ]]; then
-    echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
-    echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
+#   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
+#   echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
+    echo -e "\n${bold}This is a DVD, we will take screenshots of the main vob file and mediainfo reports of both vob and ifo file${normal}"
 else
-    echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots,\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
+#   echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots,\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
+    echo -e "\n${bold}You have input a dictionary, we find the biggest file for taking screenshots,\nwhich is ${blue}${mediapath}${normal}"
 fi ; }
-
 
 
 
@@ -195,6 +196,14 @@ ${cyan}Display Aspect Ratio   ${yellow}$DAR
 ${cyan}Screenshot Resolution  ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
+
+
+
+
+
+[[ $Source == DVD ]] && {
+echo -e "${bold}${cyan}DVD IFO File           ${yellow}$ifo
+${cyan}DVD VOB File           ${yellow}$$mediapath${normal}" ; }
 
 
 
