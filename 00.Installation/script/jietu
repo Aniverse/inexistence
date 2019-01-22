@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.01.22
-Script_Version=2.2.5
+Script_UpDate=2019.01.23
+Script_Version=2.2.6
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -40,20 +40,32 @@ trap cancel SIGINT
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 mediapath="$1" ; fenbianlv="$2"
+Source=undefined
 
 #if [[ $EUID != 0 ]]; then
 #    yum install bc -y
 #    apt-get install bc -y
 #    [[ $(command -v bc) ]] && bc_cli="bc"
+bc_cli="bc"
 [[ ! $(command -v bc) ]] && { wget --no-check-certificate https://github.com/Aniverse/MissingCLI/raw/master/bc ; chmod +x bc ; bc_cli="./bc" ; }
-[[ ! ` command -v ffmpeg ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
-[[ ! ` command -v mediainfo ` ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ ! $(command -v ffmpeg) ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
+[[ ! $(command -v mediainfo) ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
 
 [[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
-[[ ! ` ls "$mediapath" 2>/dev/null ` ]] && echo -e "\n${red}${bold}WARNING${jiacu} This file or dictionary doesn't exist, or it's empty\n${normal}" && exit 1
-[[ -d "$mediapath" ]] && mediapath=`  find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -n1  ` &&
-echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
+[[ ! $( ls "$mediapath" 2>/dev/null ) ]] && echo -e "\n${red}${bold}WARNING${jiacu} This file or dictionary doesn't exist, or it's empty\n${normal}" && exit 1
+
+[[ -d "$mediapath" ]] && {
+omediapath="$mediapath"
+mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
+dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | tail -1 )
+if [[ $Source == DVD ]]; then
+    echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
+    echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
+else
+    echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots,\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
+fi ; }
+
 
 
 
@@ -121,6 +133,10 @@ fi
 
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
+${cyan}${bold}bc                     ${yellow}$bc_cli
+${cyan}${bold}Source Type            ${yellow}$Source
+${cyan}${bold}DVD ifo File           ${yellow}$ifo
+
 ${cyan}${bold}VideoResolution        ${yellow}$VideoResolution
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
 ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
@@ -137,6 +153,8 @@ mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
 mediainfo -f \"\$mediapath\"
 ${normal}"
+[[ $Source == DVD ]] && ls -hAlvZ --color "$(dirname "$mediapath")"
+echo
 exit 0 ; }
 
 
@@ -161,13 +179,13 @@ SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
     resize=Y
     SSR_W=$VideoWidth
-    SSR_H=$( echo "$VideoWidth/$DARX*$DARY" | bc -l | awk '{print int($0)}' )
+    SSR_H=$( echo "$VideoWidth/$DARX*$DARY" | $bc_cli -l | awk '{print int($0)}' )
     even_number SSR_H $SSR_H
     fenbianlv="${SSR_W}x${SSR_H}"
 else                                          # Re-calculate X (Width)
     resize=X
     SSR_H=$VideoHeight
-    SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | bc -l | awk '{print int($0)}' )
+    SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | $bc_cli -l | awk '{print int($0)}' )
     even_number SSR_W $SSR_W
     fenbianlv="${SSR_W}x${SSR_H}"
 fi
@@ -228,6 +246,13 @@ echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo -e "${green}DONE${normal}"
+
+# additional mediainfo for DVD
+[[ ! -z "$ifo" ]] && {
+echo -ne "Adding ifo mediainfo to ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
+echo -e "\n\n" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
+mediainfo "$ifo" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
+echo -e "${green}DONE${normal}" ; }
 
 # finished
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
