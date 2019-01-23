@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.01.22
+INEXISTENCEDATE=2019.01.23
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -2158,9 +2158,8 @@ function _setde() {
 mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/h5ai/deluge
 ln -s /home/${ANUSER}/deluge/download /var/www/h5ai/deluge
-# chown www-data:www-data /var/www/h5ai/deluge
-chmod -R 777 /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
-chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge  #/home/${ANUSER}/.config
+chmod -R 777 /home/${ANUSER}/deluge
+chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log
@@ -2168,11 +2167,32 @@ chmod -R 666 /etc/inexistence/01.Log
 # mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
 # cp -f -r /etc/inexistence/00.Installation/template/config/deluge /home/${ANUSER}/.config
 mkdir -p /root/.config && cd /root/.config
-[[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv /root/.config/deluge /root/.config/deluge.old ; }
-cp -f /etc/inexistence/00.Installation/template/config/deluge.config.tar.gz /root/.config/deluge.config.tar.gz
-tar zxf deluge.config.tar.gz
+[[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
+cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
 chmod -R 666 /root/.config
-rm -rf deluge.config.tar.gz ; cd
+cd
+
+cat >/etc/inexistence/00.Installation/script/special/deluge.userpass.py<<EOF
+#!/usr/bin/env python
+#
+# Deluge password generator
+#
+#   deluge.password.py <password> <salt>
+#
+#
+
+import hashlib
+import sys
+
+password = sys.argv[1]
+salt = sys.argv[2]
+
+s = hashlib.sha1()
+s.update(salt)
+s.update(password)
+
+print s.hexdigest()
+EOF
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 DWP=$(python /etc/inexistence/00.Installation/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
@@ -2715,8 +2735,8 @@ wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Anivers
 chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
-cd ; wget --no-check-certificate -qO ffmpeg-4.0.2-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-4.0.2-64bit-static.tar.xz
-tar xf ffmpeg-4.0.2-64bit-static.tar.xz
+cd ; wget --no-check-certificate -qO ffmpeg-4.1-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-4.1-64bit-static.tar.xz
+tar xf ffmpeg-4.1-64bit-static.tar.xz
 rm -rf ffmpeg-*bit-static/{manpages,presets,model,readme.txt,GPLv3.txt}
 cp -f ffmpeg-*-64bit-static/* /usr/bin
 chmod 755 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
