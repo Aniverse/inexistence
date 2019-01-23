@@ -15,15 +15,64 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2019.01.22
 
-`inexistence 1.0.9 27-28`  
+`inexistence 1.0.9 28`  
+1. **Feature：不再默认启用 ltconfig 的 High Performance Seed**  
+2. Improvement：修改 deluge 配置方法，注释部分也一并改了  
+3. Upgrade：ffmpeg 4.1.0 static release  
+4. 删除一些无用文件  
+
+
+
+
+
+## 2019.01.22
+
+`inexistence 1.0.9 27`  
 1. Codes：不再使用 `local_packages` 这个变量  
 主要是我自己复制粘贴都变得麻烦了 emmm  
 2. UI： 中文的开始安装所需软件前去掉一个空行  
 3. Codes：`QB_latest_ver=4.1.5`  
-4. **Feature：不再默认启用 ltconfig 的 High Performance Seed**  
-5. Improvement：修改 deluge 配置方法，注释部分也一并改了  
+
+`guazai`  
+1. Bug Fix：修复没有检查是否用 root 权限运行脚本的问题  
+
+`jiegua`  
+1. Bug Fix：修复没有检查是否用 root 权限运行脚本的问题  
+
+`jietu 2.1.3-2.3.0`  
+1. **New Feature：test(debug) mode**  
+2. **Bug Fix：Calculate screenshots resolution properly**  
+3. **New Feature：Adding IFO mediainfo for DVD**  
 
 
 
