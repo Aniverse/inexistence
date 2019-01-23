@@ -1,10 +1,33 @@
 ################## Seedbox Script Mod START ##################
 
-ulimit -SHn 666666
+function _colors() {
+black=\$(tput setaf 0); red=\$(tput setaf 1); green=\$(tput setaf 2); yellow=\$(tput setaf 3);
+blue=\$(tput setaf 4); magenta=\$(tput setaf 5); cyan=\$(tput setaf 6); white=\$(tput setaf 7);
+on_red=\$(tput setab 1); on_green=\$(tput setab 2); on_yellow=\$(tput setab 3); on_blue=\$(tput setab 4);
+on_magenta=\$(tput setab 5); on_cyan=\$(tput setab 6); on_white=\$(tput setab 7); bold=\$(tput bold);
+dim=\$(tput dim); underline=\$(tput smul); reset_underline=\$(tput rmul); standout=\$(tput smso);
+reset_standout=\$(tput rmso); normal=\$(tput sgr0); alert=\${white}\${on_red}; title=\${standout};
+baihuangse=\${white}\${on_yellow}; bailanse=\${white}\${on_blue}; bailvse=\${white}\${on_green};
+baiqingse=\${white}\${on_cyan}; baihongse=\${white}\${on_red}; baizise=\${white}\${on_magenta};
+heibaise=\${black}\${on_white}; heihuangse=\${on_yellow}\${black}
+jiacu=\${normal}\${bold}
+shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; }
+_colors
+
+function gclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
+io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
+iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
+io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+
+wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
+
+ulimit -SHn 999999
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
+
+#############################################################
 
 alias -s sh='bash'
 alias -s log='tail -n50'
@@ -19,73 +42,104 @@ alias qba="systemctl start qbittorrent"
 alias qbb="systemctl stop qbittorrent"
 alias qbc="systemctl status qbittorrent"
 alias qbr="systemctl restart qbittorrent"
+alias qbl="tail -n300 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
 alias dea="systemctl start deluged"
 alias deb="systemctl stop deluged"
 alias dec="systemctl status deluged"
 alias der="systemctl restart deluged"
+alias del="grep -v TotalTraffic /etc/inexistence/01.Log/deluged.log | grep -v 'Successfully loaded' | grep -v 'Saving the state' | tail -n300"
 alias dewa="systemctl start deluge-web"
 alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
 alias dewr="systemctl restart deluge-web"
+alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
 alias tra="systemctl start transmission"
 alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
 alias trr="systemctl restart transmission"
-alias rta="systemctl start rtorrent@${ANUSER}"
-alias rtb="systemctl stop rtorrent@${ANUSER}"
-alias rtc="systemctl status rtorrent@${ANUSER}"
-alias rtr="systemctl restart rtorrent@${ANUSER}"
-alias irssia="systemctl start irssi@${ANUSER}"
-alias irssib="systemctl stop irssi@${ANUSER}"
-alias irssic="systemctl status irssi@${ANUSER}"
-alias irssir="systemctl restart irssi@${ANUSER}"
-alias fla="systemctl start flexget"
-alias flb="systemctl stop flexget"
-alias flc="flexget daemon status"
-alias flr="systemctl restart flexget"
-alias cdde="cd /home/${ANUSER}/deluge/download"
-alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
-alias cdrt="cd /home/${ANUSER}/rtorrent/download"
-alias cdtr="cd /home/${ANUSER}/transmission/download"
-alias shanchu="rm -rf"
-alias xiugai="nano /etc/profile && source /etc/profile"
-alias quanxian="chmod -R 777"
-alias anzhuang="apt-get install"
-alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
-
-alias ssa="/etc/init.d/shadowsocks-r start"
-alias ssb="/etc/init.d/shadowsocks-r stop"
-alias ssc="/etc/init.d/shadowsocks-r status"
-alias ssr="/etc/init.d/shadowsocks-r restart"
+alias rta="su ${ANUSER} -c 'rt start'"
+alias rtb="su ${ANUSER} -c 'rt -k stop'"
+alias rtc="su ${ANUSER} -c 'rt'"
+alias rtr="su ${ANUSER} -c 'rt -k restart'"
+alias rtscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent'"
+alias irssia="su ${ANUSER} -c 'rt -i start'"
+alias irssib="su ${ANUSER} -c 'rt -i -k stop'"
+alias irssic="su ${ANUSER} -c 'rt -i'"
+alias irssir="su ${ANUSER} -c 'rt -i -k restart'"
+alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
+alias fga="systemctl start flexget"
+alias fgaa="flexget daemon start --daemonize"
+alias fgb="systemctl stop flexget"
+alias fgc="systemctl status flexget"
+alias fgcc="flexget daemon status"
+alias fgr="systemctl restart flexget"
+alias fgrr="flexget daemon reload-config"
+alias fgl="echo ; tail -n300 /root/.config/flexget/flexget.log ; echo"
+alias fgs="nano /root/.config/flexget/config.yml"
+alias fgcheck="flexget check"
+alias fge="flexget execute"
+alias fla="systemctl start flood"
+alias flb="systemctl stop flood"
+alias flc="systemctl status flood"
+alias flr="systemctl restart flood"
+alias ssra="/etc/init.d/shadowsocks-r start"
+alias ssrb="/etc/init.d/shadowsocks-r stop"
+alias ssrc="/etc/init.d/shadowsocks-r status"
+alias ssrr="/etc/init.d/shadowsocks-r restart"
 alias ruisua="/appex/bin/serverSpeeder.sh start"
 alias ruisub="/appex/bin/serverSpeeder.sh stop"
 alias ruisuc="/appex/bin/serverSpeeder.sh status"
 alias ruisur="/appex/bin/serverSpeeder.sh restart"
+alias ruisus="nano /etc/serverSpeeder.conf"
+alias nginxr="/etc/init.d/nginx restart"
 
-alias del="tail -n100 /etc/inexistence/01.Log/deluged.log"
-alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
-alias qbl="tail -n100 /etc/inexistence/01.Log/qbittorrent.log"
-alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
-alias fll="tail -n100 /root/.config/flexget/flexget.log"
-alias fls="nano /root/.config/flexget/config.yml"
-alias rtscreen="chmod -R 777 /dev/pts && sudo -u ${ANUSER} screen -r rtorrent"
+alias yongle="du -sB GB"
+alias rtyongle="du -sB GB /home/${ANUSER}/rtorrent/download"
+alias qbyongle="du -sB GB /home/${ANUSER}/qbittorrent/download"
+alias deyongle="du -sB GB /home/${ANUSER}/deluge/download"
+alias tryongle="du -sB GB /home/${ANUSER}/transmission/download"
+alias cdde="cd /home/${ANUSER}/deluge/download"
+alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
+alias cdrt="cd /home/${ANUSER}/rtorrent/download"
+alias cdtr="cd /home/${ANUSER}/transmission/download"
+alias cdin="cd /etc/inexistence/"
+alias cdrut="cd /var/www/rutorrent"
+
+alias shanchu="rm -rf"
+alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
+alias quanxian="chmod -R 777"
+alias anzhuang="apt-get install"
+alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
 
 alias banben1='apt-cache policy'
 alias banben2='dpkg -l | grep'
-alias yongle='du -sB GB'
 alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
+alias scrgdb="screen -S GoogleDrive -X quit"
 alias jincheng="ps aux | grep -v grep | grep"
-alias ios="iostat -d -x -k 1"
+
 alias cdb="cd .."
+alias tree="tree --dirsfirst"
+alias ls="ls -hAv --color --group-directories-first"
+alias ll="ls -hAlvZ --color --group-directories-first"
+
 alias cesu="echo;spdtest --share;echo"
 alias cesu2="echo;spdtest --share --server"
 alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
-alias ls="ls -hAv --color --group-directories-first"
-alias ll="ls -hAlvZ --color --group-directories-first"
-alias wget="wget --no-check-certificate"
-alias tree="tree --dirsfirst"
-alias gclone="git clone --depth=1"
+alias ios="iostat -dxm 1"
+alias vms="vmstat 1 10"
+alias vns="vnstat -l -i $wangka"
+alias vnss="vnstat -m && vnstat -d"
+
+alias sousuo="find / -name"
+alias sousuo2="find /home/${ANUSER} -name"
+alias enableswap="dd if=/dev/zero of=/root/.swapfile bs=1M count=1024;mkswap /root/.swapfile;swapon /root/.swapfile;swapon -s"
+alias disableswap="swapoff /root/.swapfile;rm -f /.swapfile"
+
+alias yuan="nano /etc/apt/sources.list"
+alias cronr="/etc/init.d/cron restart"
+alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
 alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
 alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
@@ -93,7 +147,8 @@ alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr 
 alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
 alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
 alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
-alias jiaobenrt="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobenrt1="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobenrt2="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
 alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
 alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
 alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
@@ -120,100 +175,3 @@ bindkey -s "^[Ol" "+"
 bindkey -s "^[Om" "-"  
 bindkey -s "^[Oj" "*"  
 bindkey -s "^[Oo" "/"  
-
-################## Seedbox Script Mod END ##################
-
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
-
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="agnosterzak"
-
-# Set list of themes to load
-# Setting this variable when ZSH_THEME=random
-# cause zsh load theme from this variable instead of
-# looking in ~/.oh-my-zsh/themes/
-# An empty array have no effect
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
