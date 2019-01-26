@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.26
-Script_Version=2.3.1
+Script_Version=2.3.3
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -37,7 +37,8 @@ cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}*"
 trap cancel SIGINT
 
 # Colors
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
+black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7)
+bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
 mediapath="$1" ; fenbianlv="$2"
 Source=undefined
@@ -58,8 +59,15 @@ bc_cli="bc"
 [[ -d "$mediapath" ]] && {
 omediapath="$mediapath"
 mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
-dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | xargs ls -S 2>&1 | head -1  )
-#ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | tail -1 )
+
+# DVD Name/VIDEO_TS/VTS_01_1.VOB
+dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && 
+ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | xargs ls -S 2>&1 | head -1  ) &&
+disk_path="$(dirname "$(dirname "$mediapath")")" && disk_title="$(basename "$disk_path")"
+
+# Blu-ray Name/BDMV/STREAM/00002.m2ts
+dirname "$mediapath" | grep STREAM   -q && Source=Blu-ray &&
+disk_path="$( dirname "$( dirname "$(dirname "$mediapath")")")" && disk_title="$(basename "$disk_path")"
 
 if [[ $Source == DVD ]]; then
 #   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
@@ -137,26 +145,31 @@ fi
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
 ${cyan}${bold}bc Command             ${yellow}$bc_cli
-${cyan}${bold}Source Type            ${yellow}$Source
-${cyan}${bold}DVD IFO File           ${yellow}$ifo
+${cyan}${bold}Source Type            ${yellow}$Source"
+[[ $Source == DVD     ]] && echo -e \
+"${cyan}${bold}DVD IFO File           ${yellow}$ifo
+${cyan}${bold}DVD Title              ${yellow}$disk_title"
+[[ $Source == Blu-ray ]] && echo -e \
+"${cyan}${bold}Blu-ray Title          ${yellow}$disk_title"
 
-${cyan}${bold}VideoResolution        ${yellow}$VideoResolution
+echo -e "
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
 ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
 ${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR
+${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
+${cyan}${bold}Right Resolution       ${yellow}$TrueRes
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
 ${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
 ${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
 ${cyan}${bold}SAR   Resolution (bc)  ${yellow}$SAR1_R_BC
 ${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
-${cyan}${bold}True  Resolution       ${yellow}$TrueRes
 ${green}
 mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
 mediainfo -f \"\$mediapath\"
 ${normal}"
-[[ $Source == DVD ]] && ls -hAlvZ --color "$(dirname "$mediapath")"
+[[ ! $Source == undefined ]] && ls -hAlvZ --color "$(dirname "$mediapath")"
 echo
 exit 0 ; }
 
