@@ -34,22 +34,30 @@
 
 
 
+## 2019.01.26
 
-
-
-
-
-
-
-
-
-## 2019.01.22
-
-`inexistence 1.0.9 28`  
+`inexistence 1.0.9 29`   
 1. **Feature：不再默认启用 ltconfig 的 High Performance Seed**  
-2. Improvement：修改 deluge 配置方法，注释部分也一并改了  
-3. Upgrade：ffmpeg 4.1.0 static release  
-4. 删除一些无用文件  
+之前忘记删除 ltconfig.conf 了  
+2. Feature：在第一步增加安装 `libelf-dev`  
+3. Bug Fix：修复添加了 wine 的源后未添加 key 的问题  
+
+`jietu 2.3.1-2.3.5`  
+1. **Bug Fix：修复 IFO 文件的判断**  
+2. Codes：增加判断 Blu-ray Disk 的 Source Type，并根据文件名提取 `disk title`  
+3. **Feature：对 DVD 和 Blu-ray，输出的文件名前加上 `disk title`**  
+
+
+
+
+
+## 2019.01.23
+
+`inexistence 1.0.9 28`   
+1. Improvement：修改 deluge 配置方法，注释部分也一并改了  
+2. Upgrade：ffmpeg 4.1.0 static release  
+3. 删除一些无用文件  
+4. 更新了下 zshrc  
 
 
 
