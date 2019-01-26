@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.26
-Script_Version=2.3.3
+Script_Version=2.3.4
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -68,6 +68,12 @@ disk_path="$(dirname "$(dirname "$mediapath")")" && disk_title="$(basename "$dis
 # Blu-ray Name/BDMV/STREAM/00002.m2ts
 dirname "$mediapath" | grep STREAM   -q && Source=Blu-ray &&
 disk_path="$( dirname "$( dirname "$(dirname "$mediapath")")")" && disk_title="$(basename "$disk_path")"
+
+[[ -z $disk_title ]] && {
+disk_title_clean="$(echo "$disk_title" | tr '[:space:]' '.')"
+disk_title_clean="$(echo "$disk_title_clean" | sed s'/[.]$//')"
+disk_title_clean="$(echo "$disk_title_clean" | tr -d '(')"
+disk_title_clean="$(echo "$disk_title_clean" | tr -d ')')" ; }
 
 if [[ $Source == DVD ]]; then
 #   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
@@ -211,10 +217,6 @@ ${cyan}Aspect Ratio  ${yellow}$DAR
 ${cyan}Resolution    ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
-
-
-
-
 
 [[ $Source == DVD ]] && {
 echo -e "${bold}${cyan}DVD IFO File  ${yellow}$ifo
