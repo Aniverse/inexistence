@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.01.23
-Script_Version=2.3.0
+Script_UpDate=2019.01.26
+Script_Version=2.3.1
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -58,7 +58,9 @@ bc_cli="bc"
 [[ -d "$mediapath" ]] && {
 omediapath="$mediapath"
 mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
-dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | tail -1 )
+dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | xargs ls -S 2>&1 | head -1  )
+#ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | tail -1 )
+
 if [[ $Source == DVD ]]; then
 #   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
 #   echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
@@ -256,9 +258,9 @@ mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo -e "${green}DONE${normal}"
 
-# additional mediainfo for DVD
+
 [[ ! -z "$ifo" ]] && {
-echo -ne "Adding ifo mediainfo to ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
+echo -ne "Adding IFO mediainfo to ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 echo -e "\n\n" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
 mediainfo "$ifo" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo -e "${green}DONE${normal}" ; }
@@ -272,5 +274,5 @@ rm -f ./bc
 
 usage() {
 rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
-wget -qO https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu -O /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
 }
