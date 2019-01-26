@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.01.23
+INEXISTENCEDATE=2019.01.26
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -951,7 +951,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -967,7 +967,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} qBittorrent 3.3 and later requires libtorrent-rasterbar 1.0.6 and later${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
@@ -984,7 +984,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -1000,7 +1000,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
@@ -1016,7 +1016,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
@@ -1032,7 +1032,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
@@ -1050,7 +1050,7 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    )_input_version_lt && lt_version="${input_version_num}" ;;
+                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -1824,7 +1824,7 @@ if [[ $SKIPAPPS == Yes ]]; then echo -e "\n${baizise}Skip useful apps installati
 apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
 speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
 ca-certificates apt-transport-https gcc make checkinstall build-essential pkg-config     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat \
-ethtool net-tools
+ethtool net-tools libelf-dev
 fi
 
 if [ ! $? = 0 ]; then
@@ -2685,6 +2685,7 @@ elif [[ $InsWineMode == apt ]]; then
 
     dpkg --add-architecture i386
     wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
 
     if [[ $DISTRO == Ubuntu ]]; then
         apt-get install -y software-properties-common
