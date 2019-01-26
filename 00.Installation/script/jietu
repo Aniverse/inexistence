@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 Script_UpDate=2019.01.26
-Script_Version=2.3.4
+Script_Version=2.3.5
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -69,8 +69,8 @@ disk_path="$(dirname "$(dirname "$mediapath")")" && disk_title="$(basename "$dis
 dirname "$mediapath" | grep STREAM   -q && Source=Blu-ray &&
 disk_path="$( dirname "$( dirname "$(dirname "$mediapath")")")" && disk_title="$(basename "$disk_path")"
 
-[[ -z $disk_title ]] && {
-disk_title_clean="$(echo "$disk_title" | tr '[:space:]' '.')"
+[[ ! -z $disk_title ]] && {
+disk_title_clean="$(echo "$disk_title"       | tr '[:space:]' '.')"
 disk_title_clean="$(echo "$disk_title_clean" | sed s'/[.]$//')"
 disk_title_clean="$(echo "$disk_title_clean" | tr -d '(')"
 disk_title_clean="$(echo "$disk_title_clean" | tr -d ')')" ; }
@@ -154,9 +154,9 @@ ${cyan}${bold}bc Command             ${yellow}$bc_cli
 ${cyan}${bold}Source Type            ${yellow}$Source"
 [[ $Source == DVD     ]] && echo -e \
 "${cyan}${bold}DVD IFO File           ${yellow}$ifo
-${cyan}${bold}DVD Title              ${yellow}$disk_title"
+${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
 [[ $Source == Blu-ray ]] && echo -e \
-"${cyan}${bold}Blu-ray Title          ${yellow}$disk_title"
+"${cyan}${bold}Blu-ray Title          ${yellow}$disk_title_clean"
 
 echo -e "
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
@@ -231,6 +231,8 @@ file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
 file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
 file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
 file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
+[[ ! -z $disk_title_clean ]] &&
+file_title_clean="$(echo "${disk_title_clean}.${file_title_clean}")"
 
 # Calculating timestampsetting
 duration1=$(ffmpeg -i "$mediapath" 2>&1 | egrep '(Duration:)' | cut -d ' ' -f4 | cut -c1-8)
