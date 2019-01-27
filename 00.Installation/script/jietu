@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.01.26
-Script_Version=2.3.5
+Script_UpDate=2019.01.27
+Script_Version=2.3.7
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -26,7 +26,6 @@ function Deprecated() {
         [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
         ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
     esac
-
 }
 
 # Transform numbers
@@ -90,16 +89,17 @@ fi ; }
 
 # TEST MODE
 [[ $fenbianlv == -t ]] && {
-VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
-VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
-VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
-DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
+VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
+VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )
+VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 )
+DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
 DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" | head -1 )
 SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" )
+PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" | head -1 )
+DAR2=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Display aspect ratio" | grep -oE "[0-9.]+" | head -1 )
 
 # 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
 # $VideoWidth/$DARY*$DARX=720÷16×9=405
@@ -134,7 +134,7 @@ SAR1_R="${SAR1_W}x${SAR1_H}"
 
 # https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
 # 有一种算法，是用 DAR 比视频分辨率的 AR 大时，重新算 X，反之 算 Y
-# 蛋疼的是 shell 自带的那些不支持浮点数比较，不过 expr 似乎是取整算法，比如
+# 蛋疼的是 shell 自带的那些不支持浮点数比较（除非用 bc），不过 expr 似乎是取整算法，比如
 # expr 8 / 9  = 0
 # expr 17 / 9 = 1
 # 这样子的话可以根据 expr SAR 的数值来选择怎么操作
@@ -159,9 +159,10 @@ ${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
 "${cyan}${bold}Blu-ray Title          ${yellow}$disk_title_clean"
 
 echo -e "
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
-${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
 ${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR
+${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2
 ${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
 ${cyan}${bold}Right Resolution       ${yellow}$TrueRes
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
@@ -188,29 +189,29 @@ if [[ "$fenbianlv" == "" ]]; then
 ########################################################################################################################
 echo -e "\n${bold}Calculating resolution ...${normal} "
 
-VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" )
-VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" )
-VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" )
-DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" )
+VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
+VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )
+VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 )
+DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
 DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" | head -1 )
 SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 
 if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
     resize=Y
     SSR_W=$VideoWidth
-    SSR_H=$( echo "$VideoWidth/$DARX*$DARY" | $bc_cli -l | awk '{print int($0)}' )
+    SSR_H=$( echo "$VideoWidth/$DARX*$DARY"  | $bc_cli -l | awk '{print int($0)}' )
     even_number SSR_H $SSR_H
-    fenbianlv="${SSR_W}x${SSR_H}"
 else                                          # Re-calculate X (Width)
     resize=X
     SSR_H=$VideoHeight
     SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | $bc_cli -l | awk '{print int($0)}' )
     even_number SSR_W $SSR_W
-    fenbianlv="${SSR_W}x${SSR_H}"
 fi
+
+fenbianlv="${SSR_W}x${SSR_H}"
 
 echo -e "${bold}
 ${cyan}Aspect Ratio  ${yellow}$DAR
