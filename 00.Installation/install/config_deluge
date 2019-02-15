@@ -3,10 +3,10 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-S_update=2019.01.26
-S_version=1.0.0
+S_update=2019.02.15
+S_version=1.0.1
 
-OutputLOG=/etc/inexistence/01.Log/install_deluge.txt    # /dev/null
+OutputLOG=/etc/inexistence/01.Log/config_deluge.txt    # /dev/null
 SCLocation=/etc/inexistence/01.Log/SourceCodes
 LOCKLocation=/etc/inexistence/01.Log/Lock
 
@@ -54,9 +54,6 @@ done
 
 
 
-
-
-
 User_PATH=/root
 User_PATH=/home/$ANUSER
 
@@ -65,23 +62,28 @@ User_PATH=/home/$ANUSER
 # Deluge Password Calculatation
 cat >/tmp/deluge.userpass.py<<EOF
 #!/usr/bin/env python
-
 import hashlib
 import sys
-
 password = sys.argv[1]
 salt = sys.argv[2]
-
 s = hashlib.sha1()
 s.update(salt)
 s.update(password)
-
 print s.hexdigest()
+EOF
+
+# Deluge Hostlist ID Generator
+cat >/tmp/deluge.addhost.py<<EOF
+#!/usr/bin/env python
+import hashlib
+import sys
+import time
+print hashlib.sha1(str(time.time())).hexdigest()
 EOF
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
 DWP=$(python /tmp/deluge.userpass.py ${ANPASS} ${DWSALT})
-
+DUDID=$(python /tmp/deluge.addhost.py)
 
 
 
