@@ -66,8 +66,8 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 # --------------------------------------------------------------------------------
-BDDATE=2019.01.14
-BDVER=2.9.0
+BDDATE=2019.01.17
+BDVER=2.9.2
 DeBUG=0
 # --------------------------------------------------------------------------------
 using_bdinfo=new
@@ -576,16 +576,15 @@ if [[ $resolution == autoar ]]; then
   # VideoResolution=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" `
     echo -ne "\nOriginal resolution is ${underline}${bold}$VideoResolution${normal}${reset_underline}, "
     VideoWidth=` echo $VideoResolution | sed "s/x[0-9]\{2,\}//" `
-    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" ` ; DW=$VideoHeight
+    VideoHeight=` echo $VideoResolution | sed "s/[0-9]\{2,\}x//" `
     DAR=` ffmpeg -i "$main_m2ts_path" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" `
-    echo -e "Display Aspect Ratio (DAR) is ${underline}${bold}$DAR${normal}${reset_underline}"
     DARW=` echo $DAR | sed "s/[0-9]\{1,\}://" `
     DARH=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-  # DH0=` expr $VideoHeight / $DARW  `
-  # DH=` expr $DH0 \* $DARH  `
+    echo -e "Display Aspect Ratio (DAR) is ${underline}${bold}$DAR${normal}${reset_underline}"
+    DW=$VideoWidth
 
-    [[   $(command -v bc) ]] && DH=` echo "$VideoHeight/$DARW*$DARH" | bc -l | awk '{print int($0)}' `
-    [[ ! $(command -v bc) ]] && DH=` echo "$VideoHeight/$DARW*$DARH" | awk '{print int($0)}' `
+    [[   $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | bc -l | awk '{print int($0)}' `
+    [[ ! $(command -v bc) ]] && DH=` echo "$VideoWidth/$DARH*$DARW" | awk '{print int($0)}' `
 
     fenbianlv="${DH}x${DW}"
 
