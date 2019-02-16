@@ -3,13 +3,13 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-update=2019.01.20
-script_version=1.2.2
+update=2019.02.16
+script_version=1.2.3
 ################################################################################################
 
 usage_guide() {
 wget -qO lt https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar
-bash lt -v 1.1.11       bash lt -m deb       bash lt -b RC_1_1
+bash lt -v 1.1.12       bash lt -m deb       bash lt -b RC_1_1
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -b RC_1_2 ; }
 
@@ -159,13 +159,28 @@ git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$
 cd libtorrent-$version-$RN
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
-sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py
+if version_ge $version 1.1 ; then
+    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_1.patch
+    patch -p1 < libtorrent-rasterbar-RC_1_1.patch
+elif version_ge $version 1.0 ; then
+    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_0.patch
+    patch -p1 < libtorrent-rasterbar-RC_1_0.patch
+else
+    sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py || NoPatch=1
+fi
 
 mkdir -p doc-pak && echo "an efficient feature complete C++ bittorrent implementation" > description-pak
 
 ./autotool.sh >> $OutputLOG 2>&1
-./configure --enable-python-binding --with-libiconv \
-            --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 # For both Deluge and qBittorrent
+
+if [[ -z $NoPatch ]]; then
+    ./configure --enable-python-binding --with-libiconv \
+                --disable-debug --enable-encryption --with-libgeoip=system CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 # For both Deluge and qBittorrent
+else
+    ./configure --enable-python-binding --with-libiconv \
+                --disable-debug --enable-encryption --with-libgeoip=system                      >> $OutputLOG 2>&1
+fi
+
 make -j$MAXCPUS >> $OutputLOG 2>&1
 
 # 如果之前 dpkg 安装过一次，包名不一样的话，这一次 checkinstall 就会失败，所以失败后保险起见，失败了的话再 make install 试一次
