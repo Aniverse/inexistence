@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.01.26
+INEXISTENCEDATE=2019.02.16
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -97,8 +97,7 @@ reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
 heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}
-jiacu=${normal}${bold}
-shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}" ; }
 _colors
 # --------------------------------------------------------------------------------
@@ -182,21 +181,31 @@ function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15
 ### 输入自己想要的软件版本 ###
 # ${blue}(use it at your own risk)${normal}
 function _input_version() {
+if [[ $script_lang == eng ]]; then
 echo -e "\n${JG} ${bold}Use it at your own risk and make sure to input version correctly${normal}"
-read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}" ; }
+read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}"
+elif [[ $script_lang == chs ]]; then
+echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
+read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
+fi ; }
 
 function _input_version_lt() {
 echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version${normal}"
 echo -e "${red}${bold} Here is a list of all the available versions${normal}\n"
-wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+# wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
+rm -f $HOME/lt.git.tag
+git ls-remote --tags  https://github.com/arvidn/libtorrent | awk -F'[/]' '{print $3}' >  $HOME/lt.git.tag
+git ls-remote --heads https://github.com/arvidn/libtorrent | awk -F'[/]' '{print $3}' >> $HOME/lt.git.tag
+cat $HOME/lt.git.tag | pr -3 -t
+rm -f $HOME/lt.git.tag
 read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}" ; }
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
 if [[ ! "$SysSupport" == 1 ]]; then
-    echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9 and Ubuntu 16.04/18.04 is supported by this script${normal}"
-    echo -e "${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
-    exit 1
+echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9 and Ubuntu 16.04/18.04 is supported by this script${normal}
+${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
+exit 1
 fi ; }
 
 # Ctrl+C 时恢复样式
@@ -921,12 +930,13 @@ echo ; }
 
 function _lt_ver_ask() {
 
-[[ $DeBUG == 1 ]] && echo "lt_ver=$lt_ver  lt8_support=$lt8_support  qb_version=$qb_version  de_version=$de_version"
+[[ $DeBUG == 1 ]] && echo "lt_version=$lt_version  lt_ver=$lt_ver  lt8_support=$lt8_support  qb_version=$qb_version  de_version=$de_version"
 
 # 默认 lt 1.0 可用
 lt8_support=Yes
 # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.3；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
-[[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && unset lt_version && lt8_support=No
+# 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
+[[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
 
 [[ $DeBUG == 1 ]] && {
 echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
@@ -1637,7 +1647,7 @@ fi ; }
 function _askcontinue() {
 
 [[ $script_lang == eng ]] && echo -e "\n${bold}Please check the following information${normal}"
-[[ $script_lang == chs ]] && echo -e "\n${bold}                请确认以下安装信息${normal}"
+[[ $script_lang == chs ]] && echo -e "\n${bold}                  请确认以下安装信息${normal}"
 echo
 echo '####################################################################'
 echo
