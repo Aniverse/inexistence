@@ -80,6 +80,8 @@ tasks:
 web_server:
   port: 6566
   web_ui: yes
-# The following field is used for reverse proxy
+# This is prepared for reverse proxy, do not uncomment it unless you know how it works
 # base_url: /flexget
+
+# schedules is disabled by default, you need to enable it or use cron to RSS
 schedules: no
