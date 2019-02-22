@@ -41,34 +41,45 @@ templates:
       max: 666666
       strict: no
 tasks:
-  HDChina:
-    rss: https://hdchina.org/torrentrss.php
-    if:
-      - "'HDChina' in title and '1080p' in title": accept
-      - "'HDCTV' in title": accept
-    template:
-      - freespace
-      - size
-      - qb
-    qbittorrent:
-      label: HDChina
-  MTeam:
-    rss: https://tp.m-team.cc/torrentrss.php
+  Web-HDSky:
+    rss: https://hdsky.me/torrentrss.php
+    # In order to accept entries that have different urls but share the same title
+    seen:
+      fields:
+        - url
     regexp:
       accept:
-        - OneHD
-      reject:
-        - MTeamPAD
-    template:
-      - de
+        - HDSWEB
+    template: de
     content_size:
-      min: 15000
-      max: 100000
+      min: 3000
+      max: 500000
       strict: no
     deluge:
-      max_up_speed: 12800.0
+      label: WEB-DL
+      # Limit upload speed to 100 MiB/s in case of being auto-banned
+      max_up_speed: 102400
+      move_completed_path: /mnt/HDSky/HDSWEB
+  ADC-AnimeBD-JPN:
+    rss: http://asiandvdclub.org/rss.xml
+    if:
+      - "'Anime' and 'AVC' in title": accept
+      - "'subs only' in title": reject
+      - "'Custom' in description": reject
+    # RSS on ADC requires cookies for authentication
+    headers:
+      Cookie: "uid=12345; pass=abcdefg"
+    # manipulate download page's URLs into proper download URLs
+    urlrewrite:
+      sitename:
+        regexp: 'http://asiandvdclub.org/details.php\?id=(?P<id>\d+)'
+        format: 'http://asiandvdclub.org/download.php?id=\g<id>'
+    qbittorrent:
+      label: ADC
+      maxdownspeed: 30000
 web_server:
   port: 6566
   web_ui: yes
+# The following field is used for reverse proxy
 # base_url: /flexget
 schedules: no
