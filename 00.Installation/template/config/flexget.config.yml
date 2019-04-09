@@ -77,6 +77,8 @@ tasks:
     qbittorrent:
       label: ADC
       maxdownspeed: 30000
+      # DO NOT USE qBittorrent 3.3.11 if you would like to limit speed by flexget !!!
+      # It seems this function only works for qBittorent 4.1.0 and later
 web_server:
   port: 6566
   web_ui: yes
