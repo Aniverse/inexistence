@@ -434,6 +434,8 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
       echo "${cyan}No Virtualization Detected${normal}"
   fi
 
+[[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
+
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
 echo
@@ -2782,6 +2784,7 @@ echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 function _tweaks() {
 
 # 修改时区
+# 2019.04.09 以后脚本语言如果英文的话不改时区？然后默认用中文
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
@@ -2790,11 +2793,11 @@ ntpdate time.windows.com
 hwclock -w
 
 # 修改语言
+# 2019.04.09 （甚至可以改成中文，不过这样子我自己都看不习惯就是了……）
 sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 echo 'LANG="en_US.UTF-8"'>/etc/default/locale
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale LANG=en_US.UTF-8
-
 
 # screen 设置
 cat>>/etc/screenrc<<EOF
@@ -2806,7 +2809,6 @@ defencoding utf8
 encoding utf8 utf8 
 defscrollback 23333
 EOF
-
 
 # 升级 vnstat
 if [[ $CODENAME == jessie ]]; then
@@ -2821,6 +2823,10 @@ fi
 
 # 指定 vnstat 网卡
 [[ -z $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i 's/Interface.*/Interface "$wangka"/' /etc/vnstat.conf
+
+# 2019.04.09 vnstat 还有一个 WebUI 要搞
+# 另外就是这里有一部分东西弄成必装的吧，选装就会有人不装反而某些情况下麻烦了
+# alias 私货们再另外处理吧
 
 # 设置编码与alias
 
@@ -2916,10 +2922,6 @@ alias lssb="/appex/bin/lotServer.sh stop"
 alias lssc="/appex/bin/lotServer.sh status"
 alias lssr="/appex/bin/lotServer.sh restart"
 alias lsss="nano +30 /appex/etc/config"
-
-
-
-
 alias nginxr="/etc/init.d/nginx restart"
 
 alias yongle="du -sB GB"
@@ -3036,7 +3038,7 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 # systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
 # [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
 
-flexget daemon status 2>1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
+flexget daemon status 2>&1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
 [[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
 [[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
