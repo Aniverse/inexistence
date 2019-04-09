@@ -3,14 +3,17 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
-# bash -c "$(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)"
-#
-# PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-# export PATH
+# --------------------------------------------------------------------------------
+usage() {
+bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
+}
+tmp_1() {
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+}
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
-DISABLE=0
+DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
 INEXISTENCEVER=1.0.9
 INEXISTENCEDATE=2019.04.09
@@ -1794,6 +1797,21 @@ cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
 
 # --------------------- 替换系统源 --------------------- #
 
+# 这个就当注释了
+function tmp_2() {
+package_list=""
+for package_name in $package_list ; do
+    if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+        if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+            install_list="$install_list $package_name"
+        fi
+    else
+        echo "$package_name not found, skipping"
+    fi
+done
+test -z "$install_list" || apt-get -y install $install_list
+}
+
 function _setsources() {
 
 # rm /var/lib/dpkg/updates/*
@@ -1802,39 +1820,32 @@ function _setsources() {
 
 [[ $USESWAP == Yes ]] && _use_swap
 
-if [[ $aptsources == Yes ]]; then
+if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
     cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
     wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
-    sed -i "s/RELEASE/${CODENAME}/g" /etc/apt/sources.list
+    sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-    apt-get -y update
-else
-    apt-get -y update
+elif [[ $aptsources == Yes ]] && [[ $CODENAME == jessie ]]; then
+    echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
+    cat > /etc/apt/sources.list << EOF
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+EOF
 fi
+
+apt-get -y update
 
 # _checkrepo1 2>&1 | tee /etc/00.checkrepo1.log
 # _checkrepo2 2>&1 | tee /etc/00.checkrepo2.log
 
 dpkg --configure -a
 apt-get -f -y install
-
-package_list="figlet toilet lolcat ruby tree
-gcc automake make gawk build-essential checkinstall python
-screen git sudo zsh curl nano zip unzip lrzsz rsync bc locales aptitude ntpdate
-software-properties-common apt-transport-https ca-certificates
-dstat sysstat vnstat vmstat htop iotop smartmontools virt-what lsb-release iperf3 speedtest-cli mtr wondershaper uuid"
-
-# for package_name in $package_list ; do
-#     if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
-#         if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-#             install_list="$install_list $package_name"
-#         fi
-#     else
-#         echo "$package_name not found, skipping"
-#     fi
-# done
-
-# test -z "$install_list" || apt-get -y install $install_list
 
 # 其实很多包可能对于很多人没用，私货私货……
 if [[ $SKIPAPPS == Yes ]]; then echo -e "\n${baizise}Skip useful apps installation${normal}\n" ; else
@@ -1853,7 +1864,6 @@ fi
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 
 # apt-get remove --purge -y libgnutls-deb0-28
-
 sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
 # sed -i "s/ACCEPT_DEFAULT=0/ACCEPT_DEFAULT=1/g" /etc/checkinstallrc
 
@@ -2233,6 +2243,8 @@ systemctl start deluge-web
 # systemctl start {deluged,deluge-web}@${ANUSER}
 
 # Deluge update-tracker，用于 AutoDL-Irssi
+# 2019.04.09 现在觉得没啥卵用，其实只要暂停+重开也行，省掉一个 update-tracker.py
+
 deluged_ver_2=`deluged --version | grep deluged | awk '{print $2}'`
 deluged_port=$( grep daemon_port /root/.config/deluge/core.conf | grep -oP "\d+" )
 
@@ -2280,22 +2292,6 @@ cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/syst
 
 touch /etc/inexistence/01.Log/lock/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
-
-
-
-
-
-
-# --------------------- Preparation for rtorrent_fast_resume.pl --------------------- #
-function _rt_fast_resume() {
-cd ; wget http://search.cpan.org/CPAN/authors/id/I/IW/IWADE/Convert-Bencode_XS-0.06.tar.gz
-wget https://rt.cpan.org/Ticket/Attachment/1433449/761974/patch-t_001_tests_t
-tar xf Convert-Bencode_XS-0.06.tar.gz
-cd Convert-Bencode_XS-0.06
-patch -uNp0 -i ../patch-t_001_tests_t
-perl Makefile.PL
-make ; make install ; cd
-rm -rf Convert-Bencode_XS-0.06 Convert-Bencode_XS-0.06.tar.gz patch-t_001_tests_t ; }
 
 
 
@@ -2532,10 +2528,12 @@ fi
 echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n" ; }
 
 # 安装 4.11.12 的内核
+# 2019.04.09 我看也写成单独脚本算了
 function _bbr_kernel_4_11_12() {
 
 if [[ $CODENAME == stretch ]]; then
     [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  {bold}Installing libssl1.0.0 ...${normal} "
+    # 2019.04.09 为毛要用 hk 的？估摸着我当时问毛球要的？
     echo -e "\ndeb http://ftp.hk.debian.org/debian jessie main\c" >> /etc/apt/sources.list
     apt-get update
     apt-get install -y libssl1.0.0
@@ -2565,6 +2563,7 @@ touch /etc/inexistence/01.Log/lock/bbr.lock ; }
 
 
 # Online.net 独服补充固件（For BBR）
+# 下次看看 efs 巨佬的
 function _online_ubuntu_bbr_firmware() {
 mkdir -p /lib/firmware/bnx2
 wget -qO /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-mips-06-6.2.3.fw
@@ -2572,8 +2571,6 @@ wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/B
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09ax-6.0.17.fw
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09-6.0.17.fw
 wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-06-6.0.15.fw ; }
-
-
 
 
 
@@ -2660,77 +2657,33 @@ function _installwine() {
 # https://download.mono-project.com/sources/mono/
 # http://www.mono-project.com/docs/compiling-mono/compiling-from-git/
 
-InsMonoMode=apt
-
-if [[ $InsMonoMode == Building ]]; then
-
-    apt-get install -y git autoconf libtool automake build-essential mono-devel gettext cmake python libtool-bin
-    git clone --depth=1 -b mono-5.13.0.302 https://github.com/mono/mono
-    cd mono
-    ./autogen.sh --prefix=/usr/local
-    make -j${MAXCPUS}
-    make install
-    cd .. ; rm -rf mono
-
-elif [[ $InsMonoMode == apt ]]; then
-
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-    echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" > /etc/apt/sources.list.d/mono.list
-    apt-get -y update
-    apt-get install -y mono-complete ca-certificates-mono
-
-fi
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb http://download.mono-project.com/repo/${DISTROL} stable-${CODENAME} main" > /etc/apt/sources.list.d/mono.list
+apt-get -y update
+apt-get install -y mono-complete ca-certificates-mono
 
 echo -e "\n\n\n${bailanse}  MONO-INSTALLATION-COMPLETED  ${normal}\n\n"
 
 # wine
 # https://wiki.winehq.org/Debian
 
-InsWineMode=apt
+dpkg --add-architecture i386
+wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
 
-if [[ $InsWineMode == Building ]]; then
-
-    # wget --no-check-certificate https://dl.winehq.org/wine/source/3.x/wine-3.3.tar.xz
-    cd ; git clone git://source.winehq.org/git/wine.git
-    cd wine
-    ./configure
-    make -j${MAXCPUS}
-    make install
-    cd .. ; rm -rf wine
-
-elif [[ $InsWineMode == apt ]]; then
-
-    dpkg --add-architecture i386
-    wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
-
-    if [[ $DISTRO == Ubuntu ]]; then
-        apt-get install -y software-properties-common
-        apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
-    elif [[ $DISTRO == Debian ]]; then
-        echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
-    fi
-
-    apt-get update -y
-    apt-get install -y --install-recommends winehq-stable
-
+if [[ $DISTRO == Ubuntu ]]; then
+    apt-get install -y software-properties-common
+    apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
+elif [[ $DISTRO == Debian ]]; then
+    echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
 fi
+
+apt-get update -y
+apt-get install -y --install-recommends winehq-stable
 
 wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x winetricks
 mv winetricks /usr/local/bin
-
-# https://blog.gloriousdays.pw/2018/12/01/optimize-wine-font-rendering/
-
-/usr/local/bin/winetricks settings fontsmooth=rgb
-
-mkdir -p ~/.wine/drive_c/windows/Fonts
-cd ~/.wine/drive_c/windows/Fonts
-wget --no-check-certificate -t1 -T5 https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
-xz -d wine_fonts.tar.xz
-tar -xvf wine_fonts.tar
-rm -f wine_fonts.tar
-cd
 
 touch /etc/inexistence/01.Log/lock/winemono.lock
 
@@ -2738,6 +2691,21 @@ echo -e "\n\n\n${bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
 echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+
+
+
+
+
+# 2019.04.09 之前听说这个有时候 wget 速度很慢，先移掉吧
+function tmp_3() {
+# https://blog.gloriousdays.pw/2018/12/01/optimize-wine-font-rendering/
+/usr/local/bin/winetricks settings fontsmooth=rgb
+mkdir -p ~/.wine/drive_c/windows/Fonts
+cd ~/.wine/drive_c/windows/Fonts
+wget --no-check-certificate -t1 -T5 https://down.gloriousdays.pw/Fonts/wine_fonts.tar.xz
+xz -d wine_fonts.tar.xz
+tar -xvf wine_fonts.tar
+rm -f wine_fonts.tar ; cd ; }
 
 
 
@@ -3064,7 +3032,6 @@ RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
 if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
-
 
 # systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
 # [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
