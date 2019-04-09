@@ -13,7 +13,7 @@ SYSTEMCHECK=1
 DISABLE=0
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.02.16
+INEXISTENCEDATE=2019.04.09
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -76,6 +76,11 @@ while true; do
   esac
 done
 
+if [ $# -gt 0 ]; then
+  echo "No arguments allowed $1 is not a valid argument"
+  exit 1
+fi
+
 if [[ $DeBUG == 1 ]]; then
     ANUSER=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
 fi
@@ -90,13 +95,13 @@ export LOCKLocation=/etc/inexistence/01.Log/Lock
 function _colors() {
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
-on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
+on_black=$(tput setab 0); on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3);
+on_blue=$(tput setab 4);on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7);
 dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
 reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
 baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}
+heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}; bold=$(tput bold);
 jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}" ; }
 _colors
@@ -316,8 +321,10 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
 
 # 2018.10.10 重新启用对于网卡的判断。我忘了是出于什么原因我之前禁用了它？
-[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
-wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
+# 2019.04.09 有些特殊情况，还是再改下
+# 最好不要依赖 ifconfig，因为说不定系统里没有 ifconfig
+#[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+#wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
 
@@ -2834,21 +2841,23 @@ EOF
 
 
 # 升级 vnstat
-
 if [[ $CODENAME == jessie ]]; then
-cd ; wget https://humdi.net/vnstat/vnstat-1.18.tar.gz
-tar zxf vnstat-1.18.tar.gz
-cd vnstat-1.18
-./configure --prefix=/usr
-make -j${MAXCPUS}
-make install
-cd ; rm -rf vnstat-1.18.tar.gz vnstat-1.18 ; fi
+    cd ; wget https://humdi.net/vnstat/vnstat-1.18.tar.gz
+    tar zxf vnstat-1.18.tar.gz
+    cd vnstat-1.18
+    ./configure --prefix=/usr
+    make -j${MAXCPUS}
+    make install
+    cd ; rm -rf vnstat-1.18.tar.gz vnstat-1.18
+fi
+
+# 指定 vnstat 网卡
+[[ -z $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i 's/Interface.*/Interface "$wangka"/' /etc/vnstat.conf
 
 # 设置编码与alias
 
 # sed -i '$d' /etc/bash.bashrc
-
-[[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,148!{P;N;D;};N;ba' /etc/bash.bashrc
+# [[ `grep "Inexistence Mod" /etc/bash.bashrc` ]] && sed -i -n -e :a -e '1,148!{P;N;D;};N;ba' /etc/bash.bashrc
 
 # 以后这堆私货另外处理吧，以后。上边那个检测也应该要改下
 
@@ -2857,7 +2866,7 @@ cat>>/etc/bash.bashrc<<EOF
 
 ################## Inexistence Mod Start ##################
 
-function _colors() {
+function setcolor() {
 black=\$(tput setaf 0); red=\$(tput setaf 1); green=\$(tput setaf 2); yellow=\$(tput setaf 3);
 blue=\$(tput setaf 4); magenta=\$(tput setaf 5); cyan=\$(tput setaf 6); white=\$(tput setaf 7);
 on_red=\$(tput setab 1); on_green=\$(tput setab 2); on_yellow=\$(tput setab 3); on_blue=\$(tput setab 4);
@@ -2869,14 +2878,14 @@ baiqingse=\${white}\${on_cyan}; baihongse=\${white}\${on_red}; baizise=\${white}
 heibaise=\${black}\${on_white}; heihuangse=\${on_yellow}\${black}
 jiacu=\${normal}\${bold}
 shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; }
-_colors
+setcolor
 
 function gclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
 
-wangka=` ip route get 8.8.8.8 | awk '{print $5}' | head -n1 `
+wangka=$wangka
 
 ulimit -SHn 999999
 
@@ -2888,8 +2897,8 @@ alias qba="systemctl start qbittorrent"
 alias qbb="systemctl stop qbittorrent"
 alias qbc="systemctl status qbittorrent"
 alias qbr="systemctl restart qbittorrent"
-alias qbl="tail -n300 /etc/inexistence/01.Log/qbittorrent.log"
-alias qbs="nano /root/.config/qBittorrent/qBittorrent.conf"
+alias qbl="tail -300 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbs="nano +30 /root/.config/qBittorrent/qBittorrent.conf"
 alias dea="systemctl start deluged"
 alias deb="systemctl stop deluged"
 alias dec="systemctl status deluged"
@@ -2899,7 +2908,7 @@ alias dewa="systemctl start deluge-web"
 alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
 alias dewr="systemctl restart deluge-web"
-alias dewl="tail -n100 /etc/inexistence/01.Log/delugeweb.log"
+alias dewl="tail -100 /etc/inexistence/01.Log/delugeweb.log"
 alias tra="systemctl start transmission"
 alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
@@ -2921,23 +2930,28 @@ alias fgc="systemctl status flexget"
 alias fgcc="flexget daemon status"
 alias fgr="systemctl restart flexget"
 alias fgrr="flexget daemon reload-config"
-alias fgl="echo ; tail -n300 /root/.config/flexget/flexget.log ; echo"
-alias fgs="nano /root/.config/flexget/config.yml"
+alias fgl="echo ; tail -300 /root/.config/flexget/flexget.log ; echo"
+alias fgs="nano +30 /root/.config/flexget/config.yml"
 alias fgcheck="flexget check"
 alias fge="flexget execute"
 alias fla="systemctl start flood"
 alias flb="systemctl stop flood"
 alias flc="systemctl status flood"
 alias flr="systemctl restart flood"
-alias ssra="/etc/init.d/shadowsocks-r start"
-alias ssrb="/etc/init.d/shadowsocks-r stop"
-alias ssrc="/etc/init.d/shadowsocks-r status"
-alias ssrr="/etc/init.d/shadowsocks-r restart"
-alias ruisua="/appex/bin/serverSpeeder.sh start"
-alias ruisub="/appex/bin/serverSpeeder.sh stop"
-alias ruisuc="/appex/bin/serverSpeeder.sh status"
-alias ruisur="/appex/bin/serverSpeeder.sh restart"
-alias ruisus="nano /etc/serverSpeeder.conf"
+alias sssa="/appex/bin/serverSpeeder.sh start"
+alias sssb="/appex/bin/serverSpeeder.sh stop"
+alias sssc="/appex/bin/serverSpeeder.sh status"
+alias sssr="/appex/bin/serverSpeeder.sh restart"
+alias ssss="nano +30 /etc/serverSpeeder.conf"
+alias lssa="/appex/bin/lotServer.sh start"
+alias lssb="/appex/bin/lotServer.sh stop"
+alias lssc="/appex/bin/lotServer.sh status"
+alias lssr="/appex/bin/lotServer.sh restart"
+alias lsss="nano +30 /appex/etc/config"
+
+
+
+
 alias nginxr="/etc/init.d/nginx restart"
 
 alias yongle="du -sB GB"
@@ -2955,27 +2969,19 @@ alias cdrut="cd /var/www/rutorrent"
 alias shanchu="rm -rf"
 alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
 alias quanxian="chmod -R 777"
-alias anzhuang="apt-get install"
 alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
 
-alias banben1='apt-cache policy'
-alias banben2='dpkg -l | grep'
-alias scrl="screen -ls"
 alias scrgd="screen -U -R GoogleDrive"
 alias scrgdb="screen -S GoogleDrive -X quit"
 alias jincheng="ps aux | grep -v grep | grep"
 
-alias cdb="cd .."
 alias tree="tree --dirsfirst"
 alias ls="ls -hAv --color --group-directories-first"
 alias ll="ls -hAlvZ --color --group-directories-first"
 
-alias cesu="echo;spdtest --share;echo"
-alias cesu2="echo;spdtest --share --server"
-alias cesu3="echo;spdtest --list 2>&1 | head -n30 | grep --color=always -P '(\d+)\.(\d+)\skm|(\d+)(?=\))';echo"
 alias ios="iostat -dxm 1"
 alias vms="vmstat 1 10"
-alias vns="vnstat -l -i $wangka"
+alias vns="vnstat -l"
 alias vnss="vnstat -m && vnstat -d"
 
 alias sousuo="find / -name"
@@ -2984,11 +2990,7 @@ alias enableswap="dd if=/dev/zero of=/root/.swapfile bs=1M count=1024;mkswap /ro
 alias disableswap="swapoff /root/.swapfile;rm -f /.swapfile"
 
 alias yuan="nano /etc/apt/sources.list"
-alias cronr="/etc/init.d/cron restart"
 alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
-
-alias eac3to='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe'
-alias eacout='wine /etc/inexistence/02.Tools/eac3to/eac3to.exe 2>/dev/null | tr -cd "\11\12\15\40-\176"'
 
 alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
 alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
@@ -3037,9 +3039,7 @@ tune2fs -m 0 `df -k | sort -rn -k4 | awk '{print $1}' | head -1`
 locale-gen en_US.UTF-8
 locale
 sysctl -p
-# source /etc/bash.bashrc
 
-# apt-get -y upgrade
 apt-get -y autoremove
 
 touch /etc/inexistence/01.Log/lock/tweaks.lock ; }
@@ -3179,7 +3179,7 @@ _intro
 _askusername
 _askpassword
 [[ $SKIPAPPS == Yes ]] && echo -e "\n${baizise}Useful apps will ${baihongse}not${baizise} be installed${normal}\n"
-[[ -z $aptsources ]] && aptsources=Yes  ; _askaptsource
+_askaptsource
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)   ; _askmt
 [[ -z $USESWAP ]] && [[ $tram -le 1926 ]] && USESWAP=Yes ; _askswap
 _askqbt
