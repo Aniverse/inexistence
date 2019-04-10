@@ -16,7 +16,7 @@ SYSTEMCHECK=1
 DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.04.09
+INEXISTENCEDATE=2019.04.10
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -217,7 +217,7 @@ exit 1
 fi ; }
 
 # Ctrl+C 时恢复样式
-cancel() { echo -e "${normal}" ; exit ; }
+cancel() { echo -e "${normal}" ; reset -w ; exit ; }
 trap cancel SIGINT
 
 # --------------------------------------------------------------------------------
@@ -1828,6 +1828,7 @@ if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
     sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 elif [[ $aptsources == Yes ]] && [[ $CODENAME == jessie ]]; then
+    cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
     echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
     cat > /etc/apt/sources.list << EOF
 deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
