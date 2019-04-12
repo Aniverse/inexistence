@@ -1,0 +1,139 @@
+#!/bin/bash
+# 2019.04.12
+
+cat>>/etc/bash.bashrc<<EOF
+################## Inexistence Mod Start ##################
+
+function setcolor() {
+black=\$(tput setaf 0); red=\$(tput setaf 1); green=\$(tput setaf 2); yellow=\$(tput setaf 3);
+blue=\$(tput setaf 4); magenta=\$(tput setaf 5); cyan=\$(tput setaf 6); white=\$(tput setaf 7);
+on_red=\$(tput setab 1); on_green=\$(tput setab 2); on_yellow=\$(tput setab 3); on_blue=\$(tput setab 4);
+on_magenta=\$(tput setab 5); on_cyan=\$(tput setab 6); on_white=\$(tput setab 7); bold=\$(tput bold);
+dim=\$(tput dim); underline=\$(tput smul); reset_underline=\$(tput rmul); standout=\$(tput smso);
+reset_standout=\$(tput rmso); normal=\$(tput sgr0); alert=\${white}\${on_red}; title=\${standout};
+baihuangse=\${white}\${on_yellow}; bailanse=\${white}\${on_blue}; bailvse=\${white}\${on_green};
+baiqingse=\${white}\${on_cyan}; baihongse=\${white}\${on_red}; baizise=\${white}\${on_magenta};
+heibaise=\${black}\${on_white}; heihuangse=\${on_yellow}\${black}
+jiacu=\${normal}\${bold}
+shanshuo=\$(tput blink); wuguangbiao=\$(tput civis); guangbiao=\$(tput cnorm) ; }
+setcolor
+
+function gclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
+io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
+iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
+io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+
+wangka=$wangka
+
+ulimit -SHn 999999
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+
+alias qba="systemctl start qbittorrent"
+alias qbb="systemctl stop qbittorrent"
+alias qbc="systemctl status qbittorrent"
+alias qbr="systemctl restart qbittorrent"
+alias qbl="tail -300 /etc/inexistence/01.Log/qbittorrent.log"
+alias qbs="nano +30 /root/.config/qBittorrent/qBittorrent.conf"
+alias dea="systemctl start deluged"
+alias deb="systemctl stop deluged"
+alias dec="systemctl status deluged"
+alias der="systemctl restart deluged"
+alias del="grep -v TotalTraffic /etc/inexistence/01.Log/deluged.log | grep -v 'Successfully loaded' | grep -v 'Saving the state' | tail -n300"
+alias dewa="systemctl start deluge-web"
+alias dewb="systemctl stop deluge-web"
+alias dewc="systemctl status deluge-web"
+alias dewr="systemctl restart deluge-web"
+alias dewl="tail -100 /etc/inexistence/01.Log/delugeweb.log"
+alias tra="systemctl start transmission"
+alias trb="systemctl stop transmission"
+alias trc="systemctl status transmission"
+alias trr="systemctl restart transmission"
+alias rta="su ${ANUSER} -c 'rt start'"
+alias rtb="su ${ANUSER} -c 'rt -k stop'"
+alias rtc="su ${ANUSER} -c 'rt'"
+alias rtr="su ${ANUSER} -c 'rt -k restart'"
+alias rtscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent'"
+alias irssia="su ${ANUSER} -c 'rt -i start'"
+alias irssib="su ${ANUSER} -c 'rt -i -k stop'"
+alias irssic="su ${ANUSER} -c 'rt -i'"
+alias irssir="su ${ANUSER} -c 'rt -i -k restart'"
+alias irssiscreen="chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'"
+alias fga="systemctl start flexget"
+alias fgaa="flexget daemon start --daemonize"
+alias fgb="systemctl stop flexget"
+alias fgc="systemctl status flexget"
+alias fgcc="flexget daemon status"
+alias fgr="systemctl restart flexget"
+alias fgrr="flexget daemon reload-config"
+alias fgl="echo ; tail -300 /root/.config/flexget/flexget.log ; echo"
+alias fgs="nano +30 /root/.config/flexget/config.yml"
+alias fgcheck="flexget check"
+alias fge="flexget execute"
+alias fla="systemctl start flood"
+alias flb="systemctl stop flood"
+alias flc="systemctl status flood"
+alias flr="systemctl restart flood"
+alias sssa="/appex/bin/serverSpeeder.sh start"
+alias sssb="/appex/bin/serverSpeeder.sh stop"
+alias sssc="/appex/bin/serverSpeeder.sh status"
+alias sssr="/appex/bin/serverSpeeder.sh restart"
+alias ssss="nano +30 /etc/serverSpeeder.conf"
+alias lssa="/appex/bin/lotServer.sh start"
+alias lssb="/appex/bin/lotServer.sh stop"
+alias lssc="/appex/bin/lotServer.sh status"
+alias lssr="/appex/bin/lotServer.sh restart"
+alias lsss="nano +30 /appex/etc/config"
+alias nginxr="/etc/init.d/nginx restart"
+
+alias yongle="du -sB GB"
+alias rtyongle="du -sB GB /home/${ANUSER}/rtorrent/download"
+alias qbyongle="du -sB GB /home/${ANUSER}/qbittorrent/download"
+alias deyongle="du -sB GB /home/${ANUSER}/deluge/download"
+alias tryongle="du -sB GB /home/${ANUSER}/transmission/download"
+alias cdde="cd /home/${ANUSER}/deluge/download"
+alias cdqb="cd /home/${ANUSER}/qbittorrent/download"
+alias cdrt="cd /home/${ANUSER}/rtorrent/download"
+alias cdtr="cd /home/${ANUSER}/transmission/download"
+alias cdin="cd /etc/inexistence/"
+alias cdrut="cd /var/www/rutorrent"
+
+alias shanchu="rm -rf"
+alias xiugai="nano /etc/bash.bashrc && source /etc/bash.bashrc"
+alias quanxian="chmod -R 777"
+alias yongyouzhe="chown ${ANUSER}:${ANUSER}"
+
+alias scrgd="screen -U -R GoogleDrive"
+alias scrgdb="screen -S GoogleDrive -X quit"
+alias jincheng="ps aux | grep -v grep | grep"
+
+alias tree="tree --dirsfirst"
+alias ls="ls -hAv --color --group-directories-first"
+alias ll="ls -hAlvZ --color --group-directories-first"
+
+alias ios="iostat -dxm 1"
+alias vms="vmstat 1 10"
+alias vns="vnstat -l"
+alias vnss="vnstat -m && vnstat -d"
+
+alias sousuo="find / -name"
+alias sousuo2="find /home/${ANUSER} -name"
+alias enableswap="dd if=/dev/zero of=/root/.swapfile bs=1M count=1024;mkswap /root/.swapfile;swapon /root/.swapfile;swapon -s"
+alias disableswap="swapoff /root/.swapfile;rm -f /.swapfile"
+
+alias yuan="nano /etc/apt/sources.list"
+alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart  >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
+
+alias jiaobenxuanxiang="clear && cat /etc/inexistence/01.Log/installed.log && echo"
+alias jiaobende="clear && cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
+alias jiaobenqb="clear && cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
+alias jiaobenrt1="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
+alias jiaobenrt2="clear && cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
+alias jiaobentr="clear && cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
+alias jiaobenfl="clear && cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
+alias jiaobenend="clear && cat /etc/inexistence/01.Log/INSTALLATION/99.end.log && echo"
+
+################## Inexistence Mod END ##################
+EOF
