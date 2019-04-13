@@ -97,16 +97,16 @@ export LOCKLocation=/etc/inexistence/01.Log/Lock
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
-blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_black=$(tput setab 0); on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3);
-on_blue=$(tput setab 4);on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7);
-dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
-reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
-baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}; bold=$(tput bold);
-jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+black=$(tput setaf 0); red=$(tput setaf 1)    ; green=$(tput setaf 2); yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
+blue=$(tput setaf 4) ; magenta=$(tput setaf 5); cyan=$(tput setaf 6) ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
+on_black=$(tput setab 0); on_red=$(tput setab 1)    ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
+on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5); on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm)
+underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
+standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
+baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
+heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}" ; }
 _colors
 # --------------------------------------------------------------------------------
@@ -2726,7 +2726,7 @@ defscrollback 23333
 EOF
 
 # alias 与 文字编码
-bash $local_packages/install/alias
+bash $local_packages/install/alias $ANUSER $wangka
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
