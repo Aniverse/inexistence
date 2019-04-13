@@ -17,7 +17,7 @@ SYSTEMCHECK=1
 DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.04.13
+INEXISTENCEDATE=2019.04.14
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -1869,7 +1869,7 @@ if [[ $CODENAME == jessie ]]; then
 fi
 
 # 指定 vnstat 网卡
-[[ -z $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i 's/Interface.*/Interface "$wangka"/' /etc/vnstat.conf
+[[ -z $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 
