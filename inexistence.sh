@@ -17,7 +17,7 @@ SYSTEMCHECK=1
 DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
 INEXISTENCEVER=1.0.9
-INEXISTENCEDATE=2019.04.11
+INEXISTENCEDATE=2019.04.13
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -943,7 +943,7 @@ function _lt_ver_ask() {
 
 # 默认 lt 1.0 可用
 lt8_support=Yes
-# 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.3；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
+# 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.11；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
 # 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
 [[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
 
@@ -1963,7 +1963,7 @@ elif [[ $lt_version == RC_1_2 ]]; then
   # bash $local_packages/install/install_libtorrent_rasterbar -m deb3
     bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_2
 else
-    bash $local_packages/install/install_libtorrent_rasterbar -b $lt_version
+    bash $local_packages/install/install_libtorrent_rasterbar -v $lt_version
 fi
 
 fi ; }
