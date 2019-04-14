@@ -1,6 +1,6 @@
 #!/bin/bash
-# 2019.04.13
-# revision: 101
+# 2019.04.14
+# revision: 102
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
@@ -17,7 +17,7 @@ done
 
 
 
-# 147-20
+# 150-20
 cat >> /etc/bash.bashrc <<EOF
 ################## Inexistence Mod Start ##################
 
@@ -115,10 +115,12 @@ alias cdtr="cd /home/$ANUSER/transmission/download"
 alias cdin="cd /etc/inexistence/"
 alias cdrut="cd /var/www/rutorrent"
 
-alias aatop="TERM=st atop 1"
 alias scrgd="screen -U -R GoogleDrive"
 alias scrgda="screen -U -r -d GoogleDrive"
 alias scrgdb="screen -S GoogleDrive -X quit"
+function scrb(){ screen -S \$1 -X quit  ;}
+
+alias aatop="TERM=st atop 1"
 alias px="ps aux | grep -v grep | grep"
 alias tree="tree --dirsfirst"
 alias l="ls -hAv --color --group-directories-first"
