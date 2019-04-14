@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
-INEXISTENCEVER=1.1.0
-INEXISTENCEDATE=2019.04.14
+INEXISTENCEVER=1.1.0.1
+INEXISTENCEDATE=2019.04.15
 script_lang=eng
 # --------------------------------------------------------------------------------
 
@@ -1870,6 +1870,12 @@ fi
 
 # 指定 vnstat 网卡
 [[ -z $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
+
+# 安装 NConvert
+wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz -O NConvert-linux64.tgz && {
+tar zxf NConvert-linux64.tgz
+mv NConvert/nconvert /usr/local/bin
+rm -rf NConvert* ; }
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 
