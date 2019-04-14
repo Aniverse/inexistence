@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
-INEXISTENCEVER=1.0.9
+INEXISTENCEVER=1.1.0
 INEXISTENCEDATE=2019.04.14
 script_lang=eng
 # --------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ function _intro() {
 clear
 
 # 检查是否以 root 权限运行脚本
-if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Navie! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
+if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
 else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
 arch=$( uname -m ) # 架构，可以识别 ARM
