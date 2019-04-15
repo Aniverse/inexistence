@@ -5,30 +5,168 @@
 
 
 
+## 2019.04.14
+
+`inexistence 1.1.0.1`  
+1. Feature：在 step-one 安装 Nconvert  
 
 
 
 
 
+## 2019.04.14
+
+`inexistence 1.1.0`  
+1. **Bump version to 1.1.0**  
+距离上次快半年了……其实这次是因为除了修改 naive 外不知道改什么了就干脆升级版本号了  
+2. UI：修复 Naive 拼错的问题  
+
+`alias 102`  
+1. Add `scrb` and `aatop`  
 
 
 
 
 
+## 2019.04.13
+
+`inexistence 1.0.9 34`  
+1. Bug Fix：尝试修复安装指定版本 lt 找不到分支的问题  
+04.14：实际上然并卵，下次再说  
+2. Codes：颜色代码那边排版修改  
+3. Codes：对应 alias 的修改，增加 alias 脚本的输入 $1 $2  
+4. Bug Fix：修复指定 vnstat 网卡时 sed 没用双引号导致变量不识别的问题    
+
+`alias`  
+1. **使用 `while grep -q, sed -i '$d'` 的方式解决可能重复添加 alias 的问题**  
+这是一个蠢办法，执行效率也低（相对），但是应该没人会在乎几十毫秒的差距吧  
+此外这个办法仍然有可能删除用户自己添加的内容，不过老方法也会，所以不算引入缺点  
+毕竟本来就有这个问题了，在更好的解决办法被我学会以前就先这样吧，我觉得已经比原先强多了  
+2. **取消 ulimit 的设定**  
+3. Color 部分也对应主脚本修改排版  
+4. 排版修改，以及 `${ANUSER}` 改成 `$ANUSER`  
+5. `jiaobenxuanxiang` 之类的改成 `s-opt` 之类的  
+
+`mingling 0.9.2.001`  
+1. 这放弃治疗的东西难得更新一次  
+2. 没啥玩意儿，就是因为 alias 改了所以这个也要“与时俱进”一下  
+3. 我都快忘了这货了，不过毕竟过了这么久了，感觉确实有些东西可以更新下  
+比如系统信息检测那边，dd 测试啊啥的，不过以后再说吧  
+
+
+
+## 2019.04.12
+
+`inexistence 1.0.9 34`  
+1. **Feature：将文件打开数修改、Jessie 升级 vnstat、vnstat 网卡修改提前到了第一步**  
+这样一来，`system tweaks` 中包含的就是：alias、screenrc、设置英文语言、设置东八区为时区、保留空间释放  
+2. **Alias：单独成一个脚本**  
+3. **Codes：移除大量不再使用的代码**  
+
+`alias`
+1. 独立出来了  
 
 
 
 
 
+## 2019.04.10
+
+`inexistence 1.0.9 33`  
+1. Bug Fix：Ctrl+C 时 `reset -w`（不然在 echo -ne 处 Vultr 的排版会错位）  
+2. Feature：Add `WebUI\CSRFProtection=false` to `qBittorrent.conf` for `PT-Plugin-Plus`  
+3. Bug Fix：Jessie 换源时忘记备份原先的文件了，备份下  
 
 
 
 
 
+## 2019.04.09
+
+`inexistence 1.0.9 32`  
+1. Bug Fix：No arguments allowed $1 is not a valid argument  
+2. Feature：指定 vnstat 网卡  
+3. **Feature：重新启用 apt sources 的问题**  
+4. **Feature：对于 Debian Jessie，换源采用 `snapshot.debian.org`**  
+5. Alias：加入 LotServer 相关，删掉了大量别名，wangka 直接从脚本里写入  
+6. Codes：function 化了 3 处原先已被注释的代码，之后再删  
+7. Codes：注释一些代码，排版调整，增加 usage_guides  
+8. Codes：移除 `Preparation for rtorrent_fast_resume.pl`  
+9. Codes：移除 `wine` 和 `mono` 的编译安装方法  
+10. Codes：移除了下载 wine 字体包的部分  
+11. Codes：增加作者吐槽  
+12. 很久没管过破脚本了……心情复杂.jpg  
+
+`flexget.config.yml`  
+1. 提示可能只有使用 qb 4.1+ 才能使用 flexget 的 qb 限速  
 
 
 
 
+
+## 2019.03.15
+
+`inexistence 1.0.9 31`  
+1. Add UMask=000 for systemd  
+
+
+
+
+
+## 2019.02.22
+
+`inexistence 1.0.9 31`   
+1. SubScripts：同步更新 `bluray` 到 2.9.6  
+
+`flexget.config.yml`  
+1. HDChina 的演示改为更有意义的 HDSky，因为后者需要在 seen 插件里设定检查项为 url  
+2. 增加 ADC 的 RSS 展示
+ADC 需要用到 `headers` 的 `Cookie`，`urlrewrite`，`if` 的 `in description`，比较有教学意义  
+3. 增加对反代设置项的注释说明，以及默认关闭 schedules 的说明  
+
+
+
+
+
+## 2019.02.16
+
+`inexistence 1.0.9 31`   
+1. Bug Fix：修复 libtorrent 版本号显示的问题  
+2. Bug Fix：remove unset lt_version in line929, due to this would make `--lt` opt useless  
+3. Chinese：汉化 `Input the version you want`  
+4. Codes：排版  
+5. SubScripts：同步更新 `bluray` 到 2.9.2  
+
+`install_libtorrent_rasterbar 1.2.3`  
+1. 更新 `python-binding` 和 `C++11` 的处理方式  
+
+
+
+
+
+## 2019.02.15
+
+`config_deluge 1.0.0-1.0.1`  
+1. 初始化，未完待续，咕咕
+
+
+
+
+
+## 2019.02.13
+
+`flexget.config.yml`  
+1. 由于 Flexget 的更新，修改了 `deluge` 插件的 `max_up_speed` 写法  
+
+
+
+
+
+## 2019.01.28
+
+`jietu 2.3.7`  
+1. 大概是忘记 commit 了，跳过了 2.3.6  
+2. Bug Fix：修复可能出现两个视频分辨率的问题（选第一个）  
 
 
 
@@ -36,7 +174,7 @@
 
 ## 2019.01.26
 
-`inexistence 1.0.9 29`   
+`inexistence 1.0.9 30`   
 1. **Feature：不再默认启用 ltconfig 的 High Performance Seed**  
 之前忘记删除 ltconfig.conf 了  
 2. Feature：在第一步增加安装 `libelf-dev`  
@@ -53,7 +191,7 @@
 
 ## 2019.01.23
 
-`inexistence 1.0.9 28`   
+`inexistence 1.0.9 29`   
 1. Improvement：修改 deluge 配置方法，注释部分也一并改了  
 2. Upgrade：ffmpeg 4.1.0 static release  
 3. 删除一些无用文件  
@@ -65,7 +203,7 @@
 
 ## 2019.01.22
 
-`inexistence 1.0.9 27`  
+`inexistence 1.0.9 28`  
 1. Codes：不再使用 `local_packages` 这个变量  
 主要是我自己复制粘贴都变得麻烦了 emmm  
 2. UI： 中文的开始安装所需软件前去掉一个空行  
