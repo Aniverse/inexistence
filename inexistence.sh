@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.2
+INEXISTENCEVER=1.1.0.3
 INEXISTENCEDATE=2019.04.17
 # --------------------------------------------------------------------------------
 
@@ -24,14 +24,15 @@ INEXISTENCEDATE=2019.04.17
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p: --long "yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -n "$0" -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 
 eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -u | --user     ) iUser="$2"       ; shift ; shift ;;
-    -p | --password ) iPass="$2"       ; shift ; shift ;;
+    -u | --user     ) iUser=$2       ; shift ; shift ;;
+    -p | --password ) iPass=$2       ; shift ; shift ;;
+    -b | --branch   ) iBranch=$2     ; shift ; shift ;;
 
     --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift ; shift ;;
     --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift ; shift ;;
@@ -88,16 +89,20 @@ if [[ $DeBUG == 1 ]]; then
     iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
 fi
 
+[[ -z $iBranch ]] && iBranch=master
+iBranch
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $time + 1)
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 export local_packages=/etc/inexistence/00.Installation
-export SourceLocation=/log/inexistence/$times/source
-export DebLocation=/log/inexistence/$times/deb
-export LogLocation=/log/inexistence/$times/log
-export LockLocation=/log/inexistence/lock
+export LogBase=/log/inexistence
+export LogTimes=$LogBase/$times
+export SourceLocation=$LogTimes/source
+export DebLocation=$LogTimes/deb
+export LogLocation=$LogTimes/install
+export LockLocation=$LogBase/lock
 # 临时
 # 一个想法，脚本传入到单个脚本里一个参数 log-base，比如装 de 脚本的 log 位置：
 # log-base=/log/inexistence/$times, SourceLocation=$log-base/source
@@ -1710,7 +1715,7 @@ echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区
 function _setuser() {
 
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
-git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
+git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
 chmod -R 777 /etc/inexistence
 
 if id -u ${iUser} >/dev/null 2>&1; then
@@ -1722,11 +1727,11 @@ fi
 
 # 临时
 mkdir -p $SourceLocation $LockLocation $LogLocation $DebLocation
-echo $iUser >> /log/inexistence/iUser.txt
+echo $iUser >> $LogBase/iUser.txt
 
 export TZ="/usr/share/zoneinfo/Asia/Shanghai"
 
-cat>>/etc/inexistence/01.Log/installed.log<<EOF
+cat >> $LogTimes/installed.log << EOF
 如果要截图请截完整点，包含下面所有信息
 CPU        : $cname"
 Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
@@ -1760,19 +1765,6 @@ WINE=${InsWine}
 FLOOD=${InsFlood}
 #################################
 如果要截图请截完整点，包含上面所有信息
-EOF
-
-mkdir -p /etc/inexistence/01.Log/lock
-touch /etc/inexistence/01.Log/lock/username.$iUser.lock
-
-cat > /etc/inexistence/01.Log/lock/inexistence.lock <<EOF
-##### Used for future script determination #####
-INEXISTENCEinstalled=Yes
-INEXISTENCEVER=${INEXISTENCEVER}
-INEXISTENCEDATE=${INEXISTENCEDATE}
-USETWEAKS=${UseTweaks}
-iUser=${iUser}
-##### U ########################################
 EOF
 
 # 提高文件打开数
@@ -2021,7 +2013,7 @@ else
 
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        qmake --version | tee -a /etc/inexistence/01.Log/installed.log
+        qmake --version
 
     else
 
@@ -2141,7 +2133,7 @@ else
     fi
 
     python setup.py build  > /dev/null
-    python setup.py install --install-layout=deb --record /etc/inexistence/01.Log/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
+    python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
     python setup.py install_data # 给桌面环境用的
 
     [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
@@ -2166,7 +2158,6 @@ ln -s /home/${iUser}/deluge/download /var/www/h5ai/deluge
 chmod -R 777 /home/${iUser}/deluge
 chown -R ${iUser}:${iUser} /home/${iUser}/deluge
 
-touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log
 
 mkdir -p /root/.config && cd /root/.config
@@ -2214,7 +2205,7 @@ systemctl enable /etc/systemd/system/deluged.service
 systemctl start deluged
 systemctl start deluge-web
 
-touch /etc/inexistence/01.Log/lock/deluge.lock ; }
+touch $LockLocation/deluge.lock ; }
 
 
 
@@ -2241,7 +2232,7 @@ ln -s /home/${iUser} /var/www/h5ai/user.folder
 cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
 cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 
-touch /etc/inexistence/01.Log/lock/rtorrent.lock
+touch $LockLocation/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
@@ -2264,14 +2255,14 @@ npm install
 sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
 npm run build 2>&1 | tee /tmp/flood.log
-rm -rf /etc/inexistence/01.Log/lock/flood.fail.lock
-# [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch /etc/inexistence/01.Log/lock/flood.fail.lock
+rm -rf $LockLocation/flood.fail.lock
+# [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LockLocation/flood.fail.lock
 
 cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
 systemctl start flood
 systemctl enable flood
 
-touch /etc/inexistence/01.Log/lock/flood.lock
+touch $LockLocation/flood.lock
 
 cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
@@ -2381,7 +2372,7 @@ systemctl daemon-reload
 systemctl enable transmission
 systemctl start transmission
 
-touch /etc/inexistence/01.Log/lock/transmission.lock ; }
+touch $LockLocation/transmission.lock ; }
 
 
 
@@ -2407,16 +2398,16 @@ function _installflex() {
   touch /home/$iUser/cookies.txt
 
   flexget web passwd $iPass 2>&1 | tee /tmp/flex.pass.output
-  rm -rf /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch /etc/inexistence/01.Log/lock/flexget.pass.lock ; }
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch /etc/inexistence/01.Log/lock/flexget.conf.lock ; }
+  rm -rf $LockLocation/flexget.{pass,conf}.lock
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch $LockLocation/flexget.pass.lock ; }
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch $LockLocation/flexget.conf.lock ; }
 
   cp -f /etc/inexistence/00.Installation/template/systemd/flexget.service /etc/systemd/system/flexget.service
   systemctl daemon-reload
   systemctl enable /etc/systemd/system/flexget.service
   systemctl start flexget
 
-  touch /etc/inexistence/01.Log/lock/flexget.lock
+  touch $LockLocation/flexget.lock
   echo -e "\n\n\n${bailvse}  FLEXGET-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
@@ -2442,7 +2433,7 @@ mkdir -p /usr/local/share/man/man1
 cp rclone.1 /usr/local/share/man/man1
 mandb
 cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
-touch /etc/inexistence/01.Log/lock/rclone.lock
+touch $LockLocation/rclone.lock
 echo -e "\n\n\n${bailvse}  RCLONE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
@@ -2496,7 +2487,7 @@ sed -i '/net.ipv4.tcp_congestion_control.*/d' /etc/sysctl.conf
 echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
 sysctl -p
-touch /etc/inexistence/01.Log/lock/bbr.lock ; }
+touch $LockLocation/bbr.lock ; }
 
 
 # Online.net 独服补充固件（For BBR）
@@ -2537,7 +2528,7 @@ systemctl enable vncserver
 systemctl start vncserver
 systemctl status vncserver
 
-touch /etc/inexistence/01.Log/lock/vnc.lock
+touch $LockLocation/vnc.lock
 
 echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
@@ -2577,7 +2568,7 @@ fi
 apt-get -y update
 apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
-touch /etc/inexistence/01.Log/lock/x2go.lock
+touch $LockLocation/x2go.lock
 
 echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
@@ -2622,7 +2613,7 @@ wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/wine
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
-touch /etc/inexistence/01.Log/lock/winemono.lock
+touch $LockLocation/winemono.lock
 
 echo -e "\n\n\n${bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
@@ -2670,7 +2661,7 @@ wget --no-check-certificate -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
-touch /etc/inexistence/01.Log/lock/tools.lock
+touch $LockLocation/tools.lock
 
 echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
 mktorrent -h | head -n1
@@ -2712,7 +2703,7 @@ defscrollback 23333
 EOF
 
 # alias 与 文字编码
-bash $local_packages/install/alias $iUser $wangka
+bash $local_packages/install/alias $iUser $wangka $LogTimes
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
@@ -2723,7 +2714,7 @@ sysctl -p
 
 apt-get -y autoremove
 
-touch /etc/inexistence/01.Log/lock/tweaks.lock ; }
+touch $LockLocation/tweaks.lock ; }
 
 
 
@@ -2751,8 +2742,8 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 
 flexget daemon status 2>&1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
 [[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
+[[ -e $LockLocation/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
+[[ -e $LockLocation/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
 
 clear
@@ -2787,17 +2778,17 @@ fi
 
 if   [[ ! $rt_version == No ]] && [[ $rt_installed == Yes ]]; then
      echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${iUser}:${iPass}@${serveripv4}${RTWEB}"
-     [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
+     [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] && 
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-     [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+     [[ $InsFlood == Yes ]] && [[   -e $LockLocation/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
      echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
    # echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $rt_version == No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${red}RuTorrent${normal}           ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+     [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] &&
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-     [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
+     [[ $InsFlood == Yes ]] && [[   -e $LockLocation/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && FDFAILED=1
    # echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
      RTFAILED=1 ; INSFAILED=1
@@ -2823,9 +2814,9 @@ echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
 echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
 # [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
-[[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] &&
+[[ -e $LockLocation/flexget.pass.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n          ${bold}flexget web passwd <new password>${normal}"
-[[ -e /etc/inexistence/01.Log/lock/flexget.conf.lock ]] &&
+[[ -e $LockLocation/flexget.conf.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n          maybe your password is too young too simple?${normal}"
 
 echo '---------------------------------------------------------------------------------'
@@ -2987,7 +2978,7 @@ else
 fi
 
 
-_end 2>&1 | tee $LogLocation/99.end.log
+_end 2>&1 | tee $LogTimes/end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
 
