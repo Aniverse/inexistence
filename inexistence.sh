@@ -87,12 +87,21 @@ fi
 if [[ $DeBUG == 1 ]]; then
     iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
 fi
+
+times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
+times=$(expr $time + 1)
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 export local_packages=/etc/inexistence/00.Installation
-export SCLocation=/etc/inexistence/01.Log/SourceCodes
-export LOCKLocation=/etc/inexistence/01.Log/Lock
+export SourceLocation=/log/inexistence/$times/source
+export DebLocation=/log/inexistence/$times/deb
+export LogLocation=/log/inexistence/$times/log
+export LockLocation=/log/inexistence/lock
+# 临时
+# 一个想法，脚本传入到单个脚本里一个参数 log-base，比如装 de 脚本的 log 位置：
+# log-base=/log/inexistence/$times, SourceLocation=$log-base/source
+# bash deluge/configure -u aniverse -p test20190416 --dport 58856 --wport 8112 -iport 22022 --logbase /log/inexistence/$times
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
@@ -1702,8 +1711,6 @@ function _setuser() {
 
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
 git clone --depth=1 https://github.com/Aniverse/inexistence /etc/inexistence
-mkdir -p $SCLocation $LOCKLocation
-mkdir -p /etc/inexistence/01.Log/INSTALLATION/packages /etc/inexistence/00.Installation/MAKE
 chmod -R 777 /etc/inexistence
 
 if id -u ${iUser} >/dev/null 2>&1; then
@@ -1712,6 +1719,10 @@ else
     adduser --gecos "" ${iUser} --disabled-password --force-badname
     echo "${iUser}:${iPass}" | sudo chpasswd
 fi
+
+# 临时
+mkdir -p $SourceLocation $LockLocation $LogLocation $DebLocation
+echo $iUser >> /log/inexistence/iUser.txt
 
 export TZ="/usr/share/zoneinfo/Asia/Shanghai"
 
@@ -2018,7 +2029,7 @@ else
 
     fi
 
-    cd /etc/inexistence/00.Installation/MAKE
+    cd $SourceLocation
 
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
     git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
@@ -2048,7 +2059,7 @@ else
     else
       # [[ $(which qbittorrent-nox) ]] && { apt-get purge -y qbittorrent-nox ; dpkg-r qbittorrent-headless ; }
         checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
-        mv -f qbittorrent*deb /etc/inexistence/01.Log/INSTALLATION/packages
+        mv -f qbittorrent*deb $DebLocation
     fi
 
     cd
@@ -2056,40 +2067,10 @@ else
 
 fi ; }
 
-
-
-
-
-# --------------------- 设置 qBittorrent --------------------- #
-
+# 设置 qBittorrent#
 function _setqbt() {
-
-[[ -d /root/.config/qBittorrent ]] && { rm -rf /root/.config/qBittorrent.old ; mv /root/.config/qBittorrent /root/.config/qBittorrent.old ; }
-mkdir -p /home/${iUser}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent
-chmod -R 777 /home/${iUser}/qbittorrent
-chown -R ${iUser}:${iUser} /home/${iUser}/qbittorrent
-chmod -R 666 /etc/inexistence/01.Log
-rm -rf /var/www/h5ai/qbittorrent
-ln -s /home/${iUser}/qbittorrent/download /var/www/h5ai/qbittorrent
-
-cp -f /etc/inexistence/00.Installation/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf
-QBPASS=$(python /etc/inexistence/00.Installation/script/special/qbittorrent.userpass.py ${iPass})
-sed -i "s/SCRIPTUSERNAME/${iUser}/g" /root/.config/qBittorrent/qBittorrent.conf
-sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf
-
-touch /etc/inexistence/01.Log/qbittorrent.log
-
-cp -f /etc/inexistence/00.Installation/template/systemd/qbittorrent.service /etc/systemd/system/qbittorrent.service
-systemctl daemon-reload
-systemctl enable qbittorrent
-systemctl start qbittorrent
-
-touch /etc/inexistence/01.Log/lock/qbittorrent.lock ; }
-
-
-
-
-
+bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+}
 
 # --------------------- 安装 Deluge --------------------- #
 
@@ -2125,7 +2106,7 @@ else
     pip install --upgrade pip &&
     /usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl
 
-    cd /etc/inexistence/00.Installation/MAKE
+    cd $SourceLocation
 
     if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
         export de_version=1.3.15
@@ -2253,8 +2234,8 @@ else
     rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $iUser -p $iPass -w $iPass
 fi
 
-mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
-mv /home/${iUser}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
+mv /root/rtinst.log $LogLocation/07.rtinst.script.log
+mv /home/${iUser}/rtinst.info $LogLocation/07.rtinst.info.txt
 ln -s /home/${iUser} /var/www/h5ai/user.folder
 
 cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
@@ -2322,7 +2303,7 @@ else
     apt-get install -y openssl
     [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
-    cd /etc/inexistence/00.Installation/MAKE
+    cd $SourceLocation
     wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
     mv libevent-release-2.1.8-stable libevent-2.1.8
@@ -2364,7 +2345,7 @@ else
         make install
     else
         checkinstall -y --pkgversion=$tr_version --pkgname=transmission-seedbox --pkggroup transmission
-        mv -f tr*deb /etc/inexistence/01.Log/INSTALLATION/packages
+        mv -f tr*deb $DebLocation
     fi
 
 fi
@@ -2857,12 +2838,12 @@ _time
 echo -e "\n ${bold}Unfortunately something went wrong during installation.
  You can check logs by typing these commands:
  ${yellow}cat /etc/inexistence/01.Log/installed.log"
-[[ ! $QBFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ ! $DEFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
-[[ ! $TRFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log"
-[[ ! $RTFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log\n cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log"
-[[ ! $FDFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/07.flood.log"
-[[ ! $FXFAILED == "" ]] && echo -e " cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log"
+[[ ! $QBFAILED == "" ]] && echo -e " cat $LogLocation/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ ! $DEFAILED == "" ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
+[[ ! $TRFAILED == "" ]] && echo -e " cat $LogLocation/08.tr1.log"
+[[ ! $RTFAILED == "" ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
+[[ ! $FDFAILED == "" ]] && echo -e " cat $LogLocation/07.flood.log"
+[[ ! $FXFAILED == "" ]] && echo -e " cat $LogLocation/10.flexget.log"
 echo -ne "${normal}"
     fi
 
@@ -2909,65 +2890,65 @@ starttime=$(date +%s)
 _setsources 2>&1 | tee /etc/00.setsources.log
 _setuser 2>&1 | tee /etc/01.setuser.log
 
-mv /etc/00.info.log /etc/inexistence/01.Log/INSTALLATION/00.info.log
-mv /etc/00.setsources.log /etc/inexistence/01.Log/INSTALLATION/00.setsources.log
-mv /etc/01.setuser.log /etc/inexistence/01.Log/INSTALLATION/01.setuser.log
+mv /etc/00.info.log $LogLocation/00.info.log
+mv /etc/00.setsources.log $LogLocation/00.setsources.log
+mv /etc/01.setuser.log $LogLocation/01.setuser.log
 
 # --------------------- 安装 --------------------- #
 
 
 if   [[ $InsBBR == Yes ]] || [[ $InsBBR == To\ be\ enabled ]]; then
-     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/02.bbr.log
+     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee $LogLocation/02.bbr.log
 else
      echo -e  "Skip BBR installation\n\n\n\n\n"
 fi
 
 
-# [[ -f $LOCKLocation/libtorrent-rasterbar.lock ]]
+# [[ -f $LockLocation/libtorrent-rasterbar.lock ]]
 [[ ! -z $lt_version ]] && [[ ! $lt_version == system ]] && _install_lt
 
 
 if  [[ $qb_version == No ]]; then
     echo -e  "Skip qBittorrent installation\n\n\n\n"
 else
-    echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/05.qb1.log
-    echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/06.qb2.log
+    echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee $LogLocation/05.qb1.log
+    echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee $LogLocation/06.qb2.log
 fi
 
 
 if  [[ $de_version == No ]]; then
     echo -e  "Skip Deluge installation \n\n\n\n"
 else
-    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/03.de1.log
-    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/04.de2.log
+    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee $LogLocation/03.de1.log
+    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee $LogLocation/04.de2.log
 fi
 
 
 if  [[ $rt_version == No ]]; then
     echo -e  "Skip rTorrent installation\n\n\n"
 else
-    echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.rt.log
-    [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; _installflood 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/07.flood.log ; }
+    echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee $LogLocation/07.rt.log
+    [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; _installflood 2>&1 | tee $LogLocation/07.flood.log ; }
 fi
 
 
 if  [[ $tr_version == No ]]; then
     echo -e  "Skip Transmission installation\n\n\n\n"
 else
-    echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/08.tr1.log
-    echo -ne "Configuring Transmission ... \n\n\n" ; _settr 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/09.tr2.log
+    echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee $LogLocation/08.tr1.log
+    echo -ne "Configuring Transmission ... \n\n\n" ; _settr 2>&1 | tee $LogLocation/09.tr2.log
 fi
 
 
 if  [[ $InsFlex == Yes ]]; then
-    echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/10.flexget.log
+    echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee $LogLocation/10.flexget.log
 else
     echo -e  "Skip Flexget installation\n\n\n\n"
 fi
 
 
 if  [[ $InsRclone == Yes ]]; then
-    echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/11.rclone.log
+    echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee $LogLocation/11.rclone.log
 else
     echo -e  "Skip rclone installation\n\n\n\n"
 fi
@@ -2976,23 +2957,23 @@ fi
 ####################################
 
 if   [[ $InsRDP == VNC ]]; then
-     echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+     echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee $LogLocation/12.rdp.log
 elif [[ $InsRDP == X2Go ]]; then
-     echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.rdp.log
+     echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee $LogLocation/12.rdp.log
 else
      echo -e  "Skip RDP installation\n\n\n\n"
 fi
 
 
 if  [[ $InsWine == Yes ]]; then
-    echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/12.wine.log
+    echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee $LogLocation/12.wine.log
 else
     echo -e  "Skip Wine installation\n\n\n\n"
 fi
 
 
 if  [[ $InsTools == Yes ]]; then
-    echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/13.tool.log
+    echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee $LogLocation/13.tool.log
 else
     echo -e  "Skip Uploading Toolbox installation\n\n\n\n"
 fi
@@ -3006,7 +2987,7 @@ else
 fi
 
 
-_end 2>&1 | tee /etc/inexistence/01.Log/INSTALLATION/99.end.log
+_end 2>&1 | tee $LogLocation/99.end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot
 
