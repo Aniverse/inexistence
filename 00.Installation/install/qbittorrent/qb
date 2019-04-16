@@ -19,7 +19,7 @@ app=qBittorrent
 app_systemd=qbittorrent
 app_command=qbittorrent-nox
 app_config=$iHome/.config/qBittorrent/qBittorrent.conf
-app_log=$iHome/.config/qBittorrent/$app.log
+app_log=$iHome/.config/qBittorrent/qbittorrent.log
 ################################################################################################
 
 show_usage() {
@@ -50,7 +50,7 @@ case $action in
     r ) systemctl restart $app_systemd@$iUser ;;
     x ) systemctl enable  $app_systemd@$iUser ;;
     y ) systemctl disable $app_systemd@$iUser ;;
-    l ) tail -300 $app_log   ;;
-    s ) nano +40 $app_config ;;
+    l ) tail -300 $app_log    ;;
+    s ) nano +40  $app_config ;;
     * ) echo -e "ERROR: Unknown action" ; show_usage ;;
 esac
