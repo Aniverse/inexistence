@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2019.04.16
+script_version=1.0.0
+usage_guide() {
+bash config_qbittorrent -u $iUser -p $iPass      -w 2017 -i 9002
+}
+################################################################################################
+OutputLOG=/log/inexistence/$times/config_qbittorrent.txt
+LOCKLocation=/log/inexistence/$times/locks
+################################################################################################ Get options
+
+OPTS=$(getopt -n "$0" -o u:p:w:i:h: --long "username:password:home:wport:iport:" -- "$@")
+eval set -- "$OPTS"
+while true; do
+  case "$1" in
+    -u | --username ) iUser="$2"  ; shift ; shift ;;
+    -p | --password ) iPass="$2"  ; shift ; shift ;;
+    -h | --home     ) iHome="$2"  ; shift ; shift ;;
+    -w | --wport    ) wPort="$2"  ; shift ; shift ;;
+    -i | --iport    ) iPort="$2"  ; shift ; shift ;;
+    -- ) shift; break ;;
+     * ) break ;;
+  esac
+done
+
+[[ -z $iUser || -z $iPass ]] && { echo -e "Please specify username and password" ; exit 1 ; }
+[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
+[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
+[[ -z $wPort ]] && wPort=2017
+[[ -z $iPort ]] && iPort=9002
+#[[ $lang == eng ]] && language=en
+[[ -z $language ]] && language=zh
+
+################################################################################################
+
+cat > /etc/systemd/system/qbittorrent@.service << EOF
+[Unit]
+Description=qBittorrent Daemon Service
+After=network.target
+
+[Service]
+#Type=forking
+#UMask=000
+User=%I
+LimitNOFILE=infinity
+ExecStart=/usr/bin/qbittorrent-nox -d
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
+Restart=on-failure
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+
+################################################################################################
+
+function configure_qbittorrent() {
+[[ -d $iHome/.config/qBittorrent ]] && {
+mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old$times
+rm -rf mv $iHome/.config/qBittorrent ; }
+
+mkdir -p $iHome/qbittorrent/{download,torrent,watch} $iHome/.config/qBittorrent
+chmod -R 755 $iHome/qbittorrent $iHome/.config/qBittorrent
+chown -R $iUser:$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
+
+qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
+cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+[Application]
+FileLogger\Enabled=true
+FileLogger\Age=6
+FileLogger\DeleteOld=true
+FileLogger\Backup=true
+FileLogger\AgeType=1
+FileLogger\Path=$iHome/.config/qBittorrent
+FileLogger\MaxSize=20
+
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+Bittorrent\AddTrackers=false
+Bittorrent\DHT=false
+Bittorrent\Encryption=1
+Bittorrent\LSD=false
+Bittorrent\MaxConnecs=-1
+Bittorrent\MaxConnecsPerTorrent=-1
+Bittorrent\MaxRatioAction=0
+Bittorrent\PeX=false
+Bittorrent\uTP=false
+Bittorrent\uTP_rate_limited=true
+Connection\GlobalDLLimitAlt=0
+Connection\GlobalUPLimitAlt=0
+Connection\PortRangeMin=$iPort
+Downloads\SavePath=$iHome/qbittorrent/download
+Downloads\TorrentExportDir=$iHome/qbittorrent/torrent
+General\Locale=$language
+Queueing\QueueingEnabled=false
+WebUI\CSRFProtection=false
+WebUI\Port=$wPort
+WebUI\Password_ha1=@ByteArray($qbPass)
+WebUI\Username=$iUser
+EOF
+
+systemctl enable qbittorrent@$iUser
+systemctl start qbittorrent@$iUser
+
+[ -d /var/www/h5ai ] &&
+ln -s $iHome/qbittorrent/download /var/www/h5ai/qbittorrent
+# touch $LOCKLocation/qbittorrent.config.lock
+}
+
+echo -ne "Configurating libtorrent-rasterbar build dependencies ..."
+configure_qbittorrent & spinner $!
