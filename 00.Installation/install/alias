@@ -1,12 +1,13 @@
 #!/bin/bash
-# 2019.04.14
-# revision: 102
+# 2019.04.17
+# revision: 103
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
 
-ANUSER=$1
+iUser=$1
 wangka=$2
+LogBase=$3
 
 # This may delete user's configuration
 while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
@@ -46,10 +47,10 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
-alias qba="systemctl start qbittorrent"
-alias qbb="systemctl stop qbittorrent"
-alias qbc="systemctl status qbittorrent"
-alias qbr="systemctl restart qbittorrent"
+alias qba="systemctl start qbittorrent@iUser"
+alias qbb="systemctl stop qbittorrent@iUser"
+alias qbc="systemctl status qbittorrent@iUser"
+alias qbr="systemctl restart qbittorrent@iUser"
 alias qbl="tail -300 /etc/inexistence/01.Log/qbittorrent.log"
 alias qbs="nano +40 /root/.config/qBittorrent/qBittorrent.conf"
 alias dea="systemctl start deluged"
@@ -66,16 +67,16 @@ alias tra="systemctl start transmission"
 alias trb="systemctl stop transmission"
 alias trc="systemctl status transmission"
 alias trr="systemctl restart transmission"
-alias rta="su $ANUSER -c 'rt start'"
-alias rtb="su $ANUSER -c 'rt -k stop'"
-alias rtc="su $ANUSER -c 'rt'"
-alias rtr="su $ANUSER -c 'rt -k restart'"
-alias rtscreen="chmod -R 777 /dev/pts && su $ANUSER -c 'screen -r rtorrent'"
-alias irssia="su $ANUSER -c 'rt -i start'"
-alias irssib="su $ANUSER -c 'rt -i -k stop'"
-alias irssic="su $ANUSER -c 'rt -i'"
-alias irssir="su $ANUSER -c 'rt -i -k restart'"
-alias irssiscreen="chmod -R 777 /dev/pts && su $ANUSER -c 'screen -r irssi'"
+alias rta="su $iUser -c 'rt start'"
+alias rtb="su $iUser -c 'rt -k stop'"
+alias rtc="su $iUser -c 'rt'"
+alias rtr="su $iUser -c 'rt -k restart'"
+alias rtscreen="chmod -R 777 /dev/pts && su $iUser -c 'screen -r rtorrent'"
+alias irssia="su $iUser -c 'rt -i start'"
+alias irssib="su $iUser -c 'rt -i -k stop'"
+alias irssic="su $iUser -c 'rt -i'"
+alias irssir="su $iUser -c 'rt -i -k restart'"
+alias irssiscreen="chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'"
 alias fga="systemctl start flexget"
 alias fgaa="flexget daemon start --daemonize"
 alias fgb="systemctl stop flexget"
@@ -104,22 +105,26 @@ alias lsss="nano +60 /appex/etc/config"
 alias nginxr="/etc/init.d/nginx restart"
 
 alias yongle="du -sB GB"
-alias rtyongle="du -sB GB /home/$ANUSER/rtorrent/download"
-alias qbyongle="du -sB GB /home/$ANUSER/qbittorrent/download"
-alias deyongle="du -sB GB /home/$ANUSER/deluge/download"
-alias tryongle="du -sB GB /home/$ANUSER/transmission/download"
-alias cdde="cd /home/$ANUSER/deluge/download"
-alias cdqb="cd /home/$ANUSER/qbittorrent/download"
-alias cdrt="cd /home/$ANUSER/rtorrent/download"
-alias cdtr="cd /home/$ANUSER/transmission/download"
+alias rtyongle="du -sB GB /home/$iUser/rtorrent/download"
+alias qbyongle="du -sB GB /home/$iUser/qbittorrent/download"
+alias deyongle="du -sB GB /home/$iUser/deluge/download"
+alias tryongle="du -sB GB /home/$iUser/transmission/download"
+alias cdde="cd /home/$iUser/deluge/download"
+alias cdqb="cd /home/$iUser/qbittorrent/download"
+alias cdrt="cd /home/$iUser/rtorrent/download"
+alias cdtr="cd /home/$iUser/transmission/download"
 alias cdin="cd /etc/inexistence/"
 alias cdrut="cd /var/www/rutorrent"
 
+alias rclonec='echo;echo q | rclone config | grep -Ev ".*\)|e/.*"'
 alias scrgd="screen -U -R GoogleDrive"
 alias scrgda="screen -U -r -d GoogleDrive"
 alias scrgdb="screen -S GoogleDrive -X quit"
 function scrb(){ screen -S \$1 -X quit  ;}
 
+alias ..='cd ..'
+alias path='echo -e ${PATH//:/\\n}'
+alias df='df -kTh'
 alias aatop="TERM=st atop 1"
 alias px="ps aux | grep -v grep | grep"
 alias tree="tree --dirsfirst"
@@ -131,21 +136,15 @@ alias vns="vnstat -l"
 alias vnss="vnstat -m ; vnstat -d"
 
 alias sousuo="find / -name"
-alias sousuo2="find /home/$ANUSER -name"
+alias sousuo2="find /home/$iUser -name"
 alias swap-on="dd if=/dev/zero of=/etc/.swapfile bs=1M count=2048;mkswap /etc/.swapfile;swapon /etc/.swapfile;swapon -s"
 alias swap-off="swapoff /etc/.swapfile;rm -f /etc/.swapfile"
 
 alias yuan="nano +10 /etc/apt/sources.list"
 alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
-alias s-de="cat /etc/inexistence/01.Log/INSTALLATION/03.de1.log && echo"
-alias s-qb="cat /etc/inexistence/01.Log/INSTALLATION/05.qb1.log && echo"
-alias s-rt1="cat /etc/inexistence/01.Log/INSTALLATION/07.rt.log && echo"
-alias s-rt2="cat /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log && echo"
-alias s-tr="cat /etc/inexistence/01.Log/INSTALLATION/08.tr1.log && echo"
-alias s-fl="cat /etc/inexistence/01.Log/INSTALLATION/10.flexget.log && echo"
-alias s-opt="cat /etc/inexistence/01.Log/installed.log && echo"
-alias s-end="cat /etc/inexistence/01.Log/INSTALLATION/99.end.log"
+alias s-opt="cat $LogBase/installed.log && echo"
+alias s-end="cat $LogBase/end.log"
 
 ################## Inexistence Mod END ##################
 EOF
