@@ -1744,7 +1744,7 @@ Location   : $cityyyy, $regionn, $country
 #################################
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
-SETUPDATE=$(date "+%Y.%m.%d.%H.%M.%S")
+SETUPDATE=$(date "+%Y.%m.%d %H:%M")
 MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 HOMEUSER=$(ls /home)
 #################################
@@ -1765,6 +1765,14 @@ WINE=${InsWine}
 FLOOD=${InsFlood}
 #################################
 如果要截图请截完整点，包含上面所有信息
+EOF
+
+cat >> $LogBase/version << EOF
+inexistence.version     $INEXISTENCEVER
+inexistence.update      $INEXISTENCEDATE
+inexistence.lang        $script_lang
+inexistence.user        $iUser
+inexistence.setup       $(date "+%Y.%m.%d %H:%M")
 EOF
 
 # 提高文件打开数
