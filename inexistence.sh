@@ -14,11 +14,10 @@ export PATH
 }
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
-DISABLE=0 # 这个放弃治疗的玩意儿……
 DeBUG=0
-INEXISTENCEVER=1.1.0.1
-INEXISTENCEDATE=2019.04.15
 script_lang=eng
+INEXISTENCEVER=1.1.0.2
+INEXISTENCEDATE=2019.04.17
 # --------------------------------------------------------------------------------
 
 
@@ -31,8 +30,8 @@ eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -u | --user     ) ANUSER="$2"       ; shift ; shift ;;
-    -p | --password ) ANPASS="$2"       ; shift ; shift ;;
+    -u | --user     ) iUser="$2"       ; shift ; shift ;;
+    -p | --password ) iPass="$2"       ; shift ; shift ;;
 
     --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift ; shift ;;
     --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift ; shift ;;
@@ -86,7 +85,7 @@ if [ $# -gt 0 ]; then
 fi
 
 if [[ $DeBUG == 1 ]]; then
-    ANUSER=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
+    iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
 fi
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
@@ -97,10 +96,10 @@ export LOCKLocation=/etc/inexistence/01.Log/Lock
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
-black=$(tput setaf 0); red=$(tput setaf 1)    ; green=$(tput setaf 2); yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
-blue=$(tput setaf 4) ; magenta=$(tput setaf 5); cyan=$(tput setaf 6) ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
-on_black=$(tput setab 0); on_red=$(tput setab 1)    ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
-on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5); on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
+blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
+on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
+on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
 shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm)
 underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
 standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
@@ -500,18 +499,18 @@ function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Z
 
 # 检查用户名的有效性，抄自：https://github.com/Azure/azure-devops-utils
 function validate_username() {
-  ANUSER="$1" ; local min=1 ; local max=32
+  iUser="$1" ; local min=1 ; local max=32
   # This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
   local reserved_names=" adm admin audio backup bin cdrom crontab daemon dialout dip disk fax floppy fuse games gnats irc kmem landscape libuuid list lp mail man messagebus mlocate netdev news nobody nogroup operator plugdev proxy root sasl shadow src ssh sshd staff sudo sync sys syslog tape tty users utmp uucp video voice whoopsie www-data "
-  if [ -z "$ANUSER" ]; then
+  if [ -z "$iUser" ]; then
       username_valid=empty
-  elif [ ${#ANUSER} -lt $min ] || [ ${#username} -gt $max ]; then
+  elif [ ${#iUser} -lt $min ] || [ ${#username} -gt $max ]; then
       echo -e "${CW} The username must be between $min and $max characters${normal}"
       username_valid=false
-  elif ! [[ "$ANUSER" =~ ^[a-z][-a-z0-9_]*$ ]]; then
+  elif ! [[ "$iUser" =~ ^[a-z][-a-z0-9_]*$ ]]; then
       echo -e "${CW} The username must contain only lowercase letters, digits, underscores and starts with a letter${normal}"
       username_valid=false
-  elif [[ "$reserved_names" =~ " $ANUSER " ]]; then
+  elif [[ "$reserved_names" =~ " $iUser " ]]; then
       echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
       username_valid=false
   else
@@ -524,7 +523,7 @@ function validate_username() {
 # 询问用户名
 function _askusername(){ clear
 
-validate_username $ANUSER
+validate_username $iUser
 
 if [[ $username_valid == empty ]]; then
 
@@ -539,8 +538,8 @@ elif [[ $username_valid == false ]]; then
 
 elif [[ $username_valid == true ]]; then
 
-  # ANUSER=`  echo $ANUSER | tr 'A-Z' 'a-z'  `
-    echo -e "${bold}Username sets to ${blue}$ANUSER${normal}\n"
+  # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
+    echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
 
 fi ; }
 
@@ -569,7 +568,7 @@ while [[ $confirm_name == false ]]; do
                     *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
     esac
 
-    ANUSER=$addname
+    iUser=$addname
 
 done ; echo ; }
 
@@ -586,7 +585,7 @@ function _askpassword() {
 local password1 ; local password2 ; #local exitvalue=0
 exec 3>&1 >/dev/tty
 
-if [[ $ANPASS = "" ]]; then
+if [[ $iPass = "" ]]; then
 
     echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
     echo "The password must consist of characters and numbers and at least 8 chars,"
@@ -633,12 +632,12 @@ if [[ $ANPASS = "" ]]; then
 
     done
 
-    ANPASS=$localpass
+    iPass=$localpass
     exec >&3- ; echo ; # return $exitvalue
 
 else
 
-    echo -e "${bold}Password sets to ${blue}$ANPASS${normal}\n"
+    echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
 
 fi ; }
 
@@ -1660,8 +1659,8 @@ function _askcontinue() {
 echo
 echo '####################################################################'
 echo
-echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${ANUSER}${normal}"
-echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${ANPASS}${normal}"
+echo "                  ${cyan}${bold}Username${normal}      ${bold}${yellow}${iUser}${normal}"
+echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${iPass}${normal}"
 echo
 echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
 echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
@@ -1707,11 +1706,11 @@ mkdir -p $SCLocation $LOCKLocation
 mkdir -p /etc/inexistence/01.Log/INSTALLATION/packages /etc/inexistence/00.Installation/MAKE
 chmod -R 777 /etc/inexistence
 
-if id -u ${ANUSER} >/dev/null 2>&1; then
-    echo -e "\n${ANUSER} already exists\n"
+if id -u ${iUser} >/dev/null 2>&1; then
+    echo -e "\n${iUser} already exists\n"
 else
-    adduser --gecos "" ${ANUSER} --disabled-password --force-badname
-    echo "${ANUSER}:${ANPASS}" | sudo chpasswd
+    adduser --gecos "" ${iUser} --disabled-password --force-badname
+    echo "${iUser}:${iPass}" | sudo chpasswd
 fi
 
 export TZ="/usr/share/zoneinfo/Asia/Shanghai"
@@ -1753,7 +1752,7 @@ FLOOD=${InsFlood}
 EOF
 
 mkdir -p /etc/inexistence/01.Log/lock
-touch /etc/inexistence/01.Log/lock/username.$ANUSER.lock
+touch /etc/inexistence/01.Log/lock/username.$iUser.lock
 
 cat > /etc/inexistence/01.Log/lock/inexistence.lock <<EOF
 ##### Used for future script determination #####
@@ -1761,7 +1760,7 @@ INEXISTENCEinstalled=Yes
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 USETWEAKS=${UseTweaks}
-ANUSER=${ANUSER}
+iUser=${iUser}
 ##### U ########################################
 EOF
 
@@ -1779,8 +1778,8 @@ cat>>/etc/security/limits.conf<<EOF
 * - nproc 1048575
 root soft nofile 1048574
 root hard nofile 1048574
-$ANUSER hard nofile 1048573
-$ANUSER soft nofile 1048573
+$iUser hard nofile 1048573
+$iUser soft nofile 1048573
 EOF
 
 sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
@@ -1805,7 +1804,7 @@ mkdir -p /etc/inexistence/12.Output2
 mkdir -p /var/www/h5ai
 
 ln -s /etc/inexistence /var/www/h5ai/inexistence
-ln -s /etc/inexistence /home/${ANUSER}/inexistence
+ln -s /etc/inexistence /home/${iUser}/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
 
 
@@ -2066,16 +2065,16 @@ fi ; }
 function _setqbt() {
 
 [[ -d /root/.config/qBittorrent ]] && { rm -rf /root/.config/qBittorrent.old ; mv /root/.config/qBittorrent /root/.config/qBittorrent.old ; }
-mkdir -p /home/${ANUSER}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent
-chmod -R 777 /home/${ANUSER}/qbittorrent
-chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/qbittorrent
+mkdir -p /home/${iUser}/qbittorrent/{download,torrent,watch} /var/www /root/.config/qBittorrent
+chmod -R 777 /home/${iUser}/qbittorrent
+chown -R ${iUser}:${iUser} /home/${iUser}/qbittorrent
 chmod -R 666 /etc/inexistence/01.Log
 rm -rf /var/www/h5ai/qbittorrent
-ln -s /home/${ANUSER}/qbittorrent/download /var/www/h5ai/qbittorrent
+ln -s /home/${iUser}/qbittorrent/download /var/www/h5ai/qbittorrent
 
 cp -f /etc/inexistence/00.Installation/template/config/qBittorrent.conf /root/.config/qBittorrent/qBittorrent.conf
-QBPASS=$(python /etc/inexistence/00.Installation/script/special/qbittorrent.userpass.py ${ANPASS})
-sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/qBittorrent/qBittorrent.conf
+QBPASS=$(python /etc/inexistence/00.Installation/script/special/qbittorrent.userpass.py ${iPass})
+sed -i "s/SCRIPTUSERNAME/${iUser}/g" /root/.config/qBittorrent/qBittorrent.conf
 sed -i "s/SCRIPTQBPASS/${QBPASS}/g" /root/.config/qBittorrent/qBittorrent.conf
 
 touch /etc/inexistence/01.Log/qbittorrent.log
@@ -2180,11 +2179,11 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 
 function _setde() {
 
-mkdir -p /home/${ANUSER}/deluge/{download,torrent,watch} /var/www
+mkdir -p /home/${iUser}/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/h5ai/deluge
-ln -s /home/${ANUSER}/deluge/download /var/www/h5ai/deluge
-chmod -R 777 /home/${ANUSER}/deluge
-chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/deluge
+ln -s /home/${iUser}/deluge/download /var/www/h5ai/deluge
+chmod -R 777 /home/${iUser}/deluge
+chown -R ${iUser}:${iUser} /home/${iUser}/deluge
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log
@@ -2218,9 +2217,9 @@ print s.hexdigest()
 EOF
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-DWP=$(python /etc/inexistence/00.Installation/script/special/deluge.userpass.py ${ANPASS} ${DWSALT})
-echo "${ANUSER}:${ANPASS}:10" >> /root/.config/deluge/auth
-sed -i "s/delugeuser/${ANUSER}/g" /root/.config/deluge/core.conf
+DWP=$(python /etc/inexistence/00.Installation/script/special/deluge.userpass.py ${iPass} ${DWSALT})
+echo "${iUser}:${iPass}:10" >> /root/.config/deluge/auth
+sed -i "s/delugeuser/${iUser}/g" /root/.config/deluge/core.conf
 sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf
 sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf
 
@@ -2251,12 +2250,12 @@ sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtu
 if [[ $rt_installed == Yes ]]; then
     rtupdate $IPv6Opt $rt_versionIns
 else
-    rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $ANUSER -p $ANPASS -w $ANPASS
+    rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $iUser -p $iPass -w $iPass
 fi
 
 mv /root/rtinst.log /etc/inexistence/01.Log/INSTALLATION/07.rtinst.script.log
-mv /home/${ANUSER}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
-ln -s /home/${ANUSER} /var/www/h5ai/user.folder
+mv /home/${iUser}/rtinst.info /etc/inexistence/01.Log/INSTALLATION/07.rtinst.info.txt
+ln -s /home/${iUser} /var/www/h5ai/user.folder
 
 cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
 cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
@@ -2384,18 +2383,18 @@ echo 1 | bash -c "$(wget --no-check-certificate -qO- https://github.com/ronggang
 
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-mkdir -p /home/${ANUSER}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
-chmod -R 777 /home/${ANUSER}/transmission
-chown -R ${ANUSER}:${ANUSER} /home/${ANUSER}/transmission
+mkdir -p /home/${iUser}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
+chmod -R 777 /home/${iUser}/transmission
+chown -R ${iUser}:${iUser} /home/${iUser}/transmission
 rm -rf /var/www/h5ai/transmission
-ln -s /home/${ANUSER}/transmission/download /var/www/h5ai/transmission
+ln -s /home/${iUser}/transmission/download /var/www/h5ai/transmission
 
 cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
 cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
 [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
 
-sed -i "s/RPCUSERNAME/${ANUSER}/g" /root/.config/transmission-daemon/settings.json
-sed -i "s/RPCPASSWORD/${ANPASS}/g" /root/.config/transmission-daemon/settings.json
+sed -i "s/RPCUSERNAME/${iUser}/g" /root/.config/transmission-daemon/settings.json
+sed -i "s/RPCPASSWORD/${iPass}/g" /root/.config/transmission-daemon/settings.json
 
 systemctl daemon-reload
 systemctl enable transmission
@@ -2418,15 +2417,15 @@ function _installflex() {
   /usr/local/bin/pip install transmissionrpc
   /usr/local/bin/pip install deluge-client
 
-  mkdir -p /home/${ANUSER}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
+  mkdir -p /home/${iUser}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
 
   cp -f /etc/inexistence/00.Installation/template/config/flexget.config.yml /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTUSERNAME/${ANUSER}/g" /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTPASSWORD/${ANPASS}/g" /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTUSERNAME/${iUser}/g" /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTPASSWORD/${iPass}/g" /root/.config/flexget/config.yml
 
-  touch /home/$ANUSER/cookies.txt
+  touch /home/$iUser/cookies.txt
 
-  flexget web passwd $ANPASS 2>&1 | tee /tmp/flex.pass.output
+  flexget web passwd $iPass 2>&1 | tee /tmp/flex.pass.output
   rm -rf /etc/inexistence/01.Log/lock/flexget.{pass,conf}.lock
   [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch /etc/inexistence/01.Log/lock/flexget.pass.lock ; }
   [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch /etc/inexistence/01.Log/lock/flexget.conf.lock ; }
@@ -2543,8 +2542,8 @@ apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11p
 
 vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
 vncpasswd <<EOF
-$ANPASS
-$ANPASS
+$iPass
+$iPass
 EOF
 vncserver && vncserver -kill :1
 cd; mkdir -p .vnc
@@ -2732,7 +2731,7 @@ defscrollback 23333
 EOF
 
 # alias 与 文字编码
-bash $local_packages/install/alias $ANUSER $wangka
+bash $local_packages/install/alias $iUser $wangka
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
@@ -2798,7 +2797,7 @@ fi
 
 
 if   [[ ! $tr_version == No ]] && [[ $tr_installed == Yes ]]; then
-     echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${ANUSER}:${ANPASS}@${serveripv4}${TRWEB}"
+     echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${iUser}:${iPass}@${serveripv4}${TRWEB}"
 elif [[ ! $tr_version == No ]] && [[ $tr_installed == No ]]; then
      echo -e " ${red}Transmission WebUI${normal}  ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      TRFAILED=1 ; INSFAILED=1
@@ -2806,12 +2805,12 @@ fi
 
 
 if   [[ ! $rt_version == No ]] && [[ $rt_installed == Yes ]]; then
-     echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${ANUSER}:${ANPASS}@${serveripv4}${RTWEB}"
+     echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${iUser}:${iPass}@${serveripv4}${RTWEB}"
      [[ $InsFlood == Yes ]] && [[ ! -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] && 
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
      [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
-     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${ANUSER}:${ANPASS}@${serveripv4}/h5ai"
+     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
    # echo -e " ${cyan}webmin${normal}              $(_if_running webmin             )   https://${serveripv4}/webmin"
 elif [[ ! $rt_version == No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${red}RuTorrent${normal}           ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
@@ -2819,7 +2818,7 @@ elif [[ ! $rt_version == No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
      [[ $InsFlood == Yes ]] && [[   -e /etc/inexistence/01.Log/lock/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && FDFAILED=1
-   # echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${ANUSER}:${ANPASS}@${serveripv4}/h5ai"
+   # echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running webmin             )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
      RTFAILED=1 ; INSFAILED=1
 fi
 
@@ -2832,16 +2831,16 @@ elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
 fi
 
 
-#    echo -e " ${cyan}MkTorrent WebUI${normal}            https://${ANUSER}:${ANPASS}@${serveripv4}/mktorrent"
+#    echo -e " ${cyan}MkTorrent WebUI${normal}            https://${iUser}:${iPass}@${serveripv4}/mktorrent"
 
 
 echo
-echo -e " ${cyan}Your Username${normal}       ${bold}${ANUSER}${normal}"
-echo -e " ${cyan}Your Password${normal}       ${bold}${ANPASS}${normal}"
+echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
+echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
 [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]] &&
 echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
-echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${ANPASS} | cut -c1-8` ${normal}"
+echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
 # [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 [[ -e /etc/inexistence/01.Log/lock/flexget.pass.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n          ${bold}flexget web passwd <new password>${normal}"
