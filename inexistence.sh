@@ -1726,7 +1726,7 @@ else
 fi
 
 # 临时
-mkdir -p $SourceLocation $LockLocation $LogLocation $DebLocation
+mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation
 echo $iUser >> $LogBase/iUser.txt
 
 export TZ="/usr/share/zoneinfo/Asia/Shanghai"
