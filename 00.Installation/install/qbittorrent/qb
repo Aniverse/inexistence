@@ -3,16 +3,15 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.04.16
-script_version=1.0.0
+script_update=2019.04.17
+script_version=1.0.1
 ################################################################################################
 action=$1
 iUser=$2
 DefaultUser=$(cat /log/inexistence/iUser.txt 2>/dev/null | head -1)
 [[ -z $DefaultUser ]] && DefaultUserDisplay="Error: No default user found" || DefaultUserDisplay="Default user: $DefaultUser"
 [[ -z $iUser  ]] && iUser=$DefaultUser
-[[ -z $action ]] && show_usage
-id -u "$iUser" >/dev/null 2>&1 && { echo -e "No invalid user input" ; exit 1 ; }
+id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
 ################################################################################################
 [[ $iUser == root ]] && iHome=/root
 [[ $iUser != root ]] && iHome=/home/$iUser
@@ -45,12 +44,12 @@ exit 0
 [[ -z $action ]] && show_usage
 
 case $action in
-    a ) systemctl start   $app_systemd@$iUser    ;;
-    b ) systemctl stop    $app_systemd@$iUser    ;;
-    c ) systemctl status  $app_systemd@$iUser -l ;;
-    r ) systemctl restart $app_systemd@$iUser    ;;
-    x ) systemctl enable  $app_systemd@$iUser    ;;
-    y ) systemctl disable $app_systemd@$iUser    ;;
+    a ) systemctl start   $app_systemd@$iUser ;;
+    b ) systemctl stop    $app_systemd@$iUser ;;
+    c ) systemctl status  $app_systemd@$iUser ;;
+    r ) systemctl restart $app_systemd@$iUser ;;
+    x ) systemctl enable  $app_systemd@$iUser ;;
+    y ) systemctl disable $app_systemd@$iUser ;;
     l ) tail -300 $app_log   ;;
     s ) nano +40 $app_config ;;
     * ) echo -e "ERROR: Unknown action" ; show_usage ;;
