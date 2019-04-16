@@ -1716,7 +1716,7 @@ function _setuser() {
 
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
 git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
-chmod -R 777 /etc/inexistence
+chmod -R 755 /etc/inexistence
 
 if id -u ${iUser} >/dev/null 2>&1; then
     echo -e "\n${iUser} already exists\n"
@@ -1806,8 +1806,9 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 mkdir -p /var/www/h5ai
 
+cp $local_packages/install/qbittorrent/qb /usr/local/bin
 ln -s /etc/inexistence /var/www/h5ai/inexistence
-ln -s /etc/inexistence /home/${iUser}/inexistence
+ln -s /etc/inexistence /home/$iUser/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
 
 

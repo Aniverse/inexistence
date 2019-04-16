@@ -40,8 +40,8 @@ Description=qBittorrent Daemon Service
 After=network.target
 
 [Service]
-#Type=forking
 #UMask=000
+Type=forking
 User=%I
 LimitNOFILE=infinity
 ExecStart=/usr/bin/qbittorrent-nox -d

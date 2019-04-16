@@ -49,7 +49,7 @@ export LANGUAGE=en_US.UTF-8
 
 alias qba="systemctl start qbittorrent@$iUser"
 alias qbb="systemctl stop qbittorrent@$iUser"
-alias qbc="systemctl status qbittorrent@i$User"
+alias qbc="systemctl status qbittorrent@$iUser"
 alias qbr="systemctl restart qbittorrent@$iUser"
 alias qbl="tail -300 /home/$iUser/.config/qBittorrent/qbittorrent.log"
 alias qbs="nano +40  /home/$iUser/.config/qBittorrent/qBittorrent.conf"
