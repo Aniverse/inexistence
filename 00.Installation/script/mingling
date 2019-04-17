@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.2.001
-SCRIPTUPDATE=2019.04.13.放弃治疗
+SCRIPTVER=0.9.2.002
+SCRIPTUPDATE=2019.04.17.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -22,7 +22,7 @@ function _is_running_2(){ _is_running_1
 if ( _is_running_1 ); then client_status="${green}${bold}正在运行${jiacu}"
 else client_status="${red}${bold}没在运行${jiacu}" ; fi ; }
 
-# 独服单块硬盘通电时间检测（对RAID无效）、硬盘空间计算 --------------------------------------------------------------------------------
+# 硬盘空间计算 --------------------------------------------------------------------------------
 
 calc_disk() {
 local total_size=0 ; local array=$@
@@ -34,8 +34,6 @@ for size in ${array[@]} ; do
     [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
     total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
 done ; echo ${total_size} ; }
-
-power_time() { result=$(smartctl -a $(result=$(cat /proc/mounts) && echo $(echo "$result" | awk '/data=ordered/{print $1}') | awk '{print $1}') 2>&1) && power_time=$(echo "$result" | awk '/Power_On/{print $10}') && echo "$power_time" ; }
 
 # 检查是否安装了客户端 ----------------------------------------------------------------------- #
 
@@ -78,16 +76,17 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 # 颜色 -----------------------------------------------------------------------------------
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
-blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4);
-on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
-dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso);
-reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green};
-baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; jiacu=${normal}${bold}
-shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
+blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
+on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
+on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm)
+underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
+standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
+baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
+heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 
 # 定义变量 --------------------------------------------------------------------------------
 
@@ -101,13 +100,11 @@ lbit=$( getconf LONG_BIT )
 opsy=$( get_opsy )
 kern=$( uname -r )
 
-inexistence=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEinstalled | cut -c22-`
-INEXISTENCEVER=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEVER | cut -c16-`
-INEXISTENCEDATE=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep INEXISTENCEDATE | cut -c17-`
-tweaks=`cat /etc/inexistence/01.Log/lock/inexistence.lock | grep USETWEAKS | cut -c11-`
-
-# 更多的检测
-ANUSER=` ls /etc/inexistence/01.Log/lock | grep username | head -n1 | awk -F '.' '{print $2}' `
+[ -d /etc/inexistence ] && inexistence=1
+alias s-end 2>/dev/null | grep -q cat && tweaks=1
+inexistence_ver=` cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}'`
+inexistence_date=`cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}'`
+iUser=` cat /log/inexistence/version | grep inexistence.user   | awk '{print $NF}' `
 # --------------------------------------------------------------------------------
 
 
@@ -182,9 +179,9 @@ case $response in
             _client_version_check
             _show_client_version
             _main_menu ;;
-#   5 | 05) # 查看客户端是否都在运行
-#           _ifrunning
-#           _main_menu ;;
+    5 | 05) # 查看客户端是否都在运行
+            _ifrunning
+            _main_menu ;;
     5 | 05) # 进入客户端操作菜单
             _show_client_menu
             _client_menu_response ;;
@@ -207,13 +204,13 @@ esac ; }
 # 01. 查看 SSH 命令
 function _usage() { 
 clear ; echo
-                                                                if [[ $inexistence == Yes ]] && [[ $tweaks == Yes ]]; then
+                                                                if [[ $inexistence == 1 ]] && [[ $tweaks == 1 ]]; then
 echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
 echo -e " ${bold}"
-echo -e " ${green}qba${jiacu} = 运行 qBittorrent-nox  ${green}dea${jiacu} = 运行 Deluged  ${green}dewa${jiacu} = 运行 Deluge WebUI  ${green}rta${jiacu} = 运行 rTorrent"
-echo -e " ${green}qbb${jiacu} = 关闭 qBittorrent-nox  ${green}deb${jiacu} = 关闭 Deluged  ${green}dewb${jiacu} = 关闭 Deluge WebUI  ${green}rtb${jiacu} = 关闭 rTorrent"
-echo -e " ${green}qbc${jiacu} = 检查 qBittorrent-nox  ${green}dec${jiacu} = 检查 Deluged  ${green}dewc${jiacu} = 检查 Deluge WebUI  ${green}rtc${jiacu} = 检查 rTorrent"
-echo -e " ${green}qbr${jiacu} = 重启 qBittorrent-nox  ${green}der${jiacu} = 重启 Deluged  ${green}dewr${jiacu} = 重启 Deluge WebUI  ${green}rtr${jiacu} = 重启 rTorrent"
+echo -e " ${green}qb a${jiacu} = 运行 qBittorrent-nox ${green}dea${jiacu} = 运行 Deluged  ${green}dewa${jiacu} = 运行 Deluge WebUI  ${green}rta${jiacu} = 运行 rTorrent"
+echo -e " ${green}qb b${jiacu} = 关闭 qBittorrent-nox ${green}deb${jiacu} = 关闭 Deluged  ${green}dewb${jiacu} = 关闭 Deluge WebUI  ${green}rtb${jiacu} = 关闭 rTorrent"
+echo -e " ${green}qb c${jiacu} = 检查 qBittorrent-nox ${green}dec${jiacu} = 检查 Deluged  ${green}dewc${jiacu} = 检查 Deluge WebUI  ${green}rtc${jiacu} = 检查 rTorrent"
+echo -e " ${green}qb r${jiacu} = 重启 qBittorrent-nox ${green}der${jiacu} = 重启 Deluged  ${green}dewr${jiacu} = 重启 Deluge WebUI  ${green}rtr${jiacu} = 重启 rTorrent"
 echo
 echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 Flexget Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
 echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 Flexget Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
@@ -233,8 +230,8 @@ echo -e " ${green}sshr ${jiacu} = 开启 SSH root 登陆                      ${
 echo
 # echo -e " ${blue}mingling${jiacu}  盒子操作脚本，也就是你现在正在用的这个脚本"
 # echo
-echo -e " ${blue}xiansu${jiacu}    限制盒子全局上传速度的脚本，适用于保证带宽有限的盒子"
-echo
+# echo -e " ${blue}xiansu${jiacu}    限制盒子全局上传速度的脚本，适用于保证带宽有限的盒子"
+# echo
 echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
 echo
 echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
@@ -255,7 +252,7 @@ echo -e " ${blue}     ${jiacu}     也可以只输入文件夹，脚本会选择
 echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
 echo -e " ${normal}"
                                                                                             else
-echo -e "${bold}由于你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
+echo -e "${bold}似乎你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
 echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
 echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
 
@@ -265,7 +262,8 @@ echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
 
 # 02. 查看客户端网址
 function _showurl() { _ip ; clear ; echo
-if [[ $inexistence == Yes ]]; then
+# 相当于注释掉
+if [[ $inexistence == 2 ]]; then
     echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal}\n"
     echo -e "${bold}---------------------------------------------------------------------------------------------------\n"
     [[ ! $qb_installed == No ]] && echo -e " ${cyan}qBittorrent WebUI${jiacu}    http://${serveripv4}:2017"
@@ -275,8 +273,10 @@ if [[ $inexistence == Yes ]]; then
     [[ ! $flex_installed == No ]] && echo -e " ${cyan}Flexget WebUI${jiacu}        http://${serveripv4}:6566"
 #   echo -e " ${cyan}MkTorrent WebUI${jiacu}      https://${serveripv4}/mktorrent"
     echo -e "\n---------------------------------------------------------------------------------------------------${normal}"
+elif [[ $inexistence == 1 ]]; then
+    cat /log/inexistence/end.log
 else
-    echo -e "${bold}由于你没有使用 inexistence 脚本，本功能无法使用"
+    echo -e "${bold}似乎你没有使用 inexistence 脚本，本功能无法使用"
 fi ; }
 
 
@@ -478,26 +478,26 @@ function _client_menu_response() {
 wenzi1="现在大概已在运行了 ......" ; wenzi2="现在大概已经关掉了 ......" ; wenzi3="应该大概重启了一次 ......"
 read response
 case $response in
-    01 | 1) echo -e "" ; systemctl start   qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    02 | 2) echo -e "" ; systemctl stop    qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    03 | 3) echo -e "" ; systemctl restart qbittorrent      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    01 | 1) echo -e "" ; systemctl start   qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    02 | 2) echo -e "" ; systemctl stop    qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+    03 | 3) echo -e "" ; systemctl restart qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
     04 | 4) echo -e "" ; systemctl start   transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
     05 | 5) echo -e "" ; systemctl stop    transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
     06 | 6) echo -e "" ; systemctl restart transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
     07 | 7) echo -e "" ; systemctl start   flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
     08 | 8) echo -e "" ; systemctl stop    flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
     09 | 9) echo -e "" ; systemctl restart flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        10) echo -e "" ; su ${ANUSER} -c 'rt -i start'      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        11) echo -e "" ; su ${ANUSER} -c 'rt -i -k stop'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        12) echo -e "" ; su ${ANUSER} -c 'rt -i -k restart' > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        13) echo -e "" ; su ${ANUSER} -c 'rt start'         > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        14) echo -e "" ; su ${ANUSER} -c 'rt -k stop'       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        15) echo -e "" ; su ${ANUSER} -c 'rt -k restart'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        10) echo -e "" ; su $iUser -c 'rt -i start'      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        11) echo -e "" ; su $iUser -c 'rt -i -k stop'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        12) echo -e "" ; su $iUser -c 'rt -i -k restart' > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        13) echo -e "" ; su $iUser -c 'rt start'         > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        14) echo -e "" ; su $iUser -c 'rt -k stop'       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+        15) echo -e "" ; su $iUser -c 'rt -k restart'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
         16) echo -e "" ; systemctl start   deluged > /dev/null 2>&1 ; systemctl start   deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
         17) echo -e "" ; systemctl stop    deluged > /dev/null 2>&1 ; systemctl stop    deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
         18) echo -e "" ; systemctl restart deluged > /dev/null 2>&1 ; systemctl restart deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        19) echo -e "" ; chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r rtorrent' ;;
-        20) echo -e "" ; chmod -R 777 /dev/pts && su ${ANUSER} -c 'screen -r irssi'    ;;
+        19) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r rtorrent' ;;
+        20) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'    ;;
         21) echo -e "" ; echo ; tail -n100 /root/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
         22) echo -e "" ; nano /root/.config/flexget/config.yml ; _xunwen1 ; _client_menu_response ;;
         23) echo -ne "\n${bold}${cyan}你确定要重启盒子？${normal} [${cyan}Y${jiacu}/n]:${normal} "; read rbt
@@ -535,7 +535,7 @@ function _show_scripts_menu() { clear ; echo
 # echo -e "  ${green}(05) ${jiacu}重装 系统 "
   echo -e "  ${green}(06) ${jiacu}运行 Bench"
   echo -e "  ${green}(07) ${jiacu}运行 ABench"
-  echo -e "  ${green}(08) ${jiacu}配置 IPv6 (Online.net 独服适用)"
+  echo -e "  ${green}(08) ${jiacu}配置 IPv6 (Online.net 独服非 Ubuntu 18.04 适用)"
 # echo -e "  ${green}(09) ${jiacu}更改 终端语言为中文"
   echo -e "  ${green}(10) ${jiacu}返回 main menu"
   echo -e "  ${normal}"
