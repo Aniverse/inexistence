@@ -5,10 +5,56 @@
 
 
 
+
+
+## 2019.04.16-17
+
+`inexistence 1.1.0.3`  
+1. Codes：用 `iUser` 代替 `ANUSER`，`iPass` 代替 `ANPASS`  
+2. Codes：重新指定日志、源码等的存放路径，都在 `/log/inexistence` 内  
+3. Feature：引入了 `$times`，判断安装过几次用的  
+4. New Feature：增加 `--branch` 参数  
+5. Codes：修改了 `deluged/deluge-web` 的日志文件路径  
+6. Codes：重写 `$LogBase/version` 的内容  
+
+`install/alias`
+1. 对应 qb 采用普通用户运行，修改了对应的别名  
+2. 对应日志文件存放路径的改动，修改了对应的别名  
+3. 删除一些查看日志的别名  
+
+`mingling 0.9.2.002`
+对应主脚本的修改而修改  
+- 用 `iUser` 代替 `ANUSER`  
+- 更新检测 `$iUser` 和 `$tweaks`、`$inexistence` 的方式  
+- 更新 alias 和操作选项  
+- 重新启用菜单 5，检查运行状态，不过不显示选项  
+- 一些文字、排版、注释的修改  
+
+`install/qbittorrent/configure`
+- 可以为每个用户进行单独配置  
+- 可以用命令行参数设定网页端口、传输端口、用户名、密码、home 路径  
+- systemd 改为 `qbittorrent-nox -d` 和 `Type=forking`，取消 `Umask=000`  
+- systemd 文件打开数改为无限制，超时间隔 300 秒  
+- 在脚本里写入配置文件和 systemd，不再在脚本仓库里存放模板文件  
+- 日志文件存放在 `.config/qBittorrent/qbittorrent.log`  
+- h5ai 部分暂时不做修改  
+
+`install/qbittorrent/qb`
+- 代替 alias 用的  
+- 开／关／状态／重启／日志／配置文件／开机自启／禁用开机自启  
+- 可以设定不同用户的进程，默认不用输入用户名自动检测脚本装的用户名  
+
+
+
+
+
 ## 2019.04.14
 
 `inexistence 1.1.0.1`  
 1. Feature：在 step-one 安装 Nconvert  
+
+`bluray 2.9.7`  
+1. Feature：更新 Nconvert 的安装方法  
 
 
 
@@ -113,6 +159,17 @@
 
 
 
+## 2019.02.25
+
+`bluray 2.9.4-2.9.6`  
+1. Bug Fix：调整 PATH 的顺序  
+2. Bug Fix：添加写丢了的 `even_number` function  
+3. Bug Fix：其他手滑修复  
+
+
+
+
+
 ## 2019.02.22
 
 `inexistence 1.0.9 31`   
@@ -172,6 +229,15 @@ ADC 需要用到 `headers` 的 `Cookie`，`urlrewrite`，`if` 的 `in descriptio
 
 
 
+## 2019.01.27
+
+`bluray 2.9.3`  
+1. **Feature：更新分辨率的计算方式**  
+
+
+
+
+
 ## 2019.01.26
 
 `inexistence 1.0.9 30`   
@@ -184,6 +250,15 @@ ADC 需要用到 `headers` 的 `Cookie`，`urlrewrite`，`if` 的 `in descriptio
 1. **Bug Fix：修复 IFO 文件的判断**  
 2. Codes：增加判断 Blu-ray Disk 的 Source Type，并根据文件名提取 `disk title`  
 3. **Feature：对 DVD 和 Blu-ray，输出的文件名前加上 `disk title`**  
+
+
+
+
+
+## 2019.01.22
+
+`bluray`  
+1. 往软件库里加了 `bc`，我也忘记是哪个系统里拿出来的了，反正似乎有的系统使用会有问题  
 
 
 
