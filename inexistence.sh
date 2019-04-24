@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.8
+INEXISTENCEVER=1.1.0.9
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -398,7 +398,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
-  echo -ne "  IPv4      : ";[[ -n ${serveripv7} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
+  echo -ne "  IPv4      : ";[[ -n ${serveripv4} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
   echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
   echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
   echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
@@ -1630,11 +1630,11 @@ function _setuser() {
 git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
 chmod -R 755 /etc/inexistence
 
-if id -u ${iUser} >/dev/null 2>&1; then
-    echo -e "\n${iUser} already exists\n"
+if id -u $iUser >/dev/null 2>&1; then
+    echo -e "\n$iUser already exists\n"
 else
-    adduser --gecos "" ${iUser} --disabled-password --force-badname
-    echo "${iUser}:${iPass}" | sudo chpasswd
+    adduser --gecos "" $iUser --disabled-password --force-badname
+    echo "$iUser:$iPass" | sudo chpasswd
 fi
 
 # 临时
@@ -1652,6 +1652,7 @@ Kernel     : $kern
 ASN & ISP  : $asnnnnn, $isppppp
 Location   : $cityyyy, $regionn, $country
 #################################
+Times=$times
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d %H:%M")
@@ -1679,6 +1680,7 @@ FLOOD=${InsFlood}
 EOF
 
 cat >> $LogBase/version << EOF
+inexistence.times       $times
 inexistence.version     $INEXISTENCEVER
 inexistence.update      $INEXISTENCEDATE
 inexistence.lang        $script_lang
@@ -2146,7 +2148,7 @@ else
 fi
 
 mv /root/rtinst.log $LogLocation/07.rtinst.script.log
-mv /home/${iUser}/rtinst.info $LogLocation/07.rtinst.info.txt
+mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
 ln -s /home/${iUser} /var/www/h5ai/user.folder
 
 #cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
@@ -2281,8 +2283,8 @@ cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.jso
 cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
 [[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
 
-sed -i "s/RPCUSERNAME/${iUser}/g" /root/.config/transmission-daemon/settings.json
-sed -i "s/RPCPASSWORD/${iPass}/g" /root/.config/transmission-daemon/settings.json
+sed -i "s/RPCUSERNAME/$iUser/g" /root/.config/transmission-daemon/settings.json
+sed -i "s/RPCPASSWORD/$iPass/g" /root/.config/transmission-daemon/settings.json
 chmod -R 755 /root/.config/transmission-daemon
 
 systemctl daemon-reload
