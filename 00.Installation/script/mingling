@@ -513,10 +513,10 @@ function _xunwen1() { echo -ne "${yellow}${bold}你还想做什么吗？(默认�
 
 # 06-4. 检查相关脚本是否存在
 function _systemd_check() {
-if [[ ! -f /etc/systemd/system/qbittorrent.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/qbittorrent@.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/transmission.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/flexget.service      ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/deluged.service ]] || [[ ! -f /etc/systemd/system/deluge-web.service ]]; then echo -e "${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/deluged.service ]] || [[ ! -f /etc/systemd/system/deluge-web.service ]]; then echo -e "  ${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /usr/local/bin/rt ]]; then echo -e "${red}${bold}未检测到 rTorrent 与 Irssi 的脚本，本菜单中 rt 与 irssi  的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ $Unusable == 1 ]]; then echo -e "${red}${bold}虽然某些功能无法使用，但是选项还在，你仍可以输入相关选项\n输入后本脚本会告诉你客户端已经关了或者开起来了，而实际上什么也没有发生 ←_←${normal}\n" ; fi ; }
 
