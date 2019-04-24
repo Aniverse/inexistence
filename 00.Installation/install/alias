@@ -123,8 +123,8 @@ alias scrgdb="screen -S GoogleDrive -X quit"
 function scrb(){ screen -S \$1 -X quit  ;}
 
 alias ..='cd ..'
-alias path='echo -e ${PATH//:/\\n}'
-alias df='df -kTh'
+alias path='echo -e \${PATH//:/\\\\n}'
+alias dh='df -kTh'
 alias aatop="TERM=st atop 1"
 alias px="ps aux | grep -v grep | grep"
 alias tree="tree --dirsfirst"
