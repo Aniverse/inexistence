@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.9
+INEXISTENCEVER=1.1.0.10
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -700,7 +700,11 @@ echo ; }
 
 function _askswap() {
 
-if [[ $USESWAP = "" ]] && [[ $tram -le 1926 ]]; then
+[[ -d /proc/vz ]] && [[ $tram -le 1926 ]] && {
+echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script"
+USESWAP=OpenVZ ; }
+
+if [[ -z $USESWAP ]] && [[ $tram -le 1926 ]]; then
 
     echo -e  "${bold}${red}$lang_note_that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
     read -ep "${bold}${yellow}Would you like to use swap when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " version
@@ -1651,6 +1655,7 @@ OS         : $DISTRO $osversion $CODENAME ($arch)
 Kernel     : $kern
 ASN & ISP  : $asnnnnn, $isppppp
 Location   : $cityyyy, $regionn, $country
+Virt       : $virtua
 #################################
 Times=$times
 INEXISTENCEVER=${INEXISTENCEVER}
@@ -1658,6 +1663,7 @@ INEXISTENCEDATE=${INEXISTENCEDATE}
 SETUPDATE=$(date "+%Y.%m.%d %H:%M")
 MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 HOMEUSER=$(ls /home)
+USESWAP=$USESWAP
 #################################
 MAXCPUS=${MAXCPUS}
 APTSOURCES=${aptsources}
@@ -2764,7 +2770,8 @@ _askpassword
 [[ $SKIPAPPS == Yes ]] && echo -e "\n${baizise}Useful apps will ${baihongse}not${baizise} be installed${normal}\n"
 _askaptsource
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)   ; _askmt
-[[ -z $USESWAP ]] && [[ $tram -le 1926 ]] && USESWAP=Yes ; _askswap
+# [[ -z $USESWAP ]] && [[ $tram -le 1926 ]] && USESWAP=Yes
+_askswap
 _askqbt
 _askdeluge
 if [[ ! $de_version == No ]] || [[ ! $qb_version == No ]]; then _lt_ver_ask ; fi
