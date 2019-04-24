@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.2.002
-SCRIPTUPDATE=2019.04.17.放弃治疗
+SCRIPTVER=0.9.2.003
+SCRIPTUPDATE=2019.04.24.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 # --------------------------------
@@ -76,11 +76,11 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 
 # 颜色 -----------------------------------------------------------------------------------
 
-black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)  
 blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
 on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
 on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
-shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
 underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
 standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
@@ -101,7 +101,7 @@ opsy=$( get_opsy )
 kern=$( uname -r )
 
 [ -d /etc/inexistence ] && inexistence=1
-alias s-end 2>/dev/null | grep -q cat && tweaks=1
+grep s-end /etc/bash.bashrc -q && tweaks=1
 inexistence_ver=` cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}'`
 inexistence_date=`cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}'`
 iUser=` cat /log/inexistence/version | grep inexistence.user   | awk '{print $NF}' `
@@ -137,7 +137,7 @@ clear ; wget --no-check-certificate --timeout=7 -qO- https://github.com/Aniverse
 echo -e "${bold}$SCRIPTVER${normal}"
 if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
 if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
-if [[ ! "$inexistence" == "Yes" ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi ; }
+if [[ ! "$inexistence" == 1 ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi ; }
 
 
 
@@ -148,7 +148,7 @@ function _main_menu() {
 
   echo -e "\n${yellow}${bold}你想做些什么？ (默认选择退出)\n"
 
-  if [[ "$inexistence" == "Yes" ]]; then
+  if [[ $inexistence == 1 ]]; then
       echo -e "${green}(01) ${jiacu}查看 SSH 命令"
       echo -e "${green}(02) ${jiacu}查看客户端网址"
   fi
@@ -156,11 +156,11 @@ function _main_menu() {
   echo -e "${green}(03) ${jiacu}查看系统信息"
   echo -e "${green}(04) ${jiacu}查看客户端版本"
 # echo -e "${green}(05) ${jiacu}查看客户端是否都在运行"
-  echo -e "${green}(05) ${jiacu}进入客户端操作菜单"
-  echo -e "${green}(06) ${jiacu}运行其他脚本"
-  echo -e "${green}(07) ${jiacu}查看本脚本的说明"
-  echo -e "${green}(08) ${jiacu}更新脚本"
-  echo -e "${green}(09) ${jiacu}退出脚本"
+  echo -e "${green}(06) ${jiacu}进入客户端操作菜单"
+  echo -e "${green}(07) ${jiacu}运行其他脚本"
+  echo -e "${green}(08) ${jiacu}查看本脚本的说明"
+  echo -e "${green}(09) ${jiacu}更新脚本"
+  echo -e "${green}(10) ${jiacu}退出脚本"
   echo -e "${normal}"
 
 read -e response
@@ -179,21 +179,21 @@ case $response in
             _client_version_check
             _show_client_version
             _main_menu ;;
-    5 | 05) # 查看客户端是否都在运行
-            _ifrunning
-            _main_menu ;;
-    5 | 05) # 进入客户端操作菜单
+#   5 | 05) # 查看客户端是否都在运行
+#           _ifrunning
+#           _main_menu ;;
+    6 | 06) # 进入客户端操作菜单
             _show_client_menu
             _client_menu_response ;;
-    6 | 06) #脚本菜单
+    7 | 07) #脚本菜单
             _show_scripts_menu
             _scripts_menu_response ;;
-    7 | 07) #脚本说明文档
+    8 | 08) #脚本说明文档
             _doc
             _main_menu ;;
-    8 | 08) #更新脚本
+    9 | 09) #更新脚本
             _update_mingling ;;
-    9 | 09 | "") clear; exit 0 ;;
+    10 | "") clear; exit 0 ;;
     *) clear; exit 0 ;;
 esac ; }
 
@@ -202,7 +202,7 @@ esac ; }
 
 
 # 01. 查看 SSH 命令
-function _usage() { 
+function _usage() {
 clear ; echo
                                                                 if [[ $inexistence == 1 ]] && [[ $tweaks == 1 ]]; then
 echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
@@ -274,7 +274,7 @@ if [[ $inexistence == 2 ]]; then
 #   echo -e " ${cyan}MkTorrent WebUI${jiacu}      https://${serveripv4}/mktorrent"
     echo -e "\n---------------------------------------------------------------------------------------------------${normal}"
 elif [[ $inexistence == 1 ]]; then
-    cat /log/inexistence/end.log
+    sed "s/.*COMPLETED.*//" /log/inexistence/*/end.log
 else
     echo -e "${bold}似乎你没有使用 inexistence 脚本，本功能无法使用"
 fi ; }
