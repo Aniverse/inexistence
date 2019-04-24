@@ -1761,6 +1761,7 @@ WINE=${InsWine}
 FLOOD=${InsFlood}
 #################################
 如果要截图请截完整点，包含上面所有信息
+
 EOF
 
 cat >> $LogBase/version << EOF
@@ -1770,6 +1771,7 @@ inexistence.lang        $script_lang
 inexistence.user        $iUser
 inexistence.setup       $(date "+%Y.%m.%d %H:%M")
 ASN                     $asnnnnn
+
 EOF
 
 # 提高文件打开数
@@ -1813,7 +1815,6 @@ mkdir -p /var/www/h5ai
 
 cp $local_packages/install/qbittorrent/qb /usr/local/bin
 ln -s /etc/inexistence /var/www/h5ai/inexistence
-ln -s /etc/inexistence /home/$iUser/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
 
 
