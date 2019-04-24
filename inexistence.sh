@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.6
+INEXISTENCEVER=1.1.0.7
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -332,8 +332,6 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # 2018.10.10 重新启用对于网卡的判断。我忘了是出于什么原因我之前禁用了它？
 # 2019.04.09 有些特殊情况，还是再改下
 # 最好不要依赖 ifconfig，因为说不定系统里没有 ifconfig
-#[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
-#wangka=` ifconfig -a | grep -B 1 $(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') | head -n1 | awk '{print $1}' | sed "s/:$//"  `
 wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
 
@@ -413,6 +411,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
   echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
   echo -ne "  Virt      : ";[[ -n ${virtua} ]] && echo "${cyan}$virtua${normal}" || echo "${cyan}No Virtualization Detected${normal}"
 
+[[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
