@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.7
+INEXISTENCEVER=1.1.0.8
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -86,6 +86,7 @@ done
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
+export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 export local_packages=/etc/inexistence/00.Installation
@@ -1116,16 +1117,13 @@ fi
 
 while [[ $rt_version = "" ]]; do
 
-
-
-
-    [[ ! $rtorrent_dev == 1 ]] &&
-    echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}" &&
-    echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}" &&
-    echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}" &&
-    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_3)" &&
-    echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} ($lang_ipv6_1)" &&
-    echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} ($lang_ipv6_1)" &&
+    [[ $rtorrent_dev != 1 ]] && {
+    echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}"
+    echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}"
+    echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}"
+    echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_3)"
+    echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} ($lang_ipv6_1)"
+    echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} ($lang_ipv6_1)" ; }
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} ($lang_ipv6_1)"
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_4)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} ($lang_ipv6_1)"
@@ -1136,23 +1134,18 @@ while [[ $rt_version = "" ]]; do
 #   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
 
     if [[ $rtorrent_dev == 1 ]]; then
-
         echo "${bold}${red}$lang_note_that${normal} ${bold}${green}Debian 9${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
       # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " ; read -e version
-
         case $version in
             14) rt_version='0.9.6 IPv6 supported' ;;
             15) rt_version=0.9.7 ;;
             99) rt_version=No ;;
             "" | *) rt_version='0.9.6 IPv6 supported' ;;
         esac
-
     else
-
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
       # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " ; read -e version
-
         case $version in
             01 | 1) rt_version=0.9.2 ;;
             02 | 2) rt_version=0.9.3 ;;
@@ -1166,7 +1159,6 @@ while [[ $rt_version = "" ]]; do
             99) rt_version=No ;;
             "" | *) rt_version='0.9.6 IPv6 supported' ;;
         esac
-
     fi
 
 done
@@ -1177,30 +1169,17 @@ done
 rt_versionIns=`echo $rt_version | grep -Eo [0-9].[0-9].[0-9]`
 
 if [[ $rt_version == No ]]; then
-
     [[ $script_lang == eng ]] && echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
     [[ $script_lang == chs ]] && echo "${baihongse}跳过${baizise} rTorrent 的安装${normal}"
-    
     InsFlood='No rTorrent'
-
 else
-
     if [[ `echo $rt_version | grep IPv6 | grep -Eo 0.9.[234]` ]]; then
-
         echo "${bold}${baiqingse}rTorrent $rt_versionIns ($lang_ipv6_2)${normal} ${bold}$lang_will_be_installed${normal}"
-
     elif [[ $rt_version == '0.9.6 IPv6 supported' ]]; then
-
         echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind $branch)${normal} ${bold}$lang_will_be_installed${normal}"
-
     else
-
         echo "${bold}${baiqingse}rTorrent ${rt_version}${normal} ${bold}$lang_will_be_installed${normal}"
-
     fi
-
-#   echo "${bold}${baiqingse}ruTorrent, vsftpd, h5ai, autodl-irssi${normal} ${bold}will also be installed${normal}"
-
 fi
 
 echo ; }
@@ -1215,16 +1194,13 @@ echo ; }
 function _askflood() {
 
 while [[ $InsFlood = "" ]]; do
-
     read -ep "${bold}${yellow}$lang_would_you_like_to_install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
   # echo -ne "${bold}${yellow}$lang_would_you_like_to_install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
-
     case $responce in
         [yY] | [yY][Ee][Ss]  ) InsFlood=Yes ;;
         [nN] | [nN][Oo] | "" ) InsFlood=No  ;;
         *) InsFlood=No ;;
     esac
-
 done
 
 if [[ $InsFlood == Yes ]]; then
@@ -1288,42 +1264,25 @@ done
 
 
 if [[ $tr_version == No ]]; then
-
     echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
-
 else
-
     if [[ $tr_version == "Install from repo" ]]; then 
-
         sleep 0
-
     elif [[ $tr_version == "Install from PPA" ]]; then
-
         if [[ $DISTRO == Debian ]]; then
-
           echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
           echo -ne "Therefore "
           tr_version='Install from repo'
-
         else
-
           echo "${bold}${baiqingse}Transmission $TR_latest_ver ${normal} ${bold}$lang_will_be_installed from PPA${normal}"
-
         fi
-
     else
-
         echo "${bold}${baiqingse}Transmission ${tr_version}${normal} ${bold}$lang_will_be_installed${normal}"
-
     fi
-
 
     if [[ $tr_version == "Install from repo" ]]; then 
-
         echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
-
     fi
-
 fi
 
 echo ; }
@@ -1493,54 +1452,40 @@ function check_kernel_version() {
 kernel_vvv=$(uname -r | cut -d- -f1)
 [[ ! -z $kernel_vvv ]] && version_ge $kernel_vvv 4.9 && bbrkernel=Yes || bbrkernel=No ; }
 
-# [[ ` ls /lib/modules/\$(uname -r)/kernel/net/ipv4 | grep tcp_bbr.ko ` ]]
+# ls /lib/modules/\$(uname -r)/kernel/net/ipv4 | grep tcp_bbr.ko -q
 
 # 询问是否安装BBR
 function _askbbr() { check_bbr_status
 
 if [[ $bbrinuse == Yes ]]; then
-
     echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
     InsBBR=Already\ Installed
-
 else
-
     check_kernel_version
-
     while [[ $InsBBR = "" ]]; do
-
         if [[ $bbrkernel == Yes ]]; then
-
             echo -e "${bold}Your kernel is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
             read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
-
             case $responce in
                 [yY] | [yY][Ee][Ss] | "" ) InsBBR=To\ be\ enabled ;;
                 [nN] | [nN][Oo]          ) InsBBR=No ;;
                 *                        ) InsBBR=To\ be\ enabled ;;
             esac
-
         else
-
         #   echo -e "${bold}Your kernel is below than ${green}4.9${normal}${bold} while BBR requires at least a ${green}4.9${normal}${bold} kernel"
             echo -e "A new kernel (4.11.12) $lang_will_be_installed if BBR is to be installed"
             echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
         #   read -ep "${bold}${yellow}$lang_would_you_like_to_install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
             echo -ne "${bold}${yellow}$lang_would_you_like_to_install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
-
             case $responce in
                 [yY] | [yY][Ee][Ss]  ) InsBBR=Yes ;;
                 [nN] | [nN][Oo] | "" ) InsBBR=No ;;
                 *                    ) InsBBR=No ;;
             esac
-
         fi
-
     done
-
     # 主要是考虑到使用 opt 的情况
    [[ $InsBBR == Yes ]] && [[ $bbrkernel == Yes ]] && InsBBR=To\ be\ enabled
-
     if [[ $InsBBR == Yes ]]; then
         echo "${bold}${baiqingse}TCP BBR${normal} ${bold}$lang_will_be_installed${normal}"
     elif [[ $InsBBR == To\ be\ enabled ]]; then
@@ -1548,8 +1493,8 @@ else
     else
         echo "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}"
     fi
-
-fi ; echo ; }
+fi
+echo ; }
 
 
 
@@ -1695,8 +1640,6 @@ fi
 # 临时
 mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation
 echo $iUser >> $LogBase/iUser.txt
-
-export TZ="/usr/share/zoneinfo/Asia/Shanghai"
 
 cat >> $LogTimes/installed.log << EOF
 如果要截图请截完整点，包含下面所有信息
