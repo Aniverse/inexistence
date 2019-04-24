@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.10
+INEXISTENCEVER=1.1.0.11
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -417,7 +417,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
 echo
-echo -e "${bold}For more information about this script, please refer README on GitHub (Chinese only)"
+echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
 echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ ! $ForceYes == 1 ]] && read input
 
 }
@@ -1118,7 +1118,6 @@ branch="分支"
 
 fi
 
-
 while [[ $rt_version = "" ]]; do
 
     [[ $rtorrent_dev != 1 ]] && {
@@ -1127,8 +1126,8 @@ while [[ $rt_version = "" ]]; do
     echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}"
     echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_3)"
     echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} ($lang_ipv6_1)"
-    echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} ($lang_ipv6_1)" ; }
-    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} ($lang_ipv6_1)"
+    echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} ($lang_ipv6_1)"
+    echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} ($lang_ipv6_1)" ; }
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_4)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} ($lang_ipv6_1)"
     echo -e   "${red}99)${normal} $lang_do_not_install rTorrent"
