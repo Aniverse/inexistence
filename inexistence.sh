@@ -11,17 +11,14 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 tmp_1() {
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-if [ $# -gt 0 ]; then
-  echo "No arguments allowed $1 is not a valid argument"
-  exit 1
-fi
 }
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.4
+INEXISTENCEVER=1.1.0.5
 INEXISTENCEDATE=2019.04.24
+default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
@@ -82,13 +79,12 @@ while true; do
   esac
 done
 
-if [[ $DeBUG == 1 ]]; then
-    iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
-fi
+[ $# -gt 0 ] && { echo "No arguments allowed $1 is not a valid argument" ; exit 1 ; }
+[[ $DeBUG == 1 ]] && { iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc) ; }
 
-[[ -z $iBranch ]] && iBranch=master
+[[ -z $iBranch ]] && iBranch=$default_branch
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
-times=$(expr $time + 1)
+times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
@@ -2159,21 +2155,18 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 
 function _setde() {
 
-mkdir -p /home/${iUser}/deluge/{download,torrent,watch} /var/www
+mkdir -p /home/$iUser/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/h5ai/deluge
-ln -s /home/${iUser}/deluge/download /var/www/h5ai/deluge
-chmod -R 777 /home/${iUser}/deluge
-chown -R ${iUser}:${iUser} /home/${iUser}/deluge
-
-chmod -R 666 /etc/inexistence/01.Log
+ln -s /home/$iUser/deluge/download /var/www/h5ai/deluge
+chown -R $iUser.$iUser /home/$iUser/deluge
 
 mkdir -p /root/.config && cd /root/.config
 [[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
 cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
-chmod -R 666 /root/.config
+chmod -R 755 /root/.config
 cd
 
-cat >/etc/inexistence/00.Installation/script/special/deluge.userpass.py<<EOF
+cat > /tmp/deluge.userpass.py <<EOF
 #!/usr/bin/env python
 #
 # Deluge password generator
@@ -2195,16 +2188,18 @@ s.update(password)
 print s.hexdigest()
 EOF
 
-DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-DWP=$(python /etc/inexistence/00.Installation/script/special/deluge.userpass.py ${iPass} ${DWSALT})
-echo "${iUser}:${iPass}:10" >> /root/.config/deluge/auth
-sed -i "s/delugeuser/${iUser}/g" /root/.config/deluge/core.conf
-sed -i "s/DWSALT/${DWSALT}/g" /root/.config/deluge/web.conf
-sed -i "s/DWP/${DWP}/g" /root/.config/deluge/web.conf
+DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
+DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
+echo "$iUser:$iPass:10" >> /root/.config/deluge/auth
+chmod 600 /root/.config/deluge/auth
+sed -i "s/delugeuser/$iUser/g" /root/.config/deluge/core.conf
+sed -i "s/DWSALT/$DWSALT/g" /root/.config/deluge/web.conf
+sed -i "s/DWP/$DWP/g" /root/.config/deluge/web.conf
 
 cp -f /etc/inexistence/00.Installation/template/systemd/deluged.service /etc/systemd/system/deluged.service
 cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
 [[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
+# or perhaps Type=forking ?
 
 systemctl daemon-reload
 systemctl enable /etc/systemd/system/deluge-web.service
@@ -2236,8 +2231,8 @@ mv /root/rtinst.log $LogLocation/07.rtinst.script.log
 mv /home/${iUser}/rtinst.info $LogLocation/07.rtinst.info.txt
 ln -s /home/${iUser} /var/www/h5ai/user.folder
 
-cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
-cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
+#cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
+#cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
 
 touch $LockLocation/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
@@ -2325,10 +2320,7 @@ else
         # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
         [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
         # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
-        [[ ! `grep m4_copy_force m4/glib-gettext.m4 ` ]] && sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-        # 解决 Transmission 2.9X 版本文件打开数被限制到 1024 的问题，https://github.com/transmission/transmission/issues/309
-        # [[ `grep FD_SETSIZE=1024 CMakeLists.txt ` ]] && sed -i "s/FD_SETSIZE=1024/FD_SETSIZE=777777/g" CMakeLists.txt
-        # 经测试发现没啥卵用，还是不改了 ……
+        grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
     fi
 
     ./autogen.sh
@@ -2362,11 +2354,10 @@ echo 1 | bash -c "$(wget --no-check-certificate -qO- https://github.com/ronggang
 
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-mkdir -p /home/${iUser}/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
-chmod -R 777 /home/${iUser}/transmission
-chown -R ${iUser}:${iUser} /home/${iUser}/transmission
+mkdir -p /home/$iUser/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
+chown -R $iUser.$iUser /home/$iUser/transmission
 rm -rf /var/www/h5ai/transmission
-ln -s /home/${iUser}/transmission/download /var/www/h5ai/transmission
+ln -s /home/$iUser/transmission/download /var/www/h5ai/transmission
 
 cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
 cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
@@ -2374,6 +2365,7 @@ cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /et
 
 sed -i "s/RPCUSERNAME/${iUser}/g" /root/.config/transmission-daemon/settings.json
 sed -i "s/RPCPASSWORD/${iPass}/g" /root/.config/transmission-daemon/settings.json
+chmod -R 755 /root/.config/transmission-daemon
 
 systemctl daemon-reload
 systemctl enable transmission
@@ -2396,18 +2388,18 @@ function _installflex() {
   /usr/local/bin/pip install transmissionrpc
   /usr/local/bin/pip install deluge-client
 
-  mkdir -p /home/${iUser}/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
+  mkdir -p /home/$iUser/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
 
   cp -f /etc/inexistence/00.Installation/template/config/flexget.config.yml /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTUSERNAME/${iUser}/g" /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTPASSWORD/${iPass}/g" /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTUSERNAME/$iUser/g" /root/.config/flexget/config.yml
+  sed -i "s/SCRIPTPASSWORD/$iPass/g" /root/.config/flexget/config.yml
 
   touch /home/$iUser/cookies.txt
 
   flexget web passwd $iPass 2>&1 | tee /tmp/flex.pass.output
   rm -rf $LockLocation/flexget.{pass,conf}.lock
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { export FlexPassFail=1 ; echo -e "\nFailed to set flexget webui password\n"            ; touch $LockLocation/flexget.pass.lock ; }
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { export FlexConfFail=1 ; echo -e "\nFailed to set flexget config and webui password\n" ; touch $LockLocation/flexget.conf.lock ; }
+  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { touch $LockLocation/flexget.pass.lock ; echo -e "\nFailed to set flexget webui password\n" ; }
+  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { touch $LockLocation/flexget.conf.lock ; echo -e "\nFailed to set flexget config and webui password\n" ; }
 
   cp -f /etc/inexistence/00.Installation/template/systemd/flexget.service /etc/systemd/system/flexget.service
   systemctl daemon-reload
@@ -2729,16 +2721,12 @@ touch $LockLocation/tweaks.lock ; }
 
 # --------------------- 结尾 --------------------- #
 
-function _end() {
+function end_pre() {
 
 [[ $USESWAP == Yes ]] && _disable_swap
-
 _check_install_2
-
 unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
-
 #if [[ ! $rt_version == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
-
 RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
@@ -2747,14 +2735,15 @@ if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge
 # systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
 # [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
 
-flexget daemon status 2>&1 >> /tmp/flexgetpid.log # 这个速度慢了点但应该最靠谱
+flexget daemon status >> /tmp/flexgetpid.log 2>&1 # 这个速度慢了点但应该最靠谱
 [[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
 [[ -e $LockLocation/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
 [[ -e $LockLocation/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
 
-clear
+clear ; }
 
+function _end() {
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '---------------------------------------------------------------------------------'
 
@@ -2809,9 +2798,7 @@ elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
      FXFAILED=1 ; INSFAILED=1
 fi
 
-
-#    echo -e " ${cyan}MkTorrent WebUI${normal}            https://${iUser}:${iPass}@${serveripv4}/mktorrent"
-
+#    echo -e " ${cyan}Vnstat WebUI${normal}               https://$iUser:$iPass@$serveripv4/traffic"
 
 echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
@@ -2820,7 +2807,6 @@ echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
 echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
 echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
-# [[ $DeBUG == 1 ]] && echo "FlexConfFail=$FlexConfFail  FlexPassFail=$FlexPassFail"
 [[ -e $LockLocation/flexget.pass.lock ]] &&
 echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n          ${bold}flexget web passwd <new password>${normal}"
 [[ -e $LockLocation/flexget.conf.lock ]] &&
@@ -2832,18 +2818,17 @@ echo
 timeWORK=installation
 _time
 
-    if [[ ! $INSFAILED == "" ]]; then
+[[ -n $INSFAILED ]] && {
 echo -e "\n ${bold}Unfortunately something went wrong during installation.
  You can check logs by typing these commands:
  ${yellow}cat $LogTimes/installed.log"
-[[ ! $QBFAILED == "" ]] && echo -e " cat $LogLocation/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
-[[ ! $DEFAILED == "" ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
-[[ ! $TRFAILED == "" ]] && echo -e " cat $LogLocation/08.tr1.log"
-[[ ! $RTFAILED == "" ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
-[[ ! $FDFAILED == "" ]] && echo -e " cat $LogLocation/07.flood.log"
-[[ ! $FXFAILED == "" ]] && echo -e " cat $LogLocation/10.flexget.log"
-echo -ne "${normal}"
-    fi
+[[ -n $QBFAILED ]] && echo -e " cat $LogLocation/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
+[[ -n $DEFAILED ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
+[[ -n $TRFAILED ]] && echo -e " cat $LogLocation/08.tr1.log"
+[[ -n $RTFAILED ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
+[[ -n $FDFAILED ]] && echo -e " cat $LogLocation/07.flood.log"
+[[ -n $FXFAILED ]] && echo -e " cat $LogLocation/10.flexget.log"
+echo -ne "${normal}" ; }
 
 echo ; }
 
@@ -2984,7 +2969,7 @@ else
     echo -e  "Skip System tweaks\n\n\n\n"
 fi
 
-
+end_pre
 _end 2>&1 | tee $LogTimes/end.log
 rm "$0" >> /dev/null 2>&1
 _askreboot

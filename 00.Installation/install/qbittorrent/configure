@@ -58,12 +58,12 @@ systemctl daemon-reload
 
 function configure_qbittorrent() {
 [[ -d $iHome/.config/qBittorrent ]] && {
-mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old$times
+mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
 rm -rf mv $iHome/.config/qBittorrent ; }
 
 mkdir -p $iHome/qbittorrent/{download,torrent,watch} $iHome/.config/qBittorrent
-chmod -R 755 $iHome/qbittorrent $iHome/.config/qBittorrent
-chown -R $iUser:$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
+chmod -R 755 $iHome/.config/qBittorrent
+chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
 
 qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
 cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
