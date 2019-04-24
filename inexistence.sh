@@ -431,7 +431,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
   echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
   echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
   echo -e  "  Kernel    : ${cyan}$kern${normal}"
-  echo -e  "  Script    : ${cyan}$INEXISTENCEDATE${normal}"
+  echo -e  "  Script    : ${cyan}$INEXISTENCEDATE, $iBranch branch${normal}"
 
   echo -ne "  Virt      : "
   if [[ "${virtua}" ]]; then
@@ -1769,6 +1769,7 @@ inexistence.update      $INEXISTENCEDATE
 inexistence.lang        $script_lang
 inexistence.user        $iUser
 inexistence.setup       $(date "+%Y.%m.%d %H:%M")
+ASN                     $asnnnnn
 EOF
 
 # 提高文件打开数
@@ -1780,7 +1781,7 @@ echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
 sed -i '/.*nofile.*/'d /etc/security/limits.conf
 sed -i '/.*nproc.*/'d /etc/security/limits.conf
 
-cat>>/etc/security/limits.conf<<EOF
+cat >> /etc/security/limits.conf <<EOF
 * - nofile 1048575
 * - nproc 1048575
 root soft nofile 1048574
@@ -2833,7 +2834,7 @@ _time
     if [[ ! $INSFAILED == "" ]]; then
 echo -e "\n ${bold}Unfortunately something went wrong during installation.
  You can check logs by typing these commands:
- ${yellow}cat /etc/inexistence/01.Log/installed.log"
+ ${yellow}cat $LogTimes/installed.log"
 [[ ! $QBFAILED == "" ]] && echo -e " cat $LogLocation/05.qb1.log" #&& echo "QBLTCFail=$QBLTCFail   QBCFail=$QBCFail"
 [[ ! $DEFAILED == "" ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
 [[ ! $TRFAILED == "" ]] && echo -e " cat $LogLocation/08.tr1.log"
