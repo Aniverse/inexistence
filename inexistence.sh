@@ -11,16 +11,18 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 tmp_1() {
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
+if [ $# -gt 0 ]; then
+  echo "No arguments allowed $1 is not a valid argument"
+  exit 1
+fi
 }
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.3
-INEXISTENCEDATE=2019.04.17
+INEXISTENCEVER=1.1.0.4
+INEXISTENCEDATE=2019.04.24
 # --------------------------------------------------------------------------------
-
-
 
 # 获取参数
 
@@ -80,17 +82,11 @@ while true; do
   esac
 done
 
-if [ $# -gt 0 ]; then
-  echo "No arguments allowed $1 is not a valid argument"
-  exit 1
-fi
-
 if [[ $DeBUG == 1 ]]; then
     iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc)
 fi
 
 [[ -z $iBranch ]] && iBranch=master
-iBranch
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $time + 1)
 # --------------------------------------------------------------------------------
@@ -1696,8 +1692,8 @@ echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${a
 echo
 echo '####################################################################'
 echo
-[[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse}Ctrl+C${jiacu} ; or Press ${bailvse}ENTER${normal} ${bold}to start${normal}"
-[[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse}Ctrl+C${jiacu} 取消安装，或者敲 ${bailvse}ENTER${normal}${bold} 开始安装${normal}"
+[[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse} Ctrl+C ${normal}${bold} ; or Press ${bailvse} ENTER ${normal} ${bold}to start${normal}"
+[[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse} Ctrl+C ${normal}${bold} 取消安装，或者敲 ${bailvse} ENTER ${normal}${bold} 开始安装${normal}"
 [[ ! $ForceYes == 1 ]] && read input
 [[ $script_lang == eng ]] && 
 echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
