@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.5
+INEXISTENCEVER=1.1.0.6
 INEXISTENCEDATE=2019.04.24
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -98,15 +98,15 @@ export LockLocation=$LogBase/lock
 # 临时
 # 一个想法，脚本传入到单个脚本里一个参数 log-base，比如装 de 脚本的 log 位置：
 # log-base=/log/inexistence/$times, SourceLocation=$log-base/source
-# bash deluge/configure -u aniverse -p test20190416 --dport 58856 --wport 8112 -iport 22022 --logbase /log/inexistence/$times
+# bash deluge/configure -u aniverse -p test20190416 --dport 58856 --wport 8112 --iport 22022 --logbase /log/inexistence/$times
 # --------------------------------------------------------------------------------
 ### 颜色样式 ###
 function _colors() {
-black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)   ; jiacu=${normal}${bold}
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
 blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
 on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
 on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
-shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
 underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
 standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
 baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
@@ -399,27 +399,10 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
-
-  echo -ne "  IPv4      : "
-  if [[ "${serveripv4}" ]]; then
-      echo "${cyan}$serveripv4${normal}"
-  else
-      echo "${cyan}No Public IPv4 Address Found${normal}"
-  fi
-
-  echo -ne "  IPv6      : "
-  if [[ "${serveripv6}" ]]; then
-      echo "${cyan}$serveripv6${normal}"
-  else
-      echo "${cyan}No IPv6 Address Found${normal}"
-  fi
-
+  echo -ne "  IPv4      : ";[[ -n ${serveripv7} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
+  echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
   echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
-  echo -ne "  Location  : ${cyan}"
-  [[ ! $cityyyy == "" ]] && echo -ne "$cityyyy, "
-  [[ ! $regionn == "" ]] && echo -ne "$regionn, "
-  [[ ! $country == "" ]] && echo -ne "$country"
-  echo -e  "${normal}"
+  echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
 
   echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
   echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
@@ -427,21 +410,14 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
   echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
   echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
   echo -e  "  Kernel    : ${cyan}$kern${normal}"
-  echo -e  "  Script    : ${cyan}$INEXISTENCEDATE, $iBranch branch${normal}"
-
-  echo -ne "  Virt      : "
-  if [[ "${virtua}" ]]; then
-      echo "${cyan}$virtua${normal}"
-  else
-      echo "${cyan}No Virtualization Detected${normal}"
-  fi
+  echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
+  echo -ne "  Virt      : ";[[ -n ${virtua} ]] && echo "${cyan}$virtua${normal}" || echo "${cyan}No Virtualization Detected${normal}"
 
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
-
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
 echo
-echo -e "${bold}For more information about this script, please refer the README on GitHub"
+echo -e "${bold}For more information about this script, please refer README on GitHub (Chinese only)"
 echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ ! $ForceYes == 1 ]] && read input
 
 }
