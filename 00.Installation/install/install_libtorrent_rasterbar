@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.04.25
-script_version=1.2.6
+script_version=1.2.7
 ################################################################################################
 
 usage_guide() {
@@ -264,7 +264,7 @@ version=$(apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.
 
 mkdir -p $SCLocation $DebLocation $LOCKLocation $(dirname $OutputLOG)
 cd       $SCLocation
-echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n" >> $OutputLOG
+echo -e "${bold}${green}\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n${normal}" >> $OutputLOG
 
 case $mode in
     apt     ) echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from repository ..." | tee -a $OutputLOG
