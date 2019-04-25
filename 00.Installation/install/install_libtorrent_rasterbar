@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.04.25
-script_version=1.2.5
+script_version=1.2.6
 ################################################################################################
 
 usage_guide() {
@@ -39,11 +39,16 @@ LOCKLocation=$LogTimes/lock
 
 ################################################################################################ Colors
 
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4); on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
-dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso); reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green}; baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}; jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
+blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
+on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
+on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
+underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
+standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
+baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
+heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 
 ################################################################################################
@@ -112,12 +117,6 @@ rm -f ~/.lt.git.tag ; }
 
 # Use RC_1_1 if not specified
 [[ -z $branch ]] && branch=RC_1_1
-
-# Determin RC_1_0 and RC_1_1's version
-# [[ $branch == RC_1_0 ]] && version=1.0.11
-# [[ $branch == RC_1_1 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
-# [[ $branch == RC_1_2 ]] && version=`  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_2_" | sort -t _ -n -k 3 | tail -n1 | sed "s/_/\./g" | sed "s/libtorrent-//"  `
-# [[ $branch == master ]] && version=1.2.0
 
 # Use 6.6.6 when version cannot be determind
 [ ! -z $branch ] && [ -z $version ] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
@@ -227,13 +226,13 @@ dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 function _install_lt9_deb() {
 
 if   [[ $CODENAME == jessie  ]]; then
-    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.1.12.jessie.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/jessie/libtorrent-rasterbar-1.1.12.jessie.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.1.12.stretch.amd64.deb    >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/stretch/libtorrent-rasterbar-1.1.12.stretch.amd64.deb    >> $OutputLOG 2>&1
 elif [[ $CODENAME == xenial  ]]; then
-    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.1.12.xenial.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/xenial/libtorrent-rasterbar-1.1.12.xenial.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == bionic  ]]; then
-    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.1.12.bionic.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.1.12.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/bionic/libtorrent-rasterbar-1.1.12.bionic.amd64.deb      >> $OutputLOG 2>&1
 fi
 
 dpkg -i lt.$CODENAME.1.1.12.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
