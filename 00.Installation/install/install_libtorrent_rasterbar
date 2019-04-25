@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-update=2019.02.16
-script_version=1.2.3
+script_update=2019.04.25
+script_version=1.2.4
 ################################################################################################
 
 usage_guide() {
@@ -105,7 +105,7 @@ trap cancel SIGINT
 rm -f ~/.lt.git.tag
 git ls-remote --tags  $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
 git ls-remote --heads $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
-grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!\n" ; rm -f ~/.lt.git.tag ; exit 1 ; }
+grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f ~/.lt.git.tag ; exit 1 ; }
 rm -f ~/.lt.git.tag ; }
 
 # Use RC_1_1 if not specified
@@ -159,18 +159,20 @@ git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$
 cd libtorrent-$version-$RN
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
+# Patches from amefs (QuickBox Dev)
 if version_ge $version 1.1 ; then
-    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_1.patch
-    patch -p1 < libtorrent-rasterbar-RC_1_1.patch
+    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_1.patch >> $OutputLOG 2>&1
+    patch -p1 < libtorrent-rasterbar-RC_1_1.patch >> $OutputLOG 2>&1
 elif version_ge $version 1.0 ; then
-    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_0.patch
-    patch -p1 < libtorrent-rasterbar-RC_1_0.patch
+    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_0.patch >> $OutputLOG 2>&1
+    patch -p1 < libtorrent-rasterbar-RC_1_0.patch >> $OutputLOG 2>&1
 else
     sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py || NoPatch=1
 fi
 
 mkdir -p doc-pak && echo "an efficient feature complete C++ bittorrent implementation" > description-pak
 
+# ltversion=$(grep -oE "AC_INIT\(\[libtorrent-rasterbar\],.*" configure.ac | grep -oE "[0-9.]+" | head -1)
 ./autotool.sh >> $OutputLOG 2>&1
 
 if [[ -z $NoPatch ]]; then
@@ -200,13 +202,13 @@ cp -f libtorrent-rasterb*.deb $DebLocation
 function _install_lt8_deb() {
 
 if   [[ $CODENAME == jessie  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/jessie/libtorrent-rasterbar-1.0.11.jessie.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/jessie/libtorrent-rasterbar-1.0.11.jessie.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == stretch ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/stretch/libtorrent-rasterbar-1.0.11.stretch.amd64.deb    >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/stretch/libtorrent-rasterbar-1.0.11.stretch.amd64.deb    >> $OutputLOG 2>&1
 elif [[ $CODENAME == xenial  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/xenial/libtorrent-rasterbar-1.0.11.xenial.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/xenial/libtorrent-rasterbar-1.0.11.xenial.amd64.deb      >> $OutputLOG 2>&1
 elif [[ $CODENAME == bionic  ]]; then
-    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux-deb/bionic/libtorrent-rasterbar-1.0.11.bionic.amd64.deb      >> $OutputLOG 2>&1
+    wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/seedbox-files/master/linux.deb/bionic/libtorrent-rasterbar-1.0.11.bionic.amd64.deb      >> $OutputLOG 2>&1
 fi
 
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
@@ -250,7 +252,7 @@ apt-get -y install libtorrent-rasterbar-dev python-libtorrent >> $OutputLOG 2>&1
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.apt.lock ; }
 
 [[ $mode == apt ]] && {
-version=` apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -n1 `
+version=$(apt-cache policy python-libtorrent | grep -B1 http | grep -Eo "[012]\.[0-9]+.[0-9]+" | head -1)
 [[ -z $version ]] && {
 [[ $CODENAME == bionic  ]] && version=1.1.5 ; [[ $CODENAME == xenial ]] && version=1.0.7 ; [[ $CODENAME == trusty ]] && version=0.16.13
 [[ $CODENAME == stretch ]] && version=1.1.1 ; [[ $CODENAME == jessie ]] && version=0.16.18 ; } ; }
