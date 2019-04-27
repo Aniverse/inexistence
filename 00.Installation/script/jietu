@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.01.27
-Script_Version=2.3.7
+Script_UpDate=2019.04.27
+Script_Version=2.3.8
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -61,7 +61,7 @@ mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 
 
 # DVD Name/VIDEO_TS/VTS_01_1.VOB
 dirname "$mediapath" | grep VIDEO_TS -q && Source=DVD && 
-ifo=$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" | xargs ls -S 2>&1 | head -1  ) &&
+ifo="$( find "$omediapath" -type f -name "*.[Ii][Ff][Oo]" -print0 | xargs -0 ls -S 2>&1 | head -1 )" &&
 disk_path="$(dirname "$(dirname "$mediapath")")" && disk_title="$(basename "$disk_path")"
 
 # Blu-ray Name/BDMV/STREAM/00002.m2ts
