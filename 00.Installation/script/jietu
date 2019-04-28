@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.04.27
-Script_Version=2.3.8
+Script_UpDate=2019.04.29
+Script_Version=2.4.0
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
@@ -29,7 +29,7 @@ function Deprecated() {
 }
 
 # Transform numbers
-function even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
+# function  even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
 
 # Cleanup when cancel
 cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}*" ; exit ; }
@@ -105,7 +105,8 @@ DAR2=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Display aspect ratio" | grep -
 # $VideoWidth/$DARY*$DARX=720÷16×9=405
 DAR1_W=$VideoWidth
 DAR1_H_BC=$( echo "$VideoWidth/$DARX*$DARY" | bc -l | awk '{print int($0)}' )
-even_number DAR1_H_BC $DAR1_H_BC
+# even_number DAR1_H_BC $DAR1_H_BC
+[ ! $(($DAR1_H_BC%2)) == 0 ] && DAR1_H_BC=$( expr $DAR1_H_BC + 1 )
 DAR1_H=$( expr $(expr $VideoWidth / $DARX) \* $DARY )
 DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
 DAR1_R="${DAR1_W}x${DAR1_H}"
@@ -115,7 +116,8 @@ DAR1_R="${DAR1_W}x${DAR1_H}"
 # 
 DAR2_H=$VideoHeight
 DAR2_W_BC=$( echo "$VideoHeight/$DARY*$DARX" | bc -l | awk '{print int($0)}' )
-even_number DAR2_W_BC $DAR2_W_BC
+# even_number DAR2_W_BC $DAR2_W_BC
+[ ! $(($DAR2_W_BC%2)) == 0 ] && DAR2_W_BC=$( expr $DAR2_W_BC + 1 )
 DAR2_W=$( expr $(expr $VideoHeight / $DARY) \* $DARX )
 DAR2_R_BC="${DAR2_W_BC}x${DAR2_H}"
 DAR2_R="${DAR2_W}x${DAR2_H}"
@@ -127,7 +129,8 @@ DAR2_R="${DAR2_W}x${DAR2_H}"
 # bc 不确定是不是直接复制过来就行
 SAR1_H=$VideoHeight
 SAR1_W_BC=$( echo "$VideoWidth/$SARY*$SARX" | bc -l | awk '{print int($0)}' )
-even_number SAR1_W_BC $SAR1_W_BC
+# even_number SAR1_W_BC $SAR1_W_BC
+[ ! $(($SAR1_W_BC%2)) == 0 ] && SAR1_W_BC=$( expr $SAR1_W_BC + 1 )
 SAR1_W=$( expr $(expr $VideoWidth / $SARY) \* $SARX )
 SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
 SAR1_R="${SAR1_W}x${SAR1_H}"
@@ -150,7 +153,9 @@ fi
 
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
-${cyan}${bold}bc Command             ${yellow}$bc_cli
+${cyan}${bold}jietu version          ${yellow}$Script_Version
+${cyan}${bold}bc command             ${yellow}$bc_cli
+${cyan}${bold}bc PATH                ${yellow}$(which bc)
 ${cyan}${bold}Source Type            ${yellow}$Source"
 [[ $Source == DVD     ]] && echo -e \
 "${cyan}${bold}DVD IFO File           ${yellow}$ifo
@@ -203,12 +208,14 @@ if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
     resize=Y
     SSR_W=$VideoWidth
     SSR_H=$( echo "$VideoWidth/$DARX*$DARY"  | $bc_cli -l | awk '{print int($0)}' )
-    even_number SSR_H $SSR_H
+    # even_number SSR_H $SSR_H
+    [ ! $(($SSR_H%2)) == 0 ] && SSR_H=$( expr $SSR_H + 1 )
 else                                          # Re-calculate X (Width)
     resize=X
     SSR_H=$VideoHeight
     SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | $bc_cli -l | awk '{print int($0)}' )
-    even_number SSR_W $SSR_W
+    # even_number SSR_W $SSR_W
+    [ ! $(($SSR_W%2)) == 0 ] && SSR_W=$( expr $SSR_W + 1 )
 fi
 
 fenbianlv="${SSR_W}x${SSR_H}"
