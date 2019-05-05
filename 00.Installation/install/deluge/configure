@@ -111,6 +111,7 @@ rm -rf deluge.config.tar.gz ; cd
 
 
 echo "$ANUSER:$ANPASS:10" >> $User_PATH/.config/deluge/auth
+chmod 600 $User_PATH/.config/deluge/auth
 sed -i "s/delugeuser/${ANUSER}/g" $User_PATH/.config/deluge/core.conf
 sed -i "s/DWSALT/${DWSALT}/g" $User_PATH/.config/deluge/web.conf
 sed -i "s/DWP/${DWP}/g" $User_PATH/.config/deluge/web.conf
@@ -140,44 +141,6 @@ sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
 chmod +x /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py /usr/local/bin/deluge-update-tracker
 
 touch /etc/inexistence/01.Log/lock/deluge.lock ; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
