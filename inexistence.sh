@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.12
-INEXISTENCEDATE=2019.05.05
+INEXISTENCEVER=1.1.0.13
+INEXISTENCEDATE=2019.05.06
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -375,7 +375,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
   [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
 
   QB_latest_ver=$( wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -n1 )
-  [[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.5
+  [[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.6
 
   DE_repo_ver=` apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -n1 `
   [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
@@ -736,7 +736,7 @@ fi ; }
 
 function _askqbt() {
 
-while [[ $qb_version = "" ]]; do
+while [[ -z $qb_version ]]; do
 
     echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.11${normal}"
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.16${normal}"
@@ -744,6 +744,7 @@ while [[ $qb_version = "" ]]; do
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.4${normal}"
     echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.5${normal}"
+    echo -e "${green}07)${normal} qBittorrent ${cyan}4.1.6${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -764,12 +765,13 @@ while [[ $qb_version = "" ]]; do
         04 | 4) qb_version=4.1.3 ;;
         05 | 5) qb_version=4.1.4 ;;
         06 | 6) qb_version=4.1.5 ;;
+        07 | 7) qb_version=4.1.6 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.5 ;;
+        * | "") qb_version=4.1.6 ;;
     esac
 
 done
@@ -781,15 +783,10 @@ qBittorrent_4_2_0_later=No
 [[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
 
 if [[ $qb_version == No ]]; then
-
     echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
-
 elif [[ $qb_version == "Install from repo" ]]; then
-
     sleep 0
-
 elif [[ $qb_version == "Install from PPA" ]]; then
-
     if [[ $DISTRO == Debian ]]; then
         echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
         echo -ne "Therefore "
@@ -797,25 +794,15 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     else
         echo "${bold}${baiqingse}qBittorrent $QB_latest_ver${normal} ${bold}$lang_will_be_installed from Stable PPA${normal}"
     fi
-
 elif [[ $qb_version == "4.2.0.alpha" ]]; then
-
     echo -e "${bold}${bailanse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
-  # echo -e "\n$${ZY} This is NOT a stable release${normal}"
-
+    echo -e "\n$${ZY} This is NOT a stable release${normal}"
 else
-
     echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
-    [[ $qbt_ver_3 == Yes ]] && {
-    echo -e "\n${bold}${bailanse}Attention${normal} ${bold}The option of qbt 3.3.x installation will be removed recently${normal}"
-    echo -e "${bold}${baihongse}  注意！ ${normal} ${bold}在下一个版本会取消 qb 3.3.X 版本的安装选项${normal}" ; }
-
 fi
 
 if [[ $qb_version == "Install from repo" ]]; then
-
     echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
-
 fi
 
 echo ; }
