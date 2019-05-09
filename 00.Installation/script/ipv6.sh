@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.05.09
-script_version=2.0.0
+script_version=2.0.0.alpha2
 ################################################################################################
 
 usage_guide() {
@@ -28,10 +28,6 @@ while true; do
   esac
 done
 
-################################################################################################
-
-
-
 ################################################################################################ Colors
 
 black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
@@ -45,6 +41,17 @@ baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}$
 baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
 heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
+
+################################################################################################
+
+SysSupport=0
+Mode=ifdown
+DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
+CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
+[[ $DDDISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
+[[ $DDDISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
+[[ $CCCODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
+[[ $CCCODENAME == bionic ]] && Mode=netplan
 
 ################################################################################################
 
@@ -76,19 +83,98 @@ DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
 
 ################################################################################################
 
+################################################################################################
+
+
 
 function ikoula_interfaces(){
-
-cat >> /etc/network/interfaces <<EOF
+grep -q "iface $interface inet6 static" /etc/network/interfaces || { cp -f /etc/network/interfaces /log/interfaces.$(date "+%Y.%m.%d.%H.%M.%S").bak
+cat << EOF >> /etc/network/interfaces
 iface $interface inet6 static
-address 2a00:c70:1:$AAA:$BBB:$CCC:$DDD:1
+address 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC:$DDDDD:1
 netmask 96
-gateway 2a00:c70:1:$AAA:$BBB:$CCC::1
+gateway 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC::1
 EOF
+}
 
 sysctl -w net.ipv6.conf.$interface.autoconf=0
+systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED{normal}"
+}
 
-systemctl restart networking.service || echo -e "\nsystemctl restart networking.service FAILED\nifdown $interface ; ifup $interface\n"
+
+function ikoula_netplan(){
+cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
+cat << EOF >> /etc/netplan/01-netcgf.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      dhcp6: no
+      addresses: [$AAA.$BBB.$CCC.$DDD/24, '2400:c70:1:$AAA:$BBB:$CCC:$DDD:1/96']
+      gateway4: 185.246.85.1
+      gateway6: 2A00:C70:1:$AAA:$BBB:$CCC:0:1
+      nameservers:
+        addresses: [213.246.36.14,213.246.33.144,80.93.83.11]
+EOF
+netplan apply
+}
+
+
+
+
+
+
+}
+function online_netplan(){
+
+cat << EOF > /etc/dhcp/dhclient6.conf
+interface "$interface" {
+  send dhcp6.client-id $DUID;
+  request;
+}
+EOF
+
+cat << EOF > /etc/systemd/system/dhclient.service
+[Unit]
+Description=dhclient for sending DUID IPv6
+Wants=network.target
+Before=network.target
+[Service]
+Type=forking
+ExecStart=/sbin/dhclient -cf /etc/dhcp/dhclient6.conf -6 -P -v $interface
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat << EOF > /etc/systemd/system/dhclient-netplan.service
+[Unit]
+Description=redo netplan apply after dhclient
+Wants=dhclient.service
+After=dhclient.service
+Before=network.target
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/netplan apply
+[Install]
+WantedBy=dhclient.service
+EOF
+
+cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
+cat << EOF >> /etc/netplan/01-netcfg.yaml
+      dhcp6: no
+      accept-ra: yes
+      addresses:
+      - $ipv6/$subnet
+EOF
+
+systemctl daemon-reload
+systemctl start dhclient.service
+systemctl start dhclient-netplan.service
+systemctl enable dhclient.service
+systemctl enable dhclient-netplan.service
+
 }
 
 
