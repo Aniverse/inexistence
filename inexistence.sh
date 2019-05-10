@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.0
+INEXISTENCEVER=1.1.1.1
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1767,7 +1767,7 @@ build-essential pkg-config checkinstall python python3 python-dev python3-dev py
 htop atop iotop dstat sysstat ifstat vnstat vnstati psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file
 dos2unix subversion nethogs fontconfig ntp patch
-ruby uuid socat cfv         figlet toilet lolcat
+ruby uuid socat cfv         figlet toilet lolcat      libsqlite3-dev libgd-dev
 mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
 
 for package_name in $package_list ; do
@@ -1790,21 +1790,21 @@ fi
 pip install --upgrade pip setuptools
 hash -d pip
 
-# Debian 8 升级 vnstat
-if [[ $CODENAME == jessie ]]; then
-    cd ; wget https://humdi.net/vnstat/vnstat-1.18.tar.gz
-    tar zxf vnstat-1.18.tar.gz
-    cd vnstat-1.18
-    ./configure --prefix=/usr
-    make -j${MAXCPUS}
-    make install
-    cd ; rm -rf vnstat-1.18.tar.gz vnstat-1.18
-fi
+# Upgrade vnstat, compile from source
+wget https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz -O vnstat-2.2.tar.gz
+tar zxf vnstat-2.2.tar.gz
+cd vnstat-2.2
+./configure --prefix=/usr --sysconfdir=/etc
+make -j$MAXCPUS
+make install
+cd
+rm -rf vnstat-2.2.tar.gz vnstat-2.2
+systemctl restart vnstatd
 
-# 指定 vnstat 网卡
+# Fix interface in vnstat.conf
 [[ -n $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
 
-# 安装 NConvert
+# Install NConvert
 wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz -O NConvert-linux64.tgz && {
 tar zxf NConvert-linux64.tgz
 mv NConvert/nconvert /usr/local/bin
