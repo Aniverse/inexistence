@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.5
+INEXISTENCEVER=1.1.1.6
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2566,13 +2566,15 @@ function _installtools() {
 wget -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
 chmod +x /usr/local/bin/bluray
 
-########## 安装 新版 ffmpeg ##########
-cd ; wget --no-check-certificate -qO ffmpeg-4.1-64bit-static.tar.xz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/ffmpeg-4.1-64bit-static.tar.xz
-tar xf ffmpeg-4.1-64bit-static.tar.xz
-rm -rf ffmpeg-*bit-static/{manpages,presets,model,readme.txt,GPLv3.txt}
-cp -f ffmpeg-*-64bit-static/* /usr/bin
-chmod 755 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
-rm -rf ffmpeg-*-64bit-static*
+########## Install ffmpeg ##########
+# https://johnvansickle.com/ffmpeg/
+
+mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
+wget -t2 -T5 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O ffmpeg-release-amd64-static.tar.xz
+tar xf ffmpeg-release-amd64-static.tar.xz
+cd ffmpeg*
+cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
+cd && rm -rf /log/inexistence/ffmpeg
 
 ########## Install mkvtoolnix ##########
 
