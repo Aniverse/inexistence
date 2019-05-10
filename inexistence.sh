@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.2
+INEXISTENCEVER=1.1.1.3
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -344,9 +344,9 @@ wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
   kern=$( uname -r )
 
 # Virt-what
-  wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what
+  wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/files/software/virt-what
   mkdir -p /usr/lib/virt-what
-  wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/03.Files/app/virt-what-cpuid-helper
+  wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/files/software/virt-what-cpuid-helper
   chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
   virtua="$(virt-what)" 2>/dev/null
 
@@ -394,7 +394,7 @@ wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
 
   clear
 
-  wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/03.Files/inexistence.logo.1
+  wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/files/logo/inexistence.logo.1
 
   echo "${bold}---------- [System Information] ----------${normal}"
   echo
@@ -2382,7 +2382,7 @@ if [[ $bbrinuse == Yes ]]; then
 elif [[ $bbrkernel == Yes && $bbrinuse == No ]]; then
     _enable_bbr
 else
-    _online_ubuntu_bbr_firmware
+    bnx2_firmware
     _bbr_kernel_4_11_12
     _enable_bbr
 fi
