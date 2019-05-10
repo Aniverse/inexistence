@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.14
-INEXISTENCEDATE=2019.05.06
+INEXISTENCEVER=1.1.0.15
+INEXISTENCEDATE=2019.05.10
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num
 ### 检查系统是否被支持 ###
 function _oscheck() {
 if [[ ! "$SysSupport" == 1 ]]; then
-echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9 and Ubuntu 16.04/18.04 is supported by this script${normal}
+echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
 ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
 exit 1
 fi ; }
@@ -285,7 +285,7 @@ DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
 CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
-[[ $CODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
+[[ $CODENAME =~ (xenial|bionic|jessie|stretch|buster) ]] && SysSupport=1
 [[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
@@ -293,7 +293,7 @@ CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade
 
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
-[[ $CODENAME =~ (stretch|bionic) ]] && rtorrent_dev=1
+[[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
 
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && [[ ! $distro_up == Yes ]] && _oscheck
@@ -333,7 +333,7 @@ if [[ ! -n `command -v wget` ]]; then echo "${bold}Now the script is installing 
 # 2018.10.10 重新启用对于网卡的判断。我忘了是出于什么原因我之前禁用了它？
 # 2019.04.09 有些特殊情况，还是再改下
 # 最好不要依赖 ifconfig，因为说不定系统里没有 ifconfig
-wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
+wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
 
 
@@ -414,6 +414,7 @@ wangka=`  ip route get 8.8.8.8 | awk '{print $5}'  `
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
+[[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段……${normal}"
 [[ ! $SYSTEMCHECK == 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
 echo
@@ -1213,7 +1214,7 @@ function _asktr() {
 
 while [[ $tr_version = "" ]]; do
 
-    [[ ! $CODENAME == bionic ]] &&
+    [[ ! $CODENAME =~ (bionic|buster) ]] &&
     echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}" &&
     echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}" &&
     echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}" &&
