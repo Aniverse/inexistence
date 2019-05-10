@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.0.15
-INEXISTENCEDATE=2019.05.10
+INEXISTENCEVER=1.1.1.0
+INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1757,23 +1757,38 @@ EOF
 fi
 
 apt-get -y update
-
 dpkg --configure -a
 apt-get -f -y install
 
-# 其实很多包可能对于很多人没用，私货私货……
-if [[ $SKIPAPPS == Yes ]]; then echo -e "\n${baizise}Skip useful apps installation${normal}\n" ; else
-apt-get install -y screen git sudo zsh virt-what lsb-release curl python lrzsz locales aptitude gawk jq bc \
-speedtest-cli mtr iperf iperf3 wondershaper       htop atop iotop dstat sysstat vnstat smartmontools psmisc dirmngr \
-ca-certificates apt-transport-https gcc make checkinstall build-essential pkg-config     tree figlet toilet lolcat zip unzip ntpdate ruby uuid rsync socat \
-ethtool net-tools libelf-dev
-fi
+######## The following codes are from rtinst ########
 
+package_list="screen git sudo zsh nano wget curl zip unzip cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release tree tput time
+build-essential pkg-config checkinstall python python3 python-dev python3-dev python-pip python3-pip zlib1g-dev automake libelf-dev libtool libssl-dev
+htop atop iotop dstat sysstat ifstat vnstat vnstati psmisc dirmngr hdparm smartmontools nvme-cli
+ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file
+dos2unix subversion nethogs fontconfig ntp patch
+ruby uuid socat cfv         figlet toilet lolcat
+mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
+
+for package_name in $package_list ; do
+    if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+        if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+            install_list="$install_list $package_name"
+        fi
+    else
+        echo "$package_name not found, skipping"
+    fi
+done
+
+test -z "$install_list" || apt-get -y install $install_list
 if [ ! $? = 0 ]; then
     echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
     kill -s TERM $TOP_PID
     exit 1
 fi
+
+pip install --upgrade pip setuptools
+hash -d pip
 
 # Debian 8 升级 vnstat
 if [[ $CODENAME == jessie ]]; then
@@ -2294,12 +2309,9 @@ touch $LockLocation/transmission.lock ; }
 
 function _installflex() {
 
-  apt-get -y install python-pip
-  pip install --upgrade pip setuptools
-  /usr/local/bin/pip install markdown
-  /usr/local/bin/pip install flexget
-  /usr/local/bin/pip install transmissionrpc
-  /usr/local/bin/pip install deluge-client
+  pip install markdown 
+  pip install flexget
+  pip install transmissionrpc deluge-client
 
   mkdir -p /home/$iUser/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
 
