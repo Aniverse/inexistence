@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.4
+INEXISTENCEVER=1.1.1.5
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1760,6 +1760,9 @@ apt-get -y update
 dpkg --configure -a
 apt-get -f -y install
 
+wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
+dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
+
 ######## The following codes are from rtinst ########
 
 package_list="screen git sudo zsh nano wget curl zip unzip cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release tree tput time
@@ -1948,8 +1951,8 @@ else
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
 
-        wget --no-check-certificate -qO qt_5.5.1-1_amd64_debian8.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Other%20Tools/qt_5.5.1-1_amd64_debian8.deb
-        dpkg -i qt_5.5.1-1_amd64_debian8.deb && rm -f qt_5.5.1-1_amd64_debian8.deb
+        wget -qO qt.5.5.1-1.jessie.amd64.deb https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
+        dpkg -i qt.5.5.1-1.jessie.amd64.deb && rm -f qt.5.5.1-1.jessie.amd64.deb
 
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -2442,13 +2445,13 @@ apt-get install -y vnc4server
 apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy #fcitx
 apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
 
-vncpasswd=`date +%s | sha256sum | base64 | head -c 8`
+vncpasswd=$(date +%s | sha256sum | base64 | head -c8)
 vncpasswd <<EOF
 $iPass
 $iPass
 EOF
 vncserver && vncserver -kill :1
-cd; mkdir -p .vnc
+mkdir -p /root/.vnc
 cp -f /etc/inexistence/00.Installation/template/xstartup.1.xfce4 /root/.vnc/xstartup
 chmod +x /root/.vnc/xstartup
 cp -f /etc/inexistence/00.Installation/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
@@ -2526,7 +2529,7 @@ echo -e "\n\n\n${bailanse}  MONO-INSTALLATION-COMPLETED  ${normal}\n\n"
 # https://wiki.winehq.org/Debian
 
 dpkg --add-architecture i386
-wget --no-check-certificate -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
+wget -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
 
 if [[ $DISTRO == Ubuntu ]]; then
@@ -2539,7 +2542,7 @@ fi
 apt-get update -y
 apt-get install -y --install-recommends winehq-stable
 
-wget --no-check-certificate -q https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x winetricks
 mv winetricks /usr/local/bin
 
@@ -2558,9 +2561,9 @@ echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 function _installtools() {
 
-########## Blu-ray ##########
+########## Blu-ray script ##########
 
-wget --no-check-certificate -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
+wget -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
 chmod +x /usr/local/bin/bluray
 
 ########## 安装 新版 ffmpeg ##########
@@ -2571,15 +2574,11 @@ cp -f ffmpeg-*-64bit-static/* /usr/bin
 chmod 755 /usr/bin/{ffmpeg,ffprobe,ffmpeg-10bit,qt-faststart}
 rm -rf ffmpeg-*-64bit-static*
 
-########## 安装 新版 mkvtoolnix 与 mediainfo ##########
+########## Install mkvtoolnix ##########
 
-wget --no-check-certificate -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
+wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
 echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
-
-wget --no-check-certificate -q https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
-dpkg -i repo-mediaarea_1.0-6_all.deb
-rm -rf repo-mediaarea_1.0-6_all.deb
 
 apt-get -y update
 apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
