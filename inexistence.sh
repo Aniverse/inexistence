@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.3
+INEXISTENCEVER=1.1.1.4
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2423,15 +2423,12 @@ sysctl -p
 touch $LockLocation/bbr.lock ; }
 
 
-# Online.net 独服补充固件（For BBR）
-# 下次看看 efs 巨佬的
-function _online_ubuntu_bbr_firmware() {
-mkdir -p /lib/firmware/bnx2
-wget -qO /lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-mips-06-6.2.3.fw
-wget -qO /lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-mips-09-6.2.1b.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09ax-6.0.17.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-09-6.0.17.fw
-wget -qO /lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Firmware/bnx2-rv2p-06-6.0.15.fw ; }
+# Install firmware for BCM NIC
+# if lspci | grep -iq bcm ; then bnx2_firmware ; fi
+function bnx2_firmware() {
+mkdir -p /lib/firmware/bnx2 && cd /lib/firmware/bnx2
+bnx2="bnx2-mips-09-6.2.1b.fw bnx2-mips-06-6.2.3.fw bnx2-rv2p-09ax-6.0.17.fw bnx2-rv2p-09-6.0.17.fw bnx2-rv2p-06-6.0.15.fw"
+for f in $bnx2 ; do wget https://github.com/Aniverse/inexistence/raw/files/firmware/bnx2/$f -O $f ; done ; }
 
 
 
