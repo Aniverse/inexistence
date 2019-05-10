@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.1
+INEXISTENCEVER=1.1.1.2
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1791,28 +1791,37 @@ pip install --upgrade pip setuptools
 hash -d pip
 
 # Upgrade vnstat, compile from source
+cd $SourceLocation
 wget https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz -O vnstat-2.2.tar.gz
 tar zxf vnstat-2.2.tar.gz
+rm -f vnstat-2.2.tar.gz
 cd vnstat-2.2
 ./configure --prefix=/usr --sysconfdir=/etc
 make -j$MAXCPUS
 make install
 cd
-rm -rf vnstat-2.2.tar.gz vnstat-2.2
 systemctl restart vnstatd
 
 # Fix interface in vnstat.conf
 [[ -n $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
 
 # Install NConvert
+cd $SourceLocation
 wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz -O NConvert-linux64.tgz && {
 tar zxf NConvert-linux64.tgz
 mv NConvert/nconvert /usr/local/bin
 rm -rf NConvert* ; }
 
+# Install checkinstall for Debian Buster
+# 临时临时
+cd $SourceLocation
+wget https://
+dpkg -i checkinstall-1.6.2.stretch.amd64.deb
+sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
+
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 
-sed -i "s/TRANSLATE=1/TRANSLATE=0/g" /etc/checkinstallrc >/dev/null 2>&1
+
 }
 
 
