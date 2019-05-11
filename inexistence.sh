@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.6
+INEXISTENCEVER=1.1.1.7
 INEXISTENCEDATE=2019.05.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-if [[ ! "$SysSupport" == 1 ]]; then
+if [[ ! $SysSupport == 1 ]]; then
 echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
 ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
 exit 1
@@ -280,9 +280,10 @@ lbit=$( getconf LONG_BIT ) # 只显示多少位，无法识别 ARM
 
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
 SysSupport=0
-DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
-DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
-CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
+DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
+DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
+CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
+grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 [[ $CODENAME =~ (xenial|bionic|jessie|stretch|buster) ]] && SysSupport=1
@@ -1760,8 +1761,8 @@ apt-get -y update
 dpkg --configure -a
 apt-get -f -y install
 
-wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
-dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
+#wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
+#dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
 ######## The following codes are from rtinst ########
 
