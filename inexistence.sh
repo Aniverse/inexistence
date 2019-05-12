@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.9
+INEXISTENCEVER=1.1.1.10
 INEXISTENCEDATE=2019.05.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2003,9 +2003,9 @@ bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -
 # 安装 Deluge
 function _installde() {
 
-    if [[ $de_test == yes ]]; then
+    if [[ $de_test == yes ]] ; then
         [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -v $de_version
-        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install)) -b $de_version
+        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -b $de_version
     else
 
 if [[ $de_version == "Install from repo" ]]; then
@@ -2289,8 +2289,6 @@ function _installflex() {
   cp -f /etc/inexistence/00.Installation/template/config/flexget.config.yml /root/.config/flexget/config.yml
   sed -i "s/SCRIPTUSERNAME/$iUser/g" /root/.config/flexget/config.yml
   sed -i "s/SCRIPTPASSWORD/$iPass/g" /root/.config/flexget/config.yml
-
-  touch /home/$iUser/cookies.txt
 
   flexget web passwd $iPass 2>&1 | tee /tmp/flex.pass.output
   rm -rf $LockLocation/flexget.{pass,conf}.lock
