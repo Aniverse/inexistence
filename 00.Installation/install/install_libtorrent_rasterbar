@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.05.12
-script_version=r10027
+script_version=r10028
 ################################################################################################
 
 usage_guide() {
@@ -36,60 +36,16 @@ OutputLOG=$LogTimes/install/libtorrent_rasterbar.txt    # /dev/null
 DebLocation=$LogTimes/deb
 SCLocation=$LogTimes/source
 LOCKLocation=$LogTimes/lock
-
-################################################################################################ Colors
-
-black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
-blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
-on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
-on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
-shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
-underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
-standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
-baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
-heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
-CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
+source /etc/inexistence/00.Installation/source
 
 ################################################################################################
 
-CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
-grep buster /etc/os-release -q && CODENAME=buster
-
-function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
-
-function check_status() {
-local LockName=$1
-[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
-[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
-[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
-
-spinner() {
-    local pid=$1
-    local delay=0.25
-    local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
-}
+cancel() { echo -e "${normal}" ; rm -f $HOME/.lt.git.tag ; exit ; }
+trap cancel SIGINT
 
 [[ -z $mode ]] && [[ ! -z $version ]] && mode=source
 [[ -z $mode ]] && [[ ! -z $branch  ]] && mode=source
 [[ -z $mode ]] && echo -e "\n${CW} Installation mode must be specified as apt, deb, deb2, deb3 or source${normal}\n" && cancel
-
-cancel() { echo -e "${normal}" ; rm -f ~/.lt.git.tag ; exit ; }
-trap cancel SIGINT
-
-
-
-################################################################################################
-
-
 
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 
@@ -101,19 +57,19 @@ trap cancel SIGINT
 # Check if input branch exists
 # [[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
 
-[[ ! -z $branch ]] && {
-rm -f ~/.lt.git.tag
+[[ -n $branch ]] && {
+rm -f $HOME/.lt.git.tag
 git ls-remote --tags  $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
 git ls-remote --heads $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
 grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f ~/.lt.git.tag ; exit 1 ; }
-rm -f ~/.lt.git.tag ; }
+rm -f $HOME/.lt.git.tag ; }
 
 # Use RC_1_1 if not specified
 [[ -z $branch ]] && branch=RC_1_1
 
 # Use 6.6.6 when version cannot be determind
-[ ! -z $branch ] && [ -z $version ] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
-[ ! -z $branch ] && [ -z $version ] && version=6.6.6
+[[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
+[[ -n $branch ]] && [[ -z $version ]] && version=6.6.6
 
 # Random number for marking different installations
 [[ $mode == source ]] && RN=$(shuf -i 1-999 -n1)
