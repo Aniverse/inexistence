@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.05.12
-script_version=r10028
+script_version=r10029
 ################################################################################################
 
 usage_guide() {
@@ -36,7 +36,7 @@ OutputLOG=$LogTimes/install/libtorrent_rasterbar.txt    # /dev/null
 DebLocation=$LogTimes/deb
 SCLocation=$LogTimes/source
 LOCKLocation=$LogTimes/lock
-source /etc/inexistence/00.Installation/source
+source /etc/inexistence/00.Installation/source --output $OutputLOG
 
 ################################################################################################
 
@@ -59,9 +59,9 @@ trap cancel SIGINT
 
 [[ -n $branch ]] && {
 rm -f $HOME/.lt.git.tag
-git ls-remote --tags  $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
-git ls-remote --heads $git_repo | awk '{print $NF}' >> ~/.lt.git.tag
-grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f ~/.lt.git.tag ; exit 1 ; }
+git ls-remote --tags  $git_repo | awk '{print $NF}' >> $HOME/.lt.git.tag
+git ls-remote --heads $git_repo | awk '{print $NF}' >> $HOME/.lt.git.tag
+grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f $HOME/.lt.git.tag ; exit 1 ; }
 rm -f $HOME/.lt.git.tag ; }
 
 # Use RC_1_1 if not specified
@@ -76,10 +76,6 @@ rm -f $HOME/.lt.git.tag ; }
 
 rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 
-
-
-
-
 ################################################################################################
 
 
@@ -89,7 +85,7 @@ rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 # Install build dependencies for libtorrent-rasterbar
 function install_lt_dependencies() {
 
-apt-get install -y                                                                  \
+apt_install \
 build-essential pkg-config autoconf automake libtool git                            \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
@@ -135,7 +131,7 @@ fi
 
 make -j$MAXCPUS >> $OutputLOG 2>&1
 
-# 如果之前 dpkg 安装过一次，包名不一样的话，这一次 checkinstall 就会失败，所以失败后保险起见，失败了的话再 make install 试一次
+# If we installed libtorrent-rasterbar with different package name via checkinstall formerly, the checkinstall will get failed, so to make sure, make install again after checkinstall
 checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 && 
 touch /tmp/lt.1.lock || {
 make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
