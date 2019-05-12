@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.7
-INEXISTENCEDATE=2019.05.11
+INEXISTENCEVER=1.1.1.8
+INEXISTENCEDATE=2019.05.12
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1764,16 +1764,15 @@ apt-get -f -y install
 #wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
+package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
+build-essential pkg-config checkinstall zlib1g-dev automake autoconf cmake libelf-dev libtool libssl-dev intltool
+htop atop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
+ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree tput time parted fuse
+dos2unix subversion nethogs fontconfig ntp patch       python python3 python-dev python3-dev python-pip python3-pip python-setuptools
+ruby uuid socat cfv         figlet toilet lolcat       libsqlite3-dev libgd-dev
+zip unzip p7zip-full mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
+
 ######## The following codes are from rtinst ########
-
-package_list="screen git sudo zsh nano wget curl zip unzip cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release tree tput time
-build-essential pkg-config checkinstall python python3 python-dev python3-dev python-pip python3-pip zlib1g-dev automake libelf-dev libtool libssl-dev
-htop atop iotop dstat sysstat ifstat vnstat vnstati psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file
-dos2unix subversion nethogs fontconfig ntp patch
-ruby uuid socat cfv         figlet toilet lolcat      libsqlite3-dev libgd-dev
-mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
-
 for package_name in $package_list ; do
     if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
         if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
@@ -1817,15 +1816,14 @@ mv NConvert/nconvert /usr/local/bin
 rm -rf NConvert* ; }
 
 # Install checkinstall for Debian Buster
-# 临时临时
+[[ $CODENAME == buster ]] && {
 cd $SourceLocation
-wget https://
-dpkg -i checkinstall-1.6.2.stretch.amd64.deb
+wget https://github.com/Aniverse/inexistence/raw/files/debian.package/checkinstall.1.6.2-4.stretch.amd64.deb
+dpkg -i checkinstall.1.6.2-4.stretch.amd64.deb ; }
+
 sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
-
-
 }
 
 
@@ -1995,6 +1993,7 @@ else
     else
       # [[ $(which qbittorrent-nox) ]] && { apt-get purge -y qbittorrent-nox ; dpkg-r qbittorrent-headless ; }
         checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
+        [[ $CODENAME == buster ]] && make install
         mv -f qbittorrent*deb $DebLocation
     fi
 
@@ -2003,39 +2002,38 @@ else
 
 fi ; }
 
+
+
+
 # 设置 qBittorrent#
 function _setqbt() {
 bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 
-# --------------------- 安装 Deluge --------------------- #
 
+
+# 安装 Deluge
 function _installde() {
 
     if [[ $de_test == yes ]]; then
 
-        [[ $de_version == yes ]] && bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -v $de_version
+        [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -v $de_version
 
-        [[ $de_branch  == yes ]] && bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -b $de_version &&
+        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -b $de_version &&
         wget -q https://github.com/Aniverse/filesss/raw/master/TorrentGrid.js -O /usr/lib/python2.7/dist-packages/deluge-1.3.15.dev0-py2.7.egg/deluge/ui/web/js/deluge-all/TorrentGrid.js
 
     else
 
 if [[ $de_version == "Install from repo" ]]; then
-
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
-
 elif [[ $de_version == "Install from PPA" ]]; then
-
-    apt-get install -y software-properties-common
     add-apt-repository -y ppa:deluge-team/ppa
     apt-get update
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
-
 else
 
     # 安装 Deluge 依赖
-    apt-get install -y python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-pip
+    apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
 
     # Deluge 2.0 需要高版本的这些
     [[ $Deluge_2_later == Yes ]] &&
@@ -2189,7 +2187,7 @@ function _installflood() {
 # https://github.com/nodesource/distributions/blob/master/README.md
 # curl -sL https://deb.nodesource.com/setup_11.x | bash -
 curl -sL https://deb.nodesource.com/setup_10.x | bash -
-apt-get install -y nodejs build-essential python-dev
+apt-get install -y nodejs
 npm install -g node-gyp
 git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
 cd /srv/flood
@@ -2233,7 +2231,7 @@ else
 
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
-    apt-get install -y build-essential automake autoconf libtool pkg-config intltool libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev ca-certificates libssl-dev pkg-config checkinstall cmake git # > /dev/null
+    apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
     apt-get install -y openssl
     [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
@@ -2247,6 +2245,7 @@ else
     make -j$MAXCPUS
 
     checkinstall -y --pkgversion=2.1.8 --pkgname=libevent --pkggroup libevent # make install
+    [[ $CODENAME == buster ]] && make install
     ldconfig                                                                  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     cd ..
 
@@ -2276,6 +2275,7 @@ else
         make install
     else
         checkinstall -y --pkgversion=$tr_version --pkgname=transmission-seedbox --pkggroup transmission
+        [[ $CODENAME == buster ]] && make install
         mv -f tr*deb $DebLocation
     fi
 
@@ -2356,7 +2356,6 @@ function _installflex() {
 # --------------------- 安装 rclone --------------------- #
 
 function _installrclone() {
-apt-get install -y nload fuse p7zip-full
 [[ "$lbit" == '32' ]] && KernelBitVer='i386'
 [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
 [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
@@ -2534,7 +2533,6 @@ wget -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
 
 if [[ $DISTRO == Ubuntu ]]; then
-    apt-get install -y software-properties-common
     apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
 elif [[ $DISTRO == Debian ]]; then
     echo "deb https://dl.winehq.org/wine-builds/${DISTROL}/ ${CODENAME} main" > /etc/apt/sources.list.d/wine.list
@@ -2584,7 +2582,7 @@ echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sou
 echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
 apt-get -y update
-apt-get install -y mkvtoolnix mkvtoolnix-gui mediainfo mktorrent imagemagick
+apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
 
 ######################  eac3to  ######################
 
