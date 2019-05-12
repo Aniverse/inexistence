@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.8
+INEXISTENCEVER=1.1.1.9
 INEXISTENCEDATE=2019.05.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1725,7 +1725,8 @@ mkdir -p /var/www/h5ai
 
 cp $local_packages/install/qbittorrent/qb /usr/local/bin
 ln -s /etc/inexistence /var/www/h5ai/inexistence
-cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin ; }
+cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
+sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip ; }
 
 
 
@@ -1765,14 +1766,14 @@ apt-get -f -y install
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
-build-essential pkg-config checkinstall zlib1g-dev automake autoconf cmake libelf-dev libtool libssl-dev intltool
+build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop atop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree tput time parted fuse
+ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree tput time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch       python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby uuid socat cfv         figlet toilet lolcat       libsqlite3-dev libgd-dev
+ruby uuid socat cfv         figlet toilet lolcat       libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
 
-######## The following codes are from rtinst ########
+######## These codes are from rtinst ########
 for package_name in $package_list ; do
     if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
         if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
@@ -1928,50 +1929,39 @@ fi ; }
 function _installqbt() {
 
 if [[ $qb_version == "Install from repo" ]]; then
-
     apt-get install -y qbittorrent-nox
-    echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
-
 elif [[ $qb_version == "Install from PPA" ]]; then
-
-    apt-get install -y software-properties-common
     add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
     apt-get update
     apt-get install -y qbittorrent-nox
-    echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
-
 else
-
     [[ `  dpkg -l | grep -v qbittorrent-headless | grep qbittorrent-nox  ` ]] && apt-get purge -y qbittorrent-nox
-
     if [[ $CODENAME == jessie ]]; then
-
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-
-        wget -qO qt.5.5.1-1.jessie.amd64.deb https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
+        wget -O qt.5.5.1-1.jessie.amd64.deb https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
         dpkg -i qt.5.5.1-1.jessie.amd64.deb && rm -f qt.5.5.1-1.jessie.amd64.deb
-
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
-
     else
-
         apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
-
     fi
 
     cd $SourceLocation
-
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
     git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
-
     cd qBittorrent-$qb_version
 
     if [[ $qb_version == 4.2.0 ]]; then
         git checkout master
+    elif [[ $qb_version == 3.3.17 ]]; then
+        git checkout release-3.3.11
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git cherry-pick db3158c
+        git cherry-pick b271fa9
     elif [[ $qb_version == 4.1.2 ]]; then
         git checkout release-$qb_version
         git config --global user.email "you@example.com"
@@ -1982,9 +1972,7 @@ else
     fi
     
     ./configure --prefix=/usr --disable-gui
-
     make -j$MAXCPUS
-
     mkdir -p doc-pak
     echo "qBittorrent BitTorrent client headless (qbittorrent-nox)" > description-pak
 
@@ -2016,12 +2004,8 @@ bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -
 function _installde() {
 
     if [[ $de_test == yes ]]; then
-
-        [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -v $de_version
-
-        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_deluge) -b $de_version &&
-        wget -q https://github.com/Aniverse/filesss/raw/master/TorrentGrid.js -O /usr/lib/python2.7/dist-packages/deluge-1.3.15.dev0-py2.7.egg/deluge/ui/web/js/deluge-all/TorrentGrid.js
-
+        [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -v $de_version
+        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install)) -b $de_version
     else
 
 if [[ $de_version == "Install from repo" ]]; then
@@ -2031,15 +2015,9 @@ elif [[ $de_version == "Install from PPA" ]]; then
     apt-get update
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
 else
-
-    # 安装 Deluge 依赖
     apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
-
     # Deluge 2.0 需要高版本的这些
-    [[ $Deluge_2_later == Yes ]] &&
-    pip install --upgrade pip &&
-    /usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl
-
+    [[ $Deluge_2_later == Yes ]] && pip install --upgrade twisted pillow rencode pyopenssl
     cd $SourceLocation
 
     if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
@@ -2076,7 +2054,7 @@ else
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
-    python setup.py install_data # 给桌面环境用的
+    python setup.py install_data # For Desktop users
 
     [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
 
@@ -2099,31 +2077,20 @@ rm -rf /var/www/h5ai/deluge
 ln -s /home/$iUser/deluge/download /var/www/h5ai/deluge
 chown -R $iUser.$iUser /home/$iUser/deluge
 
-mkdir -p /root/.config && cd /root/.config
+mkdir -p /root/.config
 [[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
 cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
 chmod -R 755 /root/.config
-cd
 
 cat > /tmp/deluge.userpass.py <<EOF
 #!/usr/bin/env python
-#
-# Deluge password generator
-#
-#   deluge.password.py <password> <salt>
-#
-#
-
 import hashlib
 import sys
-
 password = sys.argv[1]
 salt = sys.argv[2]
-
 s = hashlib.sha1()
 s.update(salt)
 s.update(password)
-
 print s.hexdigest()
 EOF
 
@@ -2169,10 +2136,6 @@ fi
 mv /root/rtinst.log $LogLocation/07.rtinst.script.log
 mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
 ln -s /home/${iUser} /var/www/h5ai/user.folder
-
-#cp -f /etc/inexistence/00.Installation/template/systemd/rtorrent@.service /etc/systemd/system/rtorrent@.service
-#cp -f /etc/inexistence/00.Installation/template/systemd/irssi@.service /etc/systemd/system/irssi@.service
-
 touch $LockLocation/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
@@ -2217,18 +2180,13 @@ cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\
 function _installtr() {
 
 if [[ "${tr_version}" == "Install from repo" ]]; then
-
     apt-get install -y transmission-daemon
-
 elif [[ "${tr_version}" == "Install from PPA" ]]; then
-
     apt-get install -y software-properties-common
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
     apt-get install -y transmission-daemon
-
 else
-
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
     apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
@@ -2775,7 +2733,6 @@ _askpassword
 [[ $SKIPAPPS == Yes ]] && echo -e "\n${baizise}Useful apps will ${baihongse}not${baizise} be installed${normal}\n"
 _askaptsource
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)   ; _askmt
-# [[ -z $USESWAP ]] && [[ $tram -le 1926 ]] && USESWAP=Yes
 _askswap
 _askqbt
 _askdeluge
