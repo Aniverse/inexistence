@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2019.05.12
+script_version=r10001
+################################################################################################
+
+usage_guide() {
+source /etc/inexistence/00.Installation/source
+}
+
+################################################################################################ Colors
+
+black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
+blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
+on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
+on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
+shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
+underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
+standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
+baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
+baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
+heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
+CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
+
+################################################################################################
+
+CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
+grep buster /etc/os-release -q && CODENAME=buster
+
+################################################################################################
+################################################################################################ Basic functions
+################################################################################################
+
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+
+function check_status() {
+local LockName=$1
+[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
+[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
+[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
+
+spinner() {
+    local pid=$1
+    local delay=0.25
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
