@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.05.12
-script_version=r10001
+script_version=r10002
 ################################################################################################
 
 usage_guide() {
@@ -42,7 +42,7 @@ local LockName=$1
 [[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
 [[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
 
-spinner() {
+function spinner() {
     local pid=$1
     local delay=0.25
     local spinstr='|/-\'
@@ -56,3 +56,24 @@ spinner() {
     printf "    \b\b\b\b"
 }
 
+# These codes are from rtinst and QuickBox
+function apt_install() {
+[[ -z $output ]] && echo "ERROR: No output" && exit 1
+arg=("$@")
+packages=("${arg[@]:1}")
+[[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
+for package_name in "${packages[@]}" ; do
+    if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+        if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+            install_list="$install_list $package_name"
+        fi
+    else
+        echo "$package_name not found, skipping" >> $output 2>&1
+    fi
+done
+test -z "$install_list" || apt-get -y install $install_list >> $output 2>&1
+if [ ! $? = 0 ]; then
+    echo -e "ERROR: Failed to install packages"
+    exit 1
+fi
+}
