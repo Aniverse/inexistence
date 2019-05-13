@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.12
-script_version=r10029
+script_update=2019.05.13
+script_version=r10030
 ################################################################################################
 
 usage_guide() {
@@ -36,7 +36,7 @@ OutputLOG=$LogTimes/install/libtorrent_rasterbar.txt    # /dev/null
 DebLocation=$LogTimes/deb
 SCLocation=$LogTimes/source
 LOCKLocation=$LogTimes/lock
-source /etc/inexistence/00.Installation/source --output $OutputLOG
+source /etc/inexistence/00.Installation/function --output $OutputLOG
 
 ################################################################################################
 
@@ -147,6 +147,7 @@ cp -f libtorrent-rasterb*.deb $DebLocation
 # Install from pre-compiled deb package (libtorrent-rasterbar8, based on RC_1_0 #62c96797a06a024dc17a44931c19afe6f7bd7d6c with python-binding fix)
 function install_lt8_deb() {
 
+[[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb for Buster, please ust libtorrent 1.1 or later." ; exit 1 ; }
 wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb >> $OutputLOG 2>&1
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
@@ -162,9 +163,8 @@ dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 # with python-binding fix (from amefs) and #5a48292aefd6ebffd5be6b237081ba2d978a2caa fix (Announce only once to private trackers, by Airium)
 function install_lt9_deb() {
 
-wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.$CODENAME.amd64.deb >> $OutputLOG 2>&1
-
-dpkg -i lt.$CODENAME.1.1.12.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb >> $OutputLOG 2>&1
+dpkg -i lt.$CODENAME.1.1.13.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
