@@ -3,12 +3,12 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.12
-script_version=r10003
+script_update=2019.05.13
+script_version=r10004
 ################################################################################################
 
 usage_guide() {
-source /etc/inexistence/00.Installation/source
+source /etc/inexistence/00.Installation/function
 }
 
 ################################################################################################ Get options
