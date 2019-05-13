@@ -36,7 +36,7 @@ OutputLOG=$LogTimes/install/libtorrent_rasterbar.txt    # /dev/null
 DebLocation=$LogTimes/deb
 SCLocation=$LogTimes/source
 LOCKLocation=$LogTimes/lock
-source /etc/inexistence/00.Installation/function --output $OutputLOG
+source /etc/inexistence/00.Installation/install/function --output $OutputLOG
 
 ################################################################################################
 
