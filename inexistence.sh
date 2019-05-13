@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.11
+INEXISTENCEVER=1.1.1.12
 INEXISTENCEDATE=2019.05.13
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1794,7 +1794,7 @@ hash -d pip
 
 # Upgrade vnstat, compile from source
 cd $SourceLocation
-wget https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz -O vnstat-2.2.tar.gz
+wget https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
 tar zxf vnstat-2.2.tar.gz
 rm -f vnstat-2.2.tar.gz
 cd vnstat-2.2
@@ -1809,7 +1809,7 @@ systemctl restart vnstatd
 
 # Install NConvert
 cd $SourceLocation
-wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz -O NConvert-linux64.tgz && {
+wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz && {
 tar zxf NConvert-linux64.tgz
 mv NConvert/nconvert /usr/local/bin
 rm -rf NConvert* ; }
@@ -1938,7 +1938,7 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget -O qt.5.5.1-1.jessie.amd64.deb https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
+        wget https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
         dpkg -i qt.5.5.1-1.jessie.amd64.deb && rm -f qt.5.5.1-1.jessie.amd64.deb
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -2020,15 +2020,15 @@ else
 
     if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
         export de_version=1.3.15
-        wget --no-check-certificate -O deluge-$de_version.tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-$de_version.skip.tar.gz
-        tar xf deluge-$de_version.tar.gz
-        rm -f deluge-$de_version.tar.gz
-        cd deluge-$de_version
+        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz
+        tar xf deluge-1.3.15.skip.tar.gz
+        rm -f deluge-1.3.15.skip.tar.gz
+        cd deluge-1.3.15
     elif [[ $de_version == 2.0.dev ]]; then
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
+        wget http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge-$de_version
@@ -2046,7 +2046,7 @@ else
         python setup.py build  > /dev/null
         python setup.py install --install-layout=deb  > /dev/null
         mv -f /usr/bin/deluged /usr/bin/deluged2
-        wget --no-check-certificate http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
+        wget http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
         tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
     fi
 
@@ -2121,7 +2121,7 @@ touch $LockLocation/deluge.lock ; }
 
 function _installrt() {
 
-bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
 sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
@@ -2192,7 +2192,7 @@ else
     [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
     cd $SourceLocation
-    wget --no-check-certificate -O release-2.1.8-stable.tar.gz https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+    wget https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
     mv libevent-release-2.1.8-stable libevent-2.1.8
     cd libevent-2.1.8
@@ -2206,7 +2206,7 @@ else
     cd ..
 
     if [[ $TRdefault == No ]]; then
-        wget --no-check-certificate -O transmission-$tr_version.tar.gz https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$tr_version.tar.gz
+        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$tr_version.tar.gz
         tar xf transmission-$tr_version.tar.gz ; rm -f transmission-$tr_version.tar.gz
         cd transmission-$tr_version
     else
@@ -2247,7 +2247,7 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; 
 
 function _settr() {
 
-echo 1 | bash -c "$(wget --no-check-certificate -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
@@ -2313,7 +2313,7 @@ function _installrclone() {
 [[ "$lbit" == '32' ]] && KernelBitVer='i386'
 [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
 [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
-cd; wget --no-check-certificate https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
+cd; wget https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
 unzip rclone-current-linux-$KernelBitVer.zip
 cd rclone-*-linux-$KernelBitVer
 cp rclone /usr/bin/
@@ -2361,9 +2361,9 @@ else
     [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  ${bold}Installing libssl1.0.0 ...${normal} "  ; apt-get install -y libssl1.0.0 ; }
 fi
 
-wget --no-check-certificate -qO 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
-wget --no-check-certificate -qO 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
-wget --no-check-certificate -qO 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
+wget -qO 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
+wget -qO 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
+wget -qO 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
 dpkg -i [123].deb
 rm -rf [123].deb
 update-grub ; }
@@ -2523,7 +2523,7 @@ chmod +x /usr/local/bin/bluray
 # https://johnvansickle.com/ffmpeg/
 
 mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
-wget -t2 -T5 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O ffmpeg-release-amd64-static.tar.xz
+wget -t2 -T5 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
 tar xf ffmpeg-release-amd64-static.tar.xz
 cd ffmpeg*
 cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
@@ -2541,7 +2541,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
 ######################  eac3to  ######################
 
 cd /etc/inexistence/02.Tools/eac3to
-wget --no-check-certificate -q http://madshi.net/eac3to.zip
+wget -q http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
