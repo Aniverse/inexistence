@@ -8,7 +8,7 @@ script_version=r10004
 ################################################################################################
 
 usage_guide() {
-source /etc/inexistence/00.Installation/function
+source /etc/inexistence/00.Installation/install/function
 }
 
 ################################################################################################ Get options
