@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.10
-INEXISTENCEDATE=2019.05.12
+INEXISTENCEVER=1.1.1.11
+INEXISTENCEDATE=2019.05.13
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -633,17 +633,14 @@ fi ; }
 
 function _askaptsource() {
 
-while [[ $aptsources = "" ]]; do
-
-    read -ep "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " responce
-  # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
-
+while [[ -z $aptsources ]]; do
+    read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [Y]es or [${cyan}N${normal}]o: " responce
+  # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
     case $responce in
-        [yY] | [yY][Ee][Ss] | "" ) aptsources=Yes ;;
-        [nN] | [nN][Oo]          ) aptsources=No ;;
-        *                        ) aptsources=Yes ;;
+        [yY] | [yY][Ee][Ss]  ) aptsources=Yes ;;
+        [nN] | [nN][Oo] | "" ) aptsources=No ;;
+        *                    ) aptsources=No ;;
     esac
-
 done
 
 if [[ $aptsources == Yes ]]; then
@@ -703,7 +700,7 @@ echo ; }
 function _askswap() {
 
 [[ -d /proc/vz ]] && [[ $tram -le 1926 ]] && {
-echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script"
+echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script\n"
 USESWAP=OpenVZ ; }
 
 if [[ -z $USESWAP ]] && [[ $tram -le 1926 ]]; then
@@ -917,6 +914,7 @@ function _lt_ver_ask() {
 
 # 默认 lt 1.0 可用
 lt8_support=Yes
+[[ $CODENAME == Buster ]] && lt8_support=No
 # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.11；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
 # 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
 [[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
@@ -929,7 +927,7 @@ while [[ $lt_version = "" ]]; do
 
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
-    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.12${normal} (${blue}RC_1_1${normal} branch)"
+    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.13${normal} (${blue}RC_1_1${normal} branch)"
     echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.1 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
