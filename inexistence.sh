@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.12
-INEXISTENCEDATE=2019.05.13
+INEXISTENCEVER=1.1.1.13
+INEXISTENCEDATE=2019.05.14
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1760,7 +1760,7 @@ apt-get -y update
 dpkg --configure -a
 apt-get -f -y install
 
-#wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
+#wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
@@ -1794,7 +1794,7 @@ hash -d pip
 
 # Upgrade vnstat, compile from source
 cd $SourceLocation
-wget https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
+wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
 tar zxf vnstat-2.2.tar.gz
 rm -f vnstat-2.2.tar.gz
 cd vnstat-2.2
@@ -1809,7 +1809,7 @@ systemctl restart vnstatd
 
 # Install NConvert
 cd $SourceLocation
-wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz && {
+wget -t1 -T5 -nv -N http://download.xnview.com/NConvert-linux64.tgz && {
 tar zxf NConvert-linux64.tgz
 mv NConvert/nconvert /usr/local/bin
 rm -rf NConvert* ; }
@@ -1817,7 +1817,7 @@ rm -rf NConvert* ; }
 # Install checkinstall for Debian Buster
 [[ $CODENAME == buster ]] && {
 cd $SourceLocation
-wget https://github.com/Aniverse/inexistence/raw/files/debian.package/checkinstall.1.6.2-4.stretch.amd64.deb
+wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/checkinstall.1.6.2-4.stretch.amd64.deb
 dpkg -i checkinstall.1.6.2-4.stretch.amd64.deb ; }
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
@@ -1938,7 +1938,7 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
         dpkg -i qt.5.5.1-1.jessie.amd64.deb && rm -f qt.5.5.1-1.jessie.amd64.deb
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -2020,7 +2020,7 @@ else
 
     if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
         export de_version=1.3.15
-        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz
+        wget -nv -N https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz
         tar xf deluge-1.3.15.skip.tar.gz
         rm -f deluge-1.3.15.skip.tar.gz
         cd deluge-1.3.15
@@ -2028,7 +2028,7 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
+        wget -nv -N http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge-$de_version
@@ -2046,7 +2046,7 @@ else
         python setup.py build  > /dev/null
         python setup.py install --install-layout=deb  > /dev/null
         mv -f /usr/bin/deluged /usr/bin/deluged2
-        wget http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
+        wget -nv -N http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
         tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
     fi
 
@@ -2192,7 +2192,7 @@ else
     [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
     cd $SourceLocation
-    wget https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+    wget -nv -N https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
     tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
     mv libevent-release-2.1.8-stable libevent-2.1.8
     cd libevent-2.1.8
@@ -2206,7 +2206,7 @@ else
     cd ..
 
     if [[ $TRdefault == No ]]; then
-        wget https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$tr_version.tar.gz
+        wget -nv -N https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$tr_version.tar.gz
         tar xf transmission-$tr_version.tar.gz ; rm -f transmission-$tr_version.tar.gz
         cd transmission-$tr_version
     else
@@ -2313,7 +2313,7 @@ function _installrclone() {
 [[ "$lbit" == '32' ]] && KernelBitVer='i386'
 [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
 [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
-cd; wget https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
+cd; wget -nv -N https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
 unzip rclone-current-linux-$KernelBitVer.zip
 cd rclone-*-linux-$KernelBitVer
 cp rclone /usr/bin/
@@ -2361,9 +2361,9 @@ else
     [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  ${bold}Installing libssl1.0.0 ...${normal} "  ; apt-get install -y libssl1.0.0 ; }
 fi
 
-wget -qO 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
-wget -qO 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
-wget -qO 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
+wget -nv -N O 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-all.deb
+wget -nv -N O 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-headers-4.11.12-amd64.deb
+wget -nv -N O 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux%20Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
 dpkg -i [123].deb
 rm -rf [123].deb
 update-grub ; }
@@ -2385,7 +2385,7 @@ touch $LockLocation/bbr.lock ; }
 function bnx2_firmware() {
 mkdir -p /lib/firmware/bnx2 && cd /lib/firmware/bnx2
 bnx2="bnx2-mips-09-6.2.1b.fw bnx2-mips-06-6.2.3.fw bnx2-rv2p-09ax-6.0.17.fw bnx2-rv2p-09-6.0.17.fw bnx2-rv2p-06-6.0.15.fw"
-for f in $bnx2 ; do wget https://github.com/Aniverse/inexistence/raw/files/firmware/bnx2/$f -O $f ; done ; }
+for f in $bnx2 ; do wget -nv -N https://github.com/Aniverse/inexistence/raw/files/firmware/bnx2/$f -O $f ; done ; }
 
 
 
@@ -2495,9 +2495,8 @@ fi
 apt-get update -y
 apt-get install -y --install-recommends winehq-stable
 
-wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
-chmod +x winetricks
-mv winetricks /usr/local/bin
+wget -nv -N https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/local/bin/winetricks
+chmod 755 /usr/local/bin/winetricks
 
 touch $LockLocation/winemono.lock
 
@@ -2516,14 +2515,14 @@ function _installtools() {
 
 ########## Blu-ray script ##########
 
-wget -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
+wget -nv -N -O /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
 chmod +x /usr/local/bin/bluray
 
 ########## Install ffmpeg ##########
 # https://johnvansickle.com/ffmpeg/
 
 mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
-wget -t2 -T5 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
 tar xf ffmpeg-release-amd64-static.tar.xz
 cd ffmpeg*
 cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
@@ -2541,7 +2540,7 @@ apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
 ######################  eac3to  ######################
 
 cd /etc/inexistence/02.Tools/eac3to
-wget -q http://madshi.net/eac3to.zip
+wget -nv -N http://madshi.net/eac3to.zip
 unzip -qq eac3to.zip
 rm -rf eac3to.zip ; cd
 
