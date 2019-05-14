@@ -1,0 +1,11 @@
+$OpenBSD$
+--- t/001_tests.t.orig	Sat Nov 15 14:41:13 2014
++++ t/001_tests.t	Sat Nov 15 14:41:27 2014
+@@ -109,6 +109,7 @@ SKIP: {
+     #we use Storable so we do not rely on bencode
+     eval q{use Storable qw(freeze)}; 
+     skip "Storable not available", 12 if $@;
++    local $Storable::canonical = 1;
+     local $Convert::Bencode_XS::COERCE = 0;
+     is( freeze(bdecode('le')), freeze([]) );
+     is( freeze(bdecode('l0:0:0:e')), freeze(['', '', '']) );
