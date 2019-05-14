@@ -1,0 +1,150 @@
+diff -Nur libtorrent-0.13.4/configure.ac libtorrent-0.13.4-patched/configure.ac
+--- libtorrent-0.13.4/configure.ac  2019-01-12 14:09:46.769154822 -0500
++++ libtorrent-0.13.4-patched/configure.ac  2014-05-14 10:18:48.000000000 -0400
+@@ -19,6 +19,7 @@
+  
+ AM_INIT_AUTOMAKE
+ AC_CONFIG_HEADERS(config.h)
++AM_PATH_CPPUNIT(1.9.6)
+  
+ AC_PROG_CXX
+  
+@@ -55,25 +56,21 @@
+ CC_ATTRIBUTE_VISIBILITY
+  
+ AX_PTHREAD([], AC_MSG_ERROR([requires pthread]))
+-PKG_CHECK_MODULES([CPPUNIT], [cppunit],, [no_cppunit="yes"])
+  
+-CFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CFLAGS"
+-CXXFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
+-LIBS="$PTHREAD_LIBS $CPPUNIT_LIBS $LIBS"
++CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
++CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
++LIBS="$PTHREAD_LIBS $LIBS"
+  
+ AC_ARG_ENABLE(openssl,
+   [  --disable-openssl       Don't use OpenSSL's SHA1 implementation.],
+   [
+     if test "$enableval" = "yes"; then
+-dnl move to scripts.
+       PKG_CHECK_MODULES(OPENSSL, libcrypto,
+         CXXFLAGS="$CXXFLAGS $OPENSSL_CFLAGS";
+         LIBS="$LIBS $OPENSSL_LIBS")
+  
+       AC_DEFINE(USE_OPENSSL, 1, Using OpenSSL.)
+       AC_DEFINE(USE_OPENSSL_SHA, 1, Using OpenSSL's SHA1 implementation.)
+-      AC_CHECK_LIB([crypto], [DH_set0_pqg], [AC_DEFINE(USE_OPENSSL_1_1, 1, Using OpenSSL 1.1.)])
+-
+     else
+       AC_DEFINE(USE_NSS_SHA, 1, Using Mozilla's SHA1 implementation.)
+     fi
+@@ -84,7 +81,6 @@
+  
+     AC_DEFINE(USE_OPENSSL, 1, Using OpenSSL.)
+     AC_DEFINE(USE_OPENSSL_SHA, 1, Using OpenSSL's SHA1 implementation.)
+-    AC_CHECK_LIB([crypto], [DH_set0_pqg], [AC_DEFINE(USE_OPENSSL_1_1, 1, Using OpenSSL 1.1.)])
+   ]
+ )
+  
+diff -Nur libtorrent-0.13.4/src/utils/diffie_hellman.cc libtorrent-0.13.4-patched/src/utils/diffie_hellman.cc
+--- libtorrent-0.13.4/src/utils/diffie_hellman.cc   2019-01-12 14:09:46.773154827 -0500
++++ libtorrent-0.13.4-patched/src/utils/diffie_hellman.cc   2014-05-14 10:18:48.000000000 -0400
+@@ -48,29 +48,16 @@
+  
+ namespace torrent {
+  
+-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ DiffieHellman::DiffieHellman(const unsigned char *prime, int primeLength,
+                              const unsigned char *generator, int generatorLength) :
+   m_secret(NULL), m_size(0) {
+  
+ #ifdef USE_OPENSSL
+-
+   m_dh = DH_new();
+-
+-#ifdef USE_OPENSSL_1_1
+-  BIGNUM * const dh_p = BN_bin2bn(prime, primeLength, NULL);
+-  BIGNUM * const dh_g = BN_bin2bn(generator, generatorLength, NULL);
+-
+-  if (dh_p == NULL || dh_g == NULL ||
+-      !DH_set0_pqg(m_dh, dh_p, NULL, dh_g))
+-     throw internal_error("Could not generate Diffie-Hellman parameters");
+-#else
+   m_dh->p = BN_bin2bn(prime, primeLength, NULL);
+   m_dh->g = BN_bin2bn(generator, generatorLength, NULL);
+-#endif
+  
+   DH_generate_key(m_dh);
+-
+ #else
+   throw internal_error("Compiled without encryption support.");
+ #endif
+@@ -86,25 +73,13 @@
+ bool
+ DiffieHellman::is_valid() const {
+ #ifdef USE_OPENSSL
+-  if (m_dh == NULL)
+-    return false;
+-
+-#ifdef USE_OPENSSL_1_1
+-  const BIGNUM *pub_key;
+-
+-  DH_get0_key(m_dh, &pub_key, NULL);
+-
+-  return pub_key != NULL;
+-#else
+   return m_dh != NULL && m_dh->pub_key != NULL;
+-#endif
+-
+ #else
+   return false;
+ #endif
+ }
+  
+-bool
++void
+ DiffieHellman::compute_secret(const unsigned char *pubkey, unsigned int length) {
+ #ifdef USE_OPENSSL
+   BIGNUM* k = BN_bin2bn(pubkey, length, NULL);
+@@ -115,10 +90,6 @@
+   m_size = DH_compute_key((unsigned char*)m_secret, k, m_dh);
+    
+   BN_free(k);
+-
+-  return m_size != -1;
+-#else
+-  return false;
+ #endif
+ };
+  
+@@ -127,16 +98,8 @@
+ #ifdef USE_OPENSSL
+   std::memset(dest, 0, length);
+  
+-  const BIGNUM *pub_key;
+-
+-#ifdef USE_OPENSSL_1_1
+-  DH_get0_key(m_dh, &pub_key, NULL);
+-#else
+-  pub_key = m_dh->pub_key;
+-#endif
+-
+-  if ((int)length >= BN_num_bytes(pub_key))
+-    BN_bn2bin(pub_key, dest + length - BN_num_bytes(pub_key));
++  if ((int)length >= BN_num_bytes(m_dh->pub_key))
++    BN_bn2bin(m_dh->pub_key, dest + length - BN_num_bytes(m_dh->pub_key));
+ #endif
+ }
+  
+diff -Nur libtorrent-0.13.4/src/utils/diffie_hellman.h libtorrent-0.13.4-patched/src/utils/diffie_hellman.h
+--- libtorrent-0.13.4/src/utils/diffie_hellman.h    2019-01-12 14:09:46.773154827 -0500
++++ libtorrent-0.13.4-patched/src/utils/diffie_hellman.h    2014-05-06 04:22:57.000000000 -0400
+@@ -53,7 +53,7 @@
+                 const unsigned char generator[], int generatorLength);
+   ~DiffieHellman();
+  
+-  bool                compute_secret(const unsigned char pubkey[], unsigned int length);
++  void                compute_secret(const unsigned char pubkey[], unsigned int length);
+   void                store_pub_key(unsigned char* dest, unsigned int length);
+  
+   bool                is_valid() const;
