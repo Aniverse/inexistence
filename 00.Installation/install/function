@@ -13,15 +13,13 @@ source /etc/inexistence/00.Installation/install/function
 
 ################################################################################################ Get options
 
-OPTS=$(getopt -n "$0" -o "a:" --long "output:" -- "$@")
+OPTS=$(getopt -o o: -al output: -- "$@")
 eval set -- "$OPTS"
 
-while true; do
-    case "$1" in
-        -a | --output     ) output="$2" ; shift 2 ;;
-        *  ) echo "Invalid option $1" ; break ; exit 1 ;;
-    esac
-done
+while [ -n "$1" ] ; do case "$1" in
+    -o | --output ) output="$2" ; shift 2 ;;
+    -- ) break ;;
+esac ; done
 
 ################################################################################################ Colors
 
