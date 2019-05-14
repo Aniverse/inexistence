@@ -16,28 +16,28 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.15
-INEXISTENCEDATE=2019.05.14
+INEXISTENCEVER=1.1.1.16
+INEXISTENCEDATE=2019.05.15
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+[ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
 
-while true; do
-  case "$1" in
-    -u | --user     ) iUser=$2       ; shift ; shift ;;
-    -p | --password ) iPass=$2       ; shift ; shift ;;
-    -b | --branch   ) iBranch=$2     ; shift ; shift ;;
+while [ -n "$1" ] ; do case "$1" in
+    -u | --user     ) iUser=$2       ; shift 2 ;;
+    -p | --password ) iPass=$2       ; shift 2 ;;
+    -b | --branch   ) iBranch=$2     ; shift 2 ;;
 
-    --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift ; shift ;;
-    --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift ; shift ;;
-    --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift ; shift ;;
-    --rt            ) rt_version=$2 ; shift ; shift ;;
-    --lt            ) lt_version=$2 ; shift ; shift ;;
+    --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift 2 ;;
+    --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift 2 ;;
+    --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift 2 ;;
+    --rt            ) rt_version=$2 ; shift 2 ;;
+    --lt            ) lt_version=$2 ; shift 2 ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
@@ -73,12 +73,10 @@ while true; do
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
 
-    -- ) shift; break ;;
-     * ) break ;;
-  esac
-done
+    -- ) shift ; break ;;
+esac ; done
 
-[ $# -gt 0 ] && { echo "No arguments allowed $1 is not a valid argument" ; exit 1 ; }
+# [ $# -gt 0 ] && { echo "No arguments allowed $1 is not a valid argument" ; exit 1 ; }
 [[ $DeBUG == 1 ]] && { iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc) ; }
 
 [[ -z $iBranch ]] && iBranch=$default_branch
@@ -89,6 +87,7 @@ export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 export local_packages=/etc/inexistence/00.Installation
+
 export LogBase=/log/inexistence
 export LogTimes=$LogBase/$times
 export SourceLocation=$LogTimes/source
@@ -116,7 +115,7 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 _colors
 # --------------------------------------------------------------------------------
 
-function swap_on() { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
+function swap_on()  { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
 function swap_off() { swapoff /root/.swapfile  ;  rm -f /root/.swapfile ; }
 
 # 用于退出脚本
@@ -185,9 +184,6 @@ lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&
 lt_ver_qb3_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_ok=Yes
 lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=Yes ; }
 
-# --------------------------------------------------------------------------------
-### 随机数 ###
-function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 # --------------------------------------------------------------------------------
 
 ### 输入自己想要的软件版本 ###
@@ -1557,9 +1553,9 @@ apt-get -f -y install
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop atop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree tput time parted fuse perl
+ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch       python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby uuid socat cfv         figlet toilet lolcat       libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
+ruby uuid socat             figlet toilet lolcat       libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
 
 ######## These codes are from rtinst ########
