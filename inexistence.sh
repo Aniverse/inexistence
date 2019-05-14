@@ -16,14 +16,14 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.13
+INEXISTENCEVER=1.1.1.14
 INEXISTENCEDATE=2019.05.14
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,skip-apps,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -n "$0" -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -45,7 +45,6 @@ while true; do
 
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
-    --skip-apps     ) SKIPAPPS="Yes"    ; shift ;;
     --tr-skip       ) TRdefault="No"    ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
     --apt-yes       ) aptsources="Yes"  ; shift ;;
@@ -1445,7 +1444,7 @@ kernel_vvv=$(uname -r | cut -d- -f1)
 # ls /lib/modules/\$(uname -r)/kernel/net/ipv4 | grep tcp_bbr.ko -q
 
 # 询问是否安装BBR
-function _askbbr() { check_bbr_status
+function ask_bbr() { check_bbr_status
 
 if [[ $bbrinuse == Yes ]]; then
     echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
@@ -1492,7 +1491,7 @@ echo ; }
 
 # --------------------- 询问是否需要修改一些设置 --------------------- #
 
-function _asktweaks() {
+function ask_tweaks() {
 
 while [[ $UseTweaks = "" ]]; do
 
@@ -1568,7 +1567,7 @@ fi ; }
 
 # --------------------- 询问是否继续 --------------------- #
 
-function _askcontinue() {
+function ask_continue() {
 
 [[ $script_lang == eng ]] && echo -e "\n${bold}Please check the following information${normal}"
 [[ $script_lang == chs ]] && echo -e "\n${bold}                  请确认以下安装信息${normal}"
@@ -1612,129 +1611,15 @@ echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区
 
 
 
-# --------------------- 创建用户、准备工作 --------------------- #
+# --------------------- 替换系统源、创建用户、准备工作 --------------------- #
 
-function _setuser() {
+function preparation() {
 
-[[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
-git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
-chmod -R 755 /etc/inexistence
-
-if id -u $iUser >/dev/null 2>&1; then
-    echo -e "\n$iUser already exists\n"
-else
-    adduser --gecos "" $iUser --disabled-password --force-badname
-    echo "$iUser:$iPass" | sudo chpasswd
-fi
+[[ $USESWAP == Yes ]] && _use_swap
 
 # 临时
 mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation
 echo $iUser >> $LogBase/iUser.txt
-
-cat >> $LogTimes/installed.log << EOF
-如果要截图请截完整点，包含下面所有信息
-CPU        : $cname"
-Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
-Mem        : $tram MB ($uram MB Used)"
-Disk       : $disk_total_size GB ($disk_used_size GB Used)
-OS         : $DISTRO $osversion $CODENAME ($arch)
-Kernel     : $kern
-ASN & ISP  : $asnnnnn, $isppppp
-Location   : $cityyyy, $regionn, $country
-Virt       : $virtua
-#################################
-Times=$times
-INEXISTENCEVER=${INEXISTENCEVER}
-INEXISTENCEDATE=${INEXISTENCEDATE}
-SETUPDATE=$(date "+%Y.%m.%d %H:%M")
-MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
-HOMEUSER=$(ls /home)
-USESWAP=$USESWAP
-#################################
-MAXCPUS=${MAXCPUS}
-APTSOURCES=${aptsources}
-qb_version=${qb_version}
-de_version=${de_version}
-rt_version=${rt_version}
-tr_version=${tr_version}
-lt_version=${lt_version}
-FLEXGET=${InsFlex}
-RCLONE=${InsRclone}
-BBR=${InsBBR}
-USETWEAKS=${UseTweaks}
-UPLOADTOOLS=${InsTools}
-RDP=${InsRDP}
-WINE=${InsWine}
-FLOOD=${InsFlood}
-#################################
-如果要截图请截完整点，包含上面所有信息
-
-EOF
-
-cat >> $LogBase/version << EOF
-inexistence.times       $times
-inexistence.version     $INEXISTENCEVER
-inexistence.update      $INEXISTENCEDATE
-inexistence.lang        $script_lang
-inexistence.user        $iUser
-inexistence.setup       $(date "+%Y.%m.%d %H:%M")
-ASN                     $asnnnnn
-
-EOF
-
-# 提高文件打开数
-sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
-sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
-echo "fs.file-max = 1048576" >> /etc/sysctl.conf
-echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
-
-sed -i '/.*nofile.*/'d /etc/security/limits.conf
-sed -i '/.*nproc.*/'d /etc/security/limits.conf
-
-cat >> /etc/security/limits.conf <<EOF
-* - nofile 1048575
-* - nproc 1048575
-root soft nofile 1048574
-root hard nofile 1048574
-$iUser hard nofile 1048573
-$iUser soft nofile 1048573
-EOF
-
-sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
-sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
-echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
-echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
-
-# 脚本设置
-mkdir -p /etc/inexistence/00.Installation
-mkdir -p /etc/inexistence/01.Log
-mkdir -p /etc/inexistence/02.Tools/eac3to
-mkdir -p /etc/inexistence/03.Files
-mkdir -p /etc/inexistence/04.Upload
-mkdir -p /etc/inexistence/05.Output
-mkdir -p /etc/inexistence/06.BluRay
-mkdir -p /etc/inexistence/07.Screenshots
-mkdir -p /etc/inexistence/08.BDinfo
-mkdir -p /etc/inexistence/09.Torrents
-mkdir -p /etc/inexistence/10.Demux
-mkdir -p /etc/inexistence/11.Remux
-mkdir -p /etc/inexistence/12.Output2
-mkdir -p /var/www/h5ai
-
-cp $local_packages/install/qbittorrent/qb /usr/local/bin
-ln -s /etc/inexistence /var/www/h5ai/inexistence
-cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
-sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip ; }
-
-
-
-
-
-# --------------------- 替换系统源 --------------------- #
-
-function _setsources() {
-
-[[ $USESWAP == Yes ]] && _use_swap
 
 if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
     cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
@@ -1822,6 +1707,114 @@ dpkg -i checkinstall.1.6.2-4.stretch.amd64.deb ; }
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
 
+# Get repository
+[[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
+git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
+chmod -R 755 /etc/inexistence
+
+# Add user
+if id -u $iUser >/dev/null 2>&1; then
+    echo -e "\n$iUser already exists\n"
+else
+    adduser --gecos "" $iUser --disabled-password --force-badname
+    echo "$iUser:$iPass" | sudo chpasswd
+fi
+
+cat << EOF >> $LogTimes/installed.log
+如果要截图请截完整点，包含下面所有信息
+CPU        : $cname"
+Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
+Mem        : $tram MB ($uram MB Used)"
+Disk       : $disk_total_size GB ($disk_used_size GB Used)
+OS         : $DISTRO $osversion $CODENAME ($arch)
+Kernel     : $kern
+ASN & ISP  : $asnnnnn, $isppppp
+Location   : $cityyyy, $regionn, $country
+Virt       : $virtua
+#################################
+Times=$times
+INEXISTENCEVER=${INEXISTENCEVER}
+INEXISTENCEDATE=${INEXISTENCEDATE}
+SETUPDATE=$(date "+%Y.%m.%d %H:%M")
+MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+HOMEUSER=$(ls /home)
+USESWAP=$USESWAP
+#################################
+MAXCPUS=${MAXCPUS}
+APTSOURCES=${aptsources}
+qb_version=${qb_version}
+de_version=${de_version}
+rt_version=${rt_version}
+tr_version=${tr_version}
+lt_version=${lt_version}
+FLEXGET=${InsFlex}
+RCLONE=${InsRclone}
+BBR=${InsBBR}
+USETWEAKS=${UseTweaks}
+UPLOADTOOLS=${InsTools}
+RDP=${InsRDP}
+WINE=${InsWine}
+FLOOD=${InsFlood}
+#################################
+如果要截图请截完整点，包含上面所有信息
+
+EOF
+
+cat << EOF >> $LogBase/version
+inexistence.times       $times
+inexistence.version     $INEXISTENCEVER
+inexistence.update      $INEXISTENCEDATE
+inexistence.lang        $script_lang
+inexistence.user        $iUser
+inexistence.setup       $(date "+%Y.%m.%d %H:%M")
+ASN                     $asnnnnn
+
+EOF
+
+# Raise open file limits
+sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
+sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
+echo "fs.file-max = 1048576" >> /etc/sysctl.conf
+echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
+
+sed -i '/.*nofile.*/'d /etc/security/limits.conf
+sed -i '/.*nproc.*/'d /etc/security/limits.conf
+
+cat << EOF >> /etc/security/limits.conf
+* - nofile 1048575
+* - nproc 1048575
+root soft nofile 1048574
+root hard nofile 1048574
+$iUser hard nofile 1048573
+$iUser soft nofile 1048573
+EOF
+
+sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
+sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
+echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
+echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
+
+# 脚本设置
+mkdir -p /etc/inexistence/00.Installation
+mkdir -p /etc/inexistence/01.Log
+mkdir -p /etc/inexistence/02.Tools/eac3to
+mkdir -p /etc/inexistence/03.Files
+mkdir -p /etc/inexistence/04.Upload
+mkdir -p /etc/inexistence/05.Output
+mkdir -p /etc/inexistence/06.BluRay
+mkdir -p /etc/inexistence/07.Screenshots
+mkdir -p /etc/inexistence/08.BDinfo
+mkdir -p /etc/inexistence/09.Torrents
+mkdir -p /etc/inexistence/10.Demux
+mkdir -p /etc/inexistence/11.Remux
+mkdir -p /etc/inexistence/12.Output2
+mkdir -p /var/www/h5ai
+
+cp $local_packages/install/qbittorrent/qb /usr/local/bin
+ln -s /etc/inexistence /var/www/h5ai/inexistence
+cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
+sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
+
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 }
 
@@ -1895,7 +1888,7 @@ exit 0 ; }
 
 # --------------------- 安装 libtorrent-rasterbar --------------------- #
 
-function _install_lt() {
+function install_libtorrent() {
 
 [[ $DeBUG == 1 ]] && {
 echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
@@ -1924,7 +1917,7 @@ fi ; }
 
 # --------------------- 安装 qBittorrent --------------------- #
 
-function _installqbt() {
+function install_qbittorrent() {
 
 if [[ $qb_version == "Install from repo" ]]; then
     apt-get install -y qbittorrent-nox
@@ -1992,14 +1985,14 @@ fi ; }
 
 
 # 设置 qBittorrent#
-function _setqbt() {
+function config_qbittorrent() {
 bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 
 
 
 # 安装 Deluge
-function _installde() {
+function install_deluge() {
 
     if [[ $de_test == yes ]] ; then
         [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -v $de_version
@@ -2068,7 +2061,7 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 
 # --------------------- Deluge 启动脚本、配置文件 --------------------- #
 
-function _setde() {
+function config_deluge() {
 
 mkdir -p /home/$iUser/deluge/{download,torrent,watch} /var/www
 rm -rf /var/www/h5ai/deluge
@@ -2119,7 +2112,7 @@ touch $LockLocation/deluge.lock ; }
 
 # --------------------- 使用修改版 rtinst 安装 rTorrent, ruTorrent，h5ai, vsftpd --------------------- #
 
-function _installrt() {
+function install_rtorrent() {
 
 bash -c "$(wget -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
 
@@ -2143,7 +2136,7 @@ cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" 
 
 # --------------------- 安装 Node.js 与 flood --------------------- #
 
-function _installflood() {
+function install_flood() {
 
 # https://github.com/nodesource/distributions/blob/master/README.md
 # curl -sL https://deb.nodesource.com/setup_11.x | bash -
@@ -2175,7 +2168,7 @@ cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\
 
 # --------------------- 安装 Transmission --------------------- #
 
-function _installtr() {
+function install_transmission() {
 
 if [[ "${tr_version}" == "Install from repo" ]]; then
     apt-get install -y transmission-daemon
@@ -2245,7 +2238,7 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; 
 
 # --------------------- 配置 Transmission --------------------- #
 
-function _settr() {
+function config_transmission() {
 
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 
@@ -2276,7 +2269,7 @@ touch $LockLocation/transmission.lock ; }
 
 # --------------------- 安装、配置 Flexget --------------------- #
 
-function _installflex() {
+function install_flexget() {
 
   pip install markdown 
   pip install flexget
@@ -2309,7 +2302,7 @@ function _installflex() {
 
 # --------------------- 安装 rclone --------------------- #
 
-function _installrclone() {
+function install_rclone() {
 [[ "$lbit" == '32' ]] && KernelBitVer='i386'
 [[ "$lbit" == '64' ]] && KernelBitVer='amd64'
 [[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
@@ -2393,7 +2386,7 @@ for f in $bnx2 ; do wget -nv -N https://github.com/Aniverse/inexistence/raw/file
 
 # --------------------- 安装 VNC --------------------- #
 
-function _installvnc() {
+function install_vnc() {
 
 apt-get install -y vnc4server
 apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy #fcitx
@@ -2426,7 +2419,7 @@ echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 安装 X2Go --------------------- #
 
-function _installx2go() {
+function install_x2go() {
 
 apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
 echo -e "\n\n\n  xfce4  \n\n\n\n"
@@ -2465,7 +2458,7 @@ echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 安装 wine 与 mono --------------------- #
 
-function _installwine() {
+function install_wine() {
 
 # mono
 # http://www.mono-project.com/download/stable/#download-lin
@@ -2511,7 +2504,7 @@ echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
-function _installtools() {
+function install_tools() {
 
 ########## Blu-ray script ##########
 
@@ -2558,7 +2551,7 @@ echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 
 # --------------------- 一些设置修改 --------------------- #
-function _tweaks() {
+function system_tweaks() {
 
 # 修改时区为东八区
 rm -rf /etc/localtime
@@ -2720,21 +2713,19 @@ echo ; }
 
 
 
-# --------------------- 结构 --------------------- #
+######################################################################################################
 
 _intro
 _askusername
 _askpassword
-[[ $SKIPAPPS == Yes ]] && echo -e "\n${baizise}Useful apps will ${baihongse}not${baizise} be installed${normal}\n"
 _askaptsource
-[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)   ; _askmt
+[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc) ; _askmt
 _askswap
 _askqbt
 _askdeluge
-if [[ ! $de_version == No ]] || [[ ! $qb_version == No ]]; then _lt_ver_ask ; fi
+[[ $de_version != No || $qb_version != No ]] && _lt_ver_ask
 _askrt
-[[ ! $rt_version == No ]] && 
-_askflood
+[[ ! $rt_version == No ]] &&  _askflood
 _asktr
 _askrdp
 _askwine
@@ -2742,116 +2733,48 @@ _asktools
 _askflex
 _askrclone
 
-if [[ -d /proc/vz ]]; then
+[[ -d /proc/vz ]]; then
     echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
     InsBBR='Not supported on OpenVZ'
 else
-    _askbbr
+    ask_bbr
 fi
 
-_asktweaks
-_askcontinue | tee /etc/00.info.log
-
+ask_tweaks
+ask_continue | tee /etc/00.info.log
 starttime=$(date +%s)
-
-_setsources 2>&1 | tee /etc/00.setsources.log
-_setuser 2>&1 | tee /etc/01.setuser.log
-
+preparation 2>&1 | tee /etc/00.preparation.log
 mv /etc/00.info.log $LogLocation/00.info.log
-mv /etc/00.setsources.log $LogLocation/00.setsources.log
-mv /etc/01.setuser.log $LogLocation/01.setuser.log
+mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
-# --------------------- 安装 --------------------- #
+######################################################################################################
 
+[[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
+[[ -n $lt_version ]] && [[ $lt_version != system ]] && install_libtorrent
 
-if   [[ $InsBBR == Yes ]] || [[ $InsBBR == To\ be\ enabled ]]; then
-     echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee $LogLocation/02.bbr.log
-else
-     echo -e  "Skip BBR installation\n\n\n\n\n"
-fi
+[[ $qb_version != No ]] && {
+echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
+echo -ne "Configuring qBittorrent ... \n\n\n" ; config_qbittorrent 2>&1 | tee $LogLocation/06.qb2.log ; }
 
+[[ $de_version != No ]] && {
+echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
+echo -ne "Configuring Deluge ... \n\n\n" ; config_deluge 2>&1 | tee $LogLocation/04.de2.log ; }
 
-# [[ -f $LockLocation/libtorrent-rasterbar.lock ]]
-[[ ! -z $lt_version ]] && [[ ! $lt_version == system ]] && _install_lt
+if  [[ $rt_version != No ]] && {
+echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
+[[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
 
+[[ $tr_version != No ]] && {
+echo -ne "Installing Transmission ... \n\n\n" ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
+echo -ne "Configuring Transmission ... \n\n\n" ; config_transmission 2>&1 | tee $LogLocation/09.tr2.log ; }
 
-if  [[ $qb_version == No ]]; then
-    echo -e  "Skip qBittorrent installation\n\n\n\n"
-else
-    echo -ne "Installing qBittorrent ... \n\n\n" ; _installqbt 2>&1 | tee $LogLocation/05.qb1.log
-    echo -ne "Configuring qBittorrent ... \n\n\n" ; _setqbt 2>&1 | tee $LogLocation/06.qb2.log
-fi
-
-
-if  [[ $de_version == No ]]; then
-    echo -e  "Skip Deluge installation \n\n\n\n"
-else
-    echo -ne "Installing Deluge ... \n\n\n" ; _installde 2>&1 | tee $LogLocation/03.de1.log
-    echo -ne "Configuring Deluge ... \n\n\n" ; _setde 2>&1 | tee $LogLocation/04.de2.log
-fi
-
-
-if  [[ $rt_version == No ]]; then
-    echo -e  "Skip rTorrent installation\n\n\n"
-else
-    echo -ne "Installing rTorrent ... \n\n\n" ; _installrt 2>&1 | tee $LogLocation/07.rt.log
-    [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; _installflood 2>&1 | tee $LogLocation/07.flood.log ; }
-fi
-
-
-if  [[ $tr_version == No ]]; then
-    echo -e  "Skip Transmission installation\n\n\n\n"
-else
-    echo -ne "Installing Transmission ... \n\n\n" ; _installtr 2>&1 | tee $LogLocation/08.tr1.log
-    echo -ne "Configuring Transmission ... \n\n\n" ; _settr 2>&1 | tee $LogLocation/09.tr2.log
-fi
-
-
-if  [[ $InsFlex == Yes ]]; then
-    echo -ne "Installing Flexget ... \n\n\n" ; _installflex 2>&1 | tee $LogLocation/10.flexget.log
-else
-    echo -e  "Skip Flexget installation\n\n\n\n"
-fi
-
-
-if  [[ $InsRclone == Yes ]]; then
-    echo -ne "Installing rclone ... " ; _installrclone 2>&1 | tee $LogLocation/11.rclone.log
-else
-    echo -e  "Skip rclone installation\n\n\n\n"
-fi
-
-
-####################################
-
-if   [[ $InsRDP == VNC ]]; then
-     echo -ne "Installing VNC ... \n\n\n" ; _installvnc 2>&1 | tee $LogLocation/12.rdp.log
-elif [[ $InsRDP == X2Go ]]; then
-     echo -ne "Installing X2Go ... \n\n\n" ; _installx2go 2>&1 | tee $LogLocation/12.rdp.log
-else
-     echo -e  "Skip RDP installation\n\n\n\n"
-fi
-
-
-if  [[ $InsWine == Yes ]]; then
-    echo -ne "Installing Wine ... \n\n\n" ; _installwine 2>&1 | tee $LogLocation/12.wine.log
-else
-    echo -e  "Skip Wine installation\n\n\n\n"
-fi
-
-
-if  [[ $InsTools == Yes ]]; then
-    echo -ne "Installing Uploading Toolbox ... \n\n\n" ; _installtools 2>&1 | tee $LogLocation/13.tool.log
-else
-    echo -e  "Skip Uploading Toolbox installation\n\n\n\n"
-fi
-
-####################################
-
-if [[ $UseTweaks == Yes ]]; then
-    echo -ne "Configuring system settings ... \n\n\n" ; _tweaks
-else
-    echo -e  "Skip System tweaks\n\n\n\n"
-fi
+[[ $InsFlex   == Yes ]]  && { echo -ne "Installing Flexget ... \n\n\n" ; install_flexget 2>&1 | tee $LogLocation/10.flexget.log ; }
+[[ $InsRclone == Yes ]]  && { echo -ne "Installing rclone ... " ; install_rclone 2>&1 | tee $LogLocation/11.rclone.log ; }
+[[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n" ; install_vnc 2>&1 | tee $LogLocation/12.rdp.log ; }
+[[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
+[[ $InsWine   == Yes ]]  && { echo -ne "Installing Wine ... \n\n\n" ; install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
+[[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
+[[ $UseTweaks == Yes ]] && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
 
 end_pre
 _end 2>&1 | tee $LogTimes/end.log
