@@ -63,7 +63,11 @@ mkdir -p doc-pak
 echo "GNU C compiler, installed by inexistence script" > description-pak
 checkinstall -y --pkgname=gcc-7.3.0 --pkggroup gcc --pkgversion 7.3.0
 ```
-
+```
+cp /usr/local/lib64/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/
+rm /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+```
 
 ---
 
@@ -95,6 +99,33 @@ https://sourceforge.net/projects/xanmod/files/releases/
 ```
 https://github.com/KozakaiAya/TCP_BBR
 ```
+
+
+
+---
+
+
+
+#### Miscellaneous 
+```
+dd if=/dev/zero of=/root/.swapfile bs=1M count=3072
+mkswap /root/.swapfile
+swapon /root/.swapfile
+swapon -s
+
+wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.tar.bz2
+tar xf boost_1_65_1.tar.bz2
+cd boost_1_65_1
+./bootstrap.sh --with-libraries=all --prefix=/usr/local
+./b2 -j$(nproc) toolset=gcc
+./b2 install
+ldconfig
+cd ..
+```
+
+
+
+
 
 
 
