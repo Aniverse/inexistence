@@ -3,16 +3,10 @@
 # https://github.com/Aniverse/inexistence
 # 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.2.003
-SCRIPTUPDATE=2019.04.24.放弃治疗
+SCRIPTVER=0.9.2.004
+SCRIPTUPDATE=2019.05.16.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
-# --------------------------------
-# echo $de_installed $rt_installed $qb_installed $tr_installed $flex_installed $rclone_installed $virtwhat_installed $lsb_installed $smartctl_installed
-
-# 一些改进方向--------------------------------
-# systemctl is-active application.service
-# stty -echo #stty echo
 
 # 判断客户端是否在运行---------------------------------------------------------------------
 
@@ -68,9 +62,10 @@ elif cat /proc/version | grep -Eqi "debian"; then faxingban="debian"
 elif cat /proc/version | grep -Eqi "ubuntu"; then faxingban="ubuntu"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then faxingban="centos" ; fi
 
-DISTRO=`  awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release  `
-DISTROL=`  echo $DISTRO | tr 'A-Z' 'a-z'  `
-CODENAME=`  cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}'  `
+DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
+DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
+CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
+grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 
@@ -101,10 +96,10 @@ opsy=$( get_opsy )
 kern=$( uname -r )
 
 [ -d /etc/inexistence ] && inexistence=1
-grep s-end /etc/bash.bashrc -q && tweaks=1
-inexistence_ver=` cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}'`
-inexistence_date=`cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}'`
-iUser=` cat /log/inexistence/version | grep inexistence.user   | awk '{print $NF}' `
+grep -i Inexistence /etc/bash.bashrc -q && tweaks=1
+inexistence_ver=$(cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}' | head -1)
+inexistence_date=$(cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}' | head -1)
+iUser=$(cat /log/inexistence/version | grep inexistence.user   | awk '{print $NF}' | head -1)
 # --------------------------------------------------------------------------------
 
 
@@ -133,7 +128,7 @@ echo -n . ; sleep 1 ; echo -n . ; sleep 1 ; echo . ; sleep 1 ; bash /usr/local/b
 
 # 00. 脚本的欢迎界面，还没写好
 function _logo() {
-clear ; wget --no-check-certificate --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/mingling.logo.1
+clear ; wget --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/files/logo/mingling.logo.1
 echo -e "${bold}$SCRIPTVER${normal}"
 if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
 if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
@@ -158,8 +153,8 @@ function _main_menu() {
 # echo -e "${green}(05) ${jiacu}查看客户端是否都在运行"
   echo -e "${green}(06) ${jiacu}进入客户端操作菜单"
   echo -e "${green}(07) ${jiacu}运行其他脚本"
-  echo -e "${green}(08) ${jiacu}查看本脚本的说明"
-  echo -e "${green}(09) ${jiacu}更新脚本"
+# echo -e "${green}(08) ${jiacu}查看本脚本的说明"
+# echo -e "${green}(09) ${jiacu}更新脚本"
   echo -e "${green}(10) ${jiacu}退出脚本"
   echo -e "${normal}"
 
@@ -326,7 +321,7 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release -cs) ; disk_time=$(power_time) ; virtua=$(virt-what) 2>/dev/null
+DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release -cs) ; virtua=$(virt-what) 2>/dev/null
 
   clear ; echo
   echo " ${bailanse}${bold}                                           03. 系统信息                                            ${normal}"
@@ -340,8 +335,6 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
   echo -e  "${bold}  CPU 状态    : ${cyan}${freq} MHz, ${cpu_percent}% Utilization${normal}"
   echo -e  "${bold}  硬盘大小    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
 
-  [[ $disk_time ]] &&
-  echo -e  "${bold}  硬盘通电    : ${cyan}$disk_time Hours${normal}"
   echo -e  "${bold}  内存大小    : ${cyan}$tram MB ($uram MB Used) ($memory_usage)${normal}"
   echo -e  "${bold}  交换分区    : ${cyan}$swap MB ($uswap MB Used)${normal}"
   echo -e  "${bold}  运行时间    : ${cyan}$uptime1${normal}"
@@ -530,13 +523,9 @@ function _show_scripts_menu() { clear ; echo
   echo -e " ${bold}"
   echo -e "  ${green}(01) ${jiacu}安装 inexistence"
   echo -e "  ${green}(02) ${jiacu}安装 BBR 或 魔改版 BBR 或 锐速"
-  echo -e "  ${green}(03) ${jiacu}安装 Shadowsocks"
-  echo -e "  ${green}(04) ${jiacu}安装 V2Ray"
-# echo -e "  ${green}(05) ${jiacu}重装 系统 "
-  echo -e "  ${green}(06) ${jiacu}运行 Bench"
+  echo -e "  ${green}(06) ${jiacu}运行 ZBench"
   echo -e "  ${green}(07) ${jiacu}运行 ABench"
   echo -e "  ${green}(08) ${jiacu}配置 IPv6 (Online.net 独服非 Ubuntu 18.04 适用)"
-# echo -e "  ${green}(09) ${jiacu}更改 终端语言为中文"
   echo -e "  ${green}(10) ${jiacu}返回 main menu"
   echo -e "  ${normal}"
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
@@ -549,26 +538,13 @@ case $response in
     01 |  1) # 安装 inexistence
              bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) ;;
     02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
-             bash -c "$( wget --no-check-certificate -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A )" ;;
-    03 |  3) # 安装 Shadowsocks
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh )" ;;
-    04 |  4) # 安装 V2Ray
-             clear ; echo -e "安装 V2Ray ...\n"
-             bash -c "$( curl -fsSL https://raw.githubusercontent.com/tracyone/v2ray.fun/master/install.sh )" ;;
-    05 |  5) # 重装 系统
-           # bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/dalao/systemreinsatll.sh )" ;;
-             echo -e "\n施工中 ...\n" ; _main_menu ; _xunwen1; _scripts_menu_response ;;
-    06 |  6) # 运行 Bench
-             clear ; echo -e "运行 Bench ...\n"
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
+             bash -c "$( wget -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A )" ;;
+    06 |  6) # 运行 ZBench
+             bash -c "$( wget -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
     07 |  7) # 运行 A Bench
-             clear ; echo -e "运行 A Bench ...\n"
-             bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/A/raw/i/a) ;;
+             bash <(wget -qO- https://github.com/Aniverse/A/raw/i/a) ;;
     08 |  8) # 配置 IPv6
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/ipv6 )" ;;
-    09 |  9) # 更改 Linux 服务器终端显示语言为中文的脚本
-             clear ; echo -e "更改 Linux 服务器终端显示语言为中文 ...\n"
-             bash -c "$( wget --no-check-certificate -qO- https://raw.githubusercontent.com/FunctionClub/LocaleCN/master/LocaleCN.sh )" ;;
+             bash -c "$( wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/ipv6 )" ;;
     10 | "") # 返回主菜单
              echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
           *) # 返回主菜单
