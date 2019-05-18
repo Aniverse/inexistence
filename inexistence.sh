@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.16
-INEXISTENCEDATE=2019.05.15
+INEXISTENCEVER=1.1.1.17
+INEXISTENCEDATE=2019.05.18
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1423,7 +1423,7 @@ echo ; }
 
 # --------------------- 询问是否重启 --------------------- #
 
-function _askreboot() {
+function ask_reboot() {
 if [[ $script_lang == eng ]]; then
 lang_1="Would you like to reboot the system now?"
 lang_2="WTF, try reboot manually?"
@@ -1624,9 +1624,9 @@ fi
 
 cat << EOF >> $LogTimes/installed.log
 如果要截图请截完整点，包含下面所有信息
-CPU        : $cname"
-Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)"
-Mem        : $tram MB ($uram MB Used)"
+CPU        : $cname
+Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)
+Mem        : $tram MB ($uram MB Used)
 Disk       : $disk_total_size GB ($disk_used_size GB Used)
 OS         : $DISTRO $osversion $CODENAME ($arch)
 Kernel     : $kern
@@ -1637,26 +1637,26 @@ Virt       : $virtua
 Times=$times
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
-SETUPDATE=$(date "+%Y.%m.%d %H:%M")
-MAXDISK=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
-HOMEUSER=$(ls /home)
-USESWAP=$USESWAP
+Setup_date=$(date "+%Y.%m.%d %H:%M")
+MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+HomeUser=$(ls /home)
+use_swap=$USESWAP
 #################################
-MAXCPUS=${MAXCPUS}
-APTSOURCES=${aptsources}
+MaxCPUs=${MAXCPUS}
+apt_sources=${aptsources}
 qb_version=${qb_version}
 de_version=${de_version}
 rt_version=${rt_version}
 tr_version=${tr_version}
 lt_version=${lt_version}
-FLEXGET=${InsFlex}
-RCLONE=${InsRclone}
+Flood=${InsFlood}
+Flexget=${InsFlex}
+rclone=${InsRclone}
 BBR=${InsBBR}
-USETWEAKS=${UseTweaks}
-UPLOADTOOLS=${InsTools}
+Tweaks=${UseTweaks}
+Tools=${InsTools}
 RDP=${InsRDP}
-WINE=${InsWine}
-FLOOD=${InsFlood}
+wine=${InsWine}
 #################################
 如果要截图请截完整点，包含上面所有信息
 
@@ -2653,7 +2653,7 @@ echo -ne "Configuring qBittorrent ... \n\n\n" ; config_qbittorrent 2>&1 | tee $L
 echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
 echo -ne "Configuring Deluge ... \n\n\n" ; config_deluge 2>&1 | tee $LogLocation/04.de2.log ; }
 
-if  [[ $rt_version != No ]] && {
+[[ $rt_version != No ]] && {
 echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
 [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
 
@@ -2672,5 +2672,5 @@ echo -ne "Configuring Transmission ... \n\n\n" ; config_transmission 2>&1 | tee 
 end_pre
 script_end 2>&1 | tee $LogTimes/end.log
 rm "$0" >> /dev/null 2>&1
-_askreboot
+ask_reboot
 
