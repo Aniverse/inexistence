@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.19
+INEXISTENCEVER=1.1.1.20
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -94,6 +94,8 @@ export SourceLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/install
 export LockLocation=$LogBase/lock
+export WebROOT=/var/www
+
 # 临时
 # 一个想法，脚本传入到单个脚本里一个参数 log-base，比如装 de 脚本的 log 位置：
 # log-base=/log/inexistence/$times, SourceLocation=$log-base/source
@@ -1520,7 +1522,7 @@ function preparation() {
 [[ $USESWAP == Yes ]] && swap_on
 
 # 临时
-mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation /var/www/h5ai/$iUser
+mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/root
 echo $iUser >> $LogBase/iUser.txt
 
 if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
@@ -1721,10 +1723,9 @@ mkdir -p /etc/inexistence/09.Torrents
 mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
-mkdir -p /var/www/h5ai
 
 cp $local_packages/install/qbittorrent/qb /usr/local/bin
-ln -s /etc/inexistence /var/www/h5ai/inexistence
+ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
 sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
 
@@ -1976,8 +1977,8 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 
 function config_deluge() {
 
-mkdir -p /home/$iUser/deluge/{download,torrent,watch} /var/www
-ln -s /home/$iUser/deluge/download /var/www/h5ai/$iUser/deluge
+mkdir -p /home/$iUser/deluge/{download,torrent,watch}
+ln -s /home/$iUser/deluge/download $WebROOT/h5ai/$iUser/deluge
 chown -R $iUser.$iUser /home/$iUser/deluge
 
 mkdir -p /root/.config
@@ -2038,7 +2039,7 @@ fi
 
 mv /root/rtinst.log $LogLocation/07.rtinst.script.log
 mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
-ln -s /home/${iUser} /var/www/h5ai/$iUser/user.root
+ln -s /home/${iUser} $WebROOT/h5ai/$iUser/user.root
 touch $LockLocation/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
@@ -2156,9 +2157,9 @@ echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-contr
 
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
-mkdir -p /home/$iUser/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
+mkdir -p /home/$iUser/transmission/{download,torrent,watch} /root/.config/transmission-daemon
 chown -R $iUser.$iUser /home/$iUser/transmission
-ln -s /home/$iUser/transmission/download /var/www/h5ai/$iUser/transmission
+ln -s /home/$iUser/transmission/download $WebROOT/h5ai/$iUser/transmission
 
 cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
 cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
