@@ -1819,7 +1819,11 @@ if [[ $arch == x86_64 ]]; then
 if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/install/install_libtorrent_rasterbar -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
-    bash $local_packages/install/install_libtorrent_rasterbar -m deb2
+    if [[ $CODENAME == buster ]]; then
+        bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_1
+    else
+        bash $local_packages/install/install_libtorrent_rasterbar -m deb2
+    fi
 elif [[ $lt_version == RC_1_2 ]]; then
   # bash $local_packages/install/install_libtorrent_rasterbar -m deb3
     bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_2
