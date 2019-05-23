@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.17
-INEXISTENCEDATE=2019.05.18
+INEXISTENCEVER=1.1.1.18
+INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1579,6 +1579,18 @@ fi
 pip install --upgrade pip setuptools
 hash -d pip
 
+# Upgrade gcc
+if [[ $CODENAME == jessie ]]; then
+
+cd $SourceLocation
+wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/gcc-7.3.0.jessie.amd64.deb
+dpkg -i gcc-7.3.0.jessie.amd64.deb
+cp /usr/local/lib64/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/
+rm -f /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+
+fi
+
 # Upgrade vnstat, compile from source
 cd $SourceLocation
 wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
@@ -1833,10 +1845,10 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1-1.jessie.amd64.deb
-        dpkg -i qt.5.5.1-1.jessie.amd64.deb && rm -f qt.5.5.1-1.jessie.amd64.deb
-        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
-        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.9.8.jessie.amd64.deb
+        dpkg -i qt.5.9.8.jessie.amd64.deb && rm -f qt.5.9.8.jessie.amd64.deb
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.9.8/lib/pkgconfig
+        export PATH=/usr/local/Qt-5.9.8/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
         apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
