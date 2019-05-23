@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.18
+INEXISTENCEVER=1.1.1.19
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1520,7 +1520,7 @@ function preparation() {
 [[ $USESWAP == Yes ]] && swap_on
 
 # 临时
-mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation
+mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation /var/www/h5ai/$iUser
 echo $iUser >> $LogBase/iUser.txt
 
 if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
@@ -1580,15 +1580,14 @@ pip install --upgrade pip setuptools
 hash -d pip
 
 # Upgrade gcc
-if [[ $CODENAME == jessie ]]; then
-
-cd $SourceLocation
-wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/gcc-7.3.0.jessie.amd64.deb
-dpkg -i gcc-7.3.0.jessie.amd64.deb
-cp /usr/local/lib64/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/
-rm -f /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-
+# DEPRECATED
+if [[ $CODENAME == jessiee ]]; then
+    cd $SourceLocation
+    wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/gcc-7.3.0.jessie.amd64.deb
+    dpkg -i gcc-7.3.0.jessie.amd64.deb
+    cp /usr/local/lib64/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/
+    rm -f /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+    ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
 fi
 
 # Upgrade vnstat, compile from source
@@ -1978,8 +1977,7 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 function config_deluge() {
 
 mkdir -p /home/$iUser/deluge/{download,torrent,watch} /var/www
-rm -rf /var/www/h5ai/deluge
-ln -s /home/$iUser/deluge/download /var/www/h5ai/deluge
+ln -s /home/$iUser/deluge/download /var/www/h5ai/$iUser/deluge
 chown -R $iUser.$iUser /home/$iUser/deluge
 
 mkdir -p /root/.config
@@ -2040,7 +2038,7 @@ fi
 
 mv /root/rtinst.log $LogLocation/07.rtinst.script.log
 mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
-ln -s /home/${iUser} /var/www/h5ai/user.folder
+ln -s /home/${iUser} /var/www/h5ai/$iUser/user.root
 touch $LockLocation/rtorrent.lock
 cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
@@ -2160,8 +2158,7 @@ echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-contr
 
 mkdir -p /home/$iUser/transmission/{download,torrent,watch} /var/www /root/.config/transmission-daemon
 chown -R $iUser.$iUser /home/$iUser/transmission
-rm -rf /var/www/h5ai/transmission
-ln -s /home/$iUser/transmission/download /var/www/h5ai/transmission
+ln -s /home/$iUser/transmission/download /var/www/h5ai/$iUser/transmission
 
 cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
 cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
