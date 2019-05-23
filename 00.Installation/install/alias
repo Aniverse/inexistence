@@ -1,6 +1,6 @@
 #!/bin/bash
-# 2019.04.17
-# revision: 103
+# 2019.05.23
+# revision: 104
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
@@ -8,18 +8,11 @@
 iUser=$1
 wangka=$2
 LogBase=$3
-
-# This may delete user's configuration
-while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
-    sed -i '$d' /etc/bash.bashrc
-  # sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
-done
-
-
-
+IntoBashrc=$4
 
 # 150-20
-cat >> /etc/bash.bashrc <<EOF
+cat << EOF > /usr/local/bin/s-alias
+#!/bin/bash
 ################## Inexistence Mod Start ##################
 
 function setcolor() {
@@ -33,19 +26,18 @@ standout=\$(tput smso)   ; reset_standout=\$(tput rmso)  ; title=\${standout}
 baihuangse=\${white}\${on_yellow}; bailanse=\${white}\${on_blue} ; bailvse=\${white}\${on_green}
 baiqingse=\${white}\${on_cyan}   ; baihongse=\${white}\${on_red} ; baizise=\${white}\${on_magenta}
 heibaise=\${black}\${on_white}   ; heihuangse=\${on_yellow}\${black} ; }
-setcolor
 
 function gclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
 
-eth=$wangka
 #ulimit -SHn 999999
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
+export eth=$wangka
 
 alias qba="systemctl start qbittorrent@$iUser"
 alias qbb="systemctl stop qbittorrent@$iUser"
@@ -146,5 +138,23 @@ alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*Passwo
 alias s-opt="cat $LogBase/installed.log && echo"
 alias s-end="cat $LogBase/end.log"
 
+setcolor
+
 ################## Inexistence Mod END ##################
 EOF
+
+[[ $IntoBashrc == IntoBashrc ]] && {
+# This may delete user's configuration
+while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
+    sed -i '$d' /etc/bash.bashrc
+done
+# sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
+sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc >> /etc/bash.bashrc
+}
+
+cat << EOF > /usr/local/bin/s-alias
+echo "Customed alias is enabled if your current pwd is /etc"
+cd /etc
+EOF
+
+# Usage:     . s-alias
