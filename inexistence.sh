@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.26
+INEXISTENCEVER=1.1.2.0
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -198,17 +198,6 @@ elif [[ $script_lang == chs ]]; then
 echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
 read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
 fi ; }
-
-function _input_version_lt() {
-echo -e "\n${baihongse}${bold} ATTENTION ${normal} ${bold}Make sure to input the correct version${normal}"
-echo -e "${red}${bold} Here is a list of all the available versions${normal}\n"
-# wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
-rm -f $HOME/lt.git.tag
-git ls-remote --tags  https://github.com/arvidn/libtorrent | awk -F'[/]' '{print $3}' >  $HOME/lt.git.tag
-git ls-remote --heads https://github.com/arvidn/libtorrent | awk -F'[/]' '{print $3}' >> $HOME/lt.git.tag
-cat $HOME/lt.git.tag | pr -3 -t
-rm -f $HOME/lt.git.tag
-read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}" ; }
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
@@ -827,7 +816,8 @@ echo ; }
 # 2018.04.26 禁用这个问题，统一使用 1.0.11
 # 2018.11.15 随着 RC_1_1 分支的进步，准备重新启用
 # 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
-# 2018.11.15 qb 开发者打算要求使用 C++14 了的样子，不知道这对于同时使用 Deluge 的用户是否有影响
+# 2019.XX.XX qb 开发者打算要求使用 C++14 了的样子，不知道这对于同时使用 Deluge 的用户是否有影响？
+# 2019.05.23 自选版本选项删除
 # --------------------- 询问需要安装的 libtorrent-rasterbar 版本 --------------------- #
 # lt_version=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
@@ -850,8 +840,8 @@ while [[ $lt_version = "" ]]; do
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.13${normal} (${blue}RC_1_1${normal} branch)"
-    echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.1 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
-    echo -e  "${blue}30)${normal} $language_select_another_version"
+#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.1 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
+#   echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
   # echo -e "${bailanse}${bold} ATTENTION ${normal}${blue} both Deluge and qBittorrent use libtorrent-rasterbar \n            as torrent backend"
@@ -859,12 +849,11 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-					read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " version
+					echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -875,12 +864,11 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
     elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ $qb_version != No ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} qBittorrent 3.3 and later requires libtorrent-rasterbar 1.0.6 and later${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
@@ -892,12 +880,11 @@ while [[ $lt_version = "" ]]; do
     # 2018.12.03 发现这里写的有问题，试着更正下
     elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -908,12 +895,11 @@ while [[ $lt_version = "" ]]; do
     # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
     elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == No ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
@@ -924,12 +910,11 @@ while [[ $lt_version = "" ]]; do
     # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
     elif [[ ! $lt_ver ]] && [[ $lt8_support == Yes ]]; then
             while [[ $lt_version == "" ]]; do
-                    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
+                    echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
                     case $version in
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_0 ;;
@@ -945,7 +930,6 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
@@ -963,7 +947,6 @@ while [[ $lt_version = "" ]]; do
                           01 | 1) lt_version=RC_1_0 ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
-                          30    ) _input_version_lt && lt_version="${input_version_num}" ;;
                           98    ) lt_version=system ;;
                           99    ) lt_version=system ;;
                           ""    ) lt_version=system ;;
@@ -975,16 +958,14 @@ while [[ $lt_version = "" ]]; do
 
 done
 
-lt_display_ver=$( echo "$lt_version" | sed "s/_/\./g" | sed "s/libtorrent-//" )
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
 [[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.13
 [[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.1
-[[ $lt_version == master  ]] && lt_display_ver=1.2.1
 
 if [[ $lt_version == system ]]; then
-    echo "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
+    echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
 else
-    echo "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}"
+    echo -e "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}"
 fi
 
 [[ $DeBUG == 1 ]] && {
