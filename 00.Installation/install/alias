@@ -1,6 +1,6 @@
 #!/bin/bash
 # 2019.05.23
-# revision: 105
+# revision: 106
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
@@ -151,7 +151,7 @@ while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
     sed -i '$d' /etc/bash.bashrc
 done
 # sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
-sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc >> /etc/bash.bashrc
+sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc
 }
 
 cat << EOF >> /usr/local/bin/s-alias
