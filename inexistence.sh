@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.21
+INEXISTENCEVER=1.1.1.22
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1840,12 +1840,13 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     apt-get update
     apt-get install -y qbittorrent-nox
 else
-    [[ `  dpkg -l | grep -v qbittorrent-headless | grep qbittorrent-nox  ` ]] && apt-get purge -y qbittorrent-nox
+    cd $SourceLocation
+    dpkg -l | grep qbittorrent-nox -q && dpkg -r qbittorrent-nox
     if [[ $CODENAME == jessie ]]; then
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1.jessie.amd64.deb
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1.jessie.amd64.deb -O qt.5.5.1.jessie.amd64.deb
         dpkg -i qt.5.5.1.jessie.amd64.deb && rm -f qt.5.5.1.jessie.amd64.deb
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -1854,7 +1855,6 @@ else
         apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
     fi
 
-    cd $SourceLocation
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
     git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
     cd qBittorrent-$qb_version
