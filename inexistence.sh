@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.1
+INEXISTENCEVER=1.1.2.2
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ while [ -n "$1" ] ; do case "$1" in
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
-    --sihuo         ) ssihuo=yes        ; shift ;;
+    --sihuo         ) sihuo=yes        ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
     --tr-skip       ) TRdefault="No"    ; shift ;;
@@ -1473,6 +1473,8 @@ echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${I
 echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
 echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
 echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+[[ $sihuo == yes ]] && echo &&
+echo "                  ${cyan}${bold}私货${normal}          ${bold}${yellow}有${normal}"
 echo
 echo '####################################################################'
 echo
