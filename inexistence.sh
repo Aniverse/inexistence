@@ -16,14 +16,14 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.0
+INEXISTENCEVER=1.1.2.1
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -43,6 +43,7 @@ while [ -n "$1" ] ; do case "$1" in
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
+    --sihuo         ) ssihuo=yes        ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
     --tr-skip       ) TRdefault="No"    ; shift ;;
@@ -1530,8 +1531,8 @@ package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop atop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-dos2unix subversion nethogs fontconfig ntp patch       python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby uuid socat             figlet toilet lolcat       libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
+dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
+ruby uuid socat             figlet toilet lolcat               libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
 
 ######## These codes are from rtinst ########
@@ -1858,7 +1859,12 @@ else
     else
         git checkout release-$qb_version
     fi
-    
+
+    # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
+    [[ $sihuo == yes ]] && {
+    wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch
+    patch -p1 < qbt.4.1.6.webui.table.patch ; }
+
     ./configure --prefix=/usr --disable-gui
     make -j$MAXCPUS
     mkdir -p doc-pak
@@ -1941,6 +1947,10 @@ else
         wget -nv -N http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
         tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
     fi
+
+    # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
+    [[ $sihuo == yes ]] && {
+    wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/deluge.1.3.15.deluge-all.js -O deluge/ui/web/js/deluge-all.js ; }
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
