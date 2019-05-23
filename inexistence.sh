@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.20
+INEXISTENCEVER=1.1.1.21
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -212,7 +212,7 @@ read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-if [[ ! $SysSupport == 1 ]]; then
+if [[ $SysSupport != 1 ]]; then
 echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
 ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
 exit 1
@@ -264,7 +264,7 @@ function _intro() {
 clear
 
 # 检查是否以 root 权限运行脚本
-if [[ ! $DeBUG == 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
+if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
 else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
 arch=$( uname -m ) # 架构，可以识别 ARM
@@ -402,12 +402,12 @@ echo -ne "  Virt      : " ; [[ -n ${virtua} ]] && echo "${cyan}$virtua${normal}"
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
-[[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段……${normal}"
+[[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段，目前懒得加 rTorrent 的支持${normal}"
 [[ $SYSTEMCHECK != 1   ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 
 echo
 echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ ! $ForceYes == 1 ]] && read input
+echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
 
 }
 
@@ -880,7 +880,7 @@ while [[ $lt_version = "" ]]; do
             done
 
     # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
-    elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ ! $qb_version == No ]]; then
+    elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ $qb_version != No ]]; then
             while [[ $lt_version == "" ]]; do
                     read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
                     case $version in
@@ -1007,7 +1007,7 @@ echo ; }
 
 # --------------------- 询问需要安装的 rTorrent 版本 --------------------- #
 
-function _askrt() {
+function ask_rt() {
 
 if [[ $script_lang == eng ]]; then
 
@@ -1103,7 +1103,7 @@ echo ; }
 
 # --------------------- 询问是否安装 flood --------------------- #
 
-function _askflood() {
+function ask_flood() {
 
 while [[ -z $InsFlood ]]; do
     read -ep "${bold}${yellow}$lang_would_you_like_to_install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
@@ -1483,10 +1483,10 @@ echo "                  ${cyan}${bold}Password${normal}      ${bold}${yellow}${i
 echo
 echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
 echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
-[[ ! $de_version == No ]] || [[ ! $qb_version == No ]] &&
+[[ $de_version != No ]] || [[ $qb_version != No ]] &&
 echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_display_ver}${normal}"
 echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
-[[ ! $rt_version == No ]] &&
+[[ $rt_version != No ]] &&
 echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
 echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
 echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}${InsRDP}${normal}"
@@ -1503,7 +1503,7 @@ echo '####################################################################'
 echo
 [[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse} Ctrl+C ${normal}${bold} ; or Press ${bailvse} ENTER ${normal} ${bold}to start${normal}"
 [[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse} Ctrl+C ${normal}${bold} 取消安装，或者敲 ${bailvse} ENTER ${normal}${bold} 开始安装${normal}"
-[[ ! $ForceYes == 1 ]] && read input
+[[ $ForceYes != 1 ]] && read input
 [[ $script_lang == eng ]] && 
 echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
 echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
@@ -1525,7 +1525,7 @@ function preparation() {
 mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/root
 echo $iUser >> $LogBase/iUser.txt
 
-if [[ $aptsources == Yes ]] && [[ ! $CODENAME == jessie ]]; then
+if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
     cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
     wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
     sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
@@ -1605,7 +1605,7 @@ cd
 systemctl restart vnstatd
 
 # Fix interface in vnstat.conf
-[[ -n $wangka ]] && [[ ! $wangka == eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
+[[ -n $wangka ]] && [[ $wangka != eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
 
 # Install NConvert
 cd $SourceLocation
@@ -1786,7 +1786,7 @@ _distro_upgrade_upgrade
 timeWORK=upgradation
 echo -e "\n\n\n" ; _time
 
-[[ ! $DeBUG == 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
+[[ $DeBUG != 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
 
 sleep 5
 reboot -f
@@ -1845,10 +1845,10 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.9.8.jessie.amd64.deb
-        dpkg -i qt.5.9.8.jessie.amd64.deb && rm -f qt.5.9.8.jessie.amd64.deb
-        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.9.8/lib/pkgconfig
-        export PATH=/usr/local/Qt-5.9.8/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1.jessie.amd64.deb
+        dpkg -i qt.5.5.1.jessie.amd64.deb && rm -f qt.5.5.1.jessie.amd64.deb
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
         apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
@@ -1884,9 +1884,8 @@ else
     if [[ $qb_installed == Yes ]]; then
         make install
     else
-      # [[ $(which qbittorrent-nox) ]] && { apt-get purge -y qbittorrent-nox ; dpkg-r qbittorrent-headless ; }
-        checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
         [[ $CODENAME == buster ]] && make install
+        checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
         mv -f qbittorrent*deb $DebLocation
     fi
 
@@ -2515,7 +2514,7 @@ function end_pre() {
 [[ $USESWAP == Yes ]] && swap_off
 _check_install_2
 unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
-#if [[ ! $rt_version == No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+#if [[ $rt_version != No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
 RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
@@ -2537,38 +2536,38 @@ echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
 echo '---------------------------------------------------------------------------------'
 
 
-if   [[ ! $qb_version == No ]] && [[ $qb_installed == Yes ]]; then
+if   [[ $qb_version != No ]] && [[ $qb_installed == Yes ]]; then
      echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   http${sss}://${serveripv4}${QBWEB}"
-elif [[ ! $qb_version == No ]] && [[ $qb_installed == No ]]; then
+elif [[ $qb_version != No ]] && [[ $qb_installed == No ]]; then
      echo -e " ${red}qBittorrent WebUI${normal}   ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      QBFAILED=1 ; INSFAILED=1
 fi
 
 
-if   [[ ! $de_version == No ]] && [[ $de_installed == Yes ]]; then
+if   [[ $de_version != No ]] && [[ $de_installed == Yes ]]; then
      echo -e " ${cyan}Deluge WebUI${normal}        $destatus   http${sss}://${serveripv4}${DEWEB}"
-elif [[ ! $de_version == No ]] && [[ $de_installed == No ]]; then
+elif [[ $de_version != No ]] && [[ $de_installed == No ]]; then
      echo -e " ${red}Deluge WebUI${normal}        ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      DEFAILED=1 ; INSFAILED=1
 fi
 
 
-if   [[ ! $tr_version == No ]] && [[ $tr_installed == Yes ]]; then
+if   [[ $tr_version != No ]] && [[ $tr_installed == Yes ]]; then
      echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${iUser}:${iPass}@${serveripv4}${TRWEB}"
-elif [[ ! $tr_version == No ]] && [[ $tr_installed == No ]]; then
+elif [[ $tr_version != No ]] && [[ $tr_installed == No ]]; then
      echo -e " ${red}Transmission WebUI${normal}  ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      TRFAILED=1 ; INSFAILED=1
 fi
 
 
-if   [[ ! $rt_version == No ]] && [[ $rt_installed == Yes ]]; then
+if   [[ $rt_version != No ]] && [[ $rt_installed == Yes ]]; then
      echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${iUser}:${iPass}@${serveripv4}${RTWEB}"
      [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] && 
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
      [[ $InsFlood == Yes ]] && [[   -e $LockLocation/flood.fail.lock ]] &&
      echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
      echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
-elif [[ ! $rt_version == No ]] && [[ $rt_installed == No  ]]; then
+elif [[ $rt_version != No ]] && [[ $rt_installed == No  ]]; then
      echo -e " ${red}RuTorrent${normal}           ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] &&
      echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
@@ -2578,9 +2577,9 @@ elif [[ ! $rt_version == No ]] && [[ $rt_installed == No  ]]; then
 fi
 
 # flexget 状态可能是 8 位字符长度的
-if   [[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]]; then
+if   [[ $InsFlex != No ]] && [[ $flex_installed == Yes ]]; then
      echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
-elif [[ ! $InsFlex == No ]] && [[ $flex_installed == No  ]]; then
+elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
      echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
 fi
@@ -2590,7 +2589,7 @@ fi
 echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
 echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
-[[ ! $InsFlex == No ]] && [[ $flex_installed == Yes ]] &&
+[[ $InsFlex != No ]] && [[ $flex_installed == Yes ]] &&
 echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
 echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
@@ -2634,8 +2633,12 @@ ask_swap
 ask_qbittorrent
 ask_deluge
 [[ $de_version != No || $qb_version != No ]] && ask_libtorrent_version
-_askrt
-[[ ! $rt_version == No ]] &&  _askflood
+if [[ $CODENAME == buster ]];then
+    echo -e "rTorrent installation is not supported on Debian 10 yet, as I'm too lazy to adapt rtinst"
+else
+    ask_rt
+fi
+[[ $rt_version != No ]] &&  ask_flood
 _asktr
 ask_rdp
 ask_wine_mono
