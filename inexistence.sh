@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.22
+INEXISTENCEVER=1.1.1.23
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1522,7 +1522,7 @@ function preparation() {
 [[ $USESWAP == Yes ]] && swap_on
 
 # 临时
-mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/root
+mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
 echo $iUser >> $LogBase/iUser.txt
 
 if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
@@ -1709,6 +1709,10 @@ sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
 echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
 echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
+# alias and locales
+[[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
+bash $local_packages/install/alias $iUser $wangka $LogTimes $IntoBashrc
+
 # 脚本设置
 mkdir -p /etc/inexistence/00.Installation
 mkdir -p /etc/inexistence/01.Log
@@ -1725,6 +1729,7 @@ mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 
 cp $local_packages/install/qbittorrent/qb /usr/local/bin
+chmod 755 /usr/local/bin/qb
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
 sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
@@ -2488,9 +2493,6 @@ defencoding utf8
 encoding utf8 utf8 
 defscrollback 23333
 EOF
-
-# alias and locales
-bash $local_packages/install/alias $iUser $wangka $LogTimes
 
 # 将最大的分区的保留空间设置为 0%
 tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
