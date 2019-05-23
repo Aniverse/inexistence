@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.15
-script_version=r10031
+script_update=2019.05.23
+script_version=r10032
 ################################################################################################
 
 usage_for_me() {
@@ -141,10 +141,14 @@ fi
 
 make -j$MAXCPUS >> $OutputLOG 2>&1
 
-# If we installed libtorrent-rasterbar with different package name via checkinstall formerly, the checkinstall will get failed, so to make sure, make install again after checkinstall
-checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 && 
-touch /tmp/lt.1.lock || {
-make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
+if [[ $CODENAME == buster ]]; then
+    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+else
+# If we installed libtorrent-rasterbar with different package name via checkinstall formerly, checkinstall will get failed, so to make sure, make install again after checkinstall
+    checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 &&
+    touch /tmp/lt.1.lock || {
+    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
+fi
 
 cp -f libtorrent-rasterb*.deb $DebLocation
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
