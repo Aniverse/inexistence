@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.05.23
-script_version=r10032
+script_version=r10033
 ################################################################################################
 
 usage_for_me() {
@@ -48,6 +48,8 @@ SCLocation=$LogTimes/source
 LOCKLocation=$LogTimes/lock
 source /etc/inexistence/00.Installation/install/function --output $OutputLOG
 
+git_repo="https://github.com/arvidn/libtorrent"
+
 ################################################################################################
 
 cancel() { echo -e "${normal}" ; rm -f $HOME/.lt.git.tag ; exit ; }
@@ -71,7 +73,7 @@ trap cancel SIGINT
 rm -f $HOME/.lt.git.tag
 git ls-remote --tags  $git_repo | awk '{print $NF}' >> $HOME/.lt.git.tag
 git ls-remote --heads $git_repo | awk '{print $NF}' >> $HOME/.lt.git.tag
-grep $branch ~/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f $HOME/.lt.git.tag ; exit 1 ; }
+grep $branch $HOME/.lt.git.tag -q || { echo -e "\n${CW} No such branch!${normal}\n" ; rm -f $HOME/.lt.git.tag ; exit 1 ; }
 rm -f $HOME/.lt.git.tag ; }
 
 # Use RC_1_1 if not specified
@@ -111,7 +113,7 @@ zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 # Install from source codes
 function install_lt_source() {
 
-git clone --depth=1 -b $branch https://github.com/arvidn/libtorrent libtorrent-$version-$RN >> $OutputLOG 2>&1
+git clone --depth=1 -b $branch $git_repo libtorrent-$version-$RN >> $OutputLOG 2>&1
 cd libtorrent-$version-$RN
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
@@ -144,7 +146,7 @@ make -j$MAXCPUS >> $OutputLOG 2>&1
 if [[ $CODENAME == buster ]]; then
     make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 else
-# If we installed libtorrent-rasterbar with different package name via checkinstall formerly, checkinstall will get failed, so to make sure, make install again after checkinstall
+    # If we installed libtorrent-rasterbar with different package name via checkinstall formerly, checkinstall will get failed, so to make sure, make install again after checkinstall
     checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 &&
     touch /tmp/lt.1.lock || {
     make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
