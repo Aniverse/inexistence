@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.23
+INEXISTENCEVER=1.1.1.24
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ fi
 
 
 # 询问用户名
-function _askusername(){ clear
+function ask_username(){ clear
 
 validate_username $iUser
 
@@ -591,7 +591,7 @@ fi ; }
 
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 
-function _askaptsource() {
+function ask_apt_sources() {
 
 while [[ -z $aptsources ]]; do
     read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [Y]es or [${cyan}N${normal}]o: " responce
@@ -1007,7 +1007,7 @@ echo ; }
 
 # --------------------- 询问需要安装的 rTorrent 版本 --------------------- #
 
-function ask_rt() {
+function ask_rtorrent() {
 
 if [[ $script_lang == eng ]]; then
 
@@ -1130,7 +1130,7 @@ echo ; }
 # --------------------- 询问需要安装的 Transmission 版本 --------------------- #
 # wget -qO- "https://github.com/transmission/transmission" | grep "data-name" | cut -d '"' -f2 | pr -3 -t ; echo
 
-function _asktr() {
+function ask_transmission() {
 
 while [[ -z $tr_version ]]; do
 
@@ -1889,9 +1889,12 @@ else
     if [[ $qb_installed == Yes ]]; then
         make install
     else
-        [[ $CODENAME == buster ]] && make install
-        checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
-        mv -f qbittorrent*deb $DebLocation
+        if [[ $CODENAME == buster ]]; then
+            make install
+        else
+            checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
+            mv -f qbittorrent*deb $DebLocation
+        fi
     fi
 
     cd
@@ -2627,21 +2630,22 @@ echo ; }
 ######################################################################################################
 
 _intro
-_askusername
+ask_username
 ask_password
-_askaptsource
+ask_apt_sources
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc) ; _askmt
 ask_swap
 ask_qbittorrent
 ask_deluge
 [[ $de_version != No || $qb_version != No ]] && ask_libtorrent_version
 if [[ $CODENAME == buster ]];then
-    echo -e "rTorrent installation is not supported on Debian 10 yet, as I'm too lazy to adapt rtinst"
+    echo -e "${baizise}rTorrent installation is not supported on Debian 10 yet, as I'm too lazy to adapt rtinst${normal}\n"
+    rt_version=No
 else
-    ask_rt
+    ask_rtorrent
 fi
-[[ $rt_version != No ]] &&  ask_flood
-_asktr
+[[ $rt_version != No ]] && ask_flood
+ask_transmission
 ask_rdp
 ask_wine_mono
 ask_tools
@@ -2649,10 +2653,10 @@ ask_flexget
 ask_rclone
 ask_bbr
 ask_tweaks
-ask_continue | tee /etc/00.info.log
+ask_continue
+
 starttime=$(date +%s)
 preparation 2>&1 | tee /etc/00.preparation.log
-mv /etc/00.info.log $LogLocation/00.info.log
 mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 ######################################################################################################
@@ -2682,10 +2686,10 @@ echo -ne "Configuring Transmission ... \n\n\n" ; config_transmission 2>&1 | tee 
 [[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsWine   == Yes ]]  && { echo -ne "Installing Wine ... \n\n\n" ; install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
-[[ $UseTweaks == Yes ]] && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
+[[ $UseTweaks == Yes ]]  && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
 
 end_pre
 script_end 2>&1 | tee $LogTimes/end.log
-rm "$0" >> /dev/null 2>&1
+rm -f "$0" > /dev/null 2>&1
 ask_reboot
 
