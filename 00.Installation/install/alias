@@ -1,6 +1,6 @@
 #!/bin/bash
 # 2019.05.23
-# revision: 104
+# revision: 105
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
@@ -11,6 +11,8 @@ LogBase=$3
 IntoBashrc=$4
 
 # 150-20
+# Do not give this script execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
+# Correct Usage:      . s-alias
 cat << EOF > /usr/local/bin/s-alias
 #!/bin/bash
 ################## Inexistence Mod Start ##################
@@ -152,9 +154,7 @@ done
 sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc >> /etc/bash.bashrc
 }
 
-cat << EOF > /usr/local/bin/s-alias
-echo "Customed alias is enabled if your current pwd is /etc"
-cd /etc
+cat << EOF >> /usr/local/bin/s-alias
+echo "${green}Customed alias is enabled if your current pwd is /etc/inexistence${normal}"
+cd /etc/inexistence
 EOF
-
-# Usage:     . s-alias
