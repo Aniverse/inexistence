@@ -3,8 +3,9 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.04.16
-script_version=1.0.0
+script_update=2019.05.23
+script_version=r10002
+
 usage_guide() {
 bash config_qbittorrent -u $iUser -p $iPass      -w 2017 -i 9002
 }
@@ -29,8 +30,9 @@ done
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=2017
 [[ -z $iPort ]] && iPort=9002
-#[[ $lang == eng ]] && language=en
-[[ -z $language ]] && language=zh
+#[[ $lang == eng ]] && qbt_language=en
+[[ -z $qbt_language ]] && qbt_language=zh
+source /etc/inexistence/00.Installation/install/function --output $OutputLOG
 
 ################################################################################################
 
@@ -95,7 +97,7 @@ Connection\GlobalUPLimitAlt=0
 Connection\PortRangeMin=$iPort
 Downloads\SavePath=$iHome/qbittorrent/download
 Downloads\TorrentExportDir=$iHome/qbittorrent/torrent
-General\Locale=$language
+General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
 WebUI\CSRFProtection=false
 WebUI\Port=$wPort
@@ -107,9 +109,9 @@ systemctl enable qbittorrent@$iUser
 systemctl start qbittorrent@$iUser
 
 [ -d /var/www/h5ai ] &&
-ln -s $iHome/qbittorrent/download /var/www/h5ai/qbittorrent
+ln -s $iHome/qbittorrent/download /var/www/h5ai/$iUser/qbittorrent
 # touch $LOCKLocation/qbittorrent.config.lock
 }
 
-echo -ne "Configurating libtorrent-rasterbar build dependencies ..."
+echo -ne "Configurating qBittorrent ..."
 configure_qbittorrent & spinner $!
