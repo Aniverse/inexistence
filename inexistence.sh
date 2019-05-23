@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.1.24
+INEXISTENCEVER=1.1.1.26
 INEXISTENCEDATE=2019.05.23
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -484,11 +484,9 @@ elif ! [[ "$iUser" =~ ^[a-z][-a-z0-9_]*$ ]]; then
 elif [[ "$reserved_names" =~ " $iUser " ]]; then
     echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
     username_valid=false
-  else
+else
     username_valid=true
-fi
-}
-
+fi ; }
 
 
 # 询问用户名
@@ -499,25 +497,23 @@ validate_username $iUser
 if [[ $username_valid == empty ]]; then
     echo -e "${bold}${yellow}The script needs a username${jiacu}"
     echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
-    ask_username
+    ask_input_username
 elif [[ $username_valid == false ]]; then
   # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
-    ask_username
+    ask_input_username
 elif [[ $username_valid == true ]]; then
   # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
     echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
 fi ; }
 
 
-
 # 录入用户名
-function ask_username(){
+function ask_input_username(){
 
 local answerusername ; local reinput_name
 confirm_name=false
 
 while [[ $confirm_name == false ]]; do
-
     while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
         reinput_name=false
         read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
@@ -526,7 +522,6 @@ while [[ $confirm_name == false ]]; do
 
     addname=$answerusername
     echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
-
     read answer
     case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
                     [nN] | [nN][Oo]          ) reinput_name=true ;;
@@ -534,9 +529,7 @@ while [[ $confirm_name == false ]]; do
     esac
 
     iUser=$addname
-
 done ; echo ; }
-
 
 
 
