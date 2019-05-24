@@ -3,13 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-Script_UpDate=2019.04.29
-Script_Version=2.4.0
 # --------------------------------------------------------------------------------
 # If you would like to change the output path,
 # sets CustomedOutput=1，then write your output path to OUTPUT
 CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
+# --------------------------------------------------------------------------------
+Script_UpDate=2019.05.24
+Script_Version=2.4.1
 # --------------------------------------------------------------------------------
 
 function Deprecated() {
@@ -52,7 +53,7 @@ bc_cli="bc"
 [[ ! $(command -v mediainfo) ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
 
-[[ "$mediapath" == "" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
+[[ -z "$mediapath" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
 [[ ! $( ls "$mediapath" 2>/dev/null ) ]] && echo -e "\n${red}${bold}WARNING${jiacu} This file or dictionary doesn't exist, or it's empty\n${normal}" && exit 1
 
 [[ -d "$mediapath" ]] && {
@@ -100,6 +101,7 @@ SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
 SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" | head -1 )
 DAR2=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Display aspect ratio" | grep -oE "[0-9.]+" | head -1 )
+# mediainfo 的 PAR 和 DAR 都是直接是小数
 
 # 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
 # $VideoWidth/$DARY*$DARX=720÷16×9=405
@@ -142,12 +144,29 @@ SAR1_R="${SAR1_W}x${SAR1_H}"
 # expr 17 / 9 = 1
 # 这样子的话可以根据 expr SAR 的数值来选择怎么操作
 if [[ $( expr $SARX / $SARY ) == 0 ]] ; then
-resize=Y
-TrueRes="${DAR1_W}x${DAR1_H_BC}"
+    resize=Y
+    TrueRes="${DAR1_W}x${DAR1_H_BC}"
 else
-resize=X
-TrueRes="${DAR2_W_BC}x${DAR2_H}"
+    resize=X
+    TrueRes="${DAR2_W_BC}x${DAR2_H}"
 fi
+
+# 2019.05.24 bc 和 awk 至少要一个，不然很麻烦
+# 那我还不如用 awk ……
+PARX=$(awk "BEGIN{print $VideoWidth*$PAR}" | awk '{print int($0)}')
+[ $(($PARX%2)) != 0 ] && PARX=$( expr $PARX + 1 )
+PARY=$(awk "BEGIN{print $VideoHeight/$PAR}" | awk '{print int($0)}')
+[ $(($PARY%2)) != 0 ] && PARY=$( expr $PARY + 1 )
+# 小于等于 1，用 Y 除以 PAR（对于 PAR 等于 1 的来说除了 1 也不变所以无所谓）
+if [[ $(awk "BEGIN{print $PAR*1000}") -le 1000 ]] ; then
+    resize=Y
+    TrueRes2="${VideoWidth}x${PARY}"
+else
+    resize=X
+    TrueRes2="${PARX}x${VideoHeight}"
+fi
+
+
 
 
 
@@ -164,12 +183,13 @@ ${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
 "${cyan}${bold}Blu-ray Title          ${yellow}$disk_title_clean"
 
 echo -e "
-${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR
-${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2
+${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR (mediainfo)
+${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR (ffmpeg)
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR (ffmpeg)
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2 (mediainfo)
 ${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
-${cyan}${bold}Right Resolution       ${yellow}$TrueRes
+${cyan}${bold}Video Resolution 2     ${yellow}$TrueRes (via ffmepg DAR)
+${cyan}${bold}True  Resolution 3     ${yellow}$TrueRes2 (via mediainfo PAR)
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
 ${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
