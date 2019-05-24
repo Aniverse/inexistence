@@ -3,13 +3,13 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.09
-script_version=2.0.0.alpha2
+script_update=2019.05.24
+script_version=r20003
 ################################################################################################
 
 usage_guide() {
 
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/install_libtorrent_rasterbar) -m deb2 ; }
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6) -m deb2 ; }
 
 ################################################################################################ Get options
 
@@ -62,8 +62,9 @@ CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
 
-serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
-isInternalIpAddress "$serveripv4" && serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+#serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
+#isInternalIpAddress "$serveripv4" && serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
 isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
 isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
 isValidIpAddress "$serveripv4" || {
@@ -104,17 +105,18 @@ systemctl restart networking.service || echo -e "\n${red}systemctl restart netwo
 
 function ikoula_netplan(){
 cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
-cat << EOF >> /etc/netplan/01-netcgf.yaml
+cat << EOF > /etc/netplan/01-netcgf.yaml
 network:
   version: 2
   renderer: networkd
   ethernets:
-    eth0:
+    $interface:
       dhcp4: no
       dhcp6: no
+      accept-ra: no
       addresses: [$AAA.$BBB.$CCC.$DDD/24, '2400:c70:1:$AAA:$BBB:$CCC:$DDD:1/96']
-      gateway4: 185.246.85.1
-      gateway6: 2A00:C70:1:$AAA:$BBB:$CCC:0:1
+      gateway4: $AAA.$BBB.$CCC.1
+      gateway6: 2a00:c70:1:$AAA:$BBB:$CCC::1
       nameservers:
         addresses: [213.246.36.14,213.246.33.144,80.93.83.11]
 EOF
@@ -125,8 +127,6 @@ netplan apply
 
 
 
-
-}
 function online_netplan(){
 
 cat << EOF > /etc/dhcp/dhclient6.conf
