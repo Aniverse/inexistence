@@ -10,30 +10,11 @@ CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 Script_UpDate=2019.05.24
-Script_Version=2.4.2
+Script_Version=r20043
 # --------------------------------------------------------------------------------
 
-function Deprecated() {
-    DW=$VideoHeight
-    DARX=` echo $DAR | sed "s/[0-9]\{1,\}://" `
-    DARY=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
-  # DH0=` expr $VideoHeight / $DARX  `
-  # DH=` expr $DH0 \* $DARY  `
-    DH=` echo "$VideoHeight/$DARX*$DARY" | bc -l | awk '{print int($0)}' `
-
-    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
-    case $responce in
-        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
-        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
-        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
-    esac
-}
-
-# Transform numbers
-# function  even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
-
 # Cleanup when cancel
-cancel() { echo -e "${normal}" ; rm -f ./bc "${outputpath}/${file_title_clean}*" ; exit ; }
+cancel() { echo -e "${normal}" ; rm -f "${outputpath}/${file_title_clean}*" ; exit ; }
 trap cancel SIGINT
 
 # Colors
@@ -43,12 +24,7 @@ bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=
 mediapath="$1" ; fenbianlv="$2"
 Source=undefined
 
-#if [[ $EUID != 0 ]]; then
-#    yum install bc -y
-#    apt-get install bc -y
-#    [[ $(command -v bc) ]] && bc_cli="bc"
-bc_cli="bc"
-[[ ! $(command -v bc) ]] && { wget --no-check-certificate https://github.com/Aniverse/MissingCLI/raw/master/bc ; chmod +x bc ; bc_cli="./bc" ; }
+[[ ! $(command -v awk) ]] && echo -e "\n${red}${bold}ERROR${jiacu} awk not found, please install it${normal}" && exit 1
 [[ ! $(command -v ffmpeg) ]] && echo -e "\n${red}${bold}ERROR${jiacu} ffmpeg not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ ! $(command -v mediainfo) ]] && echo -e "\n${red}${bold}ERROR${jiacu} mediainfo not found, please install it or set it to your \$PATH\n${normal}" && exit 1
 [[ $EUID != 0 ]] && [[ $CustomedOutput == 0 ]] && echo -e "\n${red}${bold}ERROR${jiacu} Please edit this script to set output path first\n${normal}" && exit 1
@@ -85,11 +61,15 @@ else
 fi ; }
 
 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
 
+echo -e "\n${bold}Calculating resolution ...${normal}"
 
-# TEST MODE
-[[ $fenbianlv == -t ]] && {
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )  # X
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 ) # Y
@@ -119,10 +99,6 @@ DAR2_R="${DAR2_W}x${DAR2_H}"
 
 # 第三种，看 SAR，720×480 32:27，算出来 853×480
 # $VideoWidth/$SARX*$SARY=720÷27×32=853
-# 这个其实也只变 Width，但其实我们可以考虑当 SAR 小于 1 的时候改成用 Height 算
-# 蛋疼的是这个需要 bc，我怕某些共享盒子没有 bc（seedboxes.cc 和 dediseedbox 就没有）
-# bc 不确定是不是直接复制过来就行
-# 2019.05.24 用 awk 代替 bc
 SAR1_H=$VideoHeight
 SAR1_W=$(awk "BEGIN{print $VideoWidth/$SARY*$SARX}" | awk '{print int($0)}')
 [ ! $(($SAR1_W%2)) == 0 ] && SAR1_W=$( expr $SAR1_W + 1 )
@@ -160,14 +136,19 @@ else
 fi
 
 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
 
+# TEST MODE
+[[ $fenbianlv == -t ]] && {
 
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
 ${cyan}${bold}jietu version          ${yellow}$Script_Version
-${cyan}${bold}bc command             ${yellow}$bc_cli
-${cyan}${bold}bc PATH                ${yellow}$(which bc)
 ${cyan}${bold}Source Type            ${yellow}$Source"
 [[ $Source == DVD     ]] && echo -e \
 "${cyan}${bold}DVD IFO File           ${yellow}$ifo
@@ -181,13 +162,10 @@ ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR\t${normal}${bold}(ffmpeg)
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR\t${normal}${bold}(ffmpeg)
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2\t${normal}${bold}(mediainfo)
 ${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
-${cyan}${bold}ffDAR Resolution       ${yellow}$TrueRes
+${cyan}${bold}DAR   Resolution       ${yellow}$TrueRes
 ${cyan}${bold}PAR   Resolution       ${yellow}$TrueRes2
-${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
-${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
 ${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
-${cyan}${bold}SAR   Resolution (bc)  ${yellow}$SAR1_R_BC
 ${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
 ${green}
 mediapath=\"$mediapath\"
@@ -199,43 +177,22 @@ echo
 exit 0 ; }
 
 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
 
-
-# Calculating resolution
-if [[ "$fenbianlv" == "" ]]; then
+if [[ -z "$fenbianlv" ]]; then
 ########################################################################################################################
-echo -e "\n${bold}Calculating resolution ...${normal} "
-
-VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
-VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )
-VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 )
-DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
-DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
-DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" | head -1 )
-SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
-SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
-
-if [[ $( expr $SARX / $SARY ) == 0 ]] ; then  # Re-calculate Y (Height)
-    resize=Y
-    SSR_W=$VideoWidth
-    SSR_H=$( echo "$VideoWidth/$DARX*$DARY"  | $bc_cli -l | awk '{print int($0)}' )
-    # even_number SSR_H $SSR_H
-    [ ! $(($SSR_H%2)) == 0 ] && SSR_H=$( expr $SSR_H + 1 )
-else                                          # Re-calculate X (Width)
-    resize=X
-    SSR_H=$VideoHeight
-    SSR_W=$( echo "$VideoHeight/$DARY*$DARX" | $bc_cli -l | awk '{print int($0)}' )
-    # even_number SSR_W $SSR_W
-    [ ! $(($SSR_W%2)) == 0 ] && SSR_W=$( expr $SSR_W + 1 )
-fi
-
-fenbianlv="${SSR_W}x${SSR_H}"
-
+fenbianlv="$TrueRes2"
 echo -e "${bold}
-${cyan}Aspect Ratio  ${yellow}$DAR
-${cyan}Resolution    ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
+${cyan}Sample  Aspect Ratio (ffmpeg)     ${yellow}$SAR
+${cyan}Display Aspect Ratio (ffmpeg)     ${yellow}$DAR
+${cyan}Display Aspect Ratio (mediainfo)  ${yellow}$DAR2
+${cyan}Pixel   Aspect Ratio (mediainfo)  ${yellow}$PAR
+${cyan}Video Resolution                  ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
 
@@ -305,10 +262,36 @@ echo -e "${green}DONE${normal}" ; }
 
 # finished
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
-rm -f ./bc
 
 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
+
+function Deprecated() {
+    DW=$VideoHeight
+    DARX=` echo $DAR | sed "s/[0-9]\{1,\}://" `
+    DARY=` echo $DAR | sed "s/:[0-9]\{1,\}//" `
+  # DH0=` expr $VideoHeight / $DARX  `
+  # DH=` expr $DH0 \* $DARY  `
+    DH=` echo "$VideoHeight/$DARX*$DARY" | bc -l | awk '{print int($0)}' `
+
+    echo -n "${yellow}${bold}The correct resolution should be ${underline}$fenbianlv${reset_underline},${normal} [${cyan}T${normal}]rue or [F]alse " ; read responce
+    case $responce in
+        [Tt] | [Tt][Ru][Uu][eE]     )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+        [Ff] | [Ff][Aa][Ll][Ss][Ee] )  resolution=input ;;
+        ""   | *                    )  echo -e "The script will take 10 screenshots in $fenbianlv" ;;
+    esac
+# Transform numbers
+# function  even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
+}
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 
 usage() {
 
