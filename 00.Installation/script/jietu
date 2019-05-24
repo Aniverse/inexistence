@@ -10,7 +10,7 @@ CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 Script_UpDate=2019.05.24
-Script_Version=r20043
+Script_Version=r20044
 # --------------------------------------------------------------------------------
 
 # Cleanup when cancel
@@ -32,8 +32,11 @@ Source=undefined
 [[ -z "$mediapath" ]] && echo -e "\n${red}${bold}WARNING${jiacu} You must input the path to your file with double quotes\n${normal}" && exit 1
 [[ ! $( ls "$mediapath" 2>/dev/null ) ]] && echo -e "\n${red}${bold}WARNING${jiacu} This file or dictionary doesn't exist, or it's empty\n${normal}" && exit 1
 
-[[ -d "$mediapath" ]] && {
 omediapath="$mediapath"
+FileLoc="$(dirname "$omediapath")"
+FileLoc_sed="$(echo $FileLoc | sed -e 's/\//\\\//g')"
+
+[[ -d "$mediapath" ]] && {
 mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
 
 # DVD Name/VIDEO_TS/VTS_01_1.VOB
@@ -54,7 +57,7 @@ disk_title_clean="$(echo "$disk_title_clean" | tr -d ')')" ; }
 if [[ $Source == DVD ]]; then
 #   echo -e "\nThis is a DVD, ${underline}${mediapath}${reset_underline} would be used for taking screenshots and mediainfo,${normal}"
 #   echo -e "and the mediainfo of ${underline}${ifo}${reset_underline} would be added to the report too${normal}"
-    echo -e "\n${bold}This is a DVD, we will take screenshots for a main VOB file,\nand mediainfo reports of a main VOB file and the right IFO file${normal}"
+    echo -e "\n${bold}This is a DVD, we will take screenshots for a main VOB file,\nand mediainfo reports of a main VOB file and the correct IFO file${normal}"
 else
 #   echo -e "\n${red}${bold}ATTENTION${normal} You have input a dictionary, so we find the biggest file for taking screenshots,\nwhich is ${underline}${mediapath}${reset_underline}${normal}"
     echo -e "\n${bold}You have input a dictionary, we find the biggest file for taking screenshots,\nwhich is ${blue}${mediapath}${normal}"
@@ -136,6 +139,7 @@ else
 fi
 
 
+
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
@@ -149,7 +153,9 @@ fi
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
 ${cyan}${bold}jietu version          ${yellow}$Script_Version
-${cyan}${bold}Source Type            ${yellow}$Source"
+${cyan}${bold}Source Type            ${yellow}$Source
+${cyan}${bold}File Location          ${yellow}$(dirname "$omediapath")
+${cyan}${bold}File Name              ${yellow}$omediapath"
 [[ $Source == DVD     ]] && echo -e \
 "${cyan}${bold}DVD IFO File           ${yellow}$ifo
 ${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
@@ -237,28 +243,32 @@ for c in {01..10} ; do
     echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${normal} from timestamp ${blue}${timestamp}${normal} ...  "
   # ffmpeg -y -ss $timestamp -i "$mediapath" -vframes 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
     ffmpeg -y -ss $timestamp -i "$mediapath" -ss 00:00:01 -frames:v 1 -s $fenbianlv "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
-    echo -e "${green}DONE${normal}"
+    [[ -f "${outputpath}/${file_title_clean}.scr${c}.png" ]] && success_src=y || success_src=n
+    [[ $success_src == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}"
 
     [[ $(command -v nconvert) ]] && {
     echo -n "Compressing ${blue}${file_title_clean}.scr${c}.png${normal} ${normal} ...  "
     nconvert -out png -clevel 6 -o "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
+    [[ $? -eq 0 ]] && success_convert=y || success_convert=n
     mv -f "${outputpath}/${file_title_clean}.scr${c}_1.png" "${outputpath}/${file_title_clean}.scr${c}.png" > /dev/null 2>&1
-    echo -e "${green}DONE${normal}" ; }
+    [[ $success_convert == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}" ; }
 
 done
 
-# mediainfo
+###################################################### mediainfo #######################################################
 echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
-sed -i '/${outputpath}\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
-echo -e "${green}DONE${normal}"
+[[ $? -eq 0 ]] && success_info=y || success_info=n
+sed -i '/$FileLoc_sed\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
+[[ $success_info == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}"
 
-
-[[ ! -z "$ifo" ]] && {
+[[ -n "$ifo" ]] && {
 echo -ne "Adding IFO mediainfo to ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 echo -e "\n\n" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
 mediainfo "$ifo" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
-echo -e "${green}DONE${normal}" ; }
+[[ $? -eq 0 ]] && success_ifo=y || success_ifo=n
+sed -i '/$FileLoc_sed\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
+[[ $success_ifo == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}" ; }
 
 # finished
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
@@ -295,7 +305,7 @@ function Deprecated() {
 
 usage() {
 
-rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod 755 /usr/local/bin/jietu
 
 wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu -O /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
 
