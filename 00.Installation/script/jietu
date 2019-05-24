@@ -10,7 +10,7 @@ CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 Script_UpDate=2019.05.24
-Script_Version=2.4.1
+Script_Version=2.4.2
 # --------------------------------------------------------------------------------
 
 function Deprecated() {
@@ -91,8 +91,8 @@ fi ; }
 # TEST MODE
 [[ $fenbianlv == -t ]] && {
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
-VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )
-VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 )
+VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )  # X
+VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 ) # Y
 DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
 DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
 DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
@@ -106,22 +106,15 @@ DAR2=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Display aspect ratio" | grep -
 # 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
 # $VideoWidth/$DARY*$DARX=720÷16×9=405
 DAR1_W=$VideoWidth
-DAR1_H_BC=$( echo "$VideoWidth/$DARX*$DARY" | bc -l | awk '{print int($0)}' )
-# even_number DAR1_H_BC $DAR1_H_BC
-[ ! $(($DAR1_H_BC%2)) == 0 ] && DAR1_H_BC=$( expr $DAR1_H_BC + 1 )
-DAR1_H=$( expr $(expr $VideoWidth / $DARX) \* $DARY )
-DAR1_R_BC="${DAR1_W}x${DAR1_H_BC}"
+DAR1_H=$(awk "BEGIN{print $VideoWidth/$DARX*$DARY}" | awk '{print int($0)}')
+[ ! $(($DAR1_H%2)) == 0 ] && DAR1_H=$( expr $DAR1_H + 1 )
 DAR1_R="${DAR1_W}x${DAR1_H}"
 
 # 第二种，720×480 16:9，算出来 853×480，也就是重新计算 X
 # $VideoHeight/$DARX*$DARY=480÷9×16=853
-# 
 DAR2_H=$VideoHeight
-DAR2_W_BC=$( echo "$VideoHeight/$DARY*$DARX" | bc -l | awk '{print int($0)}' )
-# even_number DAR2_W_BC $DAR2_W_BC
-[ ! $(($DAR2_W_BC%2)) == 0 ] && DAR2_W_BC=$( expr $DAR2_W_BC + 1 )
-DAR2_W=$( expr $(expr $VideoHeight / $DARY) \* $DARX )
-DAR2_R_BC="${DAR2_W_BC}x${DAR2_H}"
+DAR2_W=$(awk "BEGIN{print $VideoHeight/$DARY*$DARX}" | awk '{print int($0)}')
+[ ! $(($DAR2_W%2)) == 0 ] && DAR2_W=$( expr $DAR2_W + 1 )
 DAR2_R="${DAR2_W}x${DAR2_H}"
 
 # 第三种，看 SAR，720×480 32:27，算出来 853×480
@@ -129,12 +122,10 @@ DAR2_R="${DAR2_W}x${DAR2_H}"
 # 这个其实也只变 Width，但其实我们可以考虑当 SAR 小于 1 的时候改成用 Height 算
 # 蛋疼的是这个需要 bc，我怕某些共享盒子没有 bc（seedboxes.cc 和 dediseedbox 就没有）
 # bc 不确定是不是直接复制过来就行
+# 2019.05.24 用 awk 代替 bc
 SAR1_H=$VideoHeight
-SAR1_W_BC=$( echo "$VideoWidth/$SARY*$SARX" | bc -l | awk '{print int($0)}' )
-# even_number SAR1_W_BC $SAR1_W_BC
-[ ! $(($SAR1_W_BC%2)) == 0 ] && SAR1_W_BC=$( expr $SAR1_W_BC + 1 )
-SAR1_W=$( expr $(expr $VideoWidth / $SARY) \* $SARX )
-SAR1_R_BC="${SAR1_W_BC}x${SAR1_H}"
+SAR1_W=$(awk "BEGIN{print $VideoWidth/$SARY*$SARX}" | awk '{print int($0)}')
+[ ! $(($SAR1_W%2)) == 0 ] && SAR1_W=$( expr $SAR1_W + 1 )
 SAR1_R="${SAR1_W}x${SAR1_H}"
 
 # https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
@@ -145,14 +136,16 @@ SAR1_R="${SAR1_W}x${SAR1_H}"
 # 这样子的话可以根据 expr SAR 的数值来选择怎么操作
 if [[ $( expr $SARX / $SARY ) == 0 ]] ; then
     resize=Y
-    TrueRes="${DAR1_W}x${DAR1_H_BC}"
+    TrueRes="${DAR1_W}x${DAR1_H}"
 else
     resize=X
-    TrueRes="${DAR2_W_BC}x${DAR2_H}"
+    TrueRes="${DAR2_W}x${DAR2_H}"
 fi
 
-# 2019.05.24 bc 和 awk 至少要一个，不然很麻烦
-# 那我还不如用 awk ……
+# 2019.05.24 前阵子还是有人和我反应算错了，发现还真的是算错了
+# PTP 那个自动算的系统是用 mediainfo 算的，那我最后也还是要用 mediainfo
+# 之前没用主要就是因为浮点数计算的问题，现在发现这个问题避不开， bc 和 awk 至少要一个，或者就用 per、python
+# 那我还不如用广泛预装了的 awk ……
 PARX=$(awk "BEGIN{print $VideoWidth*$PAR}" | awk '{print int($0)}')
 [ $(($PARX%2)) != 0 ] && PARX=$( expr $PARX + 1 )
 PARY=$(awk "BEGIN{print $VideoHeight/$PAR}" | awk '{print int($0)}')
@@ -183,13 +176,13 @@ ${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
 "${cyan}${bold}Blu-ray Title          ${yellow}$disk_title_clean"
 
 echo -e "
-${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR (mediainfo)
-${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR (ffmpeg)
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR (ffmpeg)
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2 (mediainfo)
+${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR\t${normal}${bold}(mediainfo)
+${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR\t${normal}${bold}(ffmpeg)
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR\t${normal}${bold}(ffmpeg)
+${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2\t${normal}${bold}(mediainfo)
 ${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
-${cyan}${bold}Video Resolution 2     ${yellow}$TrueRes (via ffmepg DAR)
-${cyan}${bold}True  Resolution 3     ${yellow}$TrueRes2 (via mediainfo PAR)
+${cyan}${bold}ffDAR Resolution       ${yellow}$TrueRes
+${cyan}${bold}PAR   Resolution       ${yellow}$TrueRes2
 ${cyan}${bold}DAR-1 Resolution (bc)  ${yellow}$DAR1_R_BC
 ${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
 ${cyan}${bold}DAR-2 Resolution (bc)  ${yellow}$DAR2_R_BC
@@ -318,6 +311,9 @@ rm -f ./bc
 
 
 usage() {
+
 rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+
 wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu -O /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
+
 }
