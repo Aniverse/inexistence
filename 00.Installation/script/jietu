@@ -10,7 +10,7 @@ CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 Script_UpDate=2019.05.24
-Script_Version=r20044
+Script_Version=r20045
 # --------------------------------------------------------------------------------
 
 # Cleanup when cancel
@@ -34,7 +34,7 @@ Source=undefined
 
 omediapath="$mediapath"
 FileLoc="$(dirname "$omediapath")"
-FileLoc_sed="$(echo $FileLoc | sed -e 's/\//\\\//g')"
+#FileLoc_sed="$(echo $FileLoc | sed -e 's/\//\\\//g')"
 
 [[ -d "$mediapath" ]] && {
 mediapath=$( find "$mediapath" -type f -print0 | xargs -0 ls -1S 2>&1 | head -1 )
@@ -154,7 +154,7 @@ fi
 echo -e "
 ${cyan}${bold}jietu version          ${yellow}$Script_Version
 ${cyan}${bold}Source Type            ${yellow}$Source
-${cyan}${bold}File Location          ${yellow}$(dirname "$omediapath")
+${cyan}${bold}File Location          ${yellow}$FileLoc
 ${cyan}${bold}File Name              ${yellow}$omediapath"
 [[ $Source == DVD     ]] && echo -e \
 "${cyan}${bold}DVD IFO File           ${yellow}$ifo
@@ -259,7 +259,7 @@ done
 echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 [[ $? -eq 0 ]] && success_info=y || success_info=n
-sed -i '/$FileLoc_sed\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
+sed -i "s|${FileLoc}/||" "${outputpath}/${file_title_clean}.mediainfo.txt"
 [[ $success_info == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}"
 
 [[ -n "$ifo" ]] && {
@@ -267,7 +267,7 @@ echo -ne "Adding IFO mediainfo to ${blue}${file_title_clean}.mediainfo.txt${norm
 echo -e "\n\n" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
 mediainfo "$ifo" >> "${outputpath}/${file_title_clean}.mediainfo.txt"
 [[ $? -eq 0 ]] && success_ifo=y || success_ifo=n
-sed -i '/$FileLoc_sed\//'d "${outputpath}/${file_title_clean}.mediainfo.txt"
+sed -i "s|${FileLoc}/||" "${outputpath}/${file_title_clean}.mediainfo.txt"
 [[ $success_ifo == y ]] && echo -e "${green}DONE${normal}" || echo -e "${green}ERROR${normal}" ; }
 
 # finished
