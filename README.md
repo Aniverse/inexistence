@@ -1,22 +1,19 @@
 # Inexistence
 
+> This is a seedbox script focus on Chinese users, I would prefer [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
+> And note that this README is outdated, I'm too lazy to keep it update.  
+
 > 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
-> 作者是个菜鸡，没学过程序，本脚本的不少内容是 依样画葫芦 + 抄袭 + 百度/谷歌得来的  
-> 建议重装完系统后安装本脚本，非全新安装的情况下翻车几率更高  
+> 建议重装完系统后安装本脚本，非全新安装的情况下翻车几率比较高  
 
 
-本文内容不会及时更新；可能最新的脚本在界面上和截图里有一些不一样  
+由于作者很懒+喜欢咕咕，本文内容已经很久没更新了，有些内容和当前的脚本已经不一样了，凑合着看吧。  
 
 
 ## Usage
 
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
-```
-```
-wget --no-check-certificate -qO inexistence.sh \
-https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh &&
-bash inexistence.sh
 ```
 
 ## Installation Guide
@@ -32,7 +29,9 @@ bash inexistence.sh
 ![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.1.png)
 ![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.2.png)
 
-支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9` ；`Ubuntu 14.04`、`Debian 7` 可以选择用脚本升级系统；其他系统不支持  
+支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9 / 10` ；`Ubuntu 14.04`、`Debian 7` 可以选择用脚本升级系统；其他系统不支持  
+（还没适配 Debian 10 的 rTorrent，我懒得动了，等 rtinst 作者搞吧）  
+（过阵子加入升级 16.04 到 18.04，升级 Debian 8 到 Debian 9 / 10 的选项，不过不知道这“阵子”是多久）  
 使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
 ![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
@@ -84,15 +83,14 @@ bash inexistence.sh
 
 
 7. ***qBittorrent***  
-**`--qb 4.1.4`**、**`--qb ppa`**、**`--qb No`**  
-都快 2019 年了，向前看吧，不推荐使用 qBittorrent 4.1.4 以前的版本  
-下一个版本将会移除 3.3.11 和 3.3.16 的安装选项，如果你仍然需要的话可以手动输入对应的版本号进行安装  
-可以跳过校验的 3.3.11 修改版已移除，不用再试了  
+**`--qb 4.1.6`**、**`--qb ppa`**、**`--qb No`**  
+如果你需要使用带跳过校验功能的 3.3.11，请在版本号选择处先输入 30 进入自定义版本好，然后输入 `3.3.17`  
+**使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
 8. ***Deluge***  
 **`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
-1.3.9 这个古董版本主要针对那些不支持新版本 Deluge 也不支持 qBittorrent 的站点，比如 HD4FANS，KeepFRDS  
+1.3.9 这个古董版本主要针对那些不支持新版本 Deluge 的站点，比如 HD4FANS 和 TCCF  
 2.0 版仍在开发中，不建议普通用户使用，基本上没有几个 PT 站的白名单内有它（有它的基本上都是采用黑名单而不是白名单的）  
 默认选项为从源码安装 1.3.15  
 此外还会安装一些实用的 Deluge 第三方插件：  
@@ -108,7 +106,7 @@ bash inexistence.sh
 
 9. ***libtorrent-rasterbar***  
 要安装 Deluge 或者 qBittorrent 中的任意一个，就必须安装 libtorrent-rasterbar，因为 libtorrent-rasterbar 是这两个软件所使用的后端  
-从 Deluge 2.0 和 qBittorrent 4.2.0 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
+从 Deluge 2.0 和 qBittorrent 4.1.4 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
 需要注意的是，这个 libtorrent-rasterbar 和 rTorrent 所使用的 libtorrent 是不一样的，切勿混淆  
 Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/arvidn/libtorrent)，rTorrent 使用的则是 [libtorrent-rakshasa](https://github.com/rakshasa/libtorrent)  
 
@@ -117,32 +115,31 @@ Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/ar
 **`--rt 0.9.4`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的  
 注意，Ubuntu 18.04 和 Debian 9 因为 OpenSSL 的原因，只能使用新版本的 0.9.6 或 0.9.7，更低版本无法直接安装  
-- 安装 rTorrent，ruTorrent，nginx，ffmpeg 3.4.2，rar 5.5.0，h5ai 目录列表程序  
+- 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar，h5ai 目录列表程序  
 - 0.9.2-0.9.4 支持 IPv6 用的是打好补丁的版本，属于修改版客户端  
 - 0.9.6 支持 IPv6 用的是 2018.01.30 的 feature-bind 分支，原生支持 IPv6  
-- 不修改 SSH 端口，FTP 使用 `vsftpd`，端口号 21，监听 IPv6  
-- 设置了 Deluge、qBittorrent、Transmission WebUI 的反代  
-- ruTorrent 版本为来自 master 分支的 3.8 版，此外还安装了如下的插件和主题  
+- 设置了 Deluge、qBittorrent、Transmission、Flexget WebUI 的反代  
+- ruTorrent 版本为来自 master 分支的 3.9 版，此外还安装了如下的第三方插件和主题  
 - `club-QuickBox` `MaterialDesign` 第三方主题  
 - `AutoDL-Irssi` （原版 rtinst 自带）  
 - `Filemanager` 插件可以在 ruTorrent 上管理文件、右键创建压缩包、生成 mediainfo 和截图  
 - `ruTorrent Mobile` 插件可以优化 ruTorrent 在手机上的显示效果（不需要的话可以手动禁用此插件）  
-- `spectrogram` 插件可以在 ruTorrent 上获取音频文件的频谱  
-- `Fileshare` 插件创建有时限、可自定义密码的文件分享链接（有点问题，以后再修复）  
-- `Mediastream` 插件可以在线观看盒子的视频文件  
+- `Fileshare` 插件创建有时限、可自定义密码的文件分享链接  
+- `GeoIP2` 插件，代替原先的 GeoIP 插件，精确度更好，支持 IPv6 地址识别  
 
 
 11. **Flood**  
 **`--flood-yes`**、**`--flood-no`**  
 选择不安装 rTorrent 的话这个选项不会出现  
 Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
+第一次登陆时需要填写信息，端口号是 5000，挂载点是 127.0.0.1  
 
 
 12. ***Transmission***  
 **`--tr repo`**、**`--tr ppa`**、**`--tr 2.93 --tr-skip`**、**`--tr No`**  
 Transmission 默认选择从仓库里安装，节省时间（ban 2.93 以前版本的站点也不是很多）  
 此外还会安装 [美化版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
-隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本  
+隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本（无 2.94 修改版，以后再搞）  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
@@ -150,7 +147,7 @@ Transmission 默认选择从仓库里安装，节省时间（ban 2.93 以前版�
 **`--rdp-vnc`**、**`--rdp-x2go`**、**`--rdp-no`**  
 远程桌面选项，默认不安装  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
-VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 或者另外想办法安装 VNC  
+VNC 目前在 Debian 下安装完后可能会无法连接，建议 Debian 系统用 X2Go 或者另外想办法安装 VNC  
 
 
 14. ***wine & mono***  
@@ -187,7 +184,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 **`--bbr-yes`**、**`--bbr-no`**  
 （如果你想安装魔改版 BBR 或 锐速，请移步到 [TrCtrlProToc0l](https://github.com/Aniverse/TrCtrlProToc0l) 脚本）  
 会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认直接启用BBR（不安装新内核）  
-据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配南琴浪版以外的魔改 BBR，因此采用了 4.11.12 内核  
+据说 4.12 存在 VirtIO 方面的 bug，4.13 及以上无法适配一般的魔改 BBR，因此采用了 4.11.12 内核  
 注意：更换内核或多或少是有点危险性的操作，有时候会导致无法正常启动系统  
 不过针对常见的 Online／OneProvider Paris 的独服我是准备了五个 firmware，应该没什么问题  
 
@@ -198,9 +195,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
-- 提高系统文件打开数  
 - 修改 screen 设置  
-- 释放最大分区的保留空间  
 
 
 ![确认信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.05.png)
@@ -227,28 +222,17 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 ![WebUI](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.08.png)
 
-最后打开浏览器检查下各客户端是否都能正常访问  
+最后打开浏览器检查下各客户端是否都能正常访问，一般是没问题的……  
 
 
 
 #### To Do List
 
-- **Password**  
-修改 SSH、Deluge、ruTorrent、Transmission、qBittorrent、Flexget 密码的脚本  
-实现起来不难，主要是现在没空做  
-
-- **Version**  
-升级、降级 Deluge、ruTorrent、Transmission、qBittorrent 版本的脚本，也是调用单独的脚本去实现  
-
-- **Box**  
-把各种客户端的安装每个都做成单独的脚本，然后在 `inexistence`、`version` 中需要安装的时候直接调用  
-这个思路是从 QuickBox 那边学到的，最后的命令可能会长这样子：`box install vnc`、`box purge qbittorrent`  
+这玩意儿写了也没用，我都咕咕多久了？？？  
 
 #### Under Consideration
 
-- **Multi-user**  
-1. 将 Tr/De/Qb 的运行用户从 root 换成普通用户  
-2. 多用户模式，可以直接 adduser 并设置好 de/qb/rt/tr/flexget  
+写了也没用，反正作者很懒
 
 #### 碎碎念
 
@@ -265,7 +249,7 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 ## mingling
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
-有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更，以后可能还会删掉  
+有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更  
 不做具体的介绍了，直接看图吧  
 
 ![mingling.00](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.00.png)
@@ -280,11 +264,6 @@ VNC 目前在 Debian 下安装完后无法连接，建议 Debian 系统用 X2Go 
 
 #### Known Issues
 - **有时候客户端操作菜单按了却没用**  
-
-#### To Do List
-- **自动检查脚本是否存在更新？**  
-但考虑到新版本和老版本可能不适配，这个不一定会做  
-- **完善说明文档**  
 
 
 
@@ -324,9 +303,10 @@ BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没
 
 ## IPv6
 
-用于配置 IPv6 的脚本，如果第一次运行不成功，可以试着再跑一遍  
+用于配置 IPv6 的脚本（主要是 Online，Ikoula 不适用），如果第一次运行不成功，可以试着再跑一遍  
 如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
 **2018.11.15 Update：可能跑完后机器会失联，如果这样的话试试后台重启下？**  
+**2019.06.05 Update：不支持 Ubuntu 18.04，以后再更新**  
 
 ``` 
 bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
@@ -353,6 +333,7 @@ bash ipv6 2001:cb6:2521:240:: 57 00:03:00:01:d3:3a:15:b4:43:ad
 
 ## xiansu
 
+**2019.06.05 作者吐槽：这玩意儿有点时泪了的感觉，现在都是 OP 和 Hz，辣鸡 Online，限速涨价， 呸！**  
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
 更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
 直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况  
@@ -374,7 +355,7 @@ xiansu eth0 300
 
 ## jietu
 
-用于截图和生成 mediainfo 的脚本，适合非原盘类的视频  
+用于截图和生成 mediainfo 的脚本，对于 DVD 还会加入 IFO 文件的 mediainfo  
 输入文件名则对这个文件进行操作，输入文件夹则寻找该文件夹内最大的文件当做视频文件进行操作  
 你可以指定分辨率进行截图，也可以不写分辨率让脚本自动计算 DAR 后的分辨率  
 比如有一张 DVD 的原始分辨率是 720x576，DAR 是 16:9，那么脚本就会采用 1024x576 来截图  
@@ -397,7 +378,7 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 ## guazai
 
-用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此需要 root 权限才能运行  
+用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此一般来说需要 root 权限才能运行  
 
 ![guazai.03](https://github.com/Aniverse/filesss/raw/master/Images/guazai.03.png)
 
@@ -446,9 +427,8 @@ inexistence 自带 bluray，不过不包括它的软件库
 
 还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
 
-1. 我不想回答 README 中已包含答案的问题  
-2. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
-3. 有意见或者改进也欢迎告知  
+1. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
+2. 有意见或者改进也欢迎告知  
 
 ## Issues
 
