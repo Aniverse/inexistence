@@ -84,7 +84,7 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 
 7. ***qBittorrent***  
 **`--qb 4.1.6`**、**`--qb ppa`**、**`--qb No`**  
-如果你需要使用带跳过校验功能的 3.3.11，请在版本号选择处先输入 30 进入自定义版本好，然后输入 `3.3.17`  
+如果你需要使用带跳过校验功能的 3.3.11，请在版本号选择处先输入 30 进入自定义版本号，然后输入 `3.3.17`  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
@@ -226,30 +226,12 @@ VNC 目前在 Debian 下安装完后可能会无法连接，建议 Debian 系统
 
 
 
-#### To Do List
-
-这玩意儿写了也没用，我都咕咕多久了？？？  
-
-#### Under Consideration
-
-写了也没用，反正作者很懒
-
-#### 碎碎念
-
-其实 `mingling`、`box` 这些脚本做得再好，对于一般人而言也没有 QuickBox 那个 Dashboard 好，毕竟那个不需要用 SSH  
-
-
-
-
-
-
-
 
 
 ## mingling
 
 方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
-有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更  
+有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更，说真的这个东西我自己都懒得用  
 不做具体的介绍了，直接看图吧  
 
 ![mingling.00](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.00.png)
@@ -261,15 +243,6 @@ VNC 目前在 Debian 下安装完后可能会无法连接，建议 Debian 系统
 ![mingling.06](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.06.png)
 ![mingling.07](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.07.png)
 ![mingling.08](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.08.png)
-
-#### Known Issues
-- **有时候客户端操作菜单按了却没用**  
-
-
-
-
-
-
 
 
 
@@ -292,8 +265,6 @@ VNC 目前在 Debian 下安装完后可能会无法连接，建议 Debian 系统
 可以选择需要扫描的 mpls  
 
 ![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.03.png)
- 
-BDinfo 输出结果看起来五颜六色是因为使用了 lolcat，如果你没安装 lolcat 的话是不会有彩色的  
  
 
 
@@ -334,7 +305,7 @@ bash ipv6 2001:cb6:2521:240:: 57 00:03:00:01:d3:3a:15:b4:43:ad
 ## xiansu
 
 **2019.06.05 作者吐槽：这玩意儿有点时泪了的感觉，现在都是 OP 和 Hz，辣鸡 Online，限速涨价， 呸！**  
-用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服    
+用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服  
 更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
 直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况  
 
@@ -355,7 +326,7 @@ xiansu eth0 300
 
 ## jietu
 
-用于截图和生成 mediainfo 的脚本，对于 DVD 还会加入 IFO 文件的 mediainfo  
+用于截图和生成 mediainfo 的脚本，对于 DVD 还会加入 IFO 文件的 mediainfo，PTP 发种实用  
 输入文件名则对这个文件进行操作，输入文件夹则寻找该文件夹内最大的文件当做视频文件进行操作  
 你可以指定分辨率进行截图，也可以不写分辨率让脚本自动计算 DAR 后的分辨率  
 比如有一张 DVD 的原始分辨率是 720x576，DAR 是 16:9，那么脚本就会采用 1024x576 来截图  
