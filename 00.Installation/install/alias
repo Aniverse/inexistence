@@ -1,6 +1,6 @@
 #!/bin/bash
-# 2019.05.23
-# revision: 106
+# 2019.06.04
+# revision: 107
 
 # bash /etc/inexistence/00.Installation/alias 1 2
 # source /etc/bash.bashrc
@@ -128,6 +128,9 @@ alias ios="iostat -dxm 1"
 alias vms="vmstat 1 10"
 alias vns="vnstat -l"
 alias vnss="vnstat -m ; vnstat -d"
+
+alias abench="bash <(wget -qO- https://github.com/Aniverse/A/raw/i/a)"
+alias bench.sh="wget -qO- bench.sh | bash"
 
 alias sousuo="find / -name"
 alias sousuo2="find /home/$iUser -name"
