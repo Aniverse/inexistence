@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.2
-INEXISTENCEDATE=2019.05.23
+INEXISTENCEVER=1.1.2.3
+INEXISTENCEDATE=2019.05.30
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -269,8 +269,8 @@ DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
 grep buster /etc/os-release -q && CODENAME=buster
-[[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
-[[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
+[[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
+[[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
 [[ $CODENAME =~ (xenial|bionic|jessie|stretch|buster) ]] && SysSupport=1
 [[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
@@ -291,8 +291,9 @@ which wget | grep -q wget || { echo -e "${red}${bold}Failed to install wget, ple
 echo -e "${bold}Checking your server's public IPv4 address ...${normal}"
 # serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
 # serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
-serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
-isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+# serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
+# isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
 isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
 isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
 isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
@@ -965,6 +966,7 @@ done
 
 if [[ $lt_version == system ]]; then
     echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
+    lt_display_ver=$lt_ver
 else
     echo -e "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}"
 fi
@@ -1531,11 +1533,11 @@ apt-get -f -y install
 
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
-htop atop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
+htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
+ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted netplan fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
 ruby uuid socat             figlet toilet lolcat               libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
-zip unzip p7zip-full mediainfo mktorrent fail2ban debian-archive-keyring software-properties-common"
+zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 
 ######## These codes are from rtinst ########
 for package_name in $package_list ; do
@@ -1547,6 +1549,9 @@ for package_name in $package_list ; do
         echo "$package_name not found, skipping"
     fi
 done
+
+# Install atop may causedpkg failure in some VPS, so install it separately
+apt-get -y install atop
 
 test -z "$install_list" || apt-get -y install $install_list
 if [ ! $? = 0 ]; then
@@ -1928,7 +1933,7 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget -nv -N http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
+        wget -nv -N -4 http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge-$de_version
@@ -1944,7 +1949,7 @@ else
         sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
         echo -e "\n\nSSL FIX (FOR LOG)\n\n"
         python setup.py build  > /dev/null
-        python setup.py install --install-layout=deb  > /dev/null
+        python setup.py install --install-layout=deb --record /log/inexistence/deluge_filelist.txt > /dev/null
         mv -f /usr/bin/deluged /usr/bin/deluged2
         wget -nv -N http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
         tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
