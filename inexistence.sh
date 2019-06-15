@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.3
-INEXISTENCEDATE=2019.05.30
+INEXISTENCEVER=1.1.2.4
+INEXISTENCEDATE=2019.06.15
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1925,7 +1925,7 @@ else
 
     if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
         export de_version=1.3.15
-        wget -nv -N https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz
+        wget -nv -N "https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz"
         tar xf deluge-1.3.15.skip.tar.gz
         rm -f deluge-1.3.15.skip.tar.gz
         cd deluge-1.3.15
@@ -1933,7 +1933,7 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget -nv -N -4 http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz
+        wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz"
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge-$de_version
