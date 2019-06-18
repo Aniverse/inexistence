@@ -9,8 +9,10 @@
 CustomedOutput=0
 OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
-Script_UpDate=2019.05.24
-Script_Version=r20045
+pics=10
+# --------------------------------------------------------------------------------
+Script_UpDate=2019.06.18
+Script_Version=r20046
 # --------------------------------------------------------------------------------
 
 # Cleanup when cancel
@@ -237,7 +239,7 @@ fi
 echo
 
 # Screenshots
-for c in {01..10} ; do
+for c in $(seq -w 1 $pics) ; do
 
     i=`expr $i + $timestampsetting` ; timestamp=`date -u -d @$i +%H:%M:%S`
     echo -n "Writing ${blue}${file_title_clean}.scr${c}.png${normal} from timestamp ${blue}${timestamp}${normal} ...  "
