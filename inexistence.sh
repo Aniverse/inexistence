@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.4
-INEXISTENCEDATE=2019.06.15
+INEXISTENCEVER=1.1.2.5
+INEXISTENCEDATE=2019.06.21
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1933,7 +1933,7 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-$de_version.tar.gz"
+        wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge-$de_version
@@ -2114,7 +2114,7 @@ else
     cd ..
 
     if [[ $TRdefault == No ]]; then
-        wget -nv -N https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-$tr_version.tar.gz
+        wget -nv -N "https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${tr_version}.tar.gz"
         tar xf transmission-$tr_version.tar.gz ; rm -f transmission-$tr_version.tar.gz
         cd transmission-$tr_version
     else
