@@ -1933,10 +1933,12 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-        wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
+      # git clone --depth=1 -b deluge-$de_version https://github.com/deluge-torrent/deluge deluge-$de_version
+      # wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
+        wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
-        cd deluge-$de_version
+        cd deluge*$de_version  # cd deluge-$de_version
     fi
 
     ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
