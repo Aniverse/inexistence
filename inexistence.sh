@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.8
+INEXISTENCEVER=1.1.2.9
 INEXISTENCEDATE=2019.06.29
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -361,8 +361,8 @@ elif grep -q '^vendor_id.*IBM/S390' /proc/cpuinfo; then
 elif [[ -e /proc/xen ]] || [[ $(grep -q xen /sys/hypervisor/type 2>/dev/null) ]]; then
     virt="Xen"
     grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null && virt="Xen-Dom0" || virt="Xen-DomU"
-elif [[ "$arch2" = ia64 ]] && [[ -d "${root}/sys/bus/xen" -a ! -d "${root}/sys/bus/xen-backend" ]]; then
-    virt="Xen-HVM"
+#elif [[ "$arch2" = ia64 ]] && [[ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]]; then
+#   virt="Xen-HVM"
 elif grep -q UML "/proc/cpuinfo"; then
     virt="UML"
 fi
