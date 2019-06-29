@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.5
-INEXISTENCEDATE=2019.06.21
+INEXISTENCEVER=1.1.2.6
+INEXISTENCEDATE=2019.06.29
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -324,11 +324,11 @@ wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
 echo -e "${bold}Checking your server's specification ...${normal}"
 
 # Virt-what
-wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/files/software/virt-what
-mkdir -p /usr/lib/virt-what
-wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/files/software/virt-what-cpuid-helper
-chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
-virtua="$(virt-what)" 2>/dev/null
+#wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/files/software/virt-what
+#mkdir -p /usr/lib/virt-what
+#wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/files/software/virt-what-cpuid-helper
+#chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
+#virt="$(virt-what)" 2>/dev/null
 
 kern=$( uname -r )
 cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
@@ -389,12 +389,13 @@ echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${no
 echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
 echo -e  "  Kernel    : ${cyan}$kern${normal}"
 echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
-echo -ne "  Virt      : " ; [[ -n ${virtua} ]] && echo "${cyan}$virtua${normal}" || echo "${cyan}No Virtualization Detected${normal}"
+echo -ne "  Virt      : ${cyan}$virt${normal}"
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
 [[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段，目前懒得加 rTorrent 的支持${normal}"
 [[ $SYSTEMCHECK != 1   ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
+[[ ! ${virt} =~ "No Virtualization Detected|KVM" ]] && echo -e "\n${bold}${red}这个脚本没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、Xen、HyperV、Lxc 等架构下一切正常${normal}"
 
 echo
 echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
@@ -1535,7 +1536,7 @@ package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
+dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python3-dev python-pip python3-pip python-setuptools
 ruby uuid socat             figlet toilet lolcat               libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 
@@ -1551,7 +1552,7 @@ for package_name in $package_list ; do
 done
 
 # Install atop may causedpkg failure in some VPS, so install it separately
-apt-get -y install atop
+[[ ! -d /proc/vz ]] && apt-get -y install atop
 
 test -z "$install_list" || apt-get -y install $install_list
 if [ ! $? = 0 ]; then
@@ -1627,7 +1628,7 @@ OS         : $DISTRO $osversion $CODENAME ($arch)
 Kernel     : $kern
 ASN & ISP  : $asnnnnn, $isppppp
 Location   : $cityyyy, $regionn, $country
-Virt       : $virtua
+Virt       : $virt
 #################################
 Times=$times
 INEXISTENCEVER=${INEXISTENCEVER}
@@ -2242,21 +2243,20 @@ echo -e "\n\n\n${bailvse}  RCLONE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 安装 BBR --------------------- #
 
-function _install_bbr() {
+function install_bbr() {
 if [[ $bbrinuse == Yes ]]; then
     sleep 0
 elif [[ $bbrkernel == Yes && $bbrinuse == No ]]; then
-    _enable_bbr
+    enable_bbr
 else
     bnx2_firmware
-    _bbr_kernel_4_11_12
-    _enable_bbr
+    bbr_kernel_4_11_12
+    enable_bbr
 fi
 echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n" ; }
 
 # 安装 4.11.12 的内核
-# 2019.04.09 我看也写成单独脚本算了
-function _bbr_kernel_4_11_12() {
+function bbr_kernel_4_11_12() {
 
 if [[ $CODENAME == stretch ]]; then
     [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  {bold}Installing libssl1.0.0 ...${normal} "
@@ -2279,7 +2279,7 @@ update-grub ; }
 
 
 # 开启 BBR
-function _enable_bbr() {
+function enable_bbr() {
 bbrname=bbr
 sed -i '/net.core.default_qdisc.*/d' /etc/sysctl.conf
 sed -i '/net.ipv4.tcp_congestion_control.*/d' /etc/sysctl.conf
@@ -2658,7 +2658,7 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 ######################################################################################################
 
-[[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; _install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
+[[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
 [[ -n $lt_version ]] && [[ $lt_version != system ]] && install_libtorrent
 
 [[ $qb_version != No ]] && {
