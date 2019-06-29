@@ -3,27 +3,25 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.24
-script_version=r20003
+script_update=2019.06.29
+script_version=r20004
 ################################################################################################
 
 usage_guide() {
-
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6) -m deb2 ; }
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)  ; }
 
 ################################################################################################ Get options
 
-OPTS=$(getopt -n "$0" -o  --long "" -- "$@")
+OPTS=$(getopt -o m:d:s:6: --long mode:,ipv6:,duid:,subnet:"" -- "$@")
 
 eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -m | --install-mode ) mode="$2"     ; shift ; shift ;;
-    -v | --version      ) version="$2"  ; shift ; shift ;;
-    -b | --branch       ) branch="$2"   ; shift ; shift ;;
-         --debug        ) debug=1       ; shift ;;
-         --logbase      ) LogTimes="$2" ; shift ;;
+    -m | --mode   ) mode="$2"   ; shift 2 ;;
+    -6 | --ipv6   ) IPv6="$2"   ; shift 2 ;;
+    -d | --duid   ) DUID="$2"   ; shift 2 ;;
+    -s | --subnet ) subnet="$2" ; shift 2 ;;
      * ) break ;;
   esac
 done
@@ -51,7 +49,7 @@ CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\
 [[ $DDDISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
 [[ $DDDISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 [[ $CCCODENAME =~ (xenial|bionic|jessie|stretch) ]] && SysSupport=1
-[[ $CCCODENAME == bionic ]] && Mode=netplan
+[[ -f /etc/netplan/01-netcgf.yaml ]] && [[ $CCCODENAME == bionic ]] && Mode=netplan
 
 ################################################################################################
 
@@ -87,7 +85,7 @@ DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
 ################################################################################################
 
 
-
+# Ikoula 独服
 function ikoula_interfaces(){
 grep -q "iface $interface inet6 static" /etc/network/interfaces || { cp -f /etc/network/interfaces /log/interfaces.$(date "+%Y.%m.%d.%H.%M.%S").bak
 cat << EOF >> /etc/network/interfaces
@@ -96,13 +94,11 @@ address 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC:$DDDDD:1
 netmask 96
 gateway 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC::1
 EOF
-}
-
 sysctl -w net.ipv6.conf.$interface.autoconf=0
 systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED{normal}"
 }
 
-
+# Ikoula 独服，Ubuntu 18.04 系统（netplan）
 function ikoula_netplan(){
 cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
 cat << EOF > /etc/netplan/01-netcgf.yaml
@@ -125,10 +121,8 @@ netplan apply
 
 
 
-
-
+# Online／OneProvider Paris 独服，Ubuntu 18.04 系统（netplan）
 function online_netplan(){
-
 cat << EOF > /etc/dhcp/dhclient6.conf
 interface "$interface" {
   send dhcp6.client-id $DUID;
@@ -161,12 +155,12 @@ ExecStart=/usr/sbin/netplan apply
 WantedBy=dhclient.service
 EOF
 
-cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
+cp -f /etc/netplan/01-netcfg.yaml /log/01-netcfg.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
 cat << EOF >> /etc/netplan/01-netcfg.yaml
       dhcp6: no
       accept-ra: yes
       addresses:
-      - $ipv6/$subnet
+      - $IPv6/$subnet
 EOF
 
 systemctl daemon-reload
@@ -174,13 +168,18 @@ systemctl start dhclient.service
 systemctl start dhclient-netplan.service
 systemctl enable dhclient.service
 systemctl enable dhclient-netplan.service
-
 }
 
 
-
-
-
-
-
+function ipv6_test(){
+echo -n "\n${bold}${green}Testing IPv6 connectivity ...${normal}"
+IPV6_TEST=$(ping6 -c 5 ipv6.google.com | grep 'received' | awk -F',' '{ print $2 }' | awk '{ print $1 }')
+if [[ $IPV6_TEST > 0 ]]; then
+    echo "${bold}${green}Success!${normal}"
+    exit 0
+else
+    echo "${bold}${red}Failed :(${normal}"
+    exit 1
+fi
+}
 
