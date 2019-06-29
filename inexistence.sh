@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.6
+INEXISTENCEVER=1.1.2.7
 INEXISTENCEDATE=2019.06.29
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -323,7 +323,52 @@ wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
 
 echo -e "${bold}Checking your server's specification ...${normal}"
 
-# Virt-what
+# Virt
+cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
+virtualx=$(dmesg 2>1) 
+[[ $(which dmidecode) ]] && {
+sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
+sys_product=$(dmidecode -s system-product-name) 2>/dev/null
+sys_ver=$(dmidecode -s system-version) 2>/dev/null ; }
+
+dmi=$(LANG=C dmidecode 2>&1)
+arch2=$(uname -p)
+
+if grep docker /proc/1/cgroup -qa 2>/dev/null ; then
+    virt="Docker"
+elif grep lxc /proc/1/cgroup -qa 2>/dev/null; then
+    virt="Lxc"
+elif grep -qa container=lxc /proc/1/environ 2>/dev/null; then
+    virt="Lxc"
+elif [[ -f /proc/user_beancounters ]]; then
+    virt="OpenVZ"
+elif [[ "$virtualx" == *kvm-clock* ]] || [[ "$cname" == *KVM* ]]; then
+    virt="KVM"
+elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
+    virt="VMware"
+elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
+    virt="Parallels"
+elif [[ "$virtualx" == *VirtualBox* ]]; then
+    virt="VirtualBox"
+elif [[ "$sys_manu" == *"Microsoft Corporation"* ]] && [[ "$sys_product" == *"Virtual Machine"* ]]; then
+    [[ "$sys_ver" == *"7.0"* || "$sys_ver" == *"Hyper-V" ]] && virt="Hyper-V" || virt="Microsoft Virtual Machine"
+elif grep -q '^vendor_id.*PowerVM Lx86' /proc/cpuinfo; then
+    virt="IBM PowerVM Lx86"
+elif echo "$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "$dmi" | grep -q 'Product.* LPAR'; then
+    virt="Virtage"
+elif grep -q '^vendor_id.*IBM/S390' /proc/cpuinfo; then
+    virt="IBM SystemZ"
+elif [[ -e /proc/xen ]] || [[ $(grep -q xen /sys/hypervisor/type 2>/dev/null) ]]; then
+    virt="Xen"
+    grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null && virt="Xen-Dom0" || virt="Xen-DomU"
+elif [[ "$arch2" = ia64 ]] && [[ -d "${root}/sys/bus/xen" -a ! -d "${root}/sys/bus/xen-backend" ]]; then
+    virt="Xen-HVM"
+elif grep -q UML "/proc/cpuinfo"; then
+    virt="UML"
+fi
+
+[[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
+[[ -z "$virtual" ]] && virt="No Virtualization Detected"
 #wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/files/software/virt-what
 #mkdir -p /usr/lib/virt-what
 #wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/files/software/virt-what-cpuid-helper
@@ -331,7 +376,6 @@ echo -e "${bold}Checking your server's specification ...${normal}"
 #virt="$(virt-what)" 2>/dev/null
 
 kern=$( uname -r )
-cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
 cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
 cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
