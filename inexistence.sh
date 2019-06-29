@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.7
+INEXISTENCEVER=1.1.2.8
 INEXISTENCEDATE=2019.06.29
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1605,11 +1605,14 @@ if [ ! $? = 0 ]; then
     exit 1
 fi
 
+# Install python-dev may cause failure on Online servers running Jessie, so install it separately
+apt-get -y install python-dev
+
 pip install --upgrade pip setuptools
 hash -d pip
 
 # Upgrade gcc
-# DEPRECATED
+# DEPRECATED, so jessiee not jessie
 if [[ $CODENAME == jessiee ]]; then
     cd $SourceLocation
     wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/gcc-7.3.0.jessie.amd64.deb
