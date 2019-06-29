@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.9
+INEXISTENCEVER=1.1.2.10
 INEXISTENCEDATE=2019.06.29
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1566,6 +1566,9 @@ deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main 
 deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
 deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
 deb-src http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+
+deb http://security.debian.org/ jessie/updates main contrib non-free
+deb-src http://security.debian.org/ jessie/updates main contrib non-free
 EOF
 fi
 
@@ -1580,7 +1583,7 @@ package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python3-dev python-pip python3-pip python-setuptools
+dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
 ruby uuid socat             figlet toilet lolcat               libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 
@@ -1604,9 +1607,6 @@ if [ ! $? = 0 ]; then
     kill -s TERM $TOP_PID
     exit 1
 fi
-
-# Install python-dev may cause failure on Online servers running Jessie, so install it separately
-apt-get -y install python-dev
 
 pip install --upgrade pip setuptools
 hash -d pip
