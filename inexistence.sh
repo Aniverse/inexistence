@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.10
-INEXISTENCEDATE=2019.06.29
+INEXISTENCEVER=1.1.2.11
+INEXISTENCEDATE=2019.06.30
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -433,13 +433,13 @@ echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${no
 echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
 echo -e  "  Kernel    : ${cyan}$kern${normal}"
 echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
-echo -ne "  Virt      : ${cyan}$virt${normal}"
+echo -e  "  Virt      : ${cyan}$virt${normal}"
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
 [[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段，目前懒得加 rTorrent 的支持${normal}"
 [[ $SYSTEMCHECK != 1   ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
-[[ ! ${virt} =~ "No Virtualization Detected|KVM" ]] && echo -e "\n${bold}${red}这个脚本没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、Xen、HyperV、Lxc 等架构下一切正常${normal}"
+[[ ${virt} != "No Virtualization Detected" ]] && [[ ${virt} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
 
 echo
 echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
