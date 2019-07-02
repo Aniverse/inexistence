@@ -3,12 +3,13 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.06.29
-script_version=r20004
+script_update=2019.07.03
+script_version=r20005
 ################################################################################################
 
 usage_guide() {
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)  ; }
+s=/usr/local/bin/ipv66;rm -f $s;nano $s;chmod 755 $s
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m online-netplan -6 XXX -d XXX -s 56 ; }
 
 ################################################################################################ Get options
 
@@ -53,9 +54,8 @@ CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\
 
 ################################################################################################
 
-[[ -z $(which ifconfig) ]] && { echo -e "{green}Installing ifconfig${normal}" ; apt-get install net-tools -y  ; }
+[[ -z $(which ifconfig) ]] && { echo -e "${green}Installing ifconfig ...${normal}" ; apt-get install net-tools -y  ; }
 [[ -z $(which ifconfig) ]] && { echo -e "${red}Error: No ifconfig!${normal}"  ; exit 1 ; }
-[[ -z $(which ifdown)   ]] && { echo -e "{green}Installing ifdown${normal}"   ; apt-get install ifdown -y    ; }
 
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
@@ -82,12 +82,13 @@ DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
 
 ################################################################################################
 
-################################################################################################
 
 
 # Ikoula 独服
-function ikoula_interfaces(){
-grep -q "iface $interface inet6 static" /etc/network/interfaces || { cp -f /etc/network/interfaces /log/interfaces.$(date "+%Y.%m.%d.%H.%M.%S").bak
+function ikoula_interfaces() {
+[[ -z $(which ifdown) ]] && { echo -e "${green}Installing ifdown ...${normal}" ; apt-get install ifdown -y ; }
+grep -q "iface $interface inet6 static" /etc/network/interfaces || {
+cp -f /etc/network/interfaces /log/interfaces.$(date "+%Y.%m.%d.%H.%M.%S").bak
 cat << EOF >> /etc/network/interfaces
 iface $interface inet6 static
 address 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC:$DDDDD:1
@@ -95,11 +96,13 @@ netmask 96
 gateway 2a00:c70:1:$AAAAA:$BBBBB:$CCCCC::1
 EOF
 sysctl -w net.ipv6.conf.$interface.autoconf=0
-systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED{normal}"
-}
+systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED${normal}"
+} ; }
+
+
 
 # Ikoula 独服，Ubuntu 18.04 系统（netplan）
-function ikoula_netplan(){
+function ikoula_netplan() {
 cp -f /etc/netplan/01-netcgf.yaml /log/01-netcgf.yaml.$(date "+%Y.%m.%d.%H.%M.%S").bak
 cat << EOF > /etc/netplan/01-netcgf.yaml
 network:
@@ -122,7 +125,7 @@ netplan apply
 
 
 # Online／OneProvider Paris 独服，Ubuntu 18.04 系统（netplan）
-function online_netplan(){
+function online_netplan() {
 cat << EOF > /etc/dhcp/dhclient6.conf
 interface "$interface" {
   send dhcp6.client-id $DUID;
@@ -170,9 +173,10 @@ systemctl enable dhclient.service
 systemctl enable dhclient-netplan.service
 }
 
+###########################################################################
 
-function ipv6_test(){
-echo -n "\n${bold}${green}Testing IPv6 connectivity ...${normal}"
+function ipv6_test() {
+echo -e "\n${bold}${green}Testing IPv6 connectivity ...${normal}"
 IPV6_TEST=$(ping6 -c 5 ipv6.google.com | grep 'received' | awk -F',' '{ print $2 }' | awk '{ print $1 }')
 if [[ $IPV6_TEST > 0 ]]; then
     echo "${bold}${green}Success!${normal}"
@@ -182,4 +186,13 @@ else
     exit 1
 fi
 }
+
+###########################################################################
+
+case $mode in
+    standard        ) standard_interfaces ; ipv6_test ;;
+    ikoula          ) ikoula_interfaces   ; ipv6_test ;;
+    ikoula-netplan  ) ikoula_netplan      ; ipv6_test ;;
+    online-netplan  ) online_netplan      ; ipv6_test ;;
+esac
 
