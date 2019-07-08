@@ -89,6 +89,7 @@ https://www.rarlab.com/rar/rarlinux-x64-5.7.1.tar.gz
 
 ### Linux Kernel
 ```
+https://www.kernel.org/
 https://kernel.ubuntu.com/~kernel-ppa/mainline/
 http://xanmod.org/
 https://sourceforge.net/projects/xanmod/files/releases/
