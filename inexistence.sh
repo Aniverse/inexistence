@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.12
+INEXISTENCEVER=1.1.2.13
 INEXISTENCEDATE=2019.07.09
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1572,6 +1572,12 @@ deb-src http://security.debian.org/ jessie/updates main contrib non-free
 EOF
 fi
 
+# From swizzin
+if [[ $DISTROL == debian ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]]; then
+    echo "deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
+    echo "deb-src deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
+fi
+
 apt-get -y update
 dpkg --configure -a
 apt-get -f -y install
@@ -1584,7 +1590,7 @@ build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby uuid socat             figlet toilet lolcat               libgd-dev libelf-dev libssl-dev zlib1g-dev
+ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 
 ######## These codes are from rtinst ########
@@ -1610,6 +1616,8 @@ fi
 
 pip install --upgrade pip setuptools
 hash -d pip
+
+gem install fpm
 
 # Fix interface in vnstat.conf
 [[ -n $wangka ]] && [[ $wangka != eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
