@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.11
-INEXISTENCEDATE=2019.06.30
+INEXISTENCEVER=1.1.2.12
+INEXISTENCEDATE=2019.07.09
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1584,7 +1584,7 @@ build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby uuid socat             figlet toilet lolcat               libsqlite3-dev libgd-dev libelf-dev libssl-dev zlib1g-dev
+ruby uuid socat             figlet toilet lolcat               libgd-dev libelf-dev libssl-dev zlib1g-dev
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 
 ######## These codes are from rtinst ########
@@ -1610,29 +1610,6 @@ fi
 
 pip install --upgrade pip setuptools
 hash -d pip
-
-# Upgrade gcc
-# DEPRECATED, so jessiee not jessie
-if [[ $CODENAME == jessiee ]]; then
-    cd $SourceLocation
-    wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/gcc-7.3.0.jessie.amd64.deb
-    dpkg -i gcc-7.3.0.jessie.amd64.deb
-    cp /usr/local/lib64/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/
-    rm -f /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-    ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.24 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-fi
-
-# Upgrade vnstat, compile from source
-cd $SourceLocation
-wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
-tar zxf vnstat-2.2.tar.gz
-rm -f vnstat-2.2.tar.gz
-cd vnstat-2.2
-./configure --prefix=/usr --sysconfdir=/etc
-make -j$MAXCPUS
-make install
-cd
-systemctl restart vnstatd
 
 # Fix interface in vnstat.conf
 [[ -n $wangka ]] && [[ $wangka != eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
@@ -2428,8 +2405,22 @@ function install_wine() {
 # https://download.mono-project.com/sources/mono/
 # http://www.mono-project.com/docs/compiling-mono/compiling-from-git/
 
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
+# These codes are from https://github.com/liaralabs/swizzin/blob/master/sources/functions/mono
+if [[ $DISTROL == ubuntu ]]; then
+    apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+elif [[ $CODENAME == jessie ]]; then
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    wget -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
+    dpkg -i libjpeg8.deb
+    rm -rf libjpeg8.deb
+elif [[ $CODENAME == stretch ]]; then
+    apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+fi
+
+[[ $CODENAME != buster ]] && 
+echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
+# echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
+
 apt-get update
 apt-get install -y mono-complete ca-certificates-mono
 
@@ -2515,6 +2506,24 @@ echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
+
+# Upgrade vnstat, compile from source
+# https://humdi.net/wiki/vnstat/install/in_debian
+cd $SourceLocation
+apt-get install -y libsqlite3-dev
+wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
+tar zxf vnstat-2.2.tar.gz
+rm -f vnstat-2.2.tar.gz
+cd vnstat-2.2
+./configure --prefix=/usr --sysconfdir=/etc
+make -j$MAXCPUS
+make install
+cp -v examples/systemd/vnstat.service /etc/systemd/system/
+sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service
+systemctl enable vnstat
+systemctl start vnstat
+cd
+systemctl restart vnstatd
 
 # Set timezone to UTC+8
 rm -rf /etc/localtime
