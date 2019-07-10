@@ -4,22 +4,23 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r10004
+script_version=r11005
 
 usage_guide() {
 bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 ################################################################################################ Get options
 
-OPTS=$(getopt -n "$0" -o u:p:w:i:h: --long "username:password:home:wport:iport:" -- "$@")
+OPTS=$(getopt -n "$0" -o u:p:w:i:h: --long "username:,password:,home:,wport:,iport:,logbase:" -- "$@")
 eval set -- "$OPTS"
 while true; do
   case "$1" in
-    -u | --username ) iUser="$2"  ; shift ; shift ;;
-    -p | --password ) iPass="$2"  ; shift ; shift ;;
-    -h | --home     ) iHome="$2"  ; shift ; shift ;;
-    -w | --wport    ) wPort="$2"  ; shift ; shift ;;
-    -i | --iport    ) iPort="$2"  ; shift ; shift ;;
+    -u | --username ) iUser="$2"    ; shift 2 ;;
+    -p | --password ) iPass="$2"    ; shift 2 ;;
+    -h | --home     ) iHome="$2"    ; shift 2 ;;
+    -w | --wport    ) wPort="$2"    ; shift 2 ;;
+    -i | --iport    ) iPort="$2"    ; shift 2 ;;
+         --logbase  ) LogTimes="$2" ; shift 2 ;;
     -- ) shift; break ;;
      * ) break ;;
   esac
@@ -32,7 +33,11 @@ done
 [[ -z $iPort ]] && iPort=9002
 #[[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
-source /etc/inexistence/00.Installation/function --output $OutputLOG
+source /etc/inexistence/00.Installation/function --output $LogTimes
+
+LogRootPath=/log/inexistence
+[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
+OutputLOG=$LogTimes/configure/qbittorrent.txt
 
 ################################################################################################
 
@@ -59,6 +64,8 @@ systemctl daemon-reload
 ################################################################################################
 
 function configure_qbittorrent() {
+
+echo >> $OutputLOG
 
 [[ -d $iHome/.config/qBittorrent ]] && {
 mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
@@ -109,11 +116,19 @@ WebUI\Password_ha1=@ByteArray($qbPass)
 WebUI\Username=$iUser
 EOF
 
-systemctl enable qbittorrent@$iUser
+systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
 systemctl start qbittorrent@$iUser
 [[ -d /var/www/h5ai ]] && ln -s $iHome/qbittorrent/download /var/www/h5ai/$iUser/qbittorrent
 
+status_lock=qbt-config
+rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+ps --user $iUser | grep qbittorrent-nox -q && touch $LOCKLocation/rclone.lock || touch /tmp/$status_lock.2.lock
+echo >> $OutputLOG
 }
 
-echo -ne "Configurating qBittorrent ..."
+
+
+
+echo -ne "Configurating qBittorrent ..." | tee -a $OutputLOG
 configure_qbittorrent & spinner $!
+check_status qbt-config
