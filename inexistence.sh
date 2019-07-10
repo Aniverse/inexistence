@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.13
-INEXISTENCEDATE=2019.07.09
+INEXISTENCEVER=1.1.2.14
+INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -436,7 +436,7 @@ echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch bran
 echo -e  "  Virt      : ${cyan}$virt${normal}"
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
-[[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
+#[[ $CODENAME == jessie ]] && echo -e "\n${bold}${red}Support of Debian 8 will be dropped in the future\n最近几个月可能会移除对 Debian 8 的支持${normal}"
 [[ $CODENAME == buster ]] && echo -e "\n${bold}${red}Debian 10 的支持还在测试阶段，目前懒得加 rTorrent 的支持${normal}"
 [[ $SYSTEMCHECK != 1   ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
 [[ ${virt} != "No Virtualization Detected" ]] && [[ ${virt} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
@@ -2699,12 +2699,7 @@ ask_swap
 ask_qbittorrent
 ask_deluge
 [[ $de_version != No || $qb_version != No ]] && ask_libtorrent_version
-if [[ $CODENAME == buster ]];then
-    echo -e "${baizise}rTorrent installation is not supported on Debian 10 yet, as I'm too lazy to adapt rtinst${normal}\n"
-    rt_version=No
-else
-    ask_rtorrent
-fi
+ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
 ask_rdp
