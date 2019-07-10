@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2019.07.10
-script_version=r11003
+script_version=r11004
 
 ################################################################################################ Get options
 
@@ -37,25 +37,25 @@ mkdir -p $LOCKLocation $LogTimes/install
 echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")\n\n\n" >> $OutputLOG
 
 function install_rclone() {
-echo >> $OutputLOG
-cd $SCLocation
+    echo >> $OutputLOG
+    cd $SCLocation
 
-wget https://downloads.rclone.org/rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
-unzip rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
-cd rclone-*-linux-amd64 >> $OutputLOG 2>&1
-cp rclone /usr/bin/ >> $OutputLOG 2>&1
-chown root:root /usr/bin/rclone >> $OutputLOG 2>&1
-chmod 755 /usr/bin/rclone >> $OutputLOG 2>&1
-mkdir -p /usr/local/share/man/man1 >> $OutputLOG 2>&1
-cp rclone.1 /usr/local/share/man/man1 >> $OutputLOG 2>&1
-mandb >> $OutputLOG 2>&1
-cd ..
-rm -f rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+    wget https://downloads.rclone.org/rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+    unzip rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+    cd rclone-*-linux-amd64 >> $OutputLOG 2>&1
+    cp rclone /usr/bin/ >> $OutputLOG 2>&1
+    chown root:root /usr/bin/rclone >> $OutputLOG 2>&1
+    chmod 755 /usr/bin/rclone >> $OutputLOG 2>&1
+    mkdir -p /usr/local/share/man/man1 >> $OutputLOG 2>&1
+    cp rclone.1 /usr/local/share/man/man1 >> $OutputLOG 2>&1
+    mandb >> $OutputLOG 2>&1
+    cd ..
+    rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
 
-status_lock=rclone
-rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-which rclone > /dev/null && { touch /tmp/$status_lock.1.lock ; touch $LOCKLocation/rclone.lock ; } || touch /tmp/$status_lock.2.lock
-echo >> $OutputLOG
+    status_lock=rclone
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    which rclone > /dev/null && { touch $LOCKLocation/rclone.lock ; touch /tmp/$status_lock.1.lock ; } || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
 }
 
 
