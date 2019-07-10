@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.18
+INEXISTENCEVER=1.1.2.19
 INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1961,7 +1961,7 @@ else
     else
       # git clone --depth=1 -b deluge-$de_version https://github.com/deluge-torrent/deluge deluge-$de_version
       # wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
-        wget -nv -N -4 "https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz" -O $de_version.tar.gz
+        wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge*$de_version  # cd deluge-$de_version
