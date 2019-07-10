@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11035
+script_version=r11036
 ################################################################################################
 
 usage_for_me() {
@@ -26,7 +26,7 @@ Usage:
 "
 exit 1 ; }
 
-OPTS=$(getopt -o m:v:b: -al debug,install-mode:,version:,branch:logbase: -- "$@")
+OPTS=$(getopt -o m:v:b: -al debug,install-mode:,version:,branch:,logbase: -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -36,7 +36,7 @@ while [ -n "$1" ] ; do case "$1" in
     -b | --branch       ) branch="$2"   ; shift 2 ;;
          --logbase      ) LogTimes="$2" ; shift 2 ;;
          --debug        ) debug=1       ; shift   ;;
-    -- ) shift ; break ;;
+         --             ) shift         ; break   ;;
 esac ; done
 
 ################################################################################################
@@ -144,13 +144,13 @@ fi
 
 # version=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')      # From Swizzin
 
-make -j$MAXCPUS >> $OutputLOG 2>&1
-make DESTDIR=$SCLocation/tmp-libtorrent-rasterbar install
+make -j$MAXCPUS  >> $OutputLOG 2>&1
+make install     DESTDIR=$SCLocation/tmp-libtorrent-rasterbar  >> $OutputLOG 2>&1
 # mv $SCLocation/libtorrent-rasterbar-$version/usr/local/lib/python2.7/site-packages  $SCLocation/libtorrent-rasterbar-$version/libtorrent/usr/local/lib/python2.7/dist-packages#
 
 if [[ -n $(which fpm) ]]; then
     fpm -f -C $SCLocation/tmp-libtorrent-rasterbar -s dir -t deb -n libtorrent-rasterbar --version $version \
-        -p $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb
+        -p $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb \
         --description "an efficient feature complete C++ bittorrent implementation, installed by inexistence" >> $OutputLOG 2>&1
     dpkg -i $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 else
