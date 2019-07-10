@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.17
+INEXISTENCEVER=1.1.2.18
 INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1581,10 +1581,11 @@ apt-get -f -y install
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3 bwm-ng wondershaper    gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
+ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev
+ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev     whiptail lsof pciutils
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
+# bwm-ng wondershaper
 
 ######## These codes are from rtinst ########
 for package_name in $package_list ; do
@@ -2701,7 +2702,7 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 [[ $qb_version != No ]] && {
 echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
-echo -ne "Configuring qBittorrent ... \n\n\n" ; config_qbittorrent 2>&1 | tee $LogLocation/06.qb2.log ; }
+config_qbittorrent ; }
 
 [[ $de_version != No ]] && {
 echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
