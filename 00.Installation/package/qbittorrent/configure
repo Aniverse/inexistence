@@ -4,14 +4,14 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11006
+script_version=r11007
 
 usage_guide() {
 bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 ################################################################################################ Get options
 
-OPTS=$(getopt -n "$0" -o u:p:w:i:h: --long "username:,password:,home:,wport:,iport:,logbase:" -- "$@")
+OPTS=$(getopt -n "$0" -o u:p:w:i:h:l: --long "username:,password:,home:,wport:,iport:,lang:,logbase:" -- "$@")
 eval set -- "$OPTS"
 while true; do
   case "$1" in
@@ -20,6 +20,7 @@ while true; do
     -h | --home     ) iHome="$2"    ; shift 2 ;;
     -w | --wport    ) wPort="$2"    ; shift 2 ;;
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
+    -l | --lang     ) lang="$2"     ; shift 2 ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
     -- ) shift; break ;;
      * ) break ;;
@@ -31,7 +32,7 @@ done
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=2017
 [[ -z $iPort ]] && iPort=9002
-#[[ $lang == eng ]] && qbt_language=en
+[[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
 
 LogRootPath=/log/inexistence
@@ -123,7 +124,7 @@ systemctl start qbittorrent@$iUser
 
 status_lock=qbt-config
 rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-ps --user $iUser | grep qbittorrent-nox -q && touch $LOCKLocation/rclone.lock || touch /tmp/$status_lock.2.lock
+ps --user $iUser | grep qbittorrent-nox -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 echo >> $OutputLOG
 }
 
