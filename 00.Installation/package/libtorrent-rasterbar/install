@@ -3,14 +3,14 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.23
-script_version=r10033
+script_update=2019.07.10
+script_version=r11035
 ################################################################################################
 
 usage_for_me() {
 bash $local_packages/install/libtorrent_rasterbar -m deb2 --logbase $LogTimes
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/libtorrent_rasterbar) -m deb2
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/libtorrent_rasterbar) -b RC_1_2 ; }
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -m deb2
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -b RC_1_2 ; }
 
 ################################################################################################ Get options
 
@@ -41,14 +41,21 @@ esac ; done
 
 ################################################################################################
 
-[[ -z $LogTimes ]] && LogTimes=/log/inexistence/single
-OutputLOG=$LogTimes/install/libtorrent_rasterbar.txt    # /dev/null
+LogRootPath=/log/inexistence
+[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
+OutputLOG=$LogTimes/install/libtorrent-rasterbar.txt    # /dev/null
 DebLocation=$LogTimes/deb
 SCLocation=$LogTimes/source
-LOCKLocation=$LogTimes/lock
-source /etc/inexistence/00.Installation/install/function --output $OutputLOG
+LOCKLocation=$LogRootPath/lock
 
-git_repo="https://github.com/arvidn/libtorrent"
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function --output $OutputLOG
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function --output $OutputLOG
+fi
+
+git_repo="https://github.com/airium/libtorrent"
 
 ################################################################################################
 
@@ -61,14 +68,12 @@ trap cancel SIGINT
 
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 
-# Transform version to branch
+# Transform version to branch (used for git clone tag)
 [[ $( echo $version | grep -Eo "[012]\.[0-9]+\.[0-9]+" ) ]] && branch=$( echo libtorrent-$version | sed "s/\./_/g" )
 
 [[ $debug == 1 ]] && echo -e "version=$version, branch=$branch"
 
 # Check if input branch exists
-# [[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
-
 [[ -n $branch ]] && {
 rm -f $HOME/.lt.git.tag
 git ls-remote --tags  $git_repo | awk '{print $NF}' >> $HOME/.lt.git.tag
@@ -82,9 +87,6 @@ rm -f $HOME/.lt.git.tag ; }
 # Use 6.6.6 when version cannot be determind
 [[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
 [[ -n $branch ]] && [[ -z $version ]] && version=6.6.6
-
-# Random number for marking different installations
-[[ $mode == source ]] && RN=$(shuf -i 1-999 -n1)
 
 rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 
@@ -113,8 +115,8 @@ zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 # Install from source codes
 function install_lt_source() {
 
-git clone --depth=1 -b $branch $git_repo libtorrent-$version-$RN >> $OutputLOG 2>&1
-cd libtorrent-$version-$RN
+git clone --depth=1 -b $branch $git_repo libtorrent-rasterbar-$version >> $OutputLOG 2>&1
+cd libtorrent-$version
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
 # Patches from amefs (QuickBox Dev)
@@ -128,9 +130,8 @@ else
     sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py || NoPatch=1
 fi
 
-mkdir -p doc-pak && echo "an efficient feature complete C++ bittorrent implementation" > description-pak
 
-# ltversion=$(grep -oE "AC_INIT\(\[libtorrent-rasterbar\],.*" configure.ac | grep -oE "[0-9.]+" | head -1)
+version=$(grep -oE "AC_INIT\(\[libtorrent-rasterbar\],.*" configure.ac | grep -oE "[0-9.]+" | head -1)       # From QuickBox
 ./autotool.sh >> $OutputLOG 2>&1
 
 if [[ -z $NoPatch ]]; then
@@ -141,18 +142,21 @@ else
                 --disable-debug --enable-encryption --with-libgeoip=system                      >> $OutputLOG 2>&1
 fi
 
-make -j$MAXCPUS >> $OutputLOG 2>&1
+# version=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')      # From Swizzin
 
-if [[ $CODENAME == buster ]]; then
-    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+make -j$MAXCPUS >> $OutputLOG 2>&1
+make DESTDIR=$SCLocation/tmp-libtorrent-rasterbar install
+# mv $SCLocation/libtorrent-rasterbar-$version/usr/local/lib/python2.7/site-packages  $SCLocation/libtorrent-rasterbar-$version/libtorrent/usr/local/lib/python2.7/dist-packages#
+
+if [[ -n $(which fpm) ]]; then
+    fpm -f -C $SCLocation/tmp-libtorrent-rasterbar -s dir -t deb -n libtorrent-rasterbar --version $version \
+        -p $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb
+        --description "an efficient feature complete C++ bittorrent implementation, installed by inexistence" >> $OutputLOG 2>&1
+    dpkg -i $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 else
-    # If we installed libtorrent-rasterbar with different package name via checkinstall formerly, checkinstall will get failed, so to make sure, make install again after checkinstall
-    checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 &&
-    touch /tmp/lt.1.lock || {
     make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
 fi
 
-cp -f libtorrent-rasterb*.deb $DebLocation
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
 
@@ -163,7 +167,7 @@ cp -f libtorrent-rasterb*.deb $DebLocation
 # Install from pre-compiled deb package (libtorrent-rasterbar8, based on RC_1_0 #62c96797a06a024dc17a44931c19afe6f7bd7d6c with python-binding fix)
 function install_lt8_deb() {
 
-[[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb for Buster, please ust libtorrent 1.1 or later." ; exit 1 ; }
+[[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb package for Debian 10, please ust libtorrent 1.1 or later." ; exit 1 ; }
 wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb >> $OutputLOG 2>&1
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 
@@ -189,35 +193,36 @@ dpkg -i lt.$CODENAME.1.1.13.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 
 
 
+function install_lt_dependencies_action() {
+[[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
+echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
+install_lt_dependencies & spinner $!
+check_status ltd ; } ; }
+
+
+
+
+
 mkdir -p $SCLocation $DebLocation $LOCKLocation $(dirname $OutputLOG)
 cd       $SCLocation
-echo -e "${bold}${green}\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n${normal}" >> $OutputLOG
+echo -e "${bold}${green}\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")\n\n\n${normal}" >> $OutputLOG
 
 case $mode in
-    deb     ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
-              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
-              install_lt_dependencies & spinner $!
-              check_status ltd ; }
+    deb     ) install_lt_dependencies_action
 
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.0.11${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt8_deb & spinner $!
               ;;
 
-    deb2    ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
-              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
-              install_lt_dependencies & spinner $!
-              check_status ltd ; }
+    deb2    ) install_lt_dependencies_action
 
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt9_deb & spinner $!
               ;;
 
-    source  ) [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
-              echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
-              install_lt_dependencies & spinner $!
-              check_status ltd ; }
+    source  ) install_lt_dependencies_action
 
-              if [[ ` echo $branch | grep -Eo "[012]_[0-9]_[0-9]+" ` ]]; then
+              if echo $branch | grep -qEo "[012]_[0-9]_[0-9]+"; then
                   echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG
               else
                   echo -ne "Installing libtorrent-rasterbar ${bold}$branch branch (${cyan}$version${jiacu})${normal} from source codes ..." | tee -a $OutputLOG
@@ -229,3 +234,23 @@ esac
 
 cd ; ldconfig
 check_status lt
+
+
+###################### deprecated ######################
+
+function deprecated_codes() {
+
+# Random number for marking different installations
+[[ $mode == source ]] && RN=$(shuf -i 1-999 -n1)
+
+# Check if input branch exists
+[[ ! -z $branch ]] && [[ ! $( wget -qO- "https://github.com/arvidn/libtorrent" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] && { echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
+
+if [[ -n $(which checkinstalll) ]]; then
+    apt-cache show libtorrent-rasterbar | grep inexistence -q && dpkg -r libtorrent-rasterbar
+    mkdir -p doc-pak && echo "an efficient feature complete C++ bittorrent implementation, installed by inexistence" > description-pak
+    checkinstall -y --pkgname=libtorrent-rasterbar --pkggroup libtorrent --pkgversion $version >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+fi
+}
+
+########################################################
