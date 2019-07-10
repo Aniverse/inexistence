@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11039
+script_version=r11040
 ################################################################################################
 
 usage_for_me() {
@@ -104,18 +104,20 @@ rm -f $HOME/.lt.git.tag ; }
 # Install build dependencies for libtorrent-rasterbar
 function install_lt_dependencies() {
 
-echo >> $OutputLOG
-status_lock=ltd
-rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
+    status_lock=ltd
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
-apt_install \
-build-essential pkg-config autoconf automake libtool git                            \
-libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
-geoip-database libgeoip-dev                                                         \
-libboost-python-dev                                                                 \
-zlib1g-dev >> $OutputLOG 2>&1 && { touch /tmp/$status_lock.1.lock ; touch touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; } || touch /tmp/$status_lock.2.lock
+    apt_install \
+                  build-essential pkg-config autoconf automake libtool git                            \
+                  libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
+                  geoip-database libgeoip-dev                                                         \
+                  libboost-python-dev                                                                 \
+                  zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 
-echo >> $OutputLOG ; }
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock
+    echo >> $OutputLOG
+}
 
 
 

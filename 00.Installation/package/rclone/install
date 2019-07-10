@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2019.07.10
-script_version=r11004
+script_version=r11006
 
 ################################################################################################ Get options
 
@@ -29,7 +29,13 @@ LogRootPath=/log/inexistence
 [[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
 OutputLOG=$LogTimes/install/rclone.txt    # /dev/null
 LOCKLocation=$LogRootPath/lock
-source /etc/inexistence/00.Installation/function --output $LogTimes
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function --output $OutputLOG
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function --output $OutputLOG
+fi
 
 ################################################################################################
 
@@ -54,7 +60,8 @@ function install_rclone() {
 
     status_lock=rclone
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    which rclone > /dev/null && { touch $LOCKLocation/rclone.lock ; touch /tmp/$status_lock.1.lock ; } || touch /tmp/$status_lock.2.lock
+    which rclone > /dev/null && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/rclone.lock
     echo >> $OutputLOG
 }
 
@@ -62,5 +69,5 @@ function install_rclone() {
 
 
 echo -ne "Installing rclone ..." | tee -a $OutputLOG
-install_rclone
+install_rclone & spinner $!
 check_status $status_lock | tee -a $OutputLOG
