@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11037
+script_version=r11038
 ################################################################################################
 
 usage_for_me() {
@@ -77,7 +77,7 @@ echo $version | grep -qEo "[012]\.[0-9]+\.[0-9]+" && branch=$( echo libtorrent-$
 [[ $version == 1.1.12 ]] && branch=libtorrent_1_1_12
 [[ $version == 1.2.0  ]] && branch=libtorrent_1_2_0
 
-[[ -z $branch ]] && { echo -e "\n${JG} No branch of libtorrent-rasterbar detected, force to use RC_1_1 branch ${normal}\n" ; branch=RC_1_1 ; version=1.1.13 ;  }
+[[ $mode == source ]] && [[ -z $branch ]] && { echo -e "\n${JG} No branch of libtorrent-rasterbar detected, force to use RC_1_1 branch ${normal}\n" ; branch=RC_1_1 ; version=1.1.13 ;  }
 [[ $debug == 1 ]] && echo -e "version=$version, branch=$branch, SCLocation=$SCLocation"
 
 # Check if input branch exists
@@ -95,8 +95,6 @@ rm -f $HOME/.lt.git.tag ; }
 [[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- $git_repo/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
 [[ -n $branch ]] && [[ -z $version ]] && version=6.6.6
 
-rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
-
 ################################################################################################
 
 
@@ -106,14 +104,18 @@ rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
 # Install build dependencies for libtorrent-rasterbar
 function install_lt_dependencies() {
 
+echo >> $OutputLOG
+status_lock=ltd
+rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+
 apt_install \
 build-essential pkg-config autoconf automake libtool git                            \
 libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
 geoip-database libgeoip-dev                                                         \
 libboost-python-dev                                                                 \
-zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
+zlib1g-dev >> $OutputLOG 2>&1 && { touch /tmp/$status_lock.1.lock ; touch touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; } || touch /tmp/$status_lock.2.lock
 
-[[ -f /tmp/ltd.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.dependencies.lock ; }
+echo >> $OutputLOG ; }
 
 
 
@@ -121,6 +123,10 @@ zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 
 # Install from source codes
 function install_lt_source() {
+
+echo >> $OutputLOG
+status_lock=lt-rasterbar
+rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
 [[ -d libtorrent-rasterbar-$version ]] && rm -rf libtorrent-rasterbar-$version
 git clone --depth=1 -b $branch $git_repo libtorrent-rasterbar-$version >> $OutputLOG 2>&1
@@ -137,7 +143,6 @@ elif version_ge $version 1.0 ; then
 else
     sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py || NoPatch=1
 fi
-
 
 version=$(grep -oE "AC_INIT\(\[libtorrent-rasterbar\],.*" configure.ac | grep -oE "[0-9.]+" | head -1)       # From QuickBox
 ./autotool.sh >> $OutputLOG 2>&1
@@ -160,13 +165,14 @@ if [[ -n $(which fpm) ]]; then
     fpm -f -C $SCLocation/tmp-libtorrent-rasterbar -s dir -t deb -n libtorrent-rasterbar --version $version \
         -p $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb \
         --description "an efficient feature complete C++ bittorrent implementation, installed by inexistence" >> $OutputLOG 2>&1
-    dpkg -i $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+    dpkg -i $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 else
-    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+    make install >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 fi
 
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
+echo >> $OutputLOG
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.source.$branch.lock ; }
 
 
 
@@ -175,12 +181,17 @@ fi
 # Install from pre-compiled deb package (libtorrent-rasterbar8, based on RC_1_0 #62c96797a06a024dc17a44931c19afe6f7bd7d6c with python-binding fix)
 function install_lt8_deb() {
 
+echo >> $OutputLOG
+status_lock=lt-rasterbar
+rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+
 [[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb package for Debian 10, please ust libtorrent 1.1 or later." ; exit 1 ; }
 wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb >> $OutputLOG 2>&1
-dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
+echo >> $OutputLOG
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 
 
@@ -191,11 +202,16 @@ dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || to
 # with python-binding fix (from amefs) and #5a48292aefd6ebffd5be6b237081ba2d978a2caa fix (Announce only once to private trackers, by Airium)
 function install_lt9_deb() {
 
-wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb >> $OutputLOG 2>&1
-dpkg -i lt.$CODENAME.1.1.13.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
+echo >> $OutputLOG
+status_lock=lt-rasterbar
+rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
-[[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
+wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb >> $OutputLOG 2>&1
+dpkg -i lt.$CODENAME.1.1.13.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+
+echo >> $OutputLOG
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
+[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 
 
@@ -205,7 +221,7 @@ function install_lt_dependencies_action() {
 [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
 echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
 install_lt_dependencies & spinner $!
-check_status ltd ; } ; }
+check_status ltd | tee -a $OutputLOG ; } ; }
 
 
 
@@ -241,7 +257,26 @@ case $mode in
 esac
 
 cd ; ldconfig
-check_status lt
+
+status_lock=lt-rasterbar
+ltver_py=$(python -c "import libtorrent ; print libtorrent.version" 2>1 | grep -oE [0-9]+.[0-9]+.[0-9]+)
+ltver=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+)
+
+if [[ -f /tmp/$status_lock.1.lock ]]; then
+    if [[ $ltver_py != $version ]]; then
+        echo -e " ${red}${bold}ERROR: No python-libtorrent!${normal}" | tee -a $OutputLOG
+    elif [[ $ltver != $version ]]; then
+        echo -e " ${red}${bold}ERROR: $ltver is installed rather than $version${normal}" | tee -a $OutputLOG
+    else
+        echo -e " ${green}${bold}DONE${normal}" | tee -a $OutputLOG
+    fi
+elif [[ -f /tmp/$status_lock.2.lock ]]; then
+    echo -e " ${red}${bold}FAILED${normal}" | tee -a $OutputLOG
+else
+    echo -e " ${red}${bold}Unknown State${normal}" | tee -a $OutputLOG
+fi
+
+
 
 
 ###################### deprecated ######################
