@@ -4,11 +4,16 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r10006
-################################################################################################
+script_version=r10007
+################################################################################################ Usage Guide
 
 usage_guide() {
-source /etc/inexistence/00.Installation/function
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function --output $OutputLOG
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function --output $OutputLOG
+fi
 }
 
 ################################################################################################ Get options
@@ -40,8 +45,12 @@ CW="${bold}${baihongse} ERROR ${jiacu}" ; ZY="${baihongse}${bold} ATTENTION ${ji
 arch=$(uname -m)
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
-[[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
-[[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
+[[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
+[[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
+export TZ=/usr/share/zoneinfo/Asia/Shanghai
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
+export local_packages=/etc/inexistence/00.Installation
 
 ################################################################################################
 ################################################################################################ Basic functions

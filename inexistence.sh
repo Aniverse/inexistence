@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.15
+INEXISTENCEVER=1.1.2.16
 INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1742,8 +1742,6 @@ mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 
-cp $local_packages/install/qbittorrent/qb /usr/local/bin
-chmod 755 /usr/local/bin/qb
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
 sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
@@ -1930,7 +1928,7 @@ fi ; }
 
 # 设置 qBittorrent#
 function config_qbittorrent() {
-bash $local_packages/install/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 
 
