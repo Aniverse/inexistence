@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11005
+script_version=r11006
 
 usage_guide() {
 bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
@@ -33,11 +33,12 @@ done
 [[ -z $iPort ]] && iPort=9002
 #[[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
-source /etc/inexistence/00.Installation/function --output $LogTimes
 
 LogRootPath=/log/inexistence
 [[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
 OutputLOG=$LogTimes/configure/qbittorrent.txt
+mkdir -p $(dirname $OutputLOG)
+source /etc/inexistence/00.Installation/function --output $OutputLOG
 
 ################################################################################################
 
@@ -131,4 +132,4 @@ echo >> $OutputLOG
 
 echo -ne "Configurating qBittorrent ..." | tee -a $OutputLOG
 configure_qbittorrent & spinner $!
-check_status qbt-config
+check_status qbt-config | tee -a $OutputLOG
