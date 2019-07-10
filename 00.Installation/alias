@@ -1,10 +1,14 @@
 #!/bin/bash
-# 2019.06.04
-# revision: 107
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2019.07.10
+script_version=r10008
+################################################################################################
 
-# bash /etc/inexistence/00.Installation/alias 1 2
+# Usage:      . s-alias
 # source /etc/bash.bashrc
-
 # nano +999 /etc/bash.bashrc             nano +999 /usr/local/bin/s-alias
 
 iUser=$1
@@ -13,8 +17,6 @@ LogBase=$3
 IntoBashrc=$4
 
 # 150-20
-# Do not give this script execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
-# Correct Usage:      . s-alias
 cat << EOF > /usr/local/bin/s-alias
 #!/bin/bash
 ################## Inexistence Mod Start ##################
@@ -154,6 +156,9 @@ setcolor
 
 ################## Inexistence Mod END ##################
 EOF
+
+# Do not give this script execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
+chmod 644 /usr/local/bin/s-alias
 
 [[ $IntoBashrc == IntoBashrc ]] && {
 # This may delete user's configuration
