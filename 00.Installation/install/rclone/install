@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2019.07.10
+script_version=r10002
+
+################################################################################################ Get options
+
+function show_usage() { echo " Invalid option $1
+Usage:
+      -v        Specifiy which version of rclone to be installed
+"
+exit 1 ; }
+
+OPTS=$(getopt -o v: -al debug,version:,logbase: -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -v | --version      ) version="$2"  ; shift 2 ;;
+         --logbase      ) LogTimes="$2" ; shift 2 ;;
+         --debug        ) debug=1       ; shift   ;;
+    -- ) shift ; break ;;
+esac ; done
+
+LogRootPath=/log/inexistence
+[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
+OutputLOG=$LogTimes/install/rclone.txt    # /dev/null
+LOCKLocation=$LogRootPath/lock
+
+################################################################################################
+
+mkdir -p $LOCKLocation $LogTimes/install
+echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")\n\n\n" >> $OutputLOG
+
+apt-get install -y fuse p7zip-full >> $OutputLOG 2>&1
+
+cd $SCLocation
+wget https://downloads.rclone.org/rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+unzip rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+cd rclone-*-linux-amd64
+cp rclone /usr/bin/
+chown root:root /usr/bin/rclone
+chmod 755 /usr/bin/rclone
+mkdir -p /usr/local/share/man/man1
+cp rclone.1 /usr/local/share/man/man1
+mandb >> $OutputLOG 2>&1
+cd ..
+rm -f rclone-*-linux-amd64 rclone-current-linux-amd64.zip
+
+touch $LOCKLocation/rclone.lock
