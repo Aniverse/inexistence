@@ -732,8 +732,8 @@ while [[ -z $qb_version ]]; do
         01 | 1) qb_version=3.3.11 ;;
         02 | 2) qb_version=3.3.16 ;;
         03 | 3) qb_version=4.0.4 ;;
-        06 | 4) qb_version=4.1.3 ;;
-        07 | 5) qb_version=4.1.6 ;;
+        04 | 4) qb_version=4.1.3 ;;
+        05 | 5) qb_version=4.1.6 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
