@@ -4,13 +4,16 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11036
+script_version=r11037
 ################################################################################################
 
 usage_for_me() {
-bash $local_packages/install/libtorrent_rasterbar -m deb2 --logbase $LogTimes
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -m deb2
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -b RC_1_2 ; }
+    export local_packages=/etc/inexistence/00.Installation
+    rm -f $local_packages/package/libtorrent-rasterbar/install ; nano $local_packages/package/libtorrent-rasterbar/install
+    bash $local_packages/package/libtorrent-rasterbar/install -m deb2 --logbase $LogTimes
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -m deb2
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/libtorrent-rasterbar/install) -b RC_1_2
+}
 
 ################################################################################################ Get options
 
@@ -55,23 +58,27 @@ else
     source /tmp/function --output $OutputLOG
 fi
 
-git_repo="https://github.com/airium/libtorrent"
+git_repo="https://github.com/arvidn/libtorrent"
 
 ################################################################################################
 
 cancel() { echo -e "${normal}" ; rm -f $HOME/.lt.git.tag ; exit ; }
 trap cancel SIGINT
 
-[[ -z $mode ]] && [[ ! -z $version ]] && mode=source
-[[ -z $mode ]] && [[ ! -z $branch  ]] && mode=source
+[[ -z $mode ]] && [[ -n $version ]] && mode=source
+[[ -z $mode ]] && [[ -n $branch  ]] && mode=source
 [[ -z $mode ]] && echo -e "\n${CW} Installation mode must be specified as apt, deb, deb2, deb3 or source${normal}\n" && cancel
 
 [[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 
-# Transform version to branch (used for git clone tag)
-[[ $( echo $version | grep -Eo "[012]\.[0-9]+\.[0-9]+" ) ]] && branch=$( echo libtorrent-$version | sed "s/\./_/g" )
+# Transform version to branch (used for git clone tag)  [[ $version == 1.1.11 ]] && branch=libtorrent_1_1_11
+echo $version | grep -qEo "[012]\.[0-9]+\.[0-9]+" && branch=$( echo libtorrent-$version | sed "s/\./_/g" )
+[[ $version == 1.1.11 ]] && branch=libtorrent_1_1_11
+[[ $version == 1.1.12 ]] && branch=libtorrent_1_1_12
+[[ $version == 1.2.0  ]] && branch=libtorrent_1_2_0
 
-[[ $debug == 1 ]] && echo -e "version=$version, branch=$branch"
+[[ -z $branch ]] && { echo -e "\n${JG} No branch of libtorrent-rasterbar detected, force to use RC_1_1 branch ${normal}\n" ; branch=RC_1_1 ; version=1.1.13 ;  }
+[[ $debug == 1 ]] && echo -e "version=$version, branch=$branch, SCLocation=$SCLocation"
 
 # Check if input branch exists
 [[ -n $branch ]] && {
@@ -85,7 +92,7 @@ rm -f $HOME/.lt.git.tag ; }
 [[ -z $branch ]] && branch=RC_1_1
 
 # Use 6.6.6 when version cannot be determind
-[[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- https://github.com/arvidn/libtorrent/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
+[[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- $git_repo/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
 [[ -n $branch ]] && [[ -z $version ]] && version=6.6.6
 
 rm -f /tmp/lt.1.lock /tmp/lt.2.lock /tmp/ltd.1.lock /tmp/ltd.2.lock
@@ -115,8 +122,9 @@ zlib1g-dev >> $OutputLOG 2>&1 && touch /tmp/ltd.1.lock || touch /tmp/ltd.2.lock
 # Install from source codes
 function install_lt_source() {
 
+[[ -d libtorrent-rasterbar-$version ]] && rm -rf libtorrent-rasterbar-$version
 git clone --depth=1 -b $branch $git_repo libtorrent-rasterbar-$version >> $OutputLOG 2>&1
-cd libtorrent-$version
+cd libtorrent-rasterbar-$version
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
 # Patches from amefs (QuickBox Dev)
@@ -154,7 +162,7 @@ if [[ -n $(which fpm) ]]; then
         --description "an efficient feature complete C++ bittorrent implementation, installed by inexistence" >> $OutputLOG 2>&1
     dpkg -i $DebLocation/libtorrent-rasterbar-$version-$CODENAME-$arch.deb >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 else
-    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock ; }
+    make install >> $OutputLOG 2>&1 && touch /tmp/lt.1.lock || touch /tmp/lt.2.lock
 fi
 
 [[ -f /tmp/lt.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
