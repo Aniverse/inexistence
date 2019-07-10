@@ -4,7 +4,8 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11040
+script_version=r11041
+
 ################################################################################################
 
 usage_for_me() {
@@ -23,18 +24,18 @@ Usage:
       -v        Specifiy which version of libtorrent-rasterbar to be installed
       -b        Specifiy which branchn of libtorrent-rasterbar to be installed
       --debug   Enable debug mode
-                Note that installing specific version cause the installation to fail
+                Note that installing specific version may cause installation failure
                 or the version you installed is not compatible with the version of
                 your Deluge or qBittorrent
 "
 exit 1 ; }
 
-OPTS=$(getopt -o m:v:b: -al debug,install-mode:,version:,branch:,logbase: -- "$@")
+OPTS=$(getopt -o m:v:b: -al debug,mode:,version:,branch:,logbase: -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
-    -m | --install-mode ) mode="$2"     ; shift 2 ;;
+    -m | --mode         ) mode="$2"     ; shift 2 ;;
     -v | --version      ) version="$2"  ; shift 2 ;;
     -b | --branch       ) branch="$2"   ; shift 2 ;;
          --logbase      ) LogTimes="$2" ; shift 2 ;;
