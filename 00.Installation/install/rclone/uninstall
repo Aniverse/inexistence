@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2019.07.10
+script_version=r10000
+
+################################################################################################ Get options
+
+function show_usage() { echo " Invalid option $1"
+exit 1 ; }
+
+OPTS=$(getopt -o v: -al debug,version:,logbase: -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+         --logbase      ) LogTimes="$2" ; shift 2 ;;
+         --debug        ) debug=1       ; shift   ;;
+         --             ) shift ; break ;;
+esac ; done
+
+LogRootPath=/log/inexistence
+[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
+OutputLOG=$LogTimes/uninstall/rclone.txt    # /dev/null
+LOCKLocation=$LogRootPath/lock
+
+################################################################################################
+
+mkdir -p $LOCKLocation $LogTimes/uninstall
+echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")\n\n\n" >> $OutputLOG
+
+rm -f /usr/bin/rclone /usr/local/share/man/man1/rclone.1 $LOCKLocation/rclone.lock
+mandb >> $OutputLOG 2>&1
