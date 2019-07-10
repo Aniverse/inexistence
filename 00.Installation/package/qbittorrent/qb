@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.04.17
-script_version=1.0.1
+script_update=2019.07.10
+script_version=r10002
 ################################################################################################
 action=$1
 iUser=$2

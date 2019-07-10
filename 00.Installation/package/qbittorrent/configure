@@ -3,11 +3,11 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.23
-script_version=r10002
+script_update=2019.07.10
+script_version=r10004
 
 usage_guide() {
-bash config_qbittorrent -u $iUser -p $iPass      -w 2017 -i 9002
+bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 ################################################################################################ Get options
 
@@ -32,7 +32,7 @@ done
 [[ -z $iPort ]] && iPort=9002
 #[[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
-source /etc/inexistence/00.Installation/install/function --output $OutputLOG
+source /etc/inexistence/00.Installation/function --output $OutputLOG
 
 ################################################################################################
 
@@ -47,7 +47,7 @@ Type=forking
 User=%I
 LimitNOFILE=infinity
 ExecStart=/usr/bin/qbittorrent-nox -d
-ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
+#ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
 Restart=on-failure
 TimeoutSec=300
 
@@ -59,6 +59,7 @@ systemctl daemon-reload
 ################################################################################################
 
 function configure_qbittorrent() {
+
 [[ -d $iHome/.config/qBittorrent ]] && {
 mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
 rm -rf mv $iHome/.config/qBittorrent ; }
@@ -66,6 +67,9 @@ rm -rf mv $iHome/.config/qBittorrent ; }
 mkdir -p $iHome/qbittorrent/{download,torrent,watch} $iHome/.config/qBittorrent
 chmod -R 755 $iHome/.config/qBittorrent
 chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
+
+cp $local_packages/package/qbittorrent/qb /usr/local/bin
+chmod 755 /usr/local/bin/qb
 
 qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
 cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
@@ -107,10 +111,8 @@ EOF
 
 systemctl enable qbittorrent@$iUser
 systemctl start qbittorrent@$iUser
+[[ -d /var/www/h5ai ]] && ln -s $iHome/qbittorrent/download /var/www/h5ai/$iUser/qbittorrent
 
-[ -d /var/www/h5ai ] &&
-ln -s $iHome/qbittorrent/download /var/www/h5ai/$iUser/qbittorrent
-# touch $LOCKLocation/qbittorrent.config.lock
 }
 
 echo -ne "Configurating qBittorrent ..."
