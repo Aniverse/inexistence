@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2019.07.10
-script_version=r11038
+script_version=r11039
 ################################################################################################
 
 usage_for_me() {
@@ -158,8 +158,9 @@ fi
 # version=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')      # From Swizzin
 
 make -j$MAXCPUS  >> $OutputLOG 2>&1
+rm -rf $SCLocation/tmp-libtorrent-rasterbar
 make install     DESTDIR=$SCLocation/tmp-libtorrent-rasterbar  >> $OutputLOG 2>&1
-# mv $SCLocation/libtorrent-rasterbar-$version/usr/local/lib/python2.7/site-packages  $SCLocation/libtorrent-rasterbar-$version/libtorrent/usr/local/lib/python2.7/dist-packages#
+mv $SCLocation/tmp-libtorrent-rasterbar/usr/local/lib/python2.7/site-packages  $SCLocation/tmp-libtorrent-rasterbar/usr/local/lib/python2.7/dist-packages
 
 if [[ -n $(which fpm) ]]; then
     fpm -f -C $SCLocation/tmp-libtorrent-rasterbar -s dir -t deb -n libtorrent-rasterbar --version $version \
@@ -263,8 +264,8 @@ ltver_py=$(python -c "import libtorrent ; print libtorrent.version" 2>1 | grep -
 ltver=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+)
 
 if [[ -f /tmp/$status_lock.1.lock ]]; then
-    if [[ $ltver_py != $version ]]; then
-        echo -e " ${red}${bold}ERROR: No python-libtorrent!${normal}" | tee -a $OutputLOG
+    if [[ -z $ltver_py ]]; then
+        echo -e " ${red}${bold}ERROR: no python-libtorrent!${normal}" | tee -a $OutputLOG
     elif [[ $ltver != $version ]]; then
         echo -e " ${red}${bold}ERROR: $ltver is installed rather than $version${normal}" | tee -a $OutputLOG
     else
