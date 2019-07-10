@@ -3,12 +3,12 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.05.14
-script_version=r10005
+script_update=2019.07.10
+script_version=r10006
 ################################################################################################
 
 usage_guide() {
-source /etc/inexistence/00.Installation/install/function
+source /etc/inexistence/00.Installation/function
 }
 
 ################################################################################################ Get options
@@ -40,7 +40,6 @@ CW="${bold}${baihongse} ERROR ${jiacu}" ; ZY="${baihongse}${bold} ATTENTION ${ji
 arch=$(uname -m)
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
-grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+"  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 
