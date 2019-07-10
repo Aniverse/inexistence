@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.19
+INEXISTENCEVER=1.1.2.20
 INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2714,10 +2714,10 @@ echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLoca
 
 [[ $tr_version != No ]] && {
 echo -ne "Installing Transmission ... \n\n\n" ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
-echo -ne "Configuring Transmission ... \n\n\n" ; config_transmission 2>&1 | tee $LogLocation/09.tr2.log ; }
+echo -ne "Configuring Transmission ... " ; config_transmission 2>&1 | tee $LogLocation/09.tr2.log ; }
 
 [[ $InsFlex   == Yes ]]  && { echo -ne "Installing Flexget ... \n\n\n" ; install_flexget 2>&1 | tee $LogLocation/10.flexget.log ; }
-[[ $InsRclone == Yes ]]  && { echo -ne "Installing rclone ... " ; install_rclone 2>&1 | tee $LogLocation/11.rclone.log ; }
+[[ $InsRclone == Yes ]]  && { install_rclone 2>&1 | tee $LogLocation/11.rclone.log ; }
 [[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n" ; install_vnc 2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsWine   == Yes ]]  && { echo -ne "Installing Wine ... \n\n\n" ; install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
