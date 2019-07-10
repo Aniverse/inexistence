@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.16
+INEXISTENCEVER=1.1.2.17
 INEXISTENCEDATE=2019.07.10
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -644,7 +644,7 @@ echo ; }
 
 # --------------------- 询问编译安装时需要使用的线程数量 --------------------- #
 
-function _askmt() {
+function ask_multi_threads() {
 
 while [[ -z $MAXCPUS ]]; do
     echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
@@ -714,9 +714,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.16${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.4${normal}"
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.5${normal}"
-    echo -e "${green}07)${normal} qBittorrent ${cyan}4.1.6${normal}"
+    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.6${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -734,10 +732,8 @@ while [[ -z $qb_version ]]; do
         01 | 1) qb_version=3.3.11 ;;
         02 | 2) qb_version=3.3.16 ;;
         03 | 3) qb_version=4.0.4 ;;
-        04 | 4) qb_version=4.1.3 ;;
-        05 | 5) qb_version=4.1.4 ;;
-        06 | 6) qb_version=4.1.5 ;;
-        07 | 7) qb_version=4.1.6 ;;
+        06 | 4) qb_version=4.1.3 ;;
+        07 | 5) qb_version=4.1.6 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
@@ -1063,10 +1059,9 @@ while [[ -z $rt_version ]]; do
 
     [[ $rt_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}rTorrent ${rtorrent_ver}${normal}"
-#   [[ $rt_installed == Yes ]] && echo -e "${bold}If you want to downgrade or upgrade rTorrent, use ${blue}rtupdate${normal}"
 
     if [[ $rtorrent_dev == 1 ]]; then
-        echo "${bold}${red}$lang_note_that${normal} ${bold}${green}Debian 9${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
+        echo "${bold}${red}$lang_note_that${normal} ${bold}${green}Debian 9/10${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
       # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " ; read -e version
         case $version in
@@ -1819,7 +1814,7 @@ exit 0 ; }
 
 # --------------------- 安装 libtorrent-rasterbar --------------------- #
 
-function install_libtorrent() {
+function install_libtorrent_rasterbar() {
 
 [[ $DeBUG == 1 ]] && {
 echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
@@ -1829,18 +1824,18 @@ lt_version=$lt_version" ; }
 if [[ $arch == x86_64 ]]; then
 
 if   [[ $lt_version == RC_1_0 ]]; then
-    bash $local_packages/install/install_libtorrent_rasterbar -m deb
+    bash $local_packages/package/libtorrent-rasterbar/install -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
     if [[ $CODENAME == buster ]]; then
-        bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_1
+        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_1
     else
-        bash $local_packages/install/install_libtorrent_rasterbar -m deb2
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
 elif [[ $lt_version == RC_1_2 ]]; then
-  # bash $local_packages/install/install_libtorrent_rasterbar -m deb3
-    bash $local_packages/install/install_libtorrent_rasterbar -b RC_1_2
+  # bash $local_packages/package/libtorrent-rasterbar/install -m deb3
+    bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
 else
-    bash $local_packages/install/install_libtorrent_rasterbar -v $lt_version
+    bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
 fi
 
 fi ; }
@@ -1928,7 +1923,7 @@ fi ; }
 
 # 设置 qBittorrent#
 function config_qbittorrent() {
-bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
 }
 
 
@@ -1965,7 +1960,7 @@ else
     else
       # git clone --depth=1 -b deluge-$de_version https://github.com/deluge-torrent/deluge deluge-$de_version
       # wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
-        wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz
+        wget -nv -N -4 "https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz" -O $de_version.tar.gz
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
         cd deluge*$de_version  # cd deluge-$de_version
@@ -2249,21 +2244,8 @@ function install_flexget() {
 # --------------------- 安装 rclone --------------------- #
 
 function install_rclone() {
-[[ "$lbit" == '32' ]] && KernelBitVer='i386'
-[[ "$lbit" == '64' ]] && KernelBitVer='amd64'
-[[ -z "$KernelBitVer" ]] && KernelBitVer='amd64'
-cd; wget -nv -N https://downloads.rclone.org/rclone-current-linux-$KernelBitVer.zip
-unzip rclone-current-linux-$KernelBitVer.zip
-cd rclone-*-linux-$KernelBitVer
-cp rclone /usr/bin/
-chown root:root /usr/bin/rclone
-chmod 755 /usr/bin/rclone
-mkdir -p /usr/local/share/man/man1
-cp rclone.1 /usr/local/share/man/man1
-mandb
-cd; rm -rf rclone-*-linux-$KernelBitVer rclone-current-linux-$KernelBitVer.zip
-touch $LockLocation/rclone.lock
-echo -e "\n\n\n${bailvse}  RCLONE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+bash $local_packages/package/rclone/install --logbase $LogTimes
+}
 
 
 
@@ -2691,7 +2673,7 @@ _intro
 ask_username
 ask_password
 ask_apt_sources
-[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc) ; _askmt
+[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc) ; ask_multi_threads
 ask_swap
 ask_qbittorrent
 ask_deluge
@@ -2715,7 +2697,7 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 ######################################################################################################
 
 [[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
-[[ -n $lt_version ]] && [[ $lt_version != system ]] && install_libtorrent
+[[ -n $lt_version ]] && [[ $lt_version != system ]] && install_libtorrent_rasterbar
 
 [[ $qb_version != No ]] && {
 echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
