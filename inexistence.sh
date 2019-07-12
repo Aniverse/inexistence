@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.20
-INEXISTENCEDATE=2019.07.10
+INEXISTENCEVER=1.1.2.21
+INEXISTENCEDATE=2019.07.12
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -725,8 +725,8 @@ while [[ -z $qb_version ]]; do
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}07${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}07${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " ; read -e version
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
