@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.21
-INEXISTENCEDATE=2019.07.12
+INEXISTENCEVER=1.1.2.22
+INEXISTENCEDATE=2019.07.15
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -621,12 +621,12 @@ fi ; }
 function ask_apt_sources() {
 
 while [[ -z $aptsources ]]; do
-    read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [Y]es or [${cyan}N${normal}]o: " responce
-  # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+    read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [${cyan}Y${normal}]es or [N]o: " responce
+  # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
     case $responce in
-        [yY] | [yY][Ee][Ss]  ) aptsources=Yes ;;
-        [nN] | [nN][Oo] | "" ) aptsources=No ;;
-        *                    ) aptsources=No ;;
+        [yY] | [yY][Ee][Ss] | ""   ) aptsources=Yes ;;
+        [nN] | [nN][Oo]            ) aptsources=No ;;
+        *                          ) aptsources=Yes ;;
     esac
 done
 
@@ -1959,12 +1959,13 @@ else
         git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
         cd deluge-$de_version
     else
-      # git clone --depth=1 -b deluge-$de_version https://github.com/deluge-torrent/deluge deluge-$de_version
-      # wget -nv -N -4 "http://download.deluge-torrent.org/source/deluge-${de_version}.tar.gz"
-        wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz
+        while true ; do
+            wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
+            sleep 1
+        done
         tar xf deluge-$de_version.tar.gz
         rm -f deluge-$de_version.tar.gz
-        cd deluge*$de_version  # cd deluge-$de_version
+        cd deluge*$de_version
     fi
 
     ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
