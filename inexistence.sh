@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.22
-INEXISTENCEDATE=2019.07.15
+INEXISTENCEVER=1.1.2.23
+INEXISTENCEDATE=2019.08.17
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -400,7 +400,7 @@ QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]
 [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
 
 QB_latest_ver=$(wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -1)
-[[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.6
+[[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.7
 
 DE_repo_ver=$(apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -1)
 [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
@@ -715,6 +715,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.6${normal}"
+    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.7${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -725,8 +726,8 @@ while [[ -z $qb_version ]]; do
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}05${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}06${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}06${normal}): " ; read -e version
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
@@ -734,12 +735,13 @@ while [[ -z $qb_version ]]; do
         03 | 3) qb_version=4.0.4 ;;
         04 | 4) qb_version=4.1.3 ;;
         05 | 5) qb_version=4.1.6 ;;
+        06 | 6) qb_version=4.1.7 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.6 ;;
+        * | "") qb_version=4.1.7 ;;
     esac
 
 done
@@ -1568,7 +1570,7 @@ fi
 # From swizzin
 if [[ $DISTROL == debian ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]]; then
     echo "deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
-    echo "deb-src deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
+    echo "deb-src http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
 fi
 
 apt-get -y update
