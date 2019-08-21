@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.23
-INEXISTENCEDATE=2019.08.17
+INEXISTENCEVER=1.1.2.24
+INEXISTENCEDATE=2019.08.21
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -715,7 +715,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.6${normal}"
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.7${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.7${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -1057,6 +1057,8 @@ while [[ -z $rt_version ]]; do
     echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} ($lang_ipv6_1)" ; }
     echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_4)"
     echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} ($lang_ipv6_1)"
+    echo -e "${green}16)${normal} rTorrent ${cyan}0.9.8${normal} ($lang_ipv6_1)"
+    echo -e "${green}17)${normal} rTorrent ${cyan}feature-bind branch${normal} ($lang_ipv6_1)"
     echo -e   "${red}99)${normal} $lang_do_not_install rTorrent"
 
     [[ $rt_installed == Yes ]] &&
@@ -1069,6 +1071,8 @@ while [[ -z $rt_version ]]; do
         case $version in
             14) rt_version='0.9.6 IPv6 supported' ;;
             15) rt_version=0.9.7 ;;
+            16) rt_version=0.9.8 ;;
+            17) rt_version=feature ;;
             99) rt_version=No ;;
             "" | *) rt_version='0.9.6 IPv6 supported' ;;
         esac
@@ -1085,6 +1089,8 @@ while [[ -z $rt_version ]]; do
             13) rt_version='0.9.4 IPv6 supported' ;;
             14) rt_version='0.9.6 IPv6 supported' ;;
             15) rt_version=0.9.7 ;;
+            16) rt_version=0.9.8 ;;
+            17) rt_version=feature ;;
             99) rt_version=No ;;
             "" | *) rt_version='0.9.6 IPv6 supported' ;;
         esac
@@ -1094,8 +1100,9 @@ done
 
 [[ $IPv6Opt == -i ]] && rt_version=`echo $rt_version IPv6 supported`
 [[ `echo $rt_version | grep IPv6` ]] && IPv6Opt=-i
-[[ $rt_version == 0.9.7 ]] && IPv6Opt=-i
+[[ $rt_version =~ (0.9.7|0.9.8|feature) ]] && IPv6Opt=-i
 rt_versionIns=`echo $rt_version | grep -Eo [0-9].[0-9].[0-9]`
+[[ $rt_version == feature ]] && rt_versionIns=feature
 
 if [[ $rt_version == No ]]; then
     [[ $script_lang == eng ]] && echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
