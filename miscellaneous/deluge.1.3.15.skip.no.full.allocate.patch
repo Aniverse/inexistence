@@ -1,0 +1,77 @@
+diff -Nur deluge/core/torrentmanager.py deluge.1.3.15.skip/core/torrentmanager.py
+--- deluge/core/torrentmanager.py	2017-05-12 20:57:19.000000000 +0800
++++ deluge.1.3.15.skip/core/torrentmanager.py	2017-06-09 17:20:28.000000000 +0800
+@@ -463,6 +463,7 @@
+         add_torrent_params["paused"] = True
+         add_torrent_params["auto_managed"] = False
+         add_torrent_params["duplicate_is_error"] = True
++        add_torrent_params["seed_mode"] = options.get("seed_mode", False)
+ 
+         # We need to pause the AlertManager momentarily to prevent alerts
+         # for this torrent being generated before a Torrent object is created.
+diff -Nur deluge/ui/gtkui/addtorrentdialog.py deluge.1.3.15.skip/ui/gtkui/addtorrentdialog.py
+--- deluge/ui/gtkui/addtorrentdialog.py	2017-05-12 20:57:19.000000000 +0800
++++ deluge.1.3.15.skip/ui/gtkui/addtorrentdialog.py	2017-06-05 23:40:16.000000000 +0800
+@@ -411,6 +411,8 @@
+             options["prioritize_first_last_pieces"])
+         self.glade.get_widget("chk_move_completed").set_active(
+             options["move_completed"])
++        self.glade.get_widget("chk_seedmode").set_active(
++            options["seed_mode"]) 
+ 
+     def save_torrent_options(self, row=None):
+         # Keeps the torrent options dictionary up-to-date with what the user has
+@@ -462,6 +464,8 @@
+             self.glade.get_widget("chk_prioritize").get_active()
+         options["move_completed"] = \
+             self.glade.get_widget("chk_move_completed").get_active()
++        options["seed_mode"] = \
++ 	    self.glade.get_widget("chk_seedmode").get_active()
+ 
+         self.options[torrent_id] = options
+ 
+@@ -520,6 +524,7 @@
+             self.core_config["prioritize_first_last_pieces"])
+         self.glade.get_widget("chk_move_completed").set_active(
+             self.core_config["move_completed"])
++        self.glade.get_widget("chk_seedmode").set_active(False)
+ 
+     def get_file_priorities(self, torrent_id):
+         # A list of priorities
+diff -Nur deluge/ui/gtkui/glade/add_torrent_dialog.glade deluge.1.3.15.skip/ui/gtkui/glade/add_torrent_dialog.glade
+--- deluge/ui/gtkui/glade/add_torrent_dialog.glade	2017-05-12 20:57:19.000000000 +0800
++++ deluge.1.3.15.skip/ui/gtkui/glade/add_torrent_dialog.glade	2017-06-05 21:18:40.000000000 +0800
+@@ -746,6 +746,21 @@
+                                         <property name="position">1</property>
+                                       </packing>
+                                     </child>
++                                    <child>
++                                      <widget class="GtkCheckButton" id="chk_seedmode">
++                                        <property name="label" translatable="yes">Skip _Hash Check (Seed Mode)</property>
++                                        <property name="visible">True</property>
++                                        <property name="can_focus">True</property>
++                                        <property name="receives_default">False</property>
++                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
++                                        <property name="draw_indicator">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="expand">False</property>
++                                        <property name="fill">False</property>
++                                        <property name="position">2</property>
++                                      </packing>
++                                    </child>
+                                   </widget>
+                                 </child>
+                               </widget>
+diff -Nur deluge/ui/web/js/deluge-all.js deluge.1.3.15.skip/ui/web/js/deluge-all.js
+--- deluge/ui/web/js/deluge-all.js	2017-05-12 20:57:19.000000000 +0800
++++ deluge.1.3.15.skip/ui/web/js/deluge-all.js	2017-06-12 14:37:14.000000000 +0800
+@@ -477,7 +477,7 @@
+  * this exception statement from your version. If you delete this exception
+  * statement from all source files in the program, then also delete it here.
+  */
+-Ext.ns("Deluge.add");Deluge.add.OptionsTab=Ext.extend(Ext.form.FormPanel,{title:_("Options"),height:170,border:false,bodyStyle:"padding: 5px",disabled:true,labelWidth:1,initComponent:function(){Deluge.add.OptionsTab.superclass.initComponent.call(this);this.optionsManager=new Deluge.MultiOptionsManager();var a=this.add({xtype:"fieldset",title:_("Download Location"),border:false,autoHeight:true,defaultType:"textfield",labelWidth:1,fieldLabel:"",style:"padding-bottom: 5px; margin-bottom: 0px;"});this.optionsManager.bind("download_location",a.add({fieldLabel:"",name:"download_location",width:400,labelSeparator:""}));var a=this.add({xtype:"fieldset",title:_("Move Completed Location"),border:false,autoHeight:true,defaultType:"togglefield",labelWidth:1,fieldLabel:"",style:"padding-bottom: 5px; margin-bottom: 0px;"});var c=a.add({fieldLabel:"",name:"move_completed_path",width:425});this.optionsManager.bind("move_completed",c.toggle);this.optionsManager.bind("move_completed_path",c.input);var b=this.add({border:false,layout:"column",defaultType:"fieldset"});a=b.add({title:_("Allocation"),border:false,autoHeight:true,defaultType:"radio"});this.optionsManager.bind("compact_allocation",a.add({xtype:"radiogroup",columns:1,vertical:true,labelSeparator:"",width:80,items:[{name:"compact_allocation",value:false,inputValue:false,boxLabel:_("Full"),fieldLabel:"",labelSeparator:""},{name:"compact_allocation",value:true,inputValue:true,boxLabel:_("Compact"),fieldLabel:"",labelSeparator:""}]}));a=b.add({title:_("Bandwidth"),border:false,autoHeight:true,bodyStyle:"margin-left: 7px",labelWidth:105,width:200,defaultType:"spinnerfield"});this.optionsManager.bind("max_download_speed",a.add({fieldLabel:_("Max Down Speed"),name:"max_download_speed",width:60}));this.optionsManager.bind("max_upload_speed",a.add({fieldLabel:_("Max Up Speed"),name:"max_upload_speed",width:60}));this.optionsManager.bind("max_connections",a.add({fieldLabel:_("Max Connections"),name:"max_connections",width:60}));this.optionsManager.bind("max_upload_slots",a.add({fieldLabel:_("Max Upload Slots"),name:"max_upload_slots",width:60}));a=b.add({title:_("General"),border:false,autoHeight:true,defaultType:"checkbox"});this.optionsManager.bind("add_paused",a.add({name:"add_paused",boxLabel:_("Add In Paused State"),fieldLabel:"",labelSeparator:""}));this.optionsManager.bind("prioritize_first_last_pieces",a.add({name:"prioritize_first_last_pieces",boxLabel:_("Prioritize First/Last Pieces"),fieldLabel:"",labelSeparator:""}))},getDefaults:function(){var a=["add_paused","compact_allocation","download_location","max_connections_per_torrent","max_download_speed_per_torrent","move_completed","move_completed_path","max_upload_slots_per_torrent","max_upload_speed_per_torrent","prioritize_first_last_pieces"];deluge.client.core.get_config_values(a,{success:function(c){var b={file_priorities:[],add_paused:c.add_paused,compact_allocation:c.compact_allocation,download_location:c.download_location,move_completed:c.move_completed,move_completed_path:c.move_completed_path,max_connections:c.max_connections_per_torrent,max_download_speed:c.max_download_speed_per_torrent,max_upload_slots:c.max_upload_slots_per_torrent,max_upload_speed:c.max_upload_speed_per_torrent,prioritize_first_last_pieces:c.prioritize_first_last_pieces};this.optionsManager.options=b;this.optionsManager.resetAll()},scope:this})}});
++Ext.ns("Deluge.add");Deluge.add.OptionsTab=Ext.extend(Ext.form.FormPanel,{title:_("Options"),height:170,border:false,bodyStyle:"padding: 5px",disabled:true,labelWidth:1,initComponent:function(){Deluge.add.OptionsTab.superclass.initComponent.call(this);this.optionsManager=new Deluge.MultiOptionsManager();var a=this.add({xtype:"fieldset",title:_("Download Location"),border:false,autoHeight:true,defaultType:"textfield",labelWidth:1,fieldLabel:"",style:"padding-bottom: 5px; margin-bottom: 0px;"});this.optionsManager.bind("download_location",a.add({fieldLabel:"",name:"download_location",width:400,labelSeparator:""}));var a=this.add({xtype:"fieldset",title:_("Move Completed Location"),border:false,autoHeight:true,defaultType:"togglefield",labelWidth:1,fieldLabel:"",style:"padding-bottom: 5px; margin-bottom: 0px;"});var c=a.add({fieldLabel:"",name:"move_completed_path",width:425});this.optionsManager.bind("move_completed",c.toggle);this.optionsManager.bind("move_completed_path",c.input);var b=this.add({border:false,layout:"column",defaultType:"fieldset"});a=b.add({title:_("Allocation"),border:false,autoHeight:true,defaultType:"radio"});this.optionsManager.bind("compact_allocation",a.add({xtype:"radiogroup",columns:1,vertical:true,labelSeparator:"",width:80,items:[{name:"compact_allocation",value:false,inputValue:false,boxLabel:_("Full"),fieldLabel:"",labelSeparator:""},{name:"compact_allocation",value:true,inputValue:true,boxLabel:_("Compact"),fieldLabel:"",labelSeparator:""}]}));a=b.add({title:_("Bandwidth"),border:false,autoHeight:true,bodyStyle:"margin-left: 7px",labelWidth:105,width:200,defaultType:"spinnerfield"});this.optionsManager.bind("max_download_speed",a.add({fieldLabel:_("Max Down Speed"),name:"max_download_speed",width:60}));this.optionsManager.bind("max_upload_speed",a.add({fieldLabel:_("Max Up Speed"),name:"max_upload_speed",width:60}));this.optionsManager.bind("max_connections",a.add({fieldLabel:_("Max Connections"),name:"max_connections",width:60}));this.optionsManager.bind("max_upload_slots",a.add({fieldLabel:_("Max Upload Slots"),name:"max_upload_slots",width:60}));a=b.add({title:_("General"),border:false,autoHeight:true,defaultType:"checkbox"});this.optionsManager.bind("add_paused",a.add({name:"add_paused",boxLabel:_("Add In Paused State"),fieldLabel:"",labelSeparator:""}));this.optionsManager.bind("prioritize_first_last_pieces",a.add({name:"prioritize_first_last_pieces",boxLabel:_("Prioritize First/Last Pieces"),fieldLabel:"",labelSeparator:""}));this.optionsManager.bind("seed_mode",a.add({name:"seed_mode",boxLabel:_("Skip Hash Check"),fieldLabel:"",labelSeparator:""}))},getDefaults:function(){var a=["add_paused","compact_allocation","download_location","max_connections_per_torrent","max_download_speed_per_torrent","move_completed","move_completed_path","max_upload_slots_per_torrent","max_upload_speed_per_torrent","prioritize_first_last_pieces","seed_mode"];deluge.client.core.get_config_values(a,{success:function(c){var b={file_priorities:[],add_paused:c.add_paused,compact_allocation:c.compact_allocation,download_location:c.download_location,move_completed:c.move_completed,move_completed_path:c.move_completed_path,max_connections:c.max_connections_per_torrent,max_download_speed:c.max_download_speed_per_torrent,max_upload_slots:c.max_upload_slots_per_torrent,max_upload_speed:c.max_upload_speed_per_torrent,prioritize_first_last_pieces:c.prioritize_first_last_pieces,seed_mode:c.seed_mode};this.optionsManager.options=b;this.optionsManager.resetAll()},scope:this})}});
+ /*
+  * Deluge.add.UrlWindow.js
+  *
