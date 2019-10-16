@@ -11,8 +11,8 @@ OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 pics=10
 # --------------------------------------------------------------------------------
-Script_UpDate=2019.06.18
-Script_Version=r20046
+Script_UpDate=2019.08.31
+Script_Version=r20047
 # --------------------------------------------------------------------------------
 
 # Cleanup when cancel
@@ -78,50 +78,9 @@ echo -e "\n${bold}Calculating resolution ...${normal}"
 VideoResolution=$( ffmpeg -i "$mediapath" 2>&1 | grep -E "Stream.*Video" | grep -Eo "[0-9]{2,5}x[0-9]{2,5}" | head -1 )
 VideoWidth=$( echo $VideoResolution | sed "s/x[0-9]\{2,\}//" | head -1 )  # X
 VideoHeight=$( echo $VideoResolution | sed "s/[0-9]\{2,\}x//" | head -1 ) # Y
-DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
-DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
-DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
-SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" | head -1 )
-SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
-SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
 PAR=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Pixel aspect ratio" | grep -oE "[0-9.]+" | head -1 )
 DAR2=$( mediainfo -f "$mediapath" 2>&1 | grep -i "Display aspect ratio" | grep -oE "[0-9.]+" | head -1 )
 # mediainfo 的 PAR 和 DAR 都是直接是小数
-
-# 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
-# $VideoWidth/$DARY*$DARX=720÷16×9=405
-DAR1_W=$VideoWidth
-DAR1_H=$(awk "BEGIN{print $VideoWidth/$DARX*$DARY}" | awk '{print int($0)}')
-[ ! $(($DAR1_H%2)) == 0 ] && DAR1_H=$( expr $DAR1_H + 1 )
-DAR1_R="${DAR1_W}x${DAR1_H}"
-
-# 第二种，720×480 16:9，算出来 853×480，也就是重新计算 X
-# $VideoHeight/$DARX*$DARY=480÷9×16=853
-DAR2_H=$VideoHeight
-DAR2_W=$(awk "BEGIN{print $VideoHeight/$DARY*$DARX}" | awk '{print int($0)}')
-[ ! $(($DAR2_W%2)) == 0 ] && DAR2_W=$( expr $DAR2_W + 1 )
-DAR2_R="${DAR2_W}x${DAR2_H}"
-
-# 第三种，看 SAR，720×480 32:27，算出来 853×480
-# $VideoWidth/$SARX*$SARY=720÷27×32=853
-SAR1_H=$VideoHeight
-SAR1_W=$(awk "BEGIN{print $VideoWidth/$SARY*$SARX}" | awk '{print int($0)}')
-[ ! $(($SAR1_W%2)) == 0 ] && SAR1_W=$( expr $SAR1_W + 1 )
-SAR1_R="${SAR1_W}x${SAR1_H}"
-
-# https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
-# 有一种算法，是用 DAR 比视频分辨率的 AR 大时，重新算 X，反之 算 Y
-# 蛋疼的是 shell 自带的那些不支持浮点数比较（除非用 bc），不过 expr 似乎是取整算法，比如
-# expr 8 / 9  = 0
-# expr 17 / 9 = 1
-# 这样子的话可以根据 expr SAR 的数值来选择怎么操作
-if [[ $( expr $SARX / $SARY ) == 0 ]] ; then
-    resize=Y
-    TrueRes="${DAR1_W}x${DAR1_H}"
-else
-    resize=X
-    TrueRes="${DAR2_W}x${DAR2_H}"
-fi
 
 # 2019.05.24 前阵子还是有人和我反应算错了，发现还真的是算错了
 # PTP 那个自动算的系统是用 mediainfo 算的，那我最后也还是要用 mediainfo
@@ -164,23 +123,22 @@ ${cyan}${bold}DVD Title              ${yellow}$disk_title_clean"
 [[ $Source == Blu-ray ]] && echo -e \
 "${cyan}${bold}Blu-ray Title          ${yellow}$disk_title_clean"
 
+#  ${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR\t${normal}${bold}(ffmpeg)
+#  ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR\t${normal}${bold}(ffmpeg)
+
 echo -e "
 ${cyan}${bold}Pixel   Aspect Ratio   ${yellow}$PAR\t${normal}${bold}(mediainfo)
-${cyan}${bold}Sample  Aspect Ratio   ${yellow}$SAR\t${normal}${bold}(ffmpeg)
-${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR\t${normal}${bold}(ffmpeg)
 ${cyan}${bold}Display Aspect Ratio   ${yellow}$DAR2\t${normal}${bold}(mediainfo)
 ${cyan}${bold}Video Resolution       ${yellow}$VideoResolution
-${cyan}${bold}DAR   Resolution       ${yellow}$TrueRes
 ${cyan}${bold}PAR   Resolution       ${yellow}$TrueRes2
-${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
-${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
-${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
 ${green}
 mediapath=\"$mediapath\"
 ffmpeg -i \"\$mediapath\"
 mediainfo -f \"\$mediapath\"
 ${normal}"
 [[ ! $Source == undefined ]] && ls -hAlvZ --color "$(dirname "$mediapath")"
+echo -e "\n\n"
+ffmpeg -i "$mediapath"
 echo
 exit 0 ; }
 
@@ -196,11 +154,9 @@ if [[ -z "$fenbianlv" ]]; then
 ########################################################################################################################
 fenbianlv="$TrueRes2"
 echo -e "${bold}
-${cyan}Sample  Aspect Ratio (ffmpeg)     ${yellow}$SAR
-${cyan}Display Aspect Ratio (ffmpeg)     ${yellow}$DAR
-${cyan}Display Aspect Ratio (mediainfo)  ${yellow}$DAR2
-${cyan}Pixel   Aspect Ratio (mediainfo)  ${yellow}$PAR
-${cyan}Video Resolution                  ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
+${cyan}Display Aspect Ratio  ${yellow}$DAR2
+${cyan}Pixel   Aspect Ratio  ${yellow}$PAR
+${cyan}Video Resolution      ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
 ########################################################################################################################
 fi
 
@@ -276,11 +232,15 @@ sed -i "s|${FileLoc}/||" "${outputpath}/${file_title_clean}.mediainfo.txt"
 echo -e "\n${bold}Done. Outputs are stored in ${yellow}\"${outputpath}\"${normal}\n"
 
 
+
+
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
+
+
 
 
 function Deprecated() {
@@ -299,7 +259,80 @@ function Deprecated() {
     esac
 # Transform numbers
 # function  even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
+
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+
+DAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "DAR [0-9]+:[0-9]+" | sed "s/DAR //" | head -1 )
+DARX=$( echo $DAR | sed "s/:[0-9]\{1,\}//" )
+DARY=$( echo $DAR | sed "s/[0-9]\{1,\}://" )
+SAR=$( ffmpeg -i "$mediapath" 2>&1 | grep -Eo "SAR [0-9]+:[0-9]+" | sed "s/SAR //" | head -1 )
+SARX=$( echo $SAR | sed "s/:[0-9]\{1,\}//" )
+SARY=$( echo $SAR | sed "s/[0-9]\{1,\}://" )
+
+# 第一种，720×480 16:9，算出来 720×405，也就是重新计算 Y
+# $VideoWidth/$DARY*$DARX=720÷16×9=405
+DAR1_W=$VideoWidth
+DAR1_H=$(awk "BEGIN{print $VideoWidth/$DARX*$DARY}" | awk '{print int($0)}')
+[ ! $(($DAR1_H%2)) == 0 ] && DAR1_H=$( expr $DAR1_H + 1 )
+DAR1_R="${DAR1_W}x${DAR1_H}"
+
+# 第二种，720×480 16:9，算出来 853×480，也就是重新计算 X
+# $VideoHeight/$DARX*$DARY=480÷9×16=853
+DAR2_H=$VideoHeight
+DAR2_W=$(awk "BEGIN{print $VideoHeight/$DARY*$DARX}" | awk '{print int($0)}')
+[ ! $(($DAR2_W%2)) == 0 ] && DAR2_W=$( expr $DAR2_W + 1 )
+DAR2_R="${DAR2_W}x${DAR2_H}"
+
+# 第三种，看 SAR，720×480 32:27，算出来 853×480
+# $VideoWidth/$SARX*$SARY=720÷27×32=853
+SAR1_H=$VideoHeight
+SAR1_W=$(awk "BEGIN{print $VideoWidth/$SARY*$SARX}" | awk '{print int($0)}')
+[ ! $(($SAR1_W%2)) == 0 ] && SAR1_W=$( expr $SAR1_W + 1 )
+SAR1_R="${SAR1_W}x${SAR1_H}"
+
+# https://github.com/TnS-hun/PtpUploader/blob/master/src/PtpUploader/Tool/Ffmpeg.py#L42
+# 有一种算法，是用 DAR 比视频分辨率的 AR 大时，重新算 X，反之 算 Y
+# 蛋疼的是 shell 自带的那些不支持浮点数比较（除非用 bc），不过 expr 似乎是取整算法，比如
+# expr 8 / 9  = 0
+# expr 17 / 9 = 1
+# 这样子的话可以根据 expr SAR 的数值来选择怎么操作
+if [[ $( expr $SARX / $SARY ) == 0 ]] ; then
+    resize=Y
+    TrueRes="${DAR1_W}x${DAR1_H}"
+else
+    resize=X
+    TrueRes="${DAR2_W}x${DAR2_H}"
+fi
+
+echo "
+${cyan}${bold}DAR   Resolution       ${yellow}$TrueRes
+${cyan}${bold}DAR-1 Resolution       ${yellow}$DAR1_R
+${cyan}${bold}DAR-2 Resolution       ${yellow}$DAR2_R
+${cyan}${bold}SAR   Resolution       ${yellow}$SAR1_R
+"
+
+echo -e "${bold}
+${cyan}Sample  Aspect Ratio (ffmpeg)     ${yellow}$SAR
+${cyan}Display Aspect Ratio (ffmpeg)     ${yellow}$DAR
+${cyan}Display Aspect Ratio (mediainfo)  ${yellow}$DAR2
+${cyan}Pixel   Aspect Ratio (mediainfo)  ${yellow}$PAR
+${cyan}Video Resolution                  ${yellow}$VideoResolution  --->  $fenbianlv${normal}"
+
 }
+
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+
+
+
 
 #######################################################################################################################
 #######################################################################################################################
@@ -307,8 +340,7 @@ function Deprecated() {
 
 usage() {
 
-rm -f /usr/local/bin/jietu && nano /usr/local/bin/jietu && chmod 755 /usr/local/bin/jietu
-
+s=/usr/local/bin/jietu;rm -f  && nano $s && chmod 755 $s
 wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/jietu -O /usr/local/bin/jietu && chmod +x /usr/local/bin/jietu
 
 }
