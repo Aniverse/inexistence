@@ -1843,7 +1843,7 @@ elif [[ $lt_version == RC_1_1 ]]; then
     fi
 elif [[ $lt_version == RC_1_2 ]]; then
   # bash $local_packages/package/libtorrent-rasterbar/install -m deb3
-    bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
+    bash $local_packages/package/libtorrent-rasterbar/install -m deb3
 else
     bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
 fi
