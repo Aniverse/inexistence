@@ -218,18 +218,9 @@ echo >> $OutputLOG
 [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
 function install_lt9_buster_deb() {
-
-echo >> $OutputLOG
-status_lock=lt-rasterbar
-rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
-
-wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb >> $OutputLOG 2>&1
-wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb >> $OutputLOG 2>&1
-apt -y install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-
-echo >> $OutputLOG
-[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
-[[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
+wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
+wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb
+apt -y install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb }
 
 function install_lt_dependencies_action() {
 [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
