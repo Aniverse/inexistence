@@ -714,8 +714,8 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.16${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.7${normal}"
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.8${normal}"
+    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.8${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -734,14 +734,14 @@ while [[ -z $qb_version ]]; do
         02 | 2) qb_version=3.3.16 ;;
         03 | 3) qb_version=4.0.4 ;;
         04 | 4) qb_version=4.1.3 ;;
-        05 | 5) qb_version=4.1.7 ;;
-        06 | 6) qb_version=4.1.8 ;;
+        05 | 5) qb_version=4.1.8 ;;
+        06 | 6) qb_version=4.1.9.1 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.8 ;;
+        * | "") qb_version=4.1.9.1 ;;
     esac
 
 done
