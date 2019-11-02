@@ -1837,7 +1837,10 @@ if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/package/libtorrent-rasterbar/install -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
     if [[ $CODENAME == buster ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
+        echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from amefs pre-compiled deb package ..."
+	wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
+        wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb 
+        apt -y install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb
     else
         bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
