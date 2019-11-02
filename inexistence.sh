@@ -1878,7 +1878,10 @@ else
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
-        apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+        apt-get -yqq update; apt-get -yqq upgrade; \
+        apt-get -y install build-essential checkinstall pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
+        libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
+        qtbase5-dev qttools5-dev-tools libqt5svg5-dev
     fi
 
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
