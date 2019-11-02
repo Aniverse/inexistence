@@ -1837,7 +1837,7 @@ if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/package/libtorrent-rasterbar/install -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
     if [[ $CODENAME == buster ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_1
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
     else
         bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
