@@ -334,7 +334,7 @@ echo -e "${bold}Checking your server's specification ...${normal}"
 
 # Virt
 cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-virtualx=$(dmesg 2>1) 
+virtualx=$(dmesg 2>1)
 [[ $(which dmidecode) ]] && {
 sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
 sys_product=$(dmidecode -s system-product-name) 2>/dev/null
@@ -911,7 +911,7 @@ done
 
 if [[ $de_version == No ]]; then
     echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-elif [[ $de_version == "Install from repo" ]]; then 
+elif [[ $de_version == "Install from repo" ]]; then
     sleep 0
 elif [[ $de_version == "Install from PPA" ]]; then
     if [[ $DISTRO == Debian ]]; then
@@ -929,7 +929,7 @@ else
 fi
 
 
-if [[ $de_version == "Install from repo" ]]; then 
+if [[ $de_version == "Install from repo" ]]; then
     echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
 fi
 
@@ -1283,7 +1283,7 @@ done
 if [[ $tr_version == No ]]; then
     echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
 else
-    if [[ $tr_version == "Install from repo" ]]; then 
+    if [[ $tr_version == "Install from repo" ]]; then
         sleep 0
     elif [[ $tr_version == "Install from PPA" ]]; then
         if [[ $DISTRO == Debian ]]; then
@@ -1297,7 +1297,7 @@ else
         echo "${bold}${baiqingse}Transmission ${tr_version}${normal} ${bold}$lang_will_be_installed${normal}"
     fi
 
-    if [[ $tr_version == "Install from repo" ]]; then 
+    if [[ $tr_version == "Install from repo" ]]; then
         echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
     fi
 fi
@@ -1613,10 +1613,10 @@ echo
 [[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse} Ctrl+C ${normal}${bold} ; or Press ${bailvse} ENTER ${normal} ${bold}to start${normal}"
 [[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse} Ctrl+C ${normal}${bold} 取消安装，或者敲 ${bailvse} ENTER ${normal}${bold} 开始安装${normal}"
 [[ $ForceYes != 1 ]] && read input
-[[ $script_lang == eng ]] && 
+[[ $script_lang == eng ]] &&
 echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
 echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
-[[ $script_lang == chs ]] && 
+[[ $script_lang == chs ]] &&
 echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
 }
 
@@ -1832,7 +1832,7 @@ mkdir -p /etc/inexistence/12.Output2
 
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
-sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
+sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 }
@@ -1932,7 +1932,7 @@ elif [[ $lt_version == RC_1_1 ]]; then
 	wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
         wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb 
         apt -fuyqq install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb
-        echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG	
+        echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
     else
         bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
@@ -2321,7 +2321,7 @@ touch $LockLocation/transmission.lock ; }
 
 function install_flexget() {
 
-  pip install markdown 
+  pip install markdown
   pip install flexget
   pip install transmissionrpc deluge-client
 
@@ -2513,8 +2513,7 @@ elif [[ $CODENAME == stretch ]]; then
     apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 fi
 
-[[ $CODENAME != buster ]] && 
-echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
+[[ $CODENAME != buster ]] && echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
 # echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
 
 apt-get update
@@ -2641,8 +2640,8 @@ shell -$SHELL
 
 startup_message off
 defutf8 on
-defencoding utf8  
-encoding utf8 utf8 
+defencoding utf8
+encoding utf8 utf8
 defscrollback 23333
 EOF
 
