@@ -202,7 +202,7 @@ fi ; }
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-if [[ $SysSupport != 1 ]]; then
+if [[ $SysSupport !=~ (1|4|5) ]]; then
 echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
 ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
 exit 1
@@ -271,12 +271,19 @@ CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\
 grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
-[[ $CODENAME =~ (xenial|bionic|jessie|stretch|buster) ]] && SysSupport=1
-[[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
+[[ $CODENAME =~        (bionic|buster)         ]] && SysSupport=1
+[[ $CODENAME ==        trusty         ]] && SysSupport=2
+[[ $CODENAME ==        wheezy         ]] && SysSupport=3
+[[ $CODENAME =~        (xenial|stretch)        ]] && SysSupport=4
+[[ $CODENAME ==        jessie         ]] && SysSupport=5
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
-# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
-[[ $SysSupport == 2 ]] && _ask_distro_upgrade
+# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
+[[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
+[[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
+# 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
+[[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
+[[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
 
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
@@ -452,11 +459,9 @@ echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailv
 
 # --------------------- 询问是否升级系统 --------------------- #
 
-function _ask_distro_upgrade() {
+function _ask_distro_upgrade_1() {
 
-[[ $CODENAME == wheezy || $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-#[[ $CODENAME == jessie ]] && { UPGRADE_DISTRO_1="Debian 9"     ; UPGRADE_DISTRO_2="Debian 10"     ; UPGRADE_CODENAME_1=stretch ; UPGRADE_CODENAME_2=buster ; }
-[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; }
+[[ $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
 [[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
 echo
 echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
@@ -480,7 +485,82 @@ fi
 
 echo ; }
 
+function _ask_distro_upgrade_2() {
 
+[[ $CODENAME == wheezy ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
+[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_DISTRO_3="Debian 10"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; UPGRADE_CODENAME_3=buster ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
+echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal} (Default)"
+echo -e "${green}03)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_3${normal}"
+echo -e "${green}04)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+    03 | 3     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_3  && UPGRADE_DISTRO=$UPGRADE_DISTRO_3 && UPGRDAE2=Yes ;;
+    04 | 4     ) distro_up=No                                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
+
+function _ask_distro_upgrade_3() {
+
+[[ $CODENAME == stretch || $CODENAME == xenial ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be updated"
+[[ $CODENAME == stretch ]] && { UPGRADE_DISTRO_1="Debian 10"     ; UPGRADE_CODENAME_1=buster ; }
+[[ $CODENAME == xenial ]] && { UPGRADE_DISTRO_1="Ubuntu 18.04" ; UPGRADE_CODENAME_1=bionic  ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
+echo -e "${green}02)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2     ) distro_up=No                                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+function _ask_distro_upgrade_4() {
+
+[[ $CODENAME == jessie ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be updated"
+[[ $CODENAME == jessie ]] && { UPGRADE_DISTRO_1="Debian 9" ; UPGRADE_DISTRO_2="Debian 10" ; UPGRADE_CODENAME_1=stretch ; UPGRADE_CODENAME_2=buster  ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
+echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
+echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+    03 | 3     ) distro_up=No                                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
 
 
 
@@ -1772,7 +1852,6 @@ apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Op
 
 
 function _distro_upgrade() {
-
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 starttime=$(date +%s)
@@ -1793,7 +1872,16 @@ cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".ba
 wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
 [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 
-if [[ $UPGRDAE2 == Yes ]]; then
+if [[ $UPGRDAE3 == Yes ]]; then
+    sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
+    apt-get -y update
+    _distro_upgrade_upgrade
+    sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
+    apt-get -y update
+    _distro_upgrade_upgrade
+    sed -i "s/${UPGRADE_CODENAME_2}/${UPGRADE_CODENAME_3}/g" /etc/apt/sources.list
+    apt-get -y update
+elif [[ $UPGRDAE2 == Yes ]]; then
     sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
     apt-get -y update
     _distro_upgrade_upgrade
