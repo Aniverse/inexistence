@@ -217,11 +217,6 @@ echo >> $OutputLOG
 [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
-function install_lt9_buster_deb() {
-wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
-wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb
-apt -y install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb }
-
 function install_lt_dependencies_action() {
 [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
 echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
@@ -247,12 +242,6 @@ case $mode in
 
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt9_deb & spinner $!
-              ;;
-
-    deb3    ) install_lt_dependencies_action
-
-              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
-              install_lt9_buster_deb & spinner $!
               ;;
 
     source  ) install_lt_dependencies_action
