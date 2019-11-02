@@ -204,9 +204,9 @@ fi ; }
 function _oscheck() {
 if [[ $SysSupport =~ (1|4|5) ]]; then
 else
-echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
-${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
-exit 1
+    echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
+    ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
+    exit 1
 fi ; }
 
 # Ctrl+C 时恢复样式
