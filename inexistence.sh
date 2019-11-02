@@ -203,6 +203,7 @@ fi ; }
 ### 检查系统是否被支持 ###
 function _oscheck() {
 if [[ $SysSupport =~ (1|4|5) ]]; then
+    echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
 else
     echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
     ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
