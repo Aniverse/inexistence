@@ -538,6 +538,8 @@ else
     echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
 fi
 
+echo ; }
+
 function _ask_distro_upgrade_4() {
 
 [[ $CODENAME == jessie ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be updated"
