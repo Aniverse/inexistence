@@ -217,10 +217,6 @@ echo >> $OutputLOG
 [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.lock
 [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/libtorrent-rasterbar.deb.lock ; }
 
-
-
-
-
 function install_lt_dependencies_action() {
 [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]] && {
 echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG

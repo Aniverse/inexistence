@@ -202,10 +202,12 @@ fi ; }
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-if [[ $SysSupport != 1 ]]; then
-echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
-${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
-exit 1
+if [[ $SysSupport =~ (1|4|5) ]]; then
+    echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
+else
+    echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
+    ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
+    exit 1
 fi ; }
 
 # Ctrl+C 时恢复样式
@@ -271,12 +273,19 @@ CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\
 grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
-[[ $CODENAME =~ (xenial|bionic|jessie|stretch|buster) ]] && SysSupport=1
-[[ $CODENAME =~        (wheezy|trusty)         ]] && SysSupport=2
+[[ $CODENAME =~        (bionic|buster)         ]] && SysSupport=1
+[[ $CODENAME ==        trusty         ]] && SysSupport=2
+[[ $CODENAME ==        wheezy         ]] && SysSupport=3
+[[ $CODENAME =~        (xenial|stretch)        ]] && SysSupport=4
+[[ $CODENAME ==        jessie         ]] && SysSupport=5
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
-# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级到 Debian 8 / Ubuntu 16.04
-[[ $SysSupport == 2 ]] && _ask_distro_upgrade
+# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
+[[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
+[[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
+# 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
+[[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
+[[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
 
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
@@ -325,7 +334,7 @@ echo -e "${bold}Checking your server's specification ...${normal}"
 
 # Virt
 cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-virtualx=$(dmesg 2>1) 
+virtualx=$(dmesg 2>1)
 [[ $(which dmidecode) ]] && {
 sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
 sys_product=$(dmidecode -s system-product-name) 2>/dev/null
@@ -452,10 +461,9 @@ echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailv
 
 # --------------------- 询问是否升级系统 --------------------- #
 
-function _ask_distro_upgrade() {
+function _ask_distro_upgrade_1() {
 
-[[ $CODENAME == wheezy || $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; }
+[[ $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
 [[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
 echo
 echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
@@ -479,7 +487,84 @@ fi
 
 echo ; }
 
+function _ask_distro_upgrade_2() {
 
+[[ $CODENAME == wheezy ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
+[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_DISTRO_3="Debian 10"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; UPGRADE_CODENAME_3=buster ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
+echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal} (Default)"
+echo -e "${green}03)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_3${normal}"
+echo -e "${green}04)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+    03 | 3     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_3  && UPGRADE_DISTRO=$UPGRADE_DISTRO_3 && UPGRDAE3=Yes ;;
+    04 | 4     ) distro_up=No                                                                                               ;;
+    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
+
+function _ask_distro_upgrade_3() {
+
+[[ $CODENAME == stretch || $CODENAME == xenial ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
+[[ $CODENAME == stretch ]] && { UPGRADE_DISTRO_1="Debian 10"     ; UPGRADE_CODENAME_1=buster ; }
+[[ $CODENAME == xenial ]] && { UPGRADE_DISTRO_1="Ubuntu 18.04" ; UPGRADE_CODENAME_1=bionic  ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
+echo -e "${green}02)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2 | "") distro_up=No                                                                                               ;;
+    *          ) distro_up=No                                                                                               ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
+
+function _ask_distro_upgrade_4() {
+
+[[ $CODENAME == jessie ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
+[[ $CODENAME == jessie ]] && { UPGRADE_DISTRO_1="Debian 9" ; UPGRADE_DISTRO_2="Debian 10" ; UPGRADE_CODENAME_1=stretch ; UPGRADE_CODENAME_2=buster  ; }
+echo
+echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
+echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
+echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
+echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}03${normal}): " ; read -e responce
+
+case $responce in
+    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
+    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
+    03 | 3 | "") distro_up=No                                                                                               ;;
+    *          ) distro_up=No                                                                                               ;;
+esac
+
+if [[ $distro_up == Yes ]]; then
+    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
+    _distro_upgrade | tee /etc/00.distro_upgrade.log
+else
+    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
+fi
+
+echo ; }
 
 
 
@@ -714,8 +799,8 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.16${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.7${normal}"
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.8${normal}"
+    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.8${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 #   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
@@ -734,14 +819,14 @@ while [[ -z $qb_version ]]; do
         02 | 2) qb_version=3.3.16 ;;
         03 | 3) qb_version=4.0.4 ;;
         04 | 4) qb_version=4.1.3 ;;
-        05 | 5) qb_version=4.1.7 ;;
-        06 | 6) qb_version=4.1.8 ;;
+        05 | 5) qb_version=4.1.8 ;;
+        06 | 6) qb_version=4.1.9.1 ;;
         11) qb_version=4.2.0.alpha ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.8 ;;
+        * | "") qb_version=4.1.9.1 ;;
     esac
 
 done
@@ -828,7 +913,7 @@ done
 
 if [[ $de_version == No ]]; then
     echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-elif [[ $de_version == "Install from repo" ]]; then 
+elif [[ $de_version == "Install from repo" ]]; then
     sleep 0
 elif [[ $de_version == "Install from PPA" ]]; then
     if [[ $DISTRO == Debian ]]; then
@@ -846,7 +931,7 @@ else
 fi
 
 
-if [[ $de_version == "Install from repo" ]]; then 
+if [[ $de_version == "Install from repo" ]]; then
     echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
 fi
 
@@ -1200,7 +1285,7 @@ done
 if [[ $tr_version == No ]]; then
     echo "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}"
 else
-    if [[ $tr_version == "Install from repo" ]]; then 
+    if [[ $tr_version == "Install from repo" ]]; then
         sleep 0
     elif [[ $tr_version == "Install from PPA" ]]; then
         if [[ $DISTRO == Debian ]]; then
@@ -1214,7 +1299,7 @@ else
         echo "${bold}${baiqingse}Transmission ${tr_version}${normal} ${bold}$lang_will_be_installed${normal}"
     fi
 
-    if [[ $tr_version == "Install from repo" ]]; then 
+    if [[ $tr_version == "Install from repo" ]]; then
         echo "${bold}${baiqingse}Transmission $TR_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
     fi
 fi
@@ -1530,10 +1615,10 @@ echo
 [[ $script_lang == eng ]] && echo -e "${bold}If you want to stop, Press ${baihongse} Ctrl+C ${normal}${bold} ; or Press ${bailvse} ENTER ${normal} ${bold}to start${normal}"
 [[ $script_lang == chs ]] && echo -e "${bold}按 ${baihongse} Ctrl+C ${normal}${bold} 取消安装，或者敲 ${bailvse} ENTER ${normal}${bold} 开始安装${normal}"
 [[ $ForceYes != 1 ]] && read input
-[[ $script_lang == eng ]] && 
+[[ $script_lang == eng ]] &&
 echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
 echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
-[[ $script_lang == chs ]] && 
+[[ $script_lang == chs ]] &&
 echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
 }
 
@@ -1749,7 +1834,7 @@ mkdir -p /etc/inexistence/12.Output2
 
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
-sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip 
+sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 }
@@ -1771,7 +1856,6 @@ apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Op
 
 
 function _distro_upgrade() {
-
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 starttime=$(date +%s)
@@ -1792,7 +1876,16 @@ cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".ba
 wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
 [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 
-if [[ $UPGRDAE2 == Yes ]]; then
+if [[ $UPGRDAE3 == Yes ]]; then
+    sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
+    apt-get -y update
+    _distro_upgrade_upgrade
+    sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
+    apt-get -y update
+    _distro_upgrade_upgrade
+    sed -i "s/${UPGRADE_CODENAME_2}/${UPGRADE_CODENAME_3}/g" /etc/apt/sources.list
+    apt-get -y update
+elif [[ $UPGRDAE2 == Yes ]]; then
     sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
     apt-get -y update
     _distro_upgrade_upgrade
@@ -1837,7 +1930,11 @@ if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/package/libtorrent-rasterbar/install -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
     if [[ $CODENAME == buster ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_1
+        echo -e "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from AMEFS pre-compiled deb package ..." | tee -a $OutputLOG
+	wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
+        wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb 
+        apt -fuyqq install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb
+        echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
     else
         bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
@@ -1878,7 +1975,10 @@ else
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
-        apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+        apt-get -yqq update; apt-get -yqq upgrade; \
+        apt-get -y install build-essential checkinstall pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
+        libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
+        qtbase5-dev qttools5-dev-tools libqt5svg5-dev
     fi
 
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
@@ -2223,7 +2323,7 @@ touch $LockLocation/transmission.lock ; }
 
 function install_flexget() {
 
-  pip install markdown 
+  pip install markdown
   pip install flexget
   pip install transmissionrpc deluge-client
 
@@ -2415,8 +2515,7 @@ elif [[ $CODENAME == stretch ]]; then
     apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 fi
 
-[[ $CODENAME != buster ]] && 
-echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
+[[ $CODENAME != buster ]] && echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
 # echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
 
 apt-get update
@@ -2543,8 +2642,8 @@ shell -$SHELL
 
 startup_message off
 defutf8 on
-defencoding utf8  
-encoding utf8 utf8 
+defencoding utf8
+encoding utf8 utf8
 defscrollback 23333
 EOF
 
@@ -2738,4 +2837,3 @@ end_pre
 script_end 2>&1 | tee $LogTimes/end.log
 rm -f "$0" > /dev/null 2>&1
 ask_reboot
-
