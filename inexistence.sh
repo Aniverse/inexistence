@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.2.25
-INEXISTENCEDATE=2019.10.16
+INEXISTENCEVER=1.1.3.0
+INEXISTENCEDATE=2019.11.09
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -522,7 +522,7 @@ function _ask_distro_upgrade_3() {
 [[ $CODENAME == xenial ]] && { UPGRADE_DISTRO_1="Ubuntu 18.04" ; UPGRADE_CODENAME_1=bionic  ; }
 echo
 echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
-echo -e "${green}02)${normal} Do NOT upgrade system and exit script"
+echo -e "${green}02)${normal} Do NOT upgrade system"
 echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
 
 case $responce in
@@ -547,7 +547,7 @@ function _ask_distro_upgrade_4() {
 echo
 echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
 echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
-echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
+echo -e "${green}03)${normal} Do NOT upgrade system "
 echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}03${normal}): " ; read -e responce
 
 case $responce in
@@ -1931,15 +1931,15 @@ if   [[ $lt_version == RC_1_0 ]]; then
 elif [[ $lt_version == RC_1_1 ]]; then
     if [[ $CODENAME == buster ]]; then
         echo -e "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from AMEFS pre-compiled deb package ..." | tee -a $OutputLOG
-	wget -O lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
-        wget -O lt.$CODENAME.1.1.13.1.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb 
-        apt -fuyqq install ./lt.$CODENAME.1.1.13.deb ./lt.$CODENAME.1.1.13.1.deb
+        wget -qO lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
+        wget -qO ltd.$CODENAME.1.1.13.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb
+        wget -qO ltp.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/python-libtorrent_1.1.13-1build1_amd64.deb
+        apt -fuyqq install ./lt.$CODENAME.1.1.13.deb   ./ltd.$CODENAME.1.1.13.deb   ./ltp.$CODENAME.1.1.13.deb
         echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
     else
         bash $local_packages/package/libtorrent-rasterbar/install -m deb2
     fi
 elif [[ $lt_version == RC_1_2 ]]; then
-  # bash $local_packages/package/libtorrent-rasterbar/install -m deb3
     bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
 else
     bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
