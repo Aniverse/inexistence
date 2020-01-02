@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.5
+INEXISTENCEVER=1.1.3.6
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2067,7 +2067,7 @@ else
 #   elif [[ $de_version == 2.0.3 ]]; then
 #       git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
 #       cd deluge-$de_version
-    elif [[ $de_version == 2.0.3 ]]
+    elif [[ $de_version == 2.0.3 ]]; then
         while true ; do
             wget https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
             sleep 1
