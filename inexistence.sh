@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.6
+INEXISTENCEVER=1.1.3.7
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -804,7 +804,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 	[[ $qbittorrent_dev == 1 ]] &&
-    echo -e "${green}04)${normal} qBittorrent ${blue}4.2.1${normal}"
+    echo -e "${green}04)${normal} qBittorrent ${cyan}4.2.1${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -2072,8 +2072,8 @@ else
             wget https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
             sleep 1
         done
-        tar xf deluge-$de_version.tar.gz
-        rm -f deluge-$de_version.tar.gz
+        tar xf deluge-$de_version.tar.xz
+        rm -f deluge-$de_version.tar.xz
         cd deluge-2.0.3
     else
         while true ; do
