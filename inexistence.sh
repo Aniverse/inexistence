@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.0
-INEXISTENCEDATE=2019.11.09
+INEXISTENCEVER=1.1.3.1
+INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -290,6 +290,9 @@ grep buster /etc/os-release -q && CODENAME=buster
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
 
+# qBittorrent是否能安装4.2.0
+[[ $CODENAME =~ (xenial|stretch|bionic|buster) ]] && qbittorrent_dev=1
+
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && [[ $distro_up != Yes ]] && _oscheck
 
@@ -409,7 +412,7 @@ QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]
 [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
 
 QB_latest_ver=$(wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -1)
-[[ -z $QB_latest_ver ]] && QB_latest_ver=4.1.7
+[[ -z $QB_latest_ver ]] && QB_latest_ver=4.2.1
 
 DE_repo_ver=$(apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -1)
 [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
@@ -793,15 +796,15 @@ fi ; }
 
 function ask_qbittorrent() {
 
+
+
 while [[ -z $qb_version ]]; do
 
     echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.11${normal}"
-    echo -e "${green}02)${normal} qBittorrent ${cyan}3.3.16${normal}"
-    echo -e "${green}03)${normal} qBittorrent ${cyan}4.0.4${normal}"
-    echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.1.8${normal}"
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
-#   echo -e  "${blue}11)${normal} qBittorrent ${blue}4.2.0.alpha (unstable)${normal}"
+    echo -e "${green}02)${normal} qBittorrent ${cyan}4.1.3${normal}"
+    echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
+	[[ $qbittorrent_dev == 1 ]] &&
+    echo -e  "${blue}04)${normal} qBittorrent ${blue}4.2.1${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -816,12 +819,9 @@ while [[ -z $qb_version ]]; do
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
-        02 | 2) qb_version=3.3.16 ;;
-        03 | 3) qb_version=4.0.4 ;;
-        04 | 4) qb_version=4.1.3 ;;
-        05 | 5) qb_version=4.1.8 ;;
-        06 | 6) qb_version=4.1.9.1 ;;
-        11) qb_version=4.2.0.alpha ;;
+        02 | 2) qb_version=4.1.3 ;;
+        03 | 3) qb_version=4.1.9.1 ;;
+        04 | 4) qb_version=4.2.1 ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
@@ -849,9 +849,6 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     else
         echo "${bold}${baiqingse}qBittorrent $QB_latest_ver${normal} ${bold}$lang_will_be_installed from Stable PPA${normal}"
     fi
-elif [[ $qb_version == "4.2.0.alpha" ]]; then
-    echo -e "${bold}${bailanse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
-    echo -e "\n$${ZY} This is NOT a stable release${normal}"
 else
     echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
 fi
@@ -968,7 +965,7 @@ while [[ $lt_version = "" ]]; do
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.13${normal} (${blue}RC_1_1${normal} branch)"
-#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.1 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
+#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.3 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
 #   echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
@@ -1010,7 +1007,7 @@ while [[ $lt_version = "" ]]; do
             while [[ $lt_version == "" ]]; do
                     echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
                     case $version in
-                          01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
+                          01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
                           98    ) lt_version=system ;;
@@ -1025,11 +1022,11 @@ while [[ $lt_version = "" ]]; do
             while [[ $lt_version == "" ]]; do
                     echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
                     case $version in
-                          01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
+                          01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
                           02 | 2) lt_version=RC_1_1 ;;
                           03 | 3) lt_version=RC_1_2 ;;
                           98    ) lt_version=system ;;
-                          99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
+                          99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
                           ""    ) lt_version=RC_1_1 ;;
                           *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                     esac
@@ -1088,7 +1085,7 @@ done
 
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
 [[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.13
-[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.1
+[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.3
 
 if [[ $lt_version == system ]]; then
     echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
@@ -1677,7 +1674,7 @@ build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev     whiptail lsof pciutils
+ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev     whiptail lsof pciutils gnupg
 zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
 # bwm-ng wondershaper
 
@@ -1977,17 +1974,26 @@ else
     else
         apt-get -yqq update; apt-get -yqq upgrade; \
         apt-get -y install build-essential checkinstall pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
-        libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev \
-        qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+        libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
+        if [[ $CODENAME =~ (stretch|xenial) ]]; then
+		    mkdir -p /tmp/qb ; cd /tmp/qb
+            wget -qO qt512xmlpatterns_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512xmlpatterns_5.12.6-1basyskom1_amd64.deb
+            wget -qO qt512tools_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512tools_5.12.6-1basyskom1_amd64.deb
+            wget -qO qt512svg_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512svg_5.12.6-1basyskom1_amd64.deb
+            wget -qO qt512declarative_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512declarative_5.12.6-1basyskom1_amd64.deb
+            wget -qO qt512base_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512base_5.12.6-1basyskom1_amd64.deb
+			apt -yqq install ./*deb
+			rm -rf /tmp/qb
+	else
+	    apt-get -yqq install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+	fi
     fi
 
     qb_version=`echo $qb_version | grep -oE [0-9.]+`
     git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
     cd qBittorrent-$qb_version
 
-    if [[ $qb_version == 4.2.0 ]]; then
-        git checkout master
-    elif [[ $qb_version == 3.3.17 ]]; then
+    if [[ $qb_version == 3.3.17 ]]; then
         git checkout release-3.3.11
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
@@ -2007,6 +2013,8 @@ else
     wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch
     patch -p1 < qbt.4.1.6.webui.table.patch ; }
 
+    [[ $CODENAME =~ (stretch|xenial) ]] && source /opt/qt512/bin/qt512-env.sh
+
     ./configure --prefix=/usr --disable-gui
     make -j$MAXCPUS
     mkdir -p doc-pak
@@ -2015,7 +2023,7 @@ else
     if [[ $qb_installed == Yes ]]; then
         make install
     else
-        if [[ $CODENAME == buster ]]; then
+        if [[ $CODENAME =~ (xenial|stretch|buster) ]]; then
             make install
         else
             checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
@@ -2033,7 +2041,9 @@ fi ; }
 
 # 设置 qBittorrent#
 function config_qbittorrent() {
+
 bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+
 }
 
 
@@ -2505,7 +2515,7 @@ function install_wine() {
 
 # These codes are from https://github.com/liaralabs/swizzin/blob/master/sources/functions/mono
 if [[ $DISTROL == ubuntu ]]; then
-    apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 elif [[ $CODENAME == jessie ]]; then
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
     wget -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
@@ -2515,8 +2525,8 @@ elif [[ $CODENAME == stretch ]]; then
     apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 fi
 
-[[ $CODENAME != buster ]] && echo "deb https://download.mono-project.com/repo/$DISTROL $CODENAME/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
-# echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
+#[[ $CODENAME != buster ]] && echo "deb https://download.mono-project.com/repo/${DISTROL} ${CODENAME}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
+echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
 
 apt-get update
 apt-get install -y mono-complete ca-certificates-mono

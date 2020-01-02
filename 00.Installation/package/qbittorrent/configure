@@ -3,13 +3,15 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.07.10
-script_version=r11007
+script_update=2020.01.02
+script_version=r11007.2
 
 usage_guide() {
 bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
 ################################################################################################ Get options
+
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
 OPTS=$(getopt -n "$0" -o u:p:w:i:h:l: --long "username:,password:,home:,wport:,iport:,lang:,logbase:" -- "$@")
 eval set -- "$OPTS"
@@ -114,9 +116,26 @@ General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
 WebUI\CSRFProtection=false
 WebUI\Port=$wPort
-WebUI\Password_ha1=@ByteArray($qbPass)
 WebUI\Username=$iUser
 EOF
+
+
+qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )
+
+if version_ge $qbtnox_ver 4.2.0 ; then
+    cd /tmp
+    wget https://github.com/KozakaiAya/libqbpasswd/releases/download/v0.1-beta/qb_password_gen -O qb_password_gen
+    chmod +x /tmp/qb_password_gen
+    qbPass=$(/tmp/qb_password_gen $iPass)
+    cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+WebUI\Password_PBKDF2="@ByteArray($qbPass)"
+EOF
+else
+    qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
+    cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+WebUI\Password_ha1=@ByteArray($qbPass)
+EOF
+fi
 
 systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
 systemctl start qbittorrent@$iUser
