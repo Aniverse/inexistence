@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.1
+INEXISTENCEVER=1.1.3.2
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -814,8 +814,8 @@ while [[ -z $qb_version ]]; do
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}06${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}06${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " ; read -e version
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
@@ -873,7 +873,7 @@ while [[ -z $de_version ]]; do
     echo -e "${green}02)${normal} Deluge ${cyan}1.3.13${normal}"
     echo -e "${green}03)${normal} Deluge ${cyan}1.3.14${normal}"
     echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
-    echo -e  "${blue}11)${normal} Deluge ${blue}2.0 dev${normal} ${blue}(unstable)${normal}"
+    echo -e "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (DO NOT USE IT)"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -891,7 +891,7 @@ while [[ -z $de_version ]]; do
         02 | 2) de_version=1.3.13 ;;
         03 | 3) de_version=1.3.14 ;;
         04 | 4) de_version=1.3.15 ;;
-        11) de_version=2.0.dev ;;
+        11) de_version=2.0.3 ;;
         21) de_version='1.3.15_skip_hash_check' ;;
         30) _input_version && de_version="${input_version_num}" ;;
         31) _input_version && de_version="${input_version_num}" && de_test=yes &&  de_branch=yes ;;
@@ -920,9 +920,6 @@ elif [[ $de_version == "Install from PPA" ]]; then
     else
         echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}$lang_will_be_installed from PPA${normal}"
     fi
-elif [[ $de_version == "2.0.dev" ]]; then
-    echo -e "${bold}${bailanse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}"
-    echo -e "\n${ZY} This is NOT a stable release${normal}"
 else
     echo "${bold}${baiqingse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}"
 fi
@@ -1314,6 +1311,7 @@ function ask_flexget() {
 
 while [[ -z $InsFlex ]]; do
     [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
+	version_ge $qb_version 4.2.0 && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}qBittorrent 4.2.X is incompatible with current Flexget${normal}"
     read -ep "${bold}${yellow}$lang_would_you_like_to_install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
     case $responce in
         [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
@@ -1960,7 +1958,6 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     apt-get update
     apt-get install -y qbittorrent-nox
 else
-    cd $SourceLocation
     dpkg -l | grep qbittorrent-nox -q && dpkg -r qbittorrent-nox
     if [[ $CODENAME == jessie ]]; then
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
@@ -1972,24 +1969,23 @@ else
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
-        apt-get -yqq update; apt-get -yqq upgrade; \
         apt-get -y install build-essential checkinstall pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
         libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
         if [[ $CODENAME =~ (stretch|xenial) ]]; then
-		    mkdir -p /tmp/qb ; cd /tmp/qb
+            mkdir -p /tmp/qb ; cd /tmp/qb
             wget -qO qt512xmlpatterns_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512xmlpatterns_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512tools_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512tools_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512svg_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512svg_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512declarative_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512declarative_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512base_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512base_5.12.6-1basyskom1_amd64.deb
-			apt -yqq install ./*deb
-			rm -rf /tmp/qb
-	else
-	    apt-get -yqq install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
-	fi
+            apt -yqq install ./*deb
+            rm -rf /tmp/qb
+        else
+            apt-get -yqq install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+        fi
     fi
 
-    qb_version=`echo $qb_version | grep -oE [0-9.]+`
+    cd $SourceLocation
     git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
     cd qBittorrent-$qb_version
 
@@ -2074,9 +2070,9 @@ else
         tar xf deluge-1.3.15.skip.tar.gz
         rm -f deluge-1.3.15.skip.tar.gz
         cd deluge-1.3.15
-    elif [[ $de_version == 2.0.dev ]]; then
-        git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
-        cd deluge-$de_version
+#   elif [[ $de_version == 2.0.3 ]]; then
+#       git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
+#       cd deluge-$de_version
     else
         while true ; do
             wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
