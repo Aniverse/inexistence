@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.2
+INEXISTENCEVER=1.1.3.3
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -814,8 +814,8 @@ while [[ -z $qb_version ]]; do
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}03${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}03${normal}): " ; read -e version
 
     case $version in
         01 | 1) qb_version=3.3.11 ;;
@@ -1238,12 +1238,9 @@ function ask_transmission() {
 while [[ -z $tr_version ]]; do
 
     [[ ! $CODENAME =~ (bionic|buster) ]] &&
-    echo -e "${green}01)${normal} Transmission ${cyan}2.77${normal}" &&
-    echo -e "${green}02)${normal} Transmission ${cyan}2.82${normal}" &&
-    echo -e "${green}03)${normal} Transmission ${cyan}2.84${normal}" &&
-    echo -e "${green}04)${normal} Transmission ${cyan}2.92${normal}"
-    echo -e "${green}05)${normal} Transmission ${cyan}2.93${normal}"
-    echo -e "${green}06)${normal} Transmission ${cyan}2.94${normal}"
+    echo -e "${green}01)${normal} Transmission ${cyan}2.84${normal}"
+    echo -e "${green}02)${normal} Transmission ${cyan}2.92${normal}"
+    echo -e "${green}03)${normal} Transmission ${cyan}2.94${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -1257,12 +1254,9 @@ while [[ -z $tr_version ]]; do
   # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}40${normal}): " ; read -e version
 
     case $version in
-            01 | 1) tr_version=2.77 ;;
-            02 | 2) tr_version=2.82 ;;
-            03 | 3) tr_version=2.84 ;;
-            04 | 4) tr_version=2.92 ;;
-            05 | 5) tr_version=2.93 ;;
-            06 | 6) tr_version=2.94 ;;
+            01 | 1) tr_version=2.84 ;;
+            02 | 2) tr_version=2.92 ;;
+            03 | 3) tr_version=2.94 ;;
             11) tr_version=2.92 && TRdefault=No ;;
             12) tr_version=2.93 && TRdefault=No ;;
             13) tr_version=2.94 && TRdefault=No ;;
