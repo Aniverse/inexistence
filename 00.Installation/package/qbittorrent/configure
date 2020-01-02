@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.01.02
-script_version=r11007.2
+script_version=r11007.3
 
 usage_guide() {
 bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
@@ -127,12 +127,12 @@ if version_ge $qbtnox_ver 4.2.0 ; then
     wget https://github.com/KozakaiAya/libqbpasswd/releases/download/v0.1-beta/qb_password_gen -O qb_password_gen
     chmod +x /tmp/qb_password_gen
     qbPass=$(/tmp/qb_password_gen $iPass)
-    cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+    cat >> $iHome/.config/qBittorrent/qBittorrent.conf << EOF
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
 EOF
 else
     qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
-    cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+    cat >> $iHome/.config/qBittorrent/qBittorrent.conf << EOF
 WebUI\Password_ha1=@ByteArray($qbPass)
 EOF
 fi

@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.3
+INEXISTENCEVER=1.1.3.4
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -804,7 +804,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}02)${normal} qBittorrent ${cyan}4.1.3${normal}"
     echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 	[[ $qbittorrent_dev == 1 ]] &&
-    echo -e  "${blue}04)${normal} qBittorrent ${blue}4.2.1${normal}"
+    echo -e "${green}04)${normal} qBittorrent ${blue}4.2.1${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
