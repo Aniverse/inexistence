@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.4
+INEXISTENCEVER=1.1.3.5
 INEXISTENCEDATE=2020.01.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -873,7 +873,7 @@ while [[ -z $de_version ]]; do
     echo -e "${green}02)${normal} Deluge ${cyan}1.3.13${normal}"
     echo -e "${green}03)${normal} Deluge ${cyan}1.3.14${normal}"
     echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
-    echo -e "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (DO NOT USE IT)"
+    echo -e  "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (Only for test)"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -2067,6 +2067,14 @@ else
 #   elif [[ $de_version == 2.0.3 ]]; then
 #       git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
 #       cd deluge-$de_version
+    elif [[ $de_version == 2.0.3 ]]
+        while true ; do
+            wget https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
+            sleep 1
+        done
+        tar xf deluge-$de_version.tar.gz
+        rm -f deluge-$de_version.tar.gz
+        cd deluge-2.0.3
     else
         while true ; do
             wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
