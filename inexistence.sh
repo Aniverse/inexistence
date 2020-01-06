@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.7
-INEXISTENCEDATE=2020.01.02
+INEXISTENCEVER=1.1.3.8
+INEXISTENCEDATE=2020.01.06
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -2232,12 +2232,12 @@ cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\
 function install_transmission() {
 
 if [[ "${tr_version}" == "Install from repo" ]]; then
-    apt-get install -y transmission-daemon
+    apt-get install -y transmission-daemon transmission-cli
 elif [[ "${tr_version}" == "Install from PPA" ]]; then
     apt-get install -y software-properties-common
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
-    apt-get install -y transmission-daemon
+    apt-get install -y transmission-daemon transmission-cli
 else
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
