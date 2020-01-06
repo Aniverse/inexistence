@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.07.10
-script_version=r10008
+script_update=2020.01.06
+script_version=r10009
 ################################################################################################
 
 # Usage:      . s-alias
@@ -102,12 +102,12 @@ alias lssr="/appex/bin/lotServer.sh restart"
 alias lsss="nano +60 /appex/etc/config"
 alias nginxr="/etc/init.d/nginx restart"
 
-alias yongle="du -sB GB"
-alias yongle2="du -sB MB"
-alias rtyongle="du -sB GB /home/$iUser/rtorrent/download"
-alias qbyongle="du -sB GB /home/$iUser/qbittorrent/download"
-alias deyongle="du -sB GB /home/$iUser/deluge/download"
-alias tryongle="du -sB GB /home/$iUser/transmission/download"
+alias yongle="du -sB GiB"
+alias yongle2="du -sB MiB"
+alias rtyongle="du -sB GiB /home/$iUser/rtorrent/download"
+alias qbyongle="du -sB GiB /home/$iUser/qbittorrent/download"
+alias deyongle="du -sB GiB /home/$iUser/deluge/download"
+alias tryongle="du -sB GiB /home/$iUser/transmission/download"
 alias cdde="cd /home/$iUser/deluge/download"
 alias cdqb="cd /home/$iUser/qbittorrent/download"
 alias cdrt="cd /home/$iUser/rtorrent/download"
@@ -121,6 +121,7 @@ alias scrgda="screen -U -r -d GoogleDrive"
 alias scrgdb="screen -S GoogleDrive -X quit"
 function scrb(){ screen -S \$1 -X quit  ;}
 
+alias dddd='rm -rf'
 alias ..='cd ..'
 alias path='echo -e \${PATH//:/\\\\n}'
 alias dh='df -kTh'
@@ -140,11 +141,12 @@ alias vnsr="systemctl restart vnstat"
 
 alias abench="bash <(wget -qO- https://github.com/Aniverse/A/raw/i/a)"
 alias bench.sh="wget -qO- bench.sh | bash"
+alias fiobench="bash <(wget -qO- https://github.com/amefs/fio-bench/raw/master/fio-bench_zh-cn.sh -o /dev/null)"
 
 alias sousuo="find / -name"
 alias sousuo2="find /home/$iUser -name"
-alias swap-on="dd if=/dev/zero of=/etc/.swapfile bs=1M count=2048;mkswap /etc/.swapfile;swapon /etc/.swapfile;swapon -s"
-alias swap-off="swapoff /etc/.swapfile;rm -f /etc/.swapfile"
+alias swapon="dd if=/dev/zero of=/etc/.swapfile bs=1M count=2048;mkswap /etc/.swapfile;swapon /etc/.swapfile;swapon -s"
+alias swapoff="swapoff /etc/.swapfile;rm -f /etc/.swapfile"
 
 alias yuan="nano +20 /etc/apt/sources.list"
 alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
