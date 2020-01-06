@@ -1,44 +1,103 @@
 #!/bin/bash
 #
-# 2019.01.02
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+#################################################################################
+
+script_update=2019.12.30
+script_version=r20004
+
+#################################################################################
+
+usage_guide() {
+s=/usr/local/bin/deluge-update-tracker
+s=/root/deluge-update-tracker
+rm $s ; nano $s ; chmod 755 $s
+}
+
+#################################################################################
 
 torrentid=$1
 torrentname=$2
 torrentpath=$3
 
-log=/etc/inexistence/01.Log/deluge-update-tracker.log
-[[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch /etc/inexistence/01.Log/deluge-update-tracker.log ; }
+#################################################################################
+
+black='\033[0;30m'   ; red='\033[0;31m'     ; green='\033[0;32m'   ; yellow='\033[0;33m' ;  bold='\033[1m'
+blue='\033[0;34m'    ; magenta='\033[0;35m' ; cyan='\033[0;36m'    ; white='\033[0;37m'  ;  normal='\033[0m'
+
+#################################################################################
+
+local=127.0.0.1
+log=/log/script/deluge-update-tracker.log
+[[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch $log ; }
 
 # ddport=58846
-ddport=$(grep '"daemon_port": [0-9]*' ~/.config/deluge/core.conf | grep -oE "[0-9]+")
-[[ -z $ddport ]] && echo "ERROR: No daemon port detected!" >> $log
+ddport=$(grep '"daemon_port": [0-9]*' $HOME/.config/deluge/core.conf | grep -oE "[0-9]+")
+[[ -z $ddport ]] && { echo "ERROR: No daemon port detected!" >> $log ; exit 1 ; }
+[[ -z $(which deluge-console) ]] && { echo "ERROR: No deluge-console detected!" >> $log ; exit 1 ; }
 
-x=1
-while [ $x -le 45 ]; do
+#################################################################################
+
+function clean_history(){ echo -n > $log ; }
+function tail_log(){      tail -300 $log ; }
+
+#################################################################################
+
+OPTS=$(getopt -n "$0" -o cl --long "log,clean" -- "$@")
+#[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -l | --log   ) tail_log        ; NoAction=y ; shift ;;
+    -c | --clean ) clean_history   ; NoAction=y ; shift ;;
+    -- ) shift ; break ;;
+esac ; done
+
+#################################################################################
+[[ $NoAction != y ]] && { x=1
+
+
+
+
+
+while [ $x -le 65 ]; do
     sleep 2
-    echo "$(date "+%Y.%m.%d %H:%M:%S"), Running $x times" >> $log
-    echo "TorrentID: $torrentid" >> $log
-    line=$(deluge-console "connect 127.0.0.1:$ddport; info" $1 | grep "Tracker status")
-    echo $line >> $log
+    echo -e "$(date "+%Y.%m.%d %H:%M:%S") [$x]\t$torrentname" >> $log
+    line=$(deluge-console "connect $local:$ddport; info" $1 2>1 | grep "Tracker status")
+    echo "$line" >> $log
     case "$line" in
-        *unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*)
-            deluge-console "connect 127.0.0.1:$ddport; pause '$torrentid'"
+		*Unregistered*|*unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*|*Error*|*timed*out)
+            deluge-console "connect $local:$ddport; pause '$torrentid'"
             sleep 2
-            deluge-console "connect 127.0.0.1:$ddport; resume '$torrentid'"
+            deluge-console "connect $local:$ddport; resume '$torrentid'"
             ;;
         *)
-            echo "Found working torrent: $torrentname $torrentpath $torrentid" >> $Log
-            exit 1;;
+            echo -e "${green}[Good] $torrentname${normal}\n" >> $log
+            break ;;
     esac
     x=$(( $x + 1 ))
 done
 
-#######################################################
 
-Usernamee=ANUSER
-Passwordd=ANPASS
+
+
+
+}
+#################################################################################
+#################################################################################
+#################################################################################
+#################################################################################
+#################################################################################
+
+
 
 unused_codes_ignore_these() {
+# echo "[Info]    TorrentID: $torrentid" >> $log
+# echo "${blue}[Info]    TorrentName: $torrentname${normal}" >> $log
+    Usernamee=ANUSER
+    Passwordd=ANPASS
     line=$(/usr/bin/deluge-console "connect 127.0.0.1:$ddport $Usernamee $Passwordd; info" $1 | grep "Tracker status")
     echo $line >> $log
     case "$line" in
