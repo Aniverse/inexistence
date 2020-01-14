@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.8
-INEXISTENCEDATE=2020.01.06
+INEXISTENCEVER=1.1.3.9
+INEXISTENCEDATE=2020.01.14
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1691,8 +1691,9 @@ if [ ! $? = 0 ]; then
     exit 1
 fi
 
-pip install --upgrade pip setuptools
+pip install --upgrade pip
 hash -d pip
+pip install --upgrade setuptools
 pip install --upgrade speedtest-cli
 
 gem install fpm
@@ -2331,7 +2332,8 @@ touch $LockLocation/transmission.lock ; }
 
 function install_flexget() {
 
-  pip install markdown
+  pip install --upgrade pyopenssl
+  pip install --upgrade cryptography
   pip install flexget
   pip install transmissionrpc deluge-client
 
