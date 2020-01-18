@@ -3,11 +3,12 @@ Description=Transmission Service
 After=network.target
 
 [Service]
-LimitNOFILE=666666
+LimitNOFILE=infinity
 User=root
 UMask=000
-ExecStart=/usr/bin/transmission-daemon --log-error -f
-ExecStop=/usr/bin/killall -w -s 9 /usr/bin/transmission-daemon
+ExecStart=/usr/bin/transmission-daemon --log-error -f -g /root/.config/transmission-daemon -e /root/.config/transmission-daemon/tr.log
+ExecReload=/bin/kill -1 $MAINPID
+ExecStop=/bin/kill -9 $MAINPID
 
 [Install]
 WantedBy=multi-user.target
