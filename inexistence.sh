@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.9
-INEXISTENCEDATE=2020.01.14
+INEXISTENCEVER=1.1.3.10
+INEXISTENCEDATE=2020.01.19
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1241,6 +1241,7 @@ while [[ -z $tr_version ]]; do
     echo -e "${green}01)${normal} Transmission ${cyan}2.84${normal}"
     echo -e "${green}02)${normal} Transmission ${cyan}2.92${normal}"
     echo -e "${green}03)${normal} Transmission ${cyan}2.94${normal}"
+    echo -e "${green}21)${normal} Transmission ${cyan}2.94${normal} from ${cyan}prebuilt deb${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} Transmission ${cyan}$TR_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -1250,8 +1251,8 @@ while [[ -z $tr_version ]]; do
     [[ $tr_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Transmission ${trd_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}40${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}40${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}21${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}21${normal}): " ; read -e version
 
     case $version in
             01 | 1) tr_version=2.84 ;;
@@ -1259,13 +1260,13 @@ while [[ -z $tr_version ]]; do
             03 | 3) tr_version=2.94 ;;
             11) tr_version=2.92 && TRdefault=No ;;
             12) tr_version=2.93 && TRdefault=No ;;
-            13) tr_version=2.94 && TRdefault=No ;;
+            21) tr_version=2.94 && TRdefault=deb ;;
             30) _input_version && tr_version="${input_version_num}" ;;
             31) _input_version && tr_version="${input_version_num}" && TRdefault=No ;;
             40) tr_version='Install from repo' ;;
             50) tr_version='Install from PPA' ;;
             99) tr_version=No ;;
-            "" | *) tr_version='Install from repo';;
+            "" | *) tr_version=2.94 && TRdefault=deb ;;
     esac
 
 done
@@ -2239,6 +2240,26 @@ elif [[ "${tr_version}" == "Install from PPA" ]]; then
     add-apt-repository -y ppa:transmissionbt/ppa
     apt-get update
     apt-get install -y transmission-daemon transmission-cli
+elif [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
+    list="transmission-common_2.94-1mod1_all.deb
+transmission-cli_2.94-1mod1_amd64.deb
+transmission-daemon_2.94-1mod1_amd64.deb
+transmission-gtk_2.94-1mod1_amd64.deb
+transmission-qt_2.94-1mod1_amd64.deb
+transmission_2.94-1mod1_all.deb"
+    mkdir -p /tmp/tr_deb
+    cd /tmp/tr_deb
+    for deb in $list ; do
+        wget --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/transmission/$deb/download
+      # apt-get -y install /tmp/tr_deb/$deb
+    done
+    if [[ $CODENAME != jessie ]]; then
+        apt-get -y install ./*deb
+    else
+        dpkg -i ./*deb
+        apt-get -fy install
+    fi
+    cd
 else
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
