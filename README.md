@@ -133,9 +133,10 @@ Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，�
 
 12. ***Transmission***  
 **`--tr repo`**、**`--tr ppa`**、**`--tr 2.93 --tr-skip`**、**`--tr No`**  
-Transmission 默认选择从仓库里安装，节省时间（ban 2.93 以前版本的站点也不是很多）  
-此外还会安装 [美化版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
-隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本（无 2.94 修改版，以后再搞）  
+Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决了文件打开数问题）  
+此外还会安装 [加强版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
+隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本（无 2.94 修改版）  
+跳校验版本是选择【获取更多 peers】来实现跳校验（也就是替换了菜单里对应的功能）  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
@@ -295,10 +296,24 @@ bash ipv6 2001:cb6:2521:240:: 57 00:03:00:01:d3:3a:15:b4:43:ad
 ## IPv6.sh
 
 新一代 IPv6 配置脚本，支持 Online 和 Ikoula，支持 Debian 8/9/10，Ubuntu 16.04/18.04  
-还不是很完善，怎么用自己看代码吧……我懒得写了  
+还不是很完善，怎么用自己看代码吧……我目前懒得写了  
 
 ``` 
+# 显示帮助
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -h
+# 测试 IPv6 是否可用
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -t
+# Online Ifdown, 适用于 Debian 8/9/10, Ubuntu 16.04
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol  -6 [address] -d [DUID] -s [subnet]
+# Online netpaln, 适用于 Ubuntu 18.04
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol2 -6 XXX -d XXX -s 56
+# Online dibbler, 适用于 Debian 8/9/10, Ubuntu 16.04/18.04
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol3 -6 XXX -d XXX -s 56
+# Online odhcp6c, 适用于 Debian 8/9/10, Ubuntu 16.04/18.04
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol4 -6 XXX -d XXX -s 56
+# Ikoula Debian 8/9/10, Ubuntu 16.04
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ik
+# Ikoula Ubuntu 18.04
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ik2
 ``` 
 
