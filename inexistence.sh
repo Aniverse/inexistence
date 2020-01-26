@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.10
-INEXISTENCEDATE=2020.01.19
+INEXISTENCEVER=1.1.3.11
+INEXISTENCEDATE=2020.01.27
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1697,7 +1697,7 @@ hash -d pip
 pip install --upgrade setuptools
 pip install --upgrade speedtest-cli
 
-gem install fpm
+which fpm 2>1 >/dev/null || gem install --no-ri --no-rdoc fpm
 
 # Fix interface in vnstat.conf
 [[ -n $wangka ]] && [[ $wangka != eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
@@ -1708,12 +1708,6 @@ wget -t1 -T5 -nv -N http://download.xnview.com/NConvert-linux64.tgz && {
 tar zxf NConvert-linux64.tgz
 mv NConvert/nconvert /usr/local/bin
 rm -rf NConvert* ; }
-
-# Install checkinstall for Debian Buster
-[[ $CODENAME == buster ]] && {
-cd $SourceLocation
-wget -nv -N https://github.com/Aniverse/inexistence/raw/files/debian.package/checkinstall.1.6.2-4.stretch.amd64.deb
-dpkg -i checkinstall.1.6.2-4.stretch.amd64.deb ; }
 
 sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
 
