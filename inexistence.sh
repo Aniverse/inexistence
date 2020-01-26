@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.11
+INEXISTENCEVER=1.1.3.12
 INEXISTENCEDATE=2020.01.27
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -940,6 +940,7 @@ echo ; }
 # 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
 # 2019.XX.XX qb 开发者打算要求使用 C++14 了的样子，不知道这对于同时使用 Deluge 的用户是否有影响？
 # 2019.05.23 自选版本选项删除
+# 2020.01.27 忍住删除这一块判断逻辑的冲动……等下个大版本再统一成 lt 1.1.14
 # --------------------- 询问需要安装的 libtorrent-rasterbar 版本 --------------------- #
 # lt_version=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
@@ -953,15 +954,11 @@ lt8_support=Yes
 # 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
 [[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
 
-[[ $DeBUG == 1 ]] && {
-echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
-echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok" ; }
-
 while [[ $lt_version = "" ]]; do
 
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
-    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.13${normal} (${blue}RC_1_1${normal} branch)"
+    echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.14${normal} (${blue}RC_1_1${normal} branch)"
 #   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.3 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
 #   echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
@@ -1081,7 +1078,7 @@ while [[ $lt_version = "" ]]; do
 done
 
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
-[[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.13
+[[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.14
 [[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.3
 
 if [[ $lt_version == system ]]; then
@@ -1090,11 +1087,6 @@ if [[ $lt_version == system ]]; then
 else
     echo -e "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}"
 fi
-
-[[ $DeBUG == 1 ]] && {
-echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
-lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok
-lt_version=$lt_version" ; }
 
 echo ; }
 
@@ -1662,6 +1654,7 @@ apt-get -f -y install
 #wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
+# 2020.01.27 这里乱七八糟的太多了，但是想删减的话又得对照很多地方比较麻烦，下个大改动再说
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
@@ -1904,33 +1897,33 @@ exit 0 ; }
 
 function install_libtorrent_rasterbar() {
 
-[[ $DeBUG == 1 ]] && {
-echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later
-lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok
-lt_version=$lt_version" ; }
-
-if [[ $arch == x86_64 ]]; then
-
 if   [[ $lt_version == RC_1_0 ]]; then
     bash $local_packages/package/libtorrent-rasterbar/install -m deb
 elif [[ $lt_version == RC_1_1 ]]; then
-    if [[ $CODENAME == buster ]]; then
-        echo -e "Installing libtorrent-rasterbar ${bold}${cyan}1.1.13${normal} from AMEFS pre-compiled deb package ..." | tee -a $OutputLOG
-        wget -qO lt.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.13-1build1_amd64.deb
-        wget -qO ltd.$CODENAME.1.1.13.deb https://ayera.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.13-1build1_amd64.deb
-        wget -qO ltp.$CODENAME.1.1.13.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/buster/binary-amd64/libtorrent-rasterbar/python-libtorrent_1.1.13-1build1_amd64.deb
-        apt -fuyqq install ./lt.$CODENAME.1.1.13.deb   ./ltd.$CODENAME.1.1.13.deb   ./ltp.$CODENAME.1.1.13.deb
-        echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
+  # bash $local_packages/package/libtorrent-rasterbar/install -m deb2
+    echo -e "Installing libtorrent-rasterbar ${bold}${cyan}1.1.14${normal} from AMEFS pre-compiled deb package ..." | tee -a $OutputLOG
+    list="libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
+libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
+python-libtorrent_1.1.14-1build1_amd64.deb"
+    mkdir -p /tmp/lt_deb
+    cd /tmp/lt_deb
+    for deb in $list ; do
+        wget --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/libtorrent-rasterbar/$deb/download
+    done
+    if [[ $CODENAME != jessie ]]; then
+        apt-get -fuy install ./*deb
     else
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb2
+        dpkg -i ./*deb
+        apt-get -fy install
     fi
+    cd
+    rm -rf /tmp/lt_deb
 elif [[ $lt_version == RC_1_2 ]]; then
     bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
 else
     bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
 fi
-
-fi ; }
+}
 
 
 
