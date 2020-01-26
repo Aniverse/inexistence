@@ -5,15 +5,16 @@
 #
 #################################################################################
 
-script_update=2019.12.30
-script_version=r20004
+script_update=2020.01.25
+script_version=r20005
 
 #################################################################################
 
 usage_guide() {
-s=/usr/local/bin/deluge-update-tracker
+s=/usr/bin/deluge-update-tracker
 s=/root/deluge-update-tracker
-rm $s ; nano $s ; chmod 755 $s
+rm -f $s ; nano $s ; chmod 755 $s
+# enable execute plugin, reboot deluged, use /root/deluge-update-tracker as path (/usr/bin/deluge-update-tracker or deluge-update-tracker is not executeable emmmm)
 }
 
 #################################################################################
