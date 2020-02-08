@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.07.10
-script_version=r11041
+script_update=2020.02.08
+script_version=r11041.2
 
 ################################################################################################
 
@@ -136,13 +136,13 @@ git clone --depth=1 -b $branch $git_repo libtorrent-rasterbar-$version >> $Outpu
 cd libtorrent-rasterbar-$version
 
 # See here for details: https://github.com/qbittorrent/qBittorrent/issues/6383
-# Patches from amefs (QuickBox Dev)
+# Thanks to amefs
 if version_ge $version 1.1 ; then
-    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_1.patch >> $OutputLOG 2>&1
-    patch -p1 < libtorrent-rasterbar-RC_1_1.patch >> $OutputLOG 2>&1
+    wget --trust-server-name https://sourceforge.net/projects/inexistence/files/patch/lt.1.1.cpp11.patch/download >> $OutputLOG 2>&1
+    patch -p1 < lt.1.1.cpp11.patch >> $OutputLOG 2>&1
 elif version_ge $version 1.0 ; then
-    wget https://github.com/QuickBox/QB/raw/master/setup/sources/libtorrent-rasterbar-RC_1_0.patch >> $OutputLOG 2>&1
-    patch -p1 < libtorrent-rasterbar-RC_1_0.patch >> $OutputLOG 2>&1
+    wget --trust-server-name https://sourceforge.net/projects/inexistence/files/patch/lt.1.0.cpp11.patch/download >> $OutputLOG 2>&1
+    patch -p1 < lt.1.0.cpp11.patch >> $OutputLOG 2>&1
 else
     sed -i "s/+ target_specific(),/+ target_specific() + ['-std=c++11'],/" bindings/python/setup.py || NoPatch=1
 fi
@@ -190,7 +190,8 @@ status_lock=lt-rasterbar
 rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
 [[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb package for Debian 10, please ust libtorrent 1.1 or later." ; exit 1 ; }
-wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb >> $OutputLOG 2>&1
+wget -O lt.$CODENAME.1.0.11.deb https://sourceforge.net/projects/inexistence/files/backup/deb/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb/download >> $OutputLOG 2>&1
+# wget -O lt.$CODENAME.1.0.11.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb >> $OutputLOG 2>&1
 dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 
 echo >> $OutputLOG
@@ -210,7 +211,8 @@ echo >> $OutputLOG
 status_lock=lt-rasterbar
 rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
-wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb >> $OutputLOG 2>&1
+wget -O lt.$CODENAME.1.1.13.deb https://sourceforge.net/projects/inexistence/files/backup/deb/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb/download >> $OutputLOG 2>&1
+# wget -O lt.$CODENAME.1.1.13.deb https://raw.githubusercontent.com/Aniverse/inexistence/files/debian.package/libtorrent-rasterbar-1.1.13.1.$CODENAME.amd64.cpp11.deb >> $OutputLOG 2>&1
 dpkg -i lt.$CODENAME.1.1.13.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 
 echo >> $OutputLOG

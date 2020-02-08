@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.3.12
-INEXISTENCEDATE=2020.01.27
+INEXISTENCEVER=1.1.4.0
+INEXISTENCEDATE=2020.02.08
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -381,11 +381,6 @@ fi
 
 [[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
 [[ -z "$virtual" ]] && virt="No Virtualization Detected"
-#wget --no-check-certificate -qO /usr/local/bin/virt-what https://github.com/Aniverse/inexistence/raw/files/software/virt-what
-#mkdir -p /usr/lib/virt-what
-#wget --no-check-certificate -qO /usr/lib/virt-what/virt-what-cpuid-helper https://github.com/Aniverse/inexistence/raw/master/files/software/virt-what-cpuid-helper
-#chmod +x /usr/local/bin/virt-what /usr/lib/virt-what/virt-what-cpuid-helper
-#virt="$(virt-what)" 2>/dev/null
 
 kern=$( uname -r )
 cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
@@ -1946,7 +1941,7 @@ else
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
         apt-get install -y libgl1-mesa-dev
-        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1.jessie.amd64.deb -O qt.5.5.1.jessie.amd64.deb
+        wget -nv https://sourceforge.net/projects/inexistence/files/OLD/qt.5.5.1.jessie.amd64.deb/download -O qt.5.5.1.jessie.amd64.deb
         dpkg -i qt.5.5.1.jessie.amd64.deb && rm -f qt.5.5.1.jessie.amd64.deb
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -1989,7 +1984,7 @@ else
 
     # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
     [[ $sihuo == yes ]] && {
-    wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch
+    wget -nv  --trust-server-name https://sourceforge.net/projects/inexistence/files/personal/qbt.4.1.6.webui.table.patch/download
     patch -p1 < qbt.4.1.6.webui.table.patch ; }
 
     [[ $CODENAME =~ (stretch|xenial) ]] && source /opt/qt512/bin/qt512-env.sh
@@ -2092,7 +2087,7 @@ else
 
     # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
     [[ $sihuo == yes ]] && {
-    wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/deluge.1.3.15.deluge-all.js -O deluge/ui/web/js/deluge-all.js ; }
+    wget -nv https://sourceforge.net/projects/inexistence/files/personal/deluge.1.3.15.deluge-all.js/download -O deluge/ui/web/js/deluge-all.js ; }
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
@@ -2434,7 +2429,7 @@ touch $LockLocation/bbr.lock ; }
 function bnx2_firmware() {
 mkdir -p /lib/firmware/bnx2 && cd /lib/firmware/bnx2
 bnx2="bnx2-mips-09-6.2.1b.fw bnx2-mips-06-6.2.3.fw bnx2-rv2p-09ax-6.0.17.fw bnx2-rv2p-09-6.0.17.fw bnx2-rv2p-06-6.0.15.fw"
-for f in $bnx2 ; do wget -nv -N https://github.com/Aniverse/inexistence/raw/files/firmware/bnx2/$f -O $f ; done ; }
+for f in $bnx2 ; do wget -nv -N https://sourceforge.net/projects/inexistence/files/firmware/bnx2/$f/download -O $f ; done ; }
 
 
 
@@ -2625,20 +2620,20 @@ function system_tweaks() {
 # Upgrade vnstat, compile from source
 # https://humdi.net/wiki/vnstat/install/in_debian
 cd $SourceLocation
-apt-get install -y libsqlite3-dev
-wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.2/vnstat-2.2.tar.gz
-tar zxf vnstat-2.2.tar.gz
-rm -f vnstat-2.2.tar.gz
-cd vnstat-2.2
+apt-get install make gcc libc6-dev libsqlite3-0 libsqlite3-dev
+wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.6/vnstat-2.6.tar.gz
+tar zxf vnstat-2.6.tar.gz
+rm -f vnstat-2.6.tar.gz
+cd vnstat-2.6
 ./configure --prefix=/usr --sysconfdir=/etc
 make -j$MAXCPUS
 make install
-cp -v examples/systemd/vnstat.service /etc/systemd/system/
-sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service
-systemctl enable vnstat
-systemctl start vnstat
-cd
+#cp -v examples/systemd/vnstat.service /etc/systemd/system/
+sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service # 我都忘了为什么要这么一行了
+#systemctl enable vnstat
+#systemctl start vnstat
 systemctl restart vnstatd
+cd
 
 # Set timezone to UTC+8
 rm -rf /etc/localtime
