@@ -16,14 +16,14 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.0
+INEXISTENCEVER=1.1.4.1
 INEXISTENCEDATE=2020.02.08
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -43,7 +43,7 @@ while [ -n "$1" ] ; do case "$1" in
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
-    --sihuo         ) sihuo=yes        ; shift ;;
+    --sihuo         ) sihuo=yes         ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
     --tr-skip       ) TRdefault="No"    ; shift ;;
@@ -72,6 +72,8 @@ while [ -n "$1" ] ; do case "$1" in
     --mt-single     ) MAXCPUS=1         ; shift ;;
     --mt-double     ) MAXCPUS=2         ; shift ;;
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
+    --skip-system-upgrade ) skip_system_upgrade=1 ; shift ;;
+    --tr-deb        ) tr_version=2.94   ; TRdefault=deb ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
 
     -- ) shift ; break ;;
@@ -280,12 +282,15 @@ grep buster /etc/os-release -q && CODENAME=buster
 [[ $CODENAME ==        jessie         ]] && SysSupport=5
 [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
+# 允许跳过系统升级选项的问题
+[[ $skip_system_upgrade != 1 ]] && {
 # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
 [[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
 [[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
 # 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
 [[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
 [[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
+}
 
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
@@ -2620,7 +2625,7 @@ function system_tweaks() {
 # Upgrade vnstat, compile from source
 # https://humdi.net/wiki/vnstat/install/in_debian
 cd $SourceLocation
-apt-get install make gcc libc6-dev libsqlite3-0 libsqlite3-dev
+apt-get install -y make gcc libc6-dev libsqlite3-0 libsqlite3-dev
 wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.6/vnstat-2.6.tar.gz
 tar zxf vnstat-2.6.tar.gz
 rm -f vnstat-2.6.tar.gz
