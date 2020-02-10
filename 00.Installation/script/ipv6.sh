@@ -4,12 +4,12 @@
 # Author: Aniverse
 #
 script_update=2020.02.10
-script_version=r23327
+script_version=r23428
 ################################################################################################
 
 usage_guide() {
 s=/usr/local/bin/ipv66;rm -f $s;nano $s;chmod 755 $s
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m online-netplan -6 XXX -d XXX -s 56 ; }
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol2 -6 XXX -d XXX -s 56 ; }
 
 ################################################################################################ Get options
 
@@ -301,6 +301,7 @@ EOF
 
 # Online／OneProvider Paris 独服，Ubuntu 16.04，Debian 8/9/10
 function online_interfaces() {
+    check_var
     file_backup
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]]; then
         interfaces_file_clean
@@ -545,6 +546,10 @@ systemctl restart networking.service
 ping6 -c 5 ipv6.google.com"
 }
 
+function ask_pause() {
+    read -p "${bold}敲回车开始配置${normal} " pause
+}
+
 function show_help() {
     echo -e "
 ${bold}${baiqingse}IPv6 Script $script_version${normal}
@@ -587,6 +592,64 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 }
 
 
+function ipv6_menu() {
+
+    if [[ ! -f /tmp/ip_check.lock ]]; then
+        _ip
+        _ipip
+        touch /tmp/ip_check.lock
+    fi
+
+    echo -e "
+${bold}${on_magenta}IPv6 配置脚本${jiacu}
+
+  IPv4 地址             ${cyan}$serveripv4_show${jiacu}
+  IPv6 地址             ${cyan}$serveripv6_show${jiacu}
+  反向域名              ${cyan}$ipip_rDNS${jiacu}
+  运营商                ${cyan}$ipip_ISP${jiacu}
+  AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
+  地理位置              ${cyan}$ipip_Loc${jiacu}
+
+  操作系统              ${cyan}$DISTRO $osversion $CODENAME ($arch)${jiacu}
+  系统支持性            ${cyan}$SysSupport${jiacu}
+  脚本可用性            ${cyan}${script_support}${script_support_long}${jiacu}
+
+-------------------- 下列为可修改的参数 --------------------
+
+${green}<1>${cyan} 待配置的 IPv6 地址        ${blue}$IPv6${jiacu}
+${green}<2>${cyan} 待配置的 DUID             ${blue}$DUID${jiacu}
+${green}<3>${cyan} 待配置的 subnet           ${blue}$subnet${jiacu}
+
+这些参数就 Online 的独服必须设置，Ikoula 不用设置
+
+------------------- 下列为可用的配置模式 -------------------
+
+${green}<11>${cyan} Online interfaces （Debian 8/9/10，Ubuntu 16.04）
+${green}<12>${cyan} Online netplan    （Ubuntu 18.04）
+${green}<13>${cyan} Online dibbler    （Debian 8/9/10，Ubuntu 16.04/18.04）
+${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10，Ubuntu 16.04/18.04）
+${green}<21>${cyan} Ikoula interfaces （Debian 8/9/10，Ubuntu 16.04）
+${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
+
+${red}<98>${jiacu} 测试 IPv6 连接性
+${red}<99>${jiacu} 退出脚本
+"
+    read -ep "${bold}输入对应的数值进行修改${blue}  " response ; echo "${normal}"
+    case $response in
+         1) read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}" ; ipv6_menu ;;
+         2) read -ep "${bold}输入待配置的 DUID：${blue}" DUID        ; echo -n "${normal}" ; ipv6_menu ;;
+         3) read -ep "${bold}输入待配置的 subnet：${blue}" subnet    ; echo -n "${normal}" ; ipv6_menu ;;
+        11) mode=ol  ; ask_pause ; mode_action ;;
+        12) mode=ol2 ; ask_pause ; mode_action ;;
+        13) mode=ol3 ; ask_pause ; mode_action ;;
+        14) mode=ol4 ; ask_pause ; mode_action ;;
+        21) mode=ik  ; ask_pause ; mode_action ;;
+        22) mode=ik2 ; ask_pause ; mode_action ;;
+        98) ipv6_test; ipv6_menu ;;
+        99）exit ;;
+         *) exit ;;
+    esac
+}
 
 
 
