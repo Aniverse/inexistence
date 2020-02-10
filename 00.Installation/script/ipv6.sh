@@ -116,8 +116,8 @@ function _ip() {
     
 function _ipip() {
     echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
-    ipip_result=$HOME/ipip_result
-    wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
+    ipip_result=/tmp/ipip_result
+    [[ ! -f $ipip_result ]] && wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
 
       ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
      ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
@@ -127,8 +127,7 @@ function _ipip() {
      ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
      ipip_ISP=$( cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
 
-    rm -f $ipip_result
-
+ #  rm -f $ipip_result
     ASN=$(echo $ipip_ASN | grep -oE "AS[0-9]+")
 
     if [[ $ASN == AS24940 ]];then
@@ -594,14 +593,16 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 
 function ipv6_menu() {
 
-    if [[ ! -f /tmp/ip_check.lock ]]; then
-        _ip
-        _ipip
-        touch /tmp/ip_check.lock
-    fi
+    _ip
+    _ipip
+    #if [[ ! -f /tmp/ip_check.lock ]]; then
+    #    _ip
+    #    _ipip
+    #    touch /tmp/ip_check.lock
+    #fi
 
     echo -e "
-${bold}${on_magenta}IPv6 配置脚本${jiacu}
+${bold}${on_magenta}             IPv6 配置脚本             ${jiacu}
 
   IPv4 地址             ${cyan}$serveripv4_show${jiacu}
   IPv6 地址             ${cyan}$serveripv6_show${jiacu}
@@ -610,11 +611,11 @@ ${bold}${on_magenta}IPv6 配置脚本${jiacu}
   AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
   地理位置              ${cyan}$ipip_Loc${jiacu}
 
-  操作系统              ${cyan}$DISTRO $osversion $CODENAME ($arch)${jiacu}
+  操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
   系统支持性            ${cyan}$SysSupport${jiacu}
-  脚本可用性            ${cyan}${script_support}${script_support_long}${jiacu}
+  脚本可用性            ${cyan}${script_support}${script_support_add}${jiacu}
 
--------------------- 下列为可修改的参数 --------------------
+${on_blue}-------------------- 下列为可修改的参数 --------------------${jiacu}
 
 ${green}<1>${cyan} 待配置的 IPv6 地址        ${blue}$IPv6${jiacu}
 ${green}<2>${cyan} 待配置的 DUID             ${blue}$DUID${jiacu}
@@ -622,7 +623,7 @@ ${green}<3>${cyan} 待配置的 subnet           ${blue}$subnet${jiacu}
 
 这些参数就 Online 的独服必须设置，Ikoula 不用设置
 
-------------------- 下列为可用的配置模式 -------------------
+${on_blue}------------------- 下列为可用的配置模式 -------------------${jiacu}
 
 ${green}<11>${cyan} Online interfaces （Debian 8/9/10，Ubuntu 16.04）
 ${green}<12>${cyan} Online netplan    （Ubuntu 18.04）
@@ -634,7 +635,7 @@ ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
 ${red}<98>${jiacu} 测试 IPv6 连接性
 ${red}<99>${jiacu} 退出脚本
 "
-    read -ep "${bold}输入对应的数值进行修改${blue}  " response ; echo "${normal}"
+    read -ep "${bold}${yellow}输入对应的数值进行修改${blue}  " response ; echo "${normal}"
     case $response in
          1) read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}" ; ipv6_menu ;;
          2) read -ep "${bold}输入待配置的 DUID：${blue}" DUID        ; echo -n "${normal}" ; ipv6_menu ;;
@@ -646,7 +647,7 @@ ${red}<99>${jiacu} 退出脚本
         21) mode=ik  ; ask_pause ; mode_action ;;
         22) mode=ik2 ; ask_pause ; mode_action ;;
         98) ipv6_test; ipv6_menu ;;
-        99）exit ;;
+        99) exit ;;
          *) exit ;;
     esac
 }
@@ -656,7 +657,7 @@ ${red}<99>${jiacu} 退出脚本
 
 ###########################################################################
 
-
+function mode_action() {
 case $mode in
     ik  ) ikoula_interfaces   ; ask_reboot ;;
     ik2 ) ikoula_netplan      ; ipv6_test  ;;
@@ -669,7 +670,7 @@ case $mode in
     c   ) cleanup             ;;
     m   ) ipv6_menu           ;;
 esac
-
+}
 
 ###########################################################################
 
