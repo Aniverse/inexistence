@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.10
-script_version=r23326
+script_version=r23327
 ################################################################################################
 
 usage_guide() {
@@ -51,13 +51,13 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 
 ################################################################################################
 
-SysSupport=0
+SysSupport="可能不支持"
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
 [[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
-[[ $CODENAME =~ (xenial|bionic|jessie|stretch|) ]] && SysSupport=1
-[[ $SysSupport == 0 ]] && echo -e "${red}Your system is not supported!${normal}" && exit 1
+[[ $CODENAME =~ (xenial|bionic|jessie|stretch|) ]] && SysSupport="支持"
+#[[ $SysSupport == 0 ]] && echo -e "${red}Your system is not supported!${normal}" && exit 1
 type=ifdown
 [[ -f /etc/netplan/01-netcfg.yaml ]] && [[ $CODENAME == bionic ]] && type=netplan
 [[ $type == ifdown ]] && [[ -z $(which ifdown) ]] && { echo -e "${green}Installing ifdown ...${normal}" ; apt-get install ifupdown -y ; }
@@ -106,8 +106,12 @@ function _ip() {
     echo -e "${bold}正在检查服务器的 IPv6 信息 ...${normal}"
     serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -1 )
 
-    serveripv6_show=$(redact_ip "$serveripv6") ; [[ $full_ip == 1 ]] && serveripv6_show=$serveripv6
-    serveripv4_show=$(redact_ip "$serveripv4") ; [[ $full_ip == 1 ]] && serveripv4_show=$serveripv4
+    if [[ -n $serveripv6 ]];then
+        serveripv6_show=$serveripv6
+    else
+        serveripv6_show="未检测到公网 IPv6 地址"
+    fi
+    serveripv4_show=$serveripv4
 }
     
 function _ipip() {
