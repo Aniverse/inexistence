@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.12.19
-script_version=r23224
+script_update=2020.02.10
+script_version=r23225
 ################################################################################################
 
 usage_guide() {
@@ -90,6 +90,22 @@ AAA=$( echo $serveripv4 | awk -F '.' '{print $1}' )
 BBB=$( echo $serveripv4 | awk -F '.' '{print $2}' )
 CCC=$( echo $serveripv4 | awk -F '.' '{print $3}' )
 DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
+
+
+echo -e "${bold}正在检查服务器的 ISP ...${normal}"
+isp=$( wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/json | grep \"org\" | awk -F '"' '{print $4}' )
+echo -e "${bold}正在检查服务器的 ASN ...${normal}"
+asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
+
+if [[ $ASN == AS24940 ]];then
+    server=Hetzner
+elif [[ $ASN == AS12876 ]];then
+    server=Online
+elif [[ $ASN == AS21409 ]];then
+    server=Ikoula
+else
+    server=Unknown
+fi
 
 ################################################################################################
 
@@ -232,6 +248,8 @@ netmask $subnet
 EOF
 }
 
+
+
 # Online／OneProvider Paris 独服，Ubuntu 16.04，Debian 8/9/10
 function online_interfaces() {
     file_backup
@@ -244,11 +262,6 @@ function online_interfaces() {
     systemctl start dhclient.service
     systemctl_restart
 }
-
-
-
-
-
 
 
 # Online／OneProvider Paris 独服，Ubuntu 18.04 系统（netplan）
@@ -271,6 +284,9 @@ EOF
     systemctl start dhclient.service
     systemctl start dhclient-netplan.service
 }
+
+
+########################################################################### dibbler
 
 
 function dibbler_install() {
@@ -327,7 +343,7 @@ function online_dibbler() {
 
 
 
-###########################################################################
+########################################################################### odhcp6c
 
 
 
