@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.10
-script_version=r23225
+script_version=r23326
 ################################################################################################
 
 usage_guide() {
@@ -32,6 +32,8 @@ while true; do
      * ) break ;;
   esac
 done
+
+[[ -z $mode ]] && mode=m
 
 ################################################################################################ Colors
 
@@ -91,21 +93,64 @@ BBB=$( echo $serveripv4 | awk -F '.' '{print $2}' )
 CCC=$( echo $serveripv4 | awk -F '.' '{print $3}' )
 DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
 
+function _ip() {
 
-echo -e "${bold}正在检查服务器的 ISP ...${normal}"
-isp=$( wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/json | grep \"org\" | awk -F '"' '{print $4}' )
-echo -e "${bold}正在检查服务器的 ASN ...${normal}"
-asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
+    echo -e "${bold}正在检查服务器的 IPv4 信息 ...${normal}"
+    serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' | head -1 )
+    
+    isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
+    isValidIpAddress    "$serveripv4" || { echo "${red}${shanshuo}WARNING ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${jiacu}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' | head -1 ) ; }
 
-if [[ $ASN == AS24940 ]];then
-    server=Hetzner
-elif [[ $ASN == AS12876 ]];then
-    server=Online
-elif [[ $ASN == AS21409 ]];then
-    server=Ikoula
-else
-    server=Unknown
-fi
+    echo -e "${bold}正在检查服务器的 IPv6 信息 ...${normal}"
+    serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -1 )
+
+    serveripv6_show=$(redact_ip "$serveripv6") ; [[ $full_ip == 1 ]] && serveripv6_show=$serveripv6
+    serveripv4_show=$(redact_ip "$serveripv4") ; [[ $full_ip == 1 ]] && serveripv4_show=$serveripv4
+}
+    
+function _ipip() {
+    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
+    ipip_result=$HOME/ipip_result
+    wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
+
+      ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
+     ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
+    ipip_CIDR=$( cat $ipip_result | grep -C7 ASN    | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
+    ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
+     ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+     ipip_ISP=$( cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+
+    rm -f $ipip_result
+
+    ASN=$(echo $ipip_ASN | grep -oE "AS[0-9]+")
+
+    if [[ $ASN == AS24940 ]];then
+        server=Hetzner
+        script_support="不需要支持"
+        script_support_add="，因为 Hz 装完自带 IPv6"
+    elif [[ $ASN == AS16276 ]];then
+        server=OVH
+        script_support="不需要支持"
+        script_support_add="，因为 OVH 装完自带 IPv6"
+    elif [[ $ASN == AS12876 ]];then
+        server=Online
+        script_support="支持"
+        script_support_add="，请填写相关参数"
+    elif [[ $ASN == AS21409 ]];then
+        server=Ikoula
+        script_support="支持"
+        script_support_add=""
+    else
+        server=Unknown
+        script_support="不支持"
+        script_support_add=""
+    fi
+}
+
+
 
 ################################################################################################
 
@@ -537,6 +582,11 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 "
 }
 
+
+
+
+
+
 ###########################################################################
 
 
@@ -550,6 +600,7 @@ case $mode in
     t   ) info ; ipv6_test    ;;
     h   ) show_help           ;;
     c   ) cleanup             ;;
+    m   ) ipv6_menu           ;;
 esac
 
 
