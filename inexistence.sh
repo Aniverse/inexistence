@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.1
-INEXISTENCEDATE=2020.02.08
+INEXISTENCEVER=1.1.4.2
+INEXISTENCEDATE=2020.02.13
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -802,9 +802,10 @@ while [[ -z $qb_version ]]; do
 
     echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.11${normal}"
     echo -e "${green}02)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
+    echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9${normal}"
+    echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 	[[ $qbittorrent_dev == 1 ]] &&
-    echo -e "${green}04)${normal} qBittorrent ${cyan}4.2.1${normal}"
+    echo -e "${green}05)${normal} qBittorrent ${cyan}4.2.1${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -820,13 +821,14 @@ while [[ -z $qb_version ]]; do
     case $version in
         01 | 1) qb_version=3.3.11 ;;
         02 | 2) qb_version=4.1.3 ;;
-        03 | 3) qb_version=4.1.9.1 ;;
-        04 | 4) qb_version=4.2.1 ;;
+        03 | 3) qb_version=4.1.9 ;;
+        04 | 4) qb_version=4.1.9.1 ;;
+        05 | 5) qb_version=4.2.1 ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.9.1 ;;
+        * | "") qb_version=4.1.9 ;;
     esac
 
 done
