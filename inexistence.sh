@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.2
-INEXISTENCEDATE=2020.02.13
+INEXISTENCEVER=1.1.4.3
+INEXISTENCEDATE=2020.02.15
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -2249,6 +2249,7 @@ transmission_2.94-1mod1_all.deb"
         apt-get -fy install
     fi
     cd
+    apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission
 else
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
@@ -2376,6 +2377,7 @@ function install_flexget() {
 
 function install_rclone() {
 bash $local_packages/package/rclone/install --logbase $LogTimes
+bash <(wget -qO- https://git.io/gclone.sh)
 }
 
 
