@@ -1,13 +1,15 @@
 # Inexistence
 
-> This is a seedbox script focus on Chinese users, I would prefer [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
+> This is a seedbox script focus on Chinese users, I would prefer [QuickBox Lite](https://github.com/amefs/quickbox-lite), [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
 
-> 警告：不保证本脚本能正常使用，翻车了不负责；上车前还请三思  
+> 警告：不保证本脚本能正常使用，翻车了不负责；使用前还请三思  
 > 建议重装完系统后安装本脚本，非全新安装的情况下翻车几率比较高  
 
+> [基本没人来的本脚本交流群，有事别问群主](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
+> 安利一下 efs 巨佬的牛逼盒子脚本，比我的脚本好多了：[QuickBox Lite](https://github.com/amefs/quickbox-lite)  
 
-由于作者很懒+喜欢咕咕，本文内容已经很久没更新了，有些内容和当前的脚本已经不一样了，凑合着看吧。  
+由于作者很懒+喜欢咕咕，本文内容更新频率比较低，有些内容和当前的脚本可能已经不一样了，凑合着看吧。  
 
 
 ## Usage
@@ -421,7 +423,7 @@ inexistence 自带 bluray，不过不包括它的软件库
 
 1. 有 bug 的话欢迎反馈，**但不保证能解决**，且有些问题可能不是本脚本造成的  
 2. 有意见或者改进也欢迎告知  
-3. [偷偷加个，看看有没有人看](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
+3. [有问题也可以来这个基本没人的本脚本交流群反馈，有事别问群主……](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
 
 ## Issues
 
