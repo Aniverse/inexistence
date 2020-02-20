@@ -1,6 +1,7 @@
 # Inexistence
 
 > This is a seedbox script focus on Chinese users, I would prefer [QuickBox Lite](https://github.com/amefs/quickbox-lite), [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
+> Just a seedbox script, no Plex, no Emby, no NZB support.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
 
 > 警告：不保证本脚本能正常使用，翻车了不负责；使用前还请三思  
@@ -8,6 +9,7 @@
 
 > [基本没人来的本脚本交流群，有事别问群主](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
 > 安利一下 efs 巨佬的牛逼盒子脚本，比我的脚本好多了：[QuickBox Lite](https://github.com/amefs/quickbox-lite)  
+> ARM 用户（树莓派、SYS ARM 独服等）可以试试这个：[QuickBox ARM](https://github.com/amefs/quickbox-arm)  
 
 由于作者很懒+喜欢咕咕，本文内容更新频率比较低，有些内容和当前的脚本可能已经不一样了，凑合着看吧。  
 
