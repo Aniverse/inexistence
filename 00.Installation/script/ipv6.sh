@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.22
-script_version=r30100
+script_version=r30101
 ################################################################################################
 
 usage_guide() {
@@ -519,13 +519,16 @@ function cleanup() {
     systemctl stop    dhclient-netplan.service  2>/dev/null
     systemctl stop    dhclient.service          2>/dev/null
     systemctl stop    dibbler-client.service    2>/dev/null
+    systemctl stop    odhcp6c.service           2>/dev/null
     systemctl disable dhclient-netplan.service  2>/dev/null
     systemctl disable dhclient.service          2>/dev/null
     systemctl disable dibbler-client.service    2>/dev/null
+    systemctl disable odhcp6c.service           2>/dev/null
     systemctl daemon-reload
     rm -f /etc/systemd/system/dhclient.service
     rm -f /etc/systemd/system/dhclient-netplan.service
     rm -f /etc/systemd/system/dibbler-client.service
+    rm -f /etc/systemd/system/odhcp6c.service
     rm -f /etc/dhcp/dhclient6.conf    /etc/dibbler/client.conf   /var/lib/dibbler/client-duid
     echo "DONE"
 }
