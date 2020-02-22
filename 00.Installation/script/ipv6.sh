@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.20
-script_version=r23430
+script_version=r30000
 ################################################################################################
 
 usage_guide() {
@@ -14,6 +14,7 @@ bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installat
 ################################################################################################ Get options
 
 reboot=no
+ip_check=y
 
 OPTS=$(getopt -o m:d:s:6:rhtc --long "mode:,ipv6:,duid:,subnet:,help,reboot,test,clean" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
@@ -87,7 +88,6 @@ function _ip() {
     else
         serveripv6_show="未检测到公网 IPv6 地址"
     fi
-    serveripv4_show=$serveripv4
 }
 
 ################################################################################################## 判断网卡
@@ -128,7 +128,7 @@ function _ipip() {
 
       ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
      ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
-    ipip_CIDR=$( cat $ipip_result | grep -C7 ASN    | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
     ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
     ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
      ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
@@ -167,9 +167,9 @@ function _ipip() {
 
 
 function check_var() {
-    [[ -z $IPv6 ]] && echo "${red}No IPv6${normal}" && exit 1
-    [[ -z $DUID ]] && echo "${red}No DUID${normal}" && exit 1
-    [[ -z $subnet ]] && echo "${red}No subnet${normal}" && exit 1
+    [[ -z $IPv6   ]] && echo "${red}ERROR: No IPv6 input!${normal}"   && ask_ipv6
+    [[ -z $DUID   ]] && echo "${red}ERROR: No DUID input!${normal}"   && ask_DUID
+    [[ -z $subnet ]] && echo "${red}ERROR: No subnet input!${normal}" && ask_subnet
 }
 
 # Ikoula 独服（/etc/network/interfaces）
@@ -352,7 +352,7 @@ EOF
 function dibbler_install() {
     dpkg-query -W -f='${Status}' build-essential 2>/dev/null | grep -q "ok installed" || apt-get install -y build-essential
     wget https://netix.dl.sourceforge.net/project/dibbler/dibbler/1.0.1/dibbler-1.0.1.tar.gz
-    tar zxvf dibbler-1.0.1.tar.gz
+    tar zxf dibbler-1.0.1.tar.gz
     cd dibbler-1.0.1
     ./configure
     make -j$(nproc)
@@ -481,13 +481,13 @@ function systemctl_restart() {
 }
 
 function ipv6_test() {
-    echo -ne "\n${bold}Testing IPv6 connectivity ... ${normal}"
+    echo -ne "${bold}检测 IPv6 连接性 ... ${normal}"
     IPv6_test=$(ping6 -c 5 ipv6.google.com | grep 'received' | awk -F',' '{ print $2 }' | awk '{ print $1 }')
     if [[ $IPv6_test > 0 ]]; then
-        echo "${bold}${yellow}Success!${normal}"
+        echo "${bold}${green}成功！${normal}"
         exit 0
     else
-        echo "${bold}${red}Failed${normal}"
+        echo "${bold}${red}失败...${normal}"
         exit 1
     fi
 }
@@ -500,7 +500,7 @@ function sysctl_enable_ipv6() {
 
 function ask_reboot() {
     if [[ $reboot == no ]]; then
-        echo -e "${bold}Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to reboot${normal} "
+        echo -e "\n${bold}Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to reboot${normal} "
         read input
     fi
   # echo -e "\n${bold}Rebooting ... ${normal}"
@@ -557,7 +557,28 @@ ping6 -c 5 ipv6.google.com"
 }
 
 function ask_pause() {
-    read -p "${bold}敲回车开始配置${normal} " pause
+    read -p "${bold}敲回车开始执行操作  ${normal} " pause
+    echo
+}
+
+function ask_ipv4() {
+    unset serveripv4
+    echo -e "${bold}请输入你的公网 IPv4 地址：${normal}"
+    while [[ -z $serveripv4 ]]; do
+        read -e serveripv4
+        isInternalIpAddress "$serveripv4" && { echo -e "${CW} This is INTERNAL IPv4 address, not PUBLIC IPv4 address, please write your public IPv4: ${normal}" ; unset serveripv4 ; }
+        isValidIpAddress "$serveripv4" || { echo -e "${CW} This is not a valid public IPv4 address, please write your public IPv4: ${normal}" ; unset serveripv4 ; }
+    done
+}
+
+function ask_ipv6() {
+    read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}"
+}
+function ask_DUID() {
+    read -ep "${bold}输入待配置的 DUID：${blue}"      DUID   ; echo -n "${normal}"
+}
+function ask_subnet() {
+    read -ep "${bold}输入待配置的 subnet：${blue}"    subnet ; echo -n "${normal}"
 }
 
 function show_help() {
@@ -565,8 +586,8 @@ function show_help() {
 ${bold}${baiqingse}IPv6 Script $script_version${normal}
 
 ${bold}${green}Usage: ${normal}
--m     Specify IPv6 configuring mode, can be specified ask_reboot
-       ik    Ikoula interfaces, only for Ikoula servers ifdown
+-m     Specify IPv6 configuring mode
+       ik    Ikoula interfaces, only for Ikoula servers using ifdown
              Typically, This is for Ubuntu 14.04/16.04, Debian 7/8/9/10
        ik2   Ikoula netplan, only for Ikoula servers using netplan
              Typically, This is ONLY for Ubuntu 18.04
@@ -604,27 +625,29 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 
 function ipv6_menu() {
 
-    _ip
-    _ipip
-    #if [[ ! -f /tmp/ip_check.lock ]]; then
-    #    _ip
-    #    _ipip
-    #    touch /tmp/ip_check.lock
-    #fi
+    clear
+    if [[ $ip_check == y ]]; then
+        _ip
+        _ipip
+        ip_check=n
+    fi
 
     echo -e "
 ${bold}${on_magenta}             IPv6 配置脚本             ${jiacu}
 
-  IPv4 地址             ${cyan}$serveripv4_show${jiacu}
-  IPv6 地址             ${cyan}$serveripv6_show${jiacu}
-  反向域名              ${cyan}$ipip_rDNS${jiacu}
-  运营商                ${cyan}$ipip_ISP${jiacu}
-  AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
-  地理位置              ${cyan}$ipip_Loc${jiacu}
+IPv4 地址             ${cyan}$serveripv4${jiacu}
+IPv6 地址             ${cyan}$serveripv6_show${jiacu}
+反向域名              ${cyan}$ipip_rDNS${jiacu}
+运营商                ${cyan}$ipip_ISP${jiacu}
+AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
+地理位置              ${cyan}$ipip_Loc${jiacu}
 
-  操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
-  系统支持性            ${cyan}$SysSupport${jiacu}
-  脚本可用性            ${cyan}${script_support}${script_support_add}${jiacu}
+操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
+系统支持性            ${cyan}$SysSupport${jiacu}
+脚本可用性            ${cyan}${script_support}${script_support_add}${jiacu}
+脚本版本            ${cyan}${script_support}${script_support_add}${jiacu}
+script_update=$script_update
+script_version=$script_version
 
 ${on_blue}-------------------- 下列为可修改的参数 --------------------${jiacu}
 
@@ -643,20 +666,28 @@ ${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10，Ubuntu 16.04/18.04）
 ${green}<21>${cyan} Ikoula interfaces （Debian 8/9/10，Ubuntu 16.04）
 ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
 
+${red}<90>${jiacu} 重启
+${red}<95>${jiacu} 清除本脚本对系统文件的修改
+${red}<96>${jiacu} 修改脚本使用的 IPv4 地址
+${red}<97>${jiacu} 再次检查服务器 IP 信息
 ${red}<98>${jiacu} 测试 IPv6 连接性
-${red}<99>${jiacu} 退出脚本
+${red}<99>${jiacu} 退出脚本（直接回车也是退出）
 "
-    read -ep "${bold}${yellow}输入对应的数值进行修改${blue}  " response ; echo "${normal}"
+    read -ep "${bold}${yellow}输入对应的数值进行修改或者操作${blue}  " response ; echo "${normal}"
     case $response in
-         1) read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}" ; ipv6_menu ;;
-         2) read -ep "${bold}输入待配置的 DUID：${blue}"      DUID   ; echo -n "${normal}" ; ipv6_menu ;;
-         3) read -ep "${bold}输入待配置的 subnet：${blue}"    subnet ; echo -n "${normal}" ; ipv6_menu ;;
+         1) ask_ipv6   ; ipv6_menu ;;
+         2) ask_DUID   ; ipv6_menu ;;
+         3) ask_subnet ; ipv6_menu ;;
         11) mode=ol  ; ask_pause ; mode_action ;;
         12) mode=ol2 ; ask_pause ; mode_action ;;
         13) mode=ol3 ; ask_pause ; mode_action ;;
         14) mode=ol4 ; ask_pause ; mode_action ;;
         21) mode=ik  ; ask_pause ; mode_action ;;
         22) mode=ik2 ; ask_pause ; mode_action ;;
+        90) ask_reboot ;;
+        95) mode=c   ; ask_pause ; mode_action  ; ipv6_menu ;;
+        96) ask_ipv4 ; ipv6_menu ;;
+        97) _ip;_ipip; ipv6_menu ;;
         98) ipv6_test; ipv6_menu ;;
         99) exit ;;
          *) exit ;;
