@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.20
-script_version=r30000
+script_update=2020.02.22
+script_version=r30100
 ################################################################################################
 
 usage_guide() {
@@ -574,11 +574,17 @@ function ask_ipv4() {
 function ask_ipv6() {
     read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}"
 }
+
 function ask_DUID() {
     read -ep "${bold}输入待配置的 DUID：${blue}"      DUID   ; echo -n "${normal}"
 }
+
 function ask_subnet() {
     read -ep "${bold}输入待配置的 subnet：${blue}"    subnet ; echo -n "${normal}"
+}
+
+function ask_interface() {
+    read -ep "${bold}输入网卡名称：${blue}" interface ; echo -n "${normal}"
 }
 
 function show_help() {
@@ -642,12 +648,11 @@ IPv6 地址             ${cyan}$serveripv6_show${jiacu}
 AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
 地理位置              ${cyan}$ipip_Loc${jiacu}
 
+
 操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
 系统支持性            ${cyan}$SysSupport${jiacu}
 脚本可用性            ${cyan}${script_support}${script_support_add}${jiacu}
-脚本版本            ${cyan}${script_support}${script_support_add}${jiacu}
-script_update=$script_update
-script_version=$script_version
+脚本版本              ${cyan}$script_version ($script_update)${jiacu}
 
 ${on_blue}-------------------- 下列为可修改的参数 --------------------${jiacu}
 
@@ -655,7 +660,11 @@ ${green}<1>${cyan} 待配置的 IPv6 地址        ${blue}$IPv6${jiacu}
 ${green}<2>${cyan} 待配置的 DUID             ${blue}$DUID${jiacu}
 ${green}<3>${cyan} 待配置的 subnet           ${blue}$subnet${jiacu}
 
-这些参数就 Online 的独服必须设置，Ikoula 不用设置
+这三个参数就 Online 的独服必须设置，Ikoula 不用设置
+
+${green}<4>${cyan} 所使用的网卡名称          ${blue}$interface${jiacu}
+
+这个参数脚本会自动检测，一般来说默认的就是正确的不用改
 
 ${on_blue}------------------- 下列为可用的配置模式 -------------------${jiacu}
 
@@ -675,9 +684,10 @@ ${red}<99>${jiacu} 退出脚本（直接回车也是退出）
 "
     read -ep "${bold}${yellow}输入对应的数值进行修改或者操作${blue}  " response ; echo "${normal}"
     case $response in
-         1) ask_ipv6   ; ipv6_menu ;;
-         2) ask_DUID   ; ipv6_menu ;;
-         3) ask_subnet ; ipv6_menu ;;
+         1) ask_ipv6      ; ipv6_menu ;;
+         2) ask_DUID      ; ipv6_menu ;;
+         3) ask_subnet    ; ipv6_menu ;;
+         4) ask_interface ; ipv6_menu ;;
         11) mode=ol  ; ask_pause ; mode_action ;;
         12) mode=ol2 ; ask_pause ; mode_action ;;
         13) mode=ol3 ; ask_pause ; mode_action ;;
