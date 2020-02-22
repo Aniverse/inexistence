@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.10
-script_version=r23428
+script_update=2020.02.20
+script_version=r23429
 ################################################################################################
 
 usage_guide() {
@@ -65,7 +65,7 @@ type=ifdown
 [[ -z $(which ifconfig) ]] && { echo -e "${green}Installing ifconfig ...${normal}" ; apt-get install net-tools -y  ; }
 [[ -z $(which ifconfig) ]] && { echo -e "${red}Error: No ifconfig!${normal}"  ; exit 1 ; }
 
-################################################################################################
+################################################################################################ 检测 IP 地址
 
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
@@ -84,7 +84,29 @@ while [[ -z $serveripv4 ]]; do
     isValidIpAddress "$serveripv4" || { echo -e "${CW} This is not a valid public IPv4 address, please write your public IPv4: ${normal}" ; unset serveripv4 ; }
 done ; }
 
-interface=$(ip route get 8.8.8.8 | awk '{print $5}')
+################################################################################################## 判断网卡
+
+# 锐速脚本的写法，我稍微改了下。这个不依赖 ip 和 ifconfig，依赖要求最低，但是有的时候可能出错
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+# swizzin 脚本的写法
+wangka2=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+# 忘了哪里看来的了
+#wangka3=$(ip route get 8.8.8.8 | awk '{print $5}')
+# 不配佬写的，稍微改了下
+#wangka4=$(ifconfig | grep 'e.*UP' | awk 'NR==1{print$1}' | sed 's|:||')
+
+# 对比 wangka1 和 wangka2，看看是否一致
+if [[ -n $wangka2 ]]; then
+    if [[ $wangka1 == $wangka2 ]];then
+        interface=$wangka1
+    else
+        interface=$wangka2
+        # 我感觉还是第二种方法准一些
+    fi
+else
+    interface=$wangka1
+fi
+
 sysctl -w net.ipv6.conf.$interface.autoconf=0 > /dev/null
 ik_ipv6="2a00:c70:1:${serveripv4//./:}:1"
 ik_way6="${ik_ipv6/${serveripv4##*.}::1}"
@@ -94,7 +116,6 @@ CCC=$( echo $serveripv4 | awk -F '.' '{print $3}' )
 DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
 
 function _ip() {
-
     echo -e "${bold}正在检查服务器的 IPv4 信息 ...${normal}"
     serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' | head -1 )
     
