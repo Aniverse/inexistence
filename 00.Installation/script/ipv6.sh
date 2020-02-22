@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.20
-script_version=r23429
+script_version=r23430
 ################################################################################################
 
 usage_guide() {
@@ -69,20 +69,26 @@ type=ifdown
 
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
+serveripv4=$( ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' )
 
-#serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
-#isInternalIpAddress "$serveripv4" && serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
-isValidIpAddress "$serveripv4" || {
-unset serveripv4
-echo -e "${CW} Failed to detect your public IPv4 address, please write your public IPv4 address: ${normal}"
-while [[ -z $serveripv4 ]]; do
-    read -e serveripv4
-    isInternalIpAddress "$serveripv4" && { echo -e "${CW} This is INTERNAL IPv4 address, not PUBLIC IPv4 address, please write your public IPv4: ${normal}" ; unset serveripv4 ; }
-    isValidIpAddress "$serveripv4" || { echo -e "${CW} This is not a valid public IPv4 address, please write your public IPv4: ${normal}" ; unset serveripv4 ; }
-done ; }
+function _ip() {
+    echo -e "${bold}正在检查服务器的 IPv4 信息 ...${normal}"
+
+    isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
+    isValidIpAddress    "$serveripv4" || { echo "${red}${shanshuo}WARNING ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${jiacu}" ; serveripv4=$( ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' ) ; }
+
+    echo -e "${bold}正在检查服务器的 IPv6 信息 ...${normal}"
+    serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -1 )
+
+    if [[ -n $serveripv6 ]];then
+        serveripv6_show=$serveripv6
+    else
+        serveripv6_show="未检测到公网 IPv6 地址"
+    fi
+    serveripv4_show=$serveripv4
+}
 
 ################################################################################################## 判断网卡
 
@@ -114,29 +120,9 @@ AAA=$( echo $serveripv4 | awk -F '.' '{print $1}' )
 BBB=$( echo $serveripv4 | awk -F '.' '{print $2}' )
 CCC=$( echo $serveripv4 | awk -F '.' '{print $3}' )
 DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
-
-function _ip() {
-    echo -e "${bold}正在检查服务器的 IPv4 信息 ...${normal}"
-    serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' | head -1 )
-    
-    isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-    isValidIpAddress    "$serveripv4" || { echo "${red}${shanshuo}WARNING ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${jiacu}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' | head -1 ) ; }
-
-    echo -e "${bold}正在检查服务器的 IPv6 信息 ...${normal}"
-    serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -1 )
-
-    if [[ -n $serveripv6 ]];then
-        serveripv6_show=$serveripv6
-    else
-        serveripv6_show="未检测到公网 IPv6 地址"
-    fi
-    serveripv4_show=$serveripv4
-}
     
 function _ipip() {
-    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
+    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (比较慢)${normal}"
     ipip_result=/tmp/ipip_result
     [[ ! -f $ipip_result ]] && wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
 
@@ -176,7 +162,9 @@ function _ipip() {
 
 
 
-################################################################################################
+################################################################################################ 运行相关的 function
+
+
 
 function check_var() {
     [[ -z $IPv6 ]] && echo "${red}No IPv6${normal}" && exit 1
@@ -185,6 +173,7 @@ function check_var() {
 }
 
 # Ikoula 独服（/etc/network/interfaces）
+# 这个是只添加
 function ikoula_interfaces() {
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]] || [[ $force == 1 ]] ; then
         file_backup
@@ -201,6 +190,7 @@ EOF
     fi
 }
 
+# 这个是覆盖重写
 function ikoula_interfaces2() {
     file_backup
     cat << EOF > /etc/network/interfaces
@@ -659,8 +649,8 @@ ${red}<99>${jiacu} 退出脚本
     read -ep "${bold}${yellow}输入对应的数值进行修改${blue}  " response ; echo "${normal}"
     case $response in
          1) read -ep "${bold}输入待配置的 IPv6 地址：${blue}" IPv6   ; echo -n "${normal}" ; ipv6_menu ;;
-         2) read -ep "${bold}输入待配置的 DUID：${blue}" DUID        ; echo -n "${normal}" ; ipv6_menu ;;
-         3) read -ep "${bold}输入待配置的 subnet：${blue}" subnet    ; echo -n "${normal}" ; ipv6_menu ;;
+         2) read -ep "${bold}输入待配置的 DUID：${blue}"      DUID   ; echo -n "${normal}" ; ipv6_menu ;;
+         3) read -ep "${bold}输入待配置的 subnet：${blue}"    subnet ; echo -n "${normal}" ; ipv6_menu ;;
         11) mode=ol  ; ask_pause ; mode_action ;;
         12) mode=ol2 ; ask_pause ; mode_action ;;
         13) mode=ol3 ; ask_pause ; mode_action ;;
@@ -672,8 +662,6 @@ ${red}<99>${jiacu} 退出脚本
          *) exit ;;
     esac
 }
-
-
 
 
 ###########################################################################
@@ -693,8 +681,9 @@ case $mode in
 esac
 }
 
-###########################################################################
+mode_action
 
+###########################################################################
 
 
 
