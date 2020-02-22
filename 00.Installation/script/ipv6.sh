@@ -16,7 +16,7 @@ bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installat
 reboot=no
 ip_check=y
 
-OPTS=$(getopt -o m:d:s:6:rhtc --long "mode:,ipv6:,duid:,subnet:,help,reboot,test,clean" -- "$@")
+OPTS=$(getopt -o m:d:s:6:i:rhtc --long "mode:,ipv6:,duid:,subnet:,interface:,help,reboot,test,clean" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 eval set -- "$OPTS"
 
@@ -26,6 +26,7 @@ while true; do
     -6 | --ipv6   ) IPv6="$2"   ; shift 2 ;;
     -d | --duid   ) DUID="$2"   ; shift 2 ;;
     -s | --subnet ) subnet="$2" ; shift 2 ;;
+    -i | --interface ) interface="$2" ; shift 2 ;;
     -r | --reboot ) reboot=yes  ; shift   ;;
     -h | --help   ) mode=h      ; shift   ;;
     -t | --test   ) mode=t      ; shift   ;;
@@ -630,14 +631,12 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 
 
 function ipv6_menu() {
-
-    clear
     if [[ $ip_check == y ]]; then
         _ip
         _ipip
         ip_check=n
     fi
-
+    clear
     echo -e "
 ${bold}${on_magenta}             IPv6 配置脚本             ${jiacu}
 
@@ -648,10 +647,10 @@ IPv6 地址             ${cyan}$serveripv6_show${jiacu}
 AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
 地理位置              ${cyan}$ipip_Loc${jiacu}
 
-
 操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
 系统支持性            ${cyan}$SysSupport${jiacu}
 脚本可用性            ${cyan}${script_support}${script_support_add}${jiacu}
+
 脚本版本              ${cyan}$script_version ($script_update)${jiacu}
 
 ${on_blue}-------------------- 下列为可修改的参数 --------------------${jiacu}
@@ -676,7 +675,7 @@ ${green}<21>${cyan} Ikoula interfaces （Debian 8/9/10，Ubuntu 16.04）
 ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
 
 ${red}<90>${jiacu} 重启
-${red}<95>${jiacu} 清除本脚本对系统文件的修改
+${red}<95>${jiacu} 移除本脚本的 IPv6 配置
 ${red}<96>${jiacu} 修改脚本使用的 IPv4 地址
 ${red}<97>${jiacu} 再次检查服务器 IP 信息
 ${red}<98>${jiacu} 测试 IPv6 连接性
