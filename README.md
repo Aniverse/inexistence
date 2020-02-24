@@ -275,50 +275,15 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 
 ## IPv6
 
-用于配置 IPv6 的脚本（主要是 Online，Ikoula 不适用），如果第一次运行不成功，可以试着再跑一遍  
-如果你跑了 N 遍都不成功，有一种可能性是你那个 IPv6 本身不可用  
-**2018.11.15 Update：可能跑完后机器会失联，如果这样的话试试后台重启下？**  
-**2019.06.05 Update：不支持 Ubuntu 18.04，以后再更新**  
-**2020.01.07 Update：支持 Ubuntu 18.04 和 Ikoula 的脚本在下边，自己看**  
+IPv6 配置脚本，支持 Scaleway(Online) 和 Ikoula 的独服，支持 Debian 8/9/10，Ubuntu 16.04/18.04  
+注意：Hetzner 和 OVH 的独服，在控制面板装完系统后自带 IPv6，不需要自己配置  
 
 ``` 
-bash -c "$(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6)"
+bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6)
 ``` 
-
-可以在命令里写上 IPv6 的信息（复制粘贴更方便一些）  
-第四项参数网卡名称可以让脚本自动检测，也可以手动指定  
-```
-wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6  
-bash ipv6 [address] [subnet] [DUID] [interface]  
-bash ipv6 2001:3bc8:2490:: 48 00:03:00:02:19:c4:c9:e3:75:26 enp2s0  
-bash ipv6 [address] [subnet] [DUID]  
-bash ipv6 2001:cb6:2521:240:: 57 00:03:00:01:d3:3a:15:b4:43:ad  
-```
-
-![ipv6.01](https://github.com/Aniverse/filesss/raw/master/Images/ipv6.01.png)
-
-## IPv6.sh
-
-新一代 IPv6 配置脚本，支持 Online 和 Ikoula，支持 Debian 8/9/10，Ubuntu 16.04/18.04  
-还不是很完善，怎么用自己看代码吧……我目前懒得写了  
-
+可以使用参数来简化操作，更详细的参数请用 `-h` 查看  
 ``` 
-# 显示帮助
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -h
-# 测试 IPv6 是否可用
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -t
-# Online Ifdown, 适用于 Debian 8/9/10, Ubuntu 16.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol  -6 [address] -d [DUID] -s [subnet]
-# Online netpaln, 适用于 Ubuntu 18.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol2 -6 XXX -d XXX -s 56
-# Online dibbler, 适用于 Debian 8/9/10, Ubuntu 16.04/18.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol3 -6 XXX -d XXX -s 56
-# Online odhcp6c, 适用于 Debian 8/9/10, Ubuntu 16.04/18.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol4 -6 XXX -d XXX -s 56
-# Ikoula Debian 8/9/10, Ubuntu 16.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ik
-# Ikoula Ubuntu 18.04
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ik2
+bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -6 [address] -d [DUID] -s [subnet]
 ``` 
 
 
@@ -329,7 +294,8 @@ bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installat
 
 ## xiansu
 
-**2019.06.05 作者吐槽：这玩意儿有点时泪了的感觉，现在都是 OP 和 Hz，辣鸡 Online，限速涨价， 呸！**  
+**吐槽：这玩意儿有点时泪了的感觉，目前大多数机器不用限速，如果要限速你就扔了算了（传家宝除外）**  
+**此外目前这个脚本还有一个作用：当你的 de 失联进不去的时候，用这个脚本限速到比较低的速度就容易进去**  
 用于给盒子限制全局上传速度的脚本，适用于保证带宽有限的盒子，比如 Online.net 的一些独服  
 更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
 直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况  
