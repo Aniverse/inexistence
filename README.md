@@ -22,25 +22,25 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 
 ## Installation Guide
 
-![脚本参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.09.png)
+![脚本参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.09.png)
 
 脚本支持自定义参数，具体参数的说明在下文中有说明  
 
-![引导界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.01.png)
+![引导界面](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.01.png)
 
 检查是否以 root 权限来运行脚本，检查公网 IP 地址与系统参数  
 
-![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.1.png)
-![升级系统](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.02.2.png)
+![升级系统](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.02.1.png)
+![升级系统](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.02.2.png)
 
-支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9 / 10` ，其他系统不支持  
+支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9 / 10` ，`Ubuntu 14.04` 和 `Debian 7` 可以用脚本升级，其他系统不支持  
 使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
-![系统信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.03.png)
+![系统信息](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.03.png)
 
 显示系统信息以及注意事项  
 
-![安装时的选项](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.04.png)
+![安装时的选项](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.04.png)
 
 1. ***是否升级系统***  
 低于 `Ubuntu 18.04`、`Debian 10` 的 LTS 系统可以选择用脚本升级系统  
@@ -86,7 +86,7 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 
 7. ***qBittorrent***  
 **`--qb 4.2.1`**、**`--qb ppa`**、**`--qb No`**  
-注意：目前脚本安装的 flexget 和 qBittorrent 4.2.1 不兼容  
+注意：目前脚本安装的 flexget 2.X 和 qBittorrent 4.2.1 不兼容  
 
 
 8. ***Deluge***  
@@ -105,14 +105,16 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 
 
 9. ***libtorrent-rasterbar***  
+**`--lt RC_1_0`**、**`--lt RC_1_1`**、**`--lt system`**、**`--lt 1.1.12`**  
 要安装 Deluge 或者 qBittorrent 中的任意一个，就必须安装 libtorrent-rasterbar，因为 libtorrent-rasterbar 是这两个软件所使用的后端  
+如果你对这个选项不甚了解，请使用脚本给出的默认选项，避免潜在的麻烦  
 从 Deluge 2.0 或 qBittorrent 4.1.4 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
 需要注意的是，这个 libtorrent-rasterbar 和 rTorrent 所使用的 libtorrent 是不一样的，切勿混淆  
 Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/arvidn/libtorrent)，rTorrent 使用的则是 [libtorrent-rakshasa](https://github.com/rakshasa/libtorrent)  
 
 
 10. ***rTorrent***  
-**`--rt 0.9.4`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
+**`--rt 0.9.8`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的  
 注意，`Ubuntu 18.04` 和 `Debian 9/10` 因为 OpenSSL 的原因，只能使用 0.9.6 及以上的版本，更低版本无法直接安装  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar，h5ai 目录列表程序  
@@ -172,7 +174,7 @@ VNC 目前可能会存在问题，作者一时半会儿懒得修复了……
 
 16. ***Flexget***  
 **`--flexget-yes`**、**`--flexget-no`**  
-Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运行  
+Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运行（不支持 Deluge 2.0 和 qBittorrent 4.2）  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己设置  
 
@@ -199,12 +201,12 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 - 修改 screenrc 设置  
 
 
-![确认信息](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.05.png)
+![确认信息](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.05.png)
 
 如果你哪里写错了，先退出脚本重新选择；没什么问题的话就敲回车继续  
 使用 ***`-y`*** 可以跳过开头的信息确认和此处的信息确认，配合其他参数可以做到无交互安装  
 
-![使用参数](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.10.png)
+![使用参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.10.png)
 
 
 
@@ -213,15 +215,15 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 
 
 
-![安装完成界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.06.png)
+![安装完成界面](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.06.png)
 
 安装完成后会输出各类 WebUI 的网址，以及本次安装花了多少时间，然后问你是否重启系统（默认是不重启）  
 
-![安装失败界面](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.07.png)
+![安装失败界面](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.07.png)
 
 如果报道上出现了偏差，会提示你如何查看日志（报错时请务必附上日志！）  
 
-![WebUI](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/inexistence.08.png)
+![WebUI](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.08.png)
 
 最后打开浏览器检查下各客户端是否都能正常访问，一般是没问题的……  
 
@@ -235,15 +237,15 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更，说真的这个东西我自己都懒得用  
 不做具体的介绍了，直接看图吧  
 
-![mingling.00](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.00.png)
-![mingling.01](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.01.png)
-![mingling.02](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.02.png)
-![mingling.03](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.03.png)
-![mingling.04](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.04.png)
-![mingling.05](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.05.png)
-![mingling.06](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.06.png)
-![mingling.07](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.07.png)
-![mingling.08](https://github.com/Aniverse/inexistence/raw/master/03.Files/images/mingling.08.png)
+![mingling.00](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.00.png)
+![mingling.01](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.01.png)
+![mingling.02](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.02.png)
+![mingling.03](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.03.png)
+![mingling.04](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.04.png)
+![mingling.05](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.05.png)
+![mingling.06](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.06.png)
+![mingling.07](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.07.png)
+![mingling.08](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.08.png)
 
 
 
@@ -257,15 +259,15 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本  
 运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
 
-![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.01.png)
+![bdinfo输出结果](https://github.com/Aniverse/pics/raw/master/aBox/bdinfo.01.png)
 
 如果没有 mono 或 BDinfo-Cli 的话，可以先运行 `bluray` 或者 `inexistence` 脚本安装需要的软件  
 
-![bdinfo运行过程](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.02.png)
+![bdinfo运行过程](https://github.com/Aniverse/pics/raw/master/aBox/bdinfo.02.png)
 
 可以选择需要扫描的 mpls  
 
-![bdinfo输出结果](https://github.com/Aniverse/filesss/raw/master/Images/bdinfo.03.png)
+![bdinfo输出结果](https://github.com/Aniverse/pics/raw/master/aBox/bdinfo.03.png)
  
 
 
@@ -306,7 +308,7 @@ xiansu [interface] [uploadspeed,Mbps]
 xiansu eth0 300
 ```
 
-![xiansu.01](https://github.com/Aniverse/filesss/raw/master/Images/xiansu.01.png)
+![xiansu.01](https://github.com/Aniverse/pics/raw/master/aBox/xiansu.01.png)
 
 
 
@@ -329,7 +331,7 @@ jietu [path/to/folder]
 jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"  
 ```
 
-![jietu.01](https://github.com/Aniverse/filesss/raw/master/Images/jietu.01.png)
+![jietu.01](https://github.com/Aniverse/pics/raw/master/aBox/jietu.01.png)
 
 
 
@@ -342,12 +344,12 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 用于把 ISO 挂载成文件夹的脚本，使用的是 mount 命令，因此一般来说需要 root 权限才能运行  
 
-![guazai.03](https://github.com/Aniverse/filesss/raw/master/Images/guazai.03.png)
+![guazai.03](https://github.com/Aniverse/pics/raw/master/aBox/guazai.03.png)
 
 `guazai` 后输入文件名则挂载那个文件  
 
-![guazai.01](https://github.com/Aniverse/filesss/raw/master/Images/guazai.01.png)
-![guazai.02](https://github.com/Aniverse/filesss/raw/master/Images/guazai.02.png)
+![guazai.01](https://github.com/Aniverse/pics/raw/master/aBox/guazai.01.png)
+![guazai.02](https://github.com/Aniverse/pics/raw/master/aBox/guazai.02.png)
 
 `guazai` 后输入路径则会寻找该路径下的所有 ISO 进行挂载  
 直接输入 `guazai`，会在当前目录下寻找 ISO 挂载  
@@ -362,7 +364,7 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 解除挂载用的脚本，会把能检测到的所有已挂载的 ISO 全部解除挂载
 
-![jiegua.01](https://github.com/Aniverse/filesss/raw/master/Images/jiegua.01.png)
+![jiegua.01](https://github.com/Aniverse/pics/raw/master/aBox/jiegua.01.png)
 
 `guazai` + `jietu` + `jiegua` 三连
 
