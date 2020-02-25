@@ -122,11 +122,3 @@ cd boost_1_65_1
 ldconfig
 cd ..
 ```
-
-
-
-
-
-
-
-
