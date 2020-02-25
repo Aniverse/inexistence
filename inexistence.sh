@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.3
-INEXISTENCEDATE=2020.02.15
+INEXISTENCEVER=1.1.4.4
+INEXISTENCEDATE=2020.02.25
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1954,7 +1954,7 @@ else
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
-        apt-get -y install build-essential checkinstall pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
+        apt-get -y install build-essential pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
         libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
         if [[ $CODENAME =~ (stretch|xenial) ]]; then
             mkdir -p /tmp/qb ; cd /tmp/qb
@@ -1963,7 +1963,7 @@ else
             wget -qO qt512svg_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512svg_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512declarative_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512declarative_5.12.6-1basyskom1_amd64.deb
             wget -qO qt512base_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512base_5.12.6-1basyskom1_amd64.deb
-            apt -yqq install ./*deb
+            apt-get -yqq install ./*deb
             rm -rf /tmp/qb
         else
             apt-get -yqq install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
