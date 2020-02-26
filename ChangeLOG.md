@@ -266,6 +266,15 @@
 
 
 
+## 2019.09.08
+
+`FILES`  
+- Add deluge.1.3.15.skip.no.full.allocate.patch
+
+
+
+
+
 ## 2019.08.21
 
 `inexistence 1.1.2.24`  
@@ -277,7 +286,7 @@
 
 
 
-## 2019.07.11/12/15
+## 2019.07.11/12/15 separate-script
 
 `the inexistence project`  
 - 删除 unrarll、spdtest、update-tracker.py 等现在用不到的文件和脚本  
@@ -291,11 +300,15 @@
 `rclone uninstall`  
 - add status check  
 
+`separate-script branch`
+1.  Add separate script of wine, mono install and uninstall
+2. 其他的改了一堆，我都懒得写了。。。  
 
 
 
 
-## 2019.07.10
+
+## 2019.07.10 Debian 10
 
 我特么的看 commits 看晕了，得上链接对比了：  
 https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada  
@@ -330,13 +343,16 @@ https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada
 
 
 
-## 2019.07.09
+## 2019.07.08/09
 
 `inexistence 1.1.2.13`  
 1. Feature：为 Debian 系统开启 backports 源支持（如果原来没有的话）  
 2. **Feature：添加 ruby-dev 包，并安装 fpm**  
 3. Feature：改进 mono 安装  
 4. Feature：源码编译 vnstat 移动到后边  
+
+`FILES`  
+- Add bbr for kernel 5.1 & 5.2  
 
 
 
@@ -468,6 +484,9 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 5. 代码优化  
 6. 新增 function Deprecated  
 
+`FILES`  
+- Add sihuo (de/qb)  
+
 
 
 
@@ -490,6 +509,12 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 `mingling 0.9.2.004`
 - 清理代码  
 
+`FILES`  
+1. Add rt fast resume  
+2. Add tcp.cc (from qss)   
+3. Add rTorrent patches  
+4. README 更新软件的下载链接、编译方式  
+
 
 
 
@@ -504,11 +529,15 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 5. Codes：移除部分 wget 的 `--no-check-certificate`  参数和 `-O`  
 
 `install_libtorrent_rasterbar r10027`  
-1. **支持 Debian 10**  
+1. **初步支持 Debian 10**  
 2. 结合 function 简化代码  
 
 `function`  
 1. **初始化**  
+
+`FILES`  
+1. **新增 README**   
+2. Add TorrentGrid.js for Deluge 1.3.15.dev0  
 
 
 
@@ -517,7 +546,7 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 ## 2019.05.11 files 
 
 `the inexistence project`  
-**新增 files 分支**  
+- **新增 files 分支**  
 
 `inexistence 1.1.1`  
 1. **Bump version to 1.1.1**  
@@ -530,6 +559,9 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 8. Codes：移除部分 wget 的 `--no-check-certificate`  参数  
 9. Feature：更新 ffmpeg 的下载与安装  
 10. `grep buster /etc/os-release -q && CODENAME=buster`  
+
+`inexistence files`  
+- 这时候只加了 logo  
 
 
 
@@ -665,7 +697,7 @@ https://github.com/Aniverse/inexistence/compare/2164c6e...949f69e
 
 `inexistence 1.1.0`  
 1. **Bump version to 1.1.0**  
-距离上次快半年了……其实这次是因为除了修改 naive 外不知道改什么了就干脆升级版本号了  
+距离上次版本变动快半年了……其实这次是因为除了修改 naive 外不知道改什么了就干脆升级版本号了  
 2. UI：修复 Naive 拼错的问题  
 
 `alias 102`  
