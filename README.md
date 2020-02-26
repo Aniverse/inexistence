@@ -19,6 +19,10 @@
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
 
+```
+bash <(wget -qO- https://git.io/abcde)
+```
+
 ## Installation Guide
 
 ![脚本参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.09.png)
