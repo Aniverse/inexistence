@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.01.15
-script_version=r10010
+script_update=2020.02.26
+script_version=r11000
 ################################################################################################
 
 # Usage:      . s-alias
@@ -157,22 +157,30 @@ alias s-end="echo && cat $LogBase/end.log"
 
 setcolor
 
+HISTFILESIZE=4000
+HISTSIZE=4000
+export HISTTIMEFORMAT="${yellow}[%F]${cyan}[%T]${normal} "
+
+if [[ \$1 == 1 ]];then
+    echo -e "\\n${green}Customed alias is enabled${normal}\\n"
+fi
+
 ################## Inexistence Mod END ##################
 EOF
 
 # Do not give this script execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
+# And which s-alias will return nothing, while command -v s-alias returns /usr/local/bin/s-alias
 chmod 644 /usr/local/bin/s-alias
 
-[[ $IntoBashrc == IntoBashrc ]] && {
-# This may delete user's configuration
-while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
-    sed -i '$d' /etc/bash.bashrc
-done
-# sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
-sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc
-}
+if [[ $IntoBashrc == IntoBashrc ]]; then
+    # This may delete user's configuration
+    # while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
+    #     sed -i '$d' /etc/bash.bashrc
+    # done
 
-cat << EOF >> /usr/local/bin/s-alias
-echo "${green}Customed alias is enabled if your current pwd is /etc/inexistence${normal}"
-cd /etc/inexistence
-EOF
+    # sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
+    # sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc
+
+    sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc
+    echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc
+fi
