@@ -1,6 +1,258 @@
 # ChangeLog  
 
 
+## 2020.02.25-26
+
+`ChangeLog`
+1. 快一年没更新 changelog 了吧……  
+2. 先更新 2020 年的  
+
+`the inexistence project`  
+1. **删除 commits 历史中的无用文件**  
+目前把整个项目的体积从 950MiB+ 缩减到了 5.3MiB  
+图片部分移动到了 pics 项目，bdinfocli 选择从 bluray 项目下载  
+各类 deb 目前从 SourceForge 下载  
+2. **删除了旧的 tags**  
+3. 更新 Deluge 设置，缓存大小默认 32768，不再启用 `sidebar_show_zero`  
+
+`inexistence`  
+1. Bug Fix：删除了安装 qt 时依赖里的 `checkinstall`  
+现在 buster 好像又没有 `checkinstall` 的包了……  
+2. Bug Fix：在安装 qt512 的时候，使用 `apt-get` 代替 `apt`  
+3. Bug Fix：只有 `lspci | grep -i bcm` 有反馈时才会下载 bnx2 固件  
+4. Codes：因为移除了 repo 里的 bdinfocli，因此改为从 bluray 项目上下载  
+5. Feature：使用 patch 的方式给 de 1.3.15 加上跳校验功能
+现在这个设置和 `--sihuo` 也兼容了  
+6. Feature：设置 $PATH，解决部分机器环境变量不包含特定路径的问题  
+
+`alias r11000`
+1. **使用 source 的方式添加到 `/etc/bash.bashrc`**  
+避免了大幅修改系统文件，也让修改变得更省力  
+2. 添加了对 HISTSIZE、HISTTIMEFORMAT 的修改  
+3. 改进了 `Customed alias is enabled` 的提示方式  
+现在是输入 `. s-alias 1` 来激活，也不用 cd 到目录了  
+
+`README`
+1. 添加了短网址的 usage  
+2. 更新了图片的链接到另外一个图床专用的项目  
+3. 更新了 `--lt` 参数的用法  
+4. 更新了 `--de 1.3.15_skip_hash_check` 的用法  
+5. **增加 Notes 部分，提醒不一定兼容 Xen 和 OpenVZ 架构**  
+
+
+
+
+
+## 2020.02.20-24
+
+`ipv6 Gen3`
+1. Feature：更完善的网卡判断机制  
+2. BugFix：修复 ipip 检测 AS 信息丢失的问题  
+3. Feature：检查参数时，不退出脚本，而是让用户补全参数  
+4. UI：隐藏解压 dibbler 源码时的输出  
+5. UI：检查连接性时的文字改为中文  
+6. UI：小修小补，添加换行／空格之类的  
+7. 询问参数改为 function，方便 check_var 调用  
+8. BugFix：修复一次脚本运行中多次显示 menu 时，每次都要检查 IP 的问题  
+9. Menu：添加重启、清除脚本配置文件、再次检查 IP、手动修改 IPv4 地址的功能  
+10. Menu：加入脚本版本显示
+11. Feature：可以修改脚本检测到的网卡名称  
+12. Feature：增加 `-i` 参数，用于指定网卡  
+13. BugFix：移除脚本配置时，关闭 odhco6c 服务  
+14. **Bump version to Generation 3**  
+15. BugFix：修复 cli 下使用 `-m` 参数没反应的问题  
+16. 之后的移到 aBox 去更新了。。。。。  
+
+`README`
+1. **更新 ipv6 脚本的说明**  
+老的 ipv6 脚本的说明直接移除  
+2. **efs nb!**  
+添加了 `QuickBox Lite` 和 `QuickBox ARM` 项目的宣传  
+3. **加了 QQ 群的介绍到显目位置**
+然而并没有什么卵用~  
+4. 更新英文说明，提醒没有 plex, emby, nzb  
+
+
+
+
+
+## 2020.02.13-15
+
+`inexistence 1.1.4.3`  
+1. Feature：增加 gclone  
+2. BugFix：使用 `apt-mark hold` 修复 transmission 2.94 deb 被 `apt upgrade` 的问题  
+3. Feature：qBittorrent 默认版本改为 4.1.9  
+主要是因为某瓷器不支持 4.1.9.1  
+
+`alias`
+修复 gclone 冲突的问题  
+
+
+
+
+
+## 2020.02.10
+
+`ipv6 Gen2`
+1. **Feature：增加 ipip 检测**  
+2. **Feature：根据 ASN 判断脚本是否支持**  
+3. **Feature：增加菜单**  
+
+
+
+
+
+## 2020.02.08
+
+`the inexistence project`  
+**迁移大量下载链接到 SourceForge**  
+为之后项目瘦身做准备  
+
+`inexistence 1.1.4.1`  
+1. **Bump version to 1.1.4**  
+2. Feature：增加 `--tr-deb` 参数，安装 efs 的 tr 2.94 deb  
+3. Feature：增加 `--skip-system-upgrade` 参数，允许跳过系统升级检测  
+4. BugFix：修复安装 vnstat 编译依赖时 `apt-get` 没用 `-y` 的问题  
+
+
+
+
+
+## 2020.01.27
+
+`inexistence 1.1.3.12`  
+1. **Feature：libtorrent-rasterbar 升级到 1.1.14，统一使用 efs 的 deb**  
+2. Feature：简化 fpm 的安装  
+3. Feature：移除 Debian10 专用的 checkinstall 安装  
+
+`00.Installation\package\qbittorrent\configure`
+**Feature：编译 libqbpasswd，不使用编译好的文件**   
+
+`deluge-update-tracker r20005`  
+更新脚本内注释部分的 Usage  
+
+
+
+
+
+## 2020.01.19
+
+`the inexistence project`  
+1. 更新 systemd 配置文件，关闭使用 kill -9 $MAINPID  
+（然而似乎不太好用）  
+2. 更新 systemd 配置文件，LimitNOFILE 从 666666 改为 infinity  
+（似乎改了以后上限反而变低了……从 666666 变 65536 了）  
+3. qb 的 systemd 不再指定端口  
+4. tr 的 systemd 指定配置文件路径，并加入 reload action  
+
+`inexistence 1.1.3.12`  
+1. **Feature：transmission 默认使用 efs 的 2.94 deb**  
+
+`alias`  
+更新了 del、dewl、trl  
+
+`README`
+1. 更新 transmission 部分的说明  
+2. 更新 `ipv6.sh` 的使用说明，加上了详细用法  
+
+
+
+
+
+## 2020.01.06/07/14
+
+`the inexistence project`  
+1. **建立了一个脚本交流的 QQ 群**  
+（我个人不习惯 TG）  
+2. **建立了一个 gist，放一些网址和群公告**  
+3. 同步 ipv6 脚本的改动  
+
+`inexistence 1.1.3.9`  
+1. BugFIx：改进 flexget 依赖安装  
+2. Feature：transmission apt 安装时增加 transmission-cli  
+
+`deluge-update-tracker r20004`
+1. 增加 usage  
+2. 彩色化日志  
+3. 增加 deluge-console 检测  
+4. 增加命令行参数支持，`--log`、`--clean`  
+5. 增加 `*Error*|*timed*out` 的 tracker 状态错误判断  
+
+`ipv6 Gen2`
+1. Feature：新增 `-r`、`-h`、`-t`、`-c` 选项
+2. Feature：用 function check_var 检查变量*  
+3. Feature：Ikoula netplan 改为覆盖式写入  
+4. **Feature：各个单独的步骤都 function 化**  
+5. **Feature：新增 online_dibbler**  
+6. **Feature：新增 online_odhcp6c**  
+7. **Feature：新增清理脚本对系统文件修改的功能**  
+8. **Feature：新增帮助界面**  
+9. **Feature：新增测试界面**  
+
+`alias r10009`
+1. `yongle` 的单位改为 GiB  
+2. 加入 `fiobench`、`dddd=rm -rf`  
+3. `swap-on` → `swapon`  
+
+`README`
+1. 针对最近的脚本改动进行更新  
+2. 去除了 qb 3.3.17 的说明  
+3. Deluge 2.0.3 相关提示  
+4. 系统支持方面的更新  
+5. Flexget python2.7 的提示  
+6. 加入 `ipv6.sh` 的介绍  
+7. **在底部加了群号**  
+
+
+
+
+
+## 2020.01.02
+
+`inexistence 1.1.3.7`  
+1. **Feature：增加 qbittorrent 4.2.1**  
+2. **Feature：增加 qt 5.12**  
+3. Feature：增加安装 gnupg  
+4. UI：qBittorrent 选项顺序调整  
+5. **Feature：增加 Deluge 2.0.3**  
+6. UI：去掉一些几乎没人用的 tr 版本选项  
+
+
+
+
+
+
+
+
+
+
+# ================= 2020 =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -383,6 +635,7 @@ PS：没动 `inexistence.sh` 文件的话小版本号就不动
 1. Bug Fix：修复开了 swap 但没删掉临时文件的问题  
 2. Feature：Ctrl+C 退出时恢复字体样式    
 3. Improvement：更新 deluge-update-tracker 脚本  
+
 
 
 
