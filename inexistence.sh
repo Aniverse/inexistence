@@ -5,18 +5,15 @@
 #
 # --------------------------------------------------------------------------------
 usage() {
+bash <(wget -qO- https://git.io/abcde)
 bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
 }
 
-tmp_1() {
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-export PATH
-}
 # --------------------------------------------------------------------------------
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.6
+INEXISTENCEVER=1.1.4.7
 INEXISTENCEDATE=2020.02.26
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -86,6 +83,8 @@ esac ; done
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$PATH
+
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
