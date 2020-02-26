@@ -4,24 +4,24 @@
 > Just a seedbox script, no Plex, no Emby, no NZB support.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
 
-> 警告：不保证本脚本能正常使用，翻车了不负责；使用前还请三思  
-> 建议重装完系统后安装本脚本，非全新安装的情况下翻车几率比较高  
-
 > [基本没人来的本脚本交流群，有事别问群主](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
 > 安利一下 efs 巨佬的牛逼盒子脚本，比我的脚本好多了：[QuickBox Lite](https://github.com/amefs/quickbox-lite)  
 > ARM 用户（树莓派、SYS ARM 独服等）可以试试这个：[QuickBox ARM](https://github.com/amefs/quickbox-arm)  
 
-由于作者很懒+喜欢咕咕，本文内容更新频率比较低，有些内容和当前的脚本可能已经不一样了，凑合着看吧。  
+## Notes
+
+1. 只在独服和 KVM 虚拟化的 VPS 下测试通过，OpenVZ、Xen 等其他架构不保证没问题  
+2. 作者很懒，本文的使用说明更新并不及时，尤其是图片是一两年前的，与当前脚本存在较大出入  
+3. 建议重装完系统后使用此脚本，非全新安装的情况下不确定因素太多容易翻车  
 
 ## Usage
 
 ```
-bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
-```
-
-
-```
 bash <(wget -qO- https://git.io/abcde)
+```
+
+```
+bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
 
 ## Installation Guide
@@ -94,7 +94,7 @@ bash <(wget -qO- https://git.io/abcde)
 
 
 8. ***Deluge***  
-**`--de '1.3.15 (Skip hash check)'`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
+**`--de 1.3.15_skip_hash_check`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
 默认选项为从源码安装 1.3.15  
 2.0.3 目前运行在 Python 2.7 下，且仍然有较多 PT 站不支持 2.0.3  
 此外还会安装一些实用的 Deluge 第三方插件：  
