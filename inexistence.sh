@@ -16,8 +16,8 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.4
-INEXISTENCEDATE=2020.02.25
+INEXISTENCEVER=1.1.4.5
+INEXISTENCEDATE=2020.02.26
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -332,10 +332,7 @@ echo "${bold}Checking your server's public IPv6 address ...${normal}"
 serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
 # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
 
-# 2018.10.10 重新启用对于网卡的判断。我忘了是出于什么原因我之前禁用了它？
-# 2019.04.09 有些特殊情况，还是再改下
-# 最好不要依赖 ifconfig，因为说不定系统里没有 ifconfig
-wangka=$(ip route get 8.8.8.8 | awk '{print $5}')
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
 # serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
 
 echo -e "${bold}Checking your server's specification ...${normal}"
@@ -1812,6 +1809,19 @@ mkdir -p /etc/inexistence/10.Demux
 mkdir -p /etc/inexistence/11.Remux
 mkdir -p /etc/inexistence/12.Output2
 
+# Bluray Tools
+if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
+    mkdir -p /etc/inexistence/02.Tools
+    cd /etc/inexistence/02.Tools
+    svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
+    mv -f BDinfoCli.0.7.3 BDinfoCli
+  # wget -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/BDTools/BDinfoCli.0.7.5.tar.gz && tar zxf BDinfoCli.0.7.5.tar.gz && rm -f BDinfoCli.0.7.5.tar.gz
+fi
+
+if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
+    wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/inexistence/02.Tools/bdinfocli.exe
+fi
+
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
 sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
@@ -2434,11 +2444,15 @@ touch $LockLocation/bbr.lock ; }
 
 
 # Install firmware for BCM NIC
-# if lspci | grep -iq bcm ; then bnx2_firmware ; fi
 function bnx2_firmware() {
-mkdir -p /lib/firmware/bnx2 && cd /lib/firmware/bnx2
-bnx2="bnx2-mips-09-6.2.1b.fw bnx2-mips-06-6.2.3.fw bnx2-rv2p-09ax-6.0.17.fw bnx2-rv2p-09-6.0.17.fw bnx2-rv2p-06-6.0.15.fw"
-for f in $bnx2 ; do wget -nv -N https://sourceforge.net/projects/inexistence/files/firmware/bnx2/$f/download -O $f ; done ; }
+    if lspci | grep -i bcm >/dev/null; then
+        mkdir -p /lib/firmware/bnx2 && cd /lib/firmware/bnx2
+        bnx2="bnx2-mips-09-6.2.1b.fw bnx2-mips-06-6.2.3.fw bnx2-rv2p-09ax-6.0.17.fw bnx2-rv2p-09-6.0.17.fw bnx2-rv2p-06-6.0.15.fw"
+        for f in $bnx2 ; do
+            wget -nv -N https://sourceforge.net/projects/inexistence/files/firmware/bnx2/$f/download -O $f
+        done
+    fi
+}
 
 
 
