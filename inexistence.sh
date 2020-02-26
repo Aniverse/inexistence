@@ -16,7 +16,7 @@ export PATH
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.5
+INEXISTENCEVER=1.1.4.6
 INEXISTENCEDATE=2020.02.26
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2059,16 +2059,16 @@ else
     [[ $Deluge_2_later == Yes ]] && pip install --upgrade twisted pillow rencode pyopenssl
     cd $SourceLocation
 
-    if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
-        export de_version=1.3.15
-        wget -nv -N "https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz"
-        tar xf deluge-1.3.15.skip.tar.gz
-        rm -f deluge-1.3.15.skip.tar.gz
-        cd deluge-1.3.15
+#   if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
+#       export de_version=1.3.15
+#       wget -nv -N "https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Deluge/deluge-1.3.15.skip.tar.gz"
+#       tar xf deluge-1.3.15.skip.tar.gz
+#       rm -f deluge-1.3.15.skip.tar.gz
+#       cd deluge-1.3.15
 #   elif [[ $de_version == 2.0.3 ]]; then
 #       git clone -b develop https://github.com/deluge-torrent/deluge deluge-$de_version
 #       cd deluge-$de_version
-    elif [[ $de_version == 2.0.3 ]]; then
+    if [[ $de_version == 2.0.3 ]]; then
         while true ; do
             wget https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
             sleep 1
@@ -2086,11 +2086,17 @@ else
         cd deluge*$de_version
     fi
 
+    if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
+        wget https://raw.githubusercontent.com/Aniverse/inexistence/files/miscellaneous/deluge.1.3.15.skip.no.full.allocate.patch \
+        -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+        cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
+        patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+    fi
+
     ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
     ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
     ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
     ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
-
     if [[ $Deluge_ssl_fix_patch == Yes ]]; then
         sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
         sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
@@ -2103,8 +2109,10 @@ else
     fi
 
     # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
-    [[ $sihuo == yes ]] && {
-    wget -nv https://sourceforge.net/projects/inexistence/files/personal/deluge.1.3.15.deluge-all.js/download -O deluge/ui/web/js/deluge-all.js ; }
+    # 不然每次换浏览器以及手机登录都要重新修改排序什么的，烦死了
+    if [[ $sihuo == yes ]]; then
+        wget -nv https://sourceforge.net/projects/inexistence/files/personal/deluge.1.3.15.deluge-all.js/download -O deluge/ui/web/js/deluge-all.json
+    fi
 
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
