@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.7
-INEXISTENCEDATE=2020.02.26
+INEXISTENCEVER=1.1.4.8
+INEXISTENCEDATE=2020.02.27
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -2076,6 +2076,7 @@ else
         rm -f deluge-$de_version.tar.xz
         cd deluge-2.0.3
     else
+        [[ $Deluge_1_3_15_skip_hash_check_patch == Yes  ]] && de_version=1.3.15
         while true ; do
             wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
             sleep 1
