@@ -19,6 +19,7 @@
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
 
+
 ```
 bash <(wget -qO- https://git.io/abcde)
 ```
