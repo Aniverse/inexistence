@@ -68,7 +68,7 @@
 老的 ipv6 脚本的说明直接移除  
 2. **efs nb!**  
 添加了 `QuickBox Lite` 和 `QuickBox ARM` 项目的宣传  
-3. **加了 QQ 群的介绍到显目位置**
+3. **加了 QQ 群的介绍到显目位置**  
 然而并没有什么卵用~  
 4. 更新英文说明，提醒没有 plex, emby, nzb  
 
@@ -85,7 +85,7 @@
 主要是因为某瓷器不支持 4.1.9.1  
 
 `alias`
-修复 gclone 冲突的问题  
+- 修复 gclone 冲突的问题  
 
 
 
@@ -105,7 +105,7 @@
 ## 2020.02.08
 
 `the inexistence project`  
-**迁移大量下载链接到 SourceForge**  
+-  **迁移大量下载链接到 SourceForge**  
 为之后项目瘦身做准备  
 
 `inexistence 1.1.4.1`  
@@ -126,10 +126,10 @@
 3. Feature：移除 Debian10 专用的 checkinstall 安装  
 
 `00.Installation\package\qbittorrent\configure`
-**Feature：编译 libqbpasswd，不使用编译好的文件**   
+- **Feature：编译 libqbpasswd，不使用编译好的文件**  
 
 `deluge-update-tracker r20005`  
-更新脚本内注释部分的 Usage  
+- 更新脚本内注释部分的 Usage  
 
 
 
@@ -138,10 +138,8 @@
 ## 2020.01.19
 
 `the inexistence project`  
-1. 更新 systemd 配置文件，关闭使用 kill -9 $MAINPID  
-（然而似乎不太好用）  
-2. 更新 systemd 配置文件，LimitNOFILE 从 666666 改为 infinity  
-（似乎改了以后上限反而变低了……从 666666 变 65536 了）  
+1. 更新 systemd 配置文件，关闭使用 kill -9 $MAINPID（然而似乎不太好用）  
+2. 更新 systemd 配置文件，LimitNOFILE 从 666666 改为 infinity（似乎改了反而降低到 65536 了）  
 3. qb 的 systemd 不再指定端口  
 4. tr 的 systemd 指定配置文件路径，并加入 reload action  
 
@@ -149,7 +147,7 @@
 1. **Feature：transmission 默认使用 efs 的 2.94 deb**  
 
 `alias`  
-更新了 del、dewl、trl  
+- 更新了 del、dewl、trl  
 
 `README`
 1. 更新 transmission 部分的说明  
@@ -162,10 +160,9 @@
 ## 2020.01.06/07/14
 
 `the inexistence project`  
-1. **建立了一个脚本交流的 QQ 群**  
-（我个人不习惯 TG）  
+1. **建立了一个脚本交流的 QQ 群**（我个人不习惯 TG）  
 2. **建立了一个 gist，放一些网址和群公告**  
-3. 同步 ipv6 脚本的改动  
+3. 从 separate-script 分支同步 ipv6 脚本的改动  
 
 `inexistence 1.1.3.9`  
 1. BugFIx：改进 flexget 依赖安装  
@@ -237,22 +234,374 @@
 
 
 
+## 2019.11.06/09
+
+`inexistence`  
+1. **Merge pull request #53 from DieNacht/master**  
+距离上一个 pr 很久了呢  
+2. **Bump version to 1.1.13**  
+3. BugFix：修复 DN 忘记加 python-libtorrent deb 包的问题  
+
+`Updates from PR`
+1. **Feature：增加 Debian10 的预编译 deb 包，from efs**  
+2. **Feature：允许各类老系统升级到最新的 LTS**  
+具体来说，现在新增了 Debian 8/9 升级到 9/10，Ubuntu 16.04 升级到 18.04  
+3. **Feature：增加 qBittorrent 4.1.9.1 并设为默认选项**  
+4. Codes：去掉了一些多余的空格  
+
+
+
+
+
+## 2019.10.16
+
+`inexistence 1.2.2.25`  
+1. Feature：新增 qBittorrent 4.1.8 选项，移除 4.1.6 选项  
+
+`jietu r20047`  
+1. 同步另外一个分支的更新  
+2. 改进分辨率计算，注释掉旧的代码  
+
+
+
+
+
+## 2019.08.21
+
+`inexistence 1.1.2.24`  
+1. **Feature：增加 rTorrent 0.9.8 和 feature-bind 选项**  
+2. Feature：新增 qBittorrent 4.1.7 选项
+3. BugFix：修复 debian 开启 backports 时源写错了的问题  
+
+
+
+
+
+## 2019.07.11/12/15
+
+`the inexistence project`  
+- 删除 unrarll、spdtest、update-tracker.py 等现在用不到的文件和脚本  
+（但是那个时候没有从 commits 历史里删掉）  
+
+`inexistence 1.1.2.22`  
+1. BugFix：修复 deluge 下载源码时翻车的问题  
+2. Feature：脚本默认换源  
+3. FixTypo
+
+`rclone uninstall`  
+- add status check  
+
+
+
+
+
+## 2019.07.10
+
+我特么的看 commits 看晕了，得上链接对比了：  
+https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada  
+
+`the inexistence project`  
+1. 部分子脚本重命名、路径变更  
+2. 增加 rclone install 与 uninstall  
+
+`inexistence`  
+1. **Feature：正式支持 Debian 10**  
+2. **Feature：为 Debian10 开启 rTorrent**  
+3. **Feature：使用子脚本安装 rclone**  
+4. **Feature：使用子脚本配置 qBittorrent**  
+5. Feature：又加了一些 step one 安装的包  
+6. UI：移除 qBittorrent 4.1.4-4.1.5 安装选项  
+7. UI：移除 Debian8 警告  
+
+`alias`
+- 不给 alias 运行权限（644），避免直接运行，从而让意识到要 source  
+
+`function`
+- 增加环境变量设置  
+
+`libtorrent-rasterbar/install`
+1. 补充 function 脚本不存在的情况下的操作  
+2. **使用 fpm 打包**  
+
+`qbittorrent/configure`
+- 细化输出日志，增加 logbase  
+
+
+
+
+
+## 2019.07.09
+
+`inexistence 1.1.2.13`  
+1. Feature：为 Debian 系统开启 backports 源支持（如果原来没有的话）  
+2. **Feature：添加 ruby-dev 包，并安装 fpm**  
+3. Feature：改进 mono 安装  
+4. Feature：源码编译 vnstat 移动到后边  
+
+
+
+
+
+## 2019.07.03
+
+`ipv6 r20005`  
+1. 安装 ifdown（其实应该是 ifupdown）仅在 ifdown 模式下，而非运行脚本就检查  
+2. Codes style update  
+3. **增加各类 mode，并用 case**  
+
+
+
+
+
+## 2019.06.22/29
+
+`inexistence 1.1.2.10`  
+1. **Feature：使用新的检测方式代替 virt-what**  
+2. UI：增加 OVZ 等架构的 VPS 跑脚本时候的警告  
+3. BugFix：为了避免某些奇怪的 bug，OpenVZ 单独安装 atop  
+4. Codes：部分 function 名字去掉开头的 _  
+5. Feature：Debian 8 的源里增加 `http://security.debian.org/ jessie/updates`  
+6. Feature：移除安装 netplan 包  
+
+`ipv6 r20004`  
+1. 增加 `-6`、`-s`、`-d` 选项  
+2. 更完善的 netplan 检测方式  
+3. FixTypo  
+4. Code Style Update  
+5. 增加 function ipv6_test  
+
+
+
+
+
+## 2019.06.15/18/21/22
+
+`inexistence 1.1.2.5`  
+1. Feature：移除安装 netplan 包  
+2. BugFix：修复 deluge 源码下载失败问题，现在从 GitHub 下载  
+
+`jietu r20046`  
+1. 允许自定义设置截图张数  
+
+
+
+
+
+## 2019.06.14
+
+`inexistence 1.1.2.3`  
+1. Feature：移除内网 IPv4 地址检测  
+2. BugFix：强制使用 ipv4 下载 deluge 源码  
+3. Feature：deluge 安装过程输出到一个 record 文件里，方便删除  
+4. Feature：增加安装 lftp  
+5. BugFix：为了避免某些奇怪的 bug，单独安装 atop  
+6. BugFix：修复 lt=system 时 lt 版本显示的问题  
+
+`alias`  
+1. 增加 vnstat systemd 相关 alias  
+2. 微调 s-end，s-opt，yuan  
 
 
 
 
 
 
+## 2019.06.06
+
+`alias 107`  
+- 增加 abench 和 bench  
+
+`README`  
+1. 增加 Debian 10 相关说明  
+2. 更新 qb 3.3.17 的说明  
+3. 增加 Flood 挂载点和端口号的说明  
+4. **删除 To Do List 和 Under Consideration 的内容**  
+5. 注明 ipv6 脚本不支持 ikoula 和 Ubuntu 18.04  
+6. 注明截图支持 DVD 的 ifo 的 mediainfo 获取  
+7. 其他各种微调  
 
 
 
 
 
+## 2019.05.23/24/25
+
+https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
+
+`inexistence 1.1.2.2`  
+1. **Bump version to 1.1.2**  
+2. **Feature：加入 `--sihuo`**  
+3. Codes：Style Update  
+4. UI：部分 `read -ep` 换回 `echo -ne`+`read`  
+5. **Feature：彻底移除 libtorrent 自定义选项的功能**  
+6. Codes：修改部分 function 名称，去掉开头的 _  
+7. Feature：增加 locate 包  
+8. Feature：移除 jessie 的 gcc 7.3 deb 包  
+9. **Feature：使用 alias 脚本写入 bashrc**  
+10. Codes：新增变量 $WebROOT  
+11. BugFix：Debian 10 下编译安装 libtorrent-rasterbar  
+
+`alias 106`  
+1. `export eth=$wangka`  
+2. 增加 IntoBashrc 模式  
+3. 增加 `Customed alias is enabled` 提示  
+4. 启用 `setcolor`  
+
+`deluge/install r10020`  
+- 反正就是照着别的脚本慢慢改的  
+
+`install_libtorrent_rasterbar r10033`  
+- 适配下 Debian 10  
+
+`qbittorrent/configure r10002`  
+- 变量名和输出微调  
+
+`ipv6 r20003`
+1. 禁用本地 ipv4 检测  
+2. ikoula netplan 修复为覆盖式写入，网卡名称不固定  
+
+`jietu r20045`
+1. **不使用 bc**  
+2. 检测 awk 是否可用  
+3. **再次改进分辨率计算方式**  
+4. 调整 debug 输出  
+5. 代码优化  
+6. 新增 function Deprecated  
 
 
 
 
 
+## 2019.05.14/15/16/18
+
+`inexistence 1.1.1.17`  
+1. Codes：使用 `wget -nv -N`  
+2. Codes：Style Update  
+3. Feature：更新 getopt  
+4. FixTypo  
+
+`function r10005`
+- 修复 getopt 问题  
+
+`install_libtorrent_rasterbar r10031`  
+1. 增加帮助界面  
+2. 更新 getopt  
+
+`mingling 0.9.2.004`
+- 清理代码  
+
+
+
+
+
+## 2019.05.12/13
+
+`inexistence 1.1.1.12`  
+1. Feature：部分后边要装的依赖移动到 step one  
+2. Codes：Style Update  
+3. feature：跳校验的 3.3.11 改为 3.3.17  
+4. BugFix：为 Debian 10 禁用 lt 1.0 选项  
+5. Codes：移除部分 wget 的 `--no-check-certificate`  参数和 `-O`  
+
+`install_libtorrent_rasterbar r10027`  
+1. **支持 Debian 10**  
+2. 结合 function 简化代码  
+
+`function`  
+1. **初始化**  
+
+
+
+
+
+## 2019.05.11 files 
+
+`the inexistence project`  
+**新增 files 分支**  
+
+`inexistence 1.1.1`  
+1. **Bump version to 1.1.1**  
+2. **Feature：改从 files 分支下载文件**  
+3. **Feature：step one 的一堆包，安装之前先检测源里有没有**  
+4. step one 即升级 pip，flexget 那里就不用升级了  
+5. **Feature：vnstat 统一编译升级到 2.2**  
+6. Feature：为 Debian10 安装 checkinstall  
+7. Codes：改进 bnx2 固件下载的写法  
+8. Codes：移除部分 wget 的 `--no-check-certificate`  参数  
+9. Feature：更新 ffmpeg 的下载与安装  
+10. `grep buster /etc/os-release -q && CODENAME=buster`  
+
+
+
+
+
+## 2019.05.10
+
+`inexistence 1.1.0.15`  
+1. **Feature：加入初步的 Debian 10 支持，测试阶段**  
+
+
+
+
+
+## 2019.05.05/06/09
+
+`inexistence 1.1.0.14`  
+1. BugFix：修复 vnstat 指定网卡的判断条件  
+2. UI： lt 1.2 分支版本改为 1.2.1  
+3. Feature：新增 qBittorrent 4.1.6  
+4. Codes：Style Update  
+
+`ipv6 Gen2`
+1. **Initial**  
+2. 加入 ikoula_interfaces 模式  
+3. 加入 netplan (OL/IK)  
+
+
+
+
+
+## 2019.04.25/27/29
+
+`jietu 2.4.0`
+1. 修复 ifo 包含空格时检测不到文件的 bug  
+2. 注释掉容易出 bug 的 even_num function，用其他方法完成奇数进一  
+3. 增加调试信息输出  
+
+`install_libtorrent_rasterbar 1.2.4`  
+1. Code Style Update  
+2. 完善交互、功能、输出  
+
+`zuozhong 1.1.0`  
+1. 检测 mktorrent 是否在 $PATH 内  
+2. 创建 BT 种子选项改为 99  
+3. 去掉 mktorrent `-a ""` 参数  
+4. Modernize codes  
+5. 增加 piece_size 参数  
+6. 增加 Classix-Unlimited tracker  
+
+
+
+
+
+## 2019.04.24
+
+https://github.com/Aniverse/inexistence/compare/2164c6e...949f69e
+
+`inexistence 1.1.0.3`  
+1. FixTypo  
+2. Codes：Style update  
+3. UI：OpenVZ 内存不足警告  
+4. Debug：增加更多信息  
+
+`alias`  
+- FixTypo  
+
+`qbittorrent/configure`  
+- FixTypo  
+
+`mingling`  
+- 顺应脚本变化做相应的修改  
 
 
 
@@ -1399,7 +1748,7 @@ fix auth of transmission miss in flexget config
 ## 2018.05.21
 
 `inexistence 1.0.6`  
-1. **New Feature：显示 ISP／ASN／地理信息，并将其写入到安装日志**
+1. **New Feature：显示 ISP／ASN／地理信息，并将其写入到安装日志**  
 这个主要是来判断是什么盒子，这样查错的时候更有针对性  
 2. 查错信息里加入 `ls /home`  
 主要是检查是否存在多用户的情况（多用户某些情况下会出错）  
@@ -1649,7 +1998,7 @@ deb 包的体积 270MB 左右，无法直接扔 GitHUb 了
 Ubuntu 16.04 系统自带的 1.0.7 别的都没问题，qb 编译也能用，就是不支持 OurBits（别的站都没问题）  
 Debian 8 自带的 0.16.18 汇报双栈 IP 没问题，但是无法不适配 qBittorrent（版本太老），OurBits 也不支持  
 Debian 9 自带的 1.1.1 最尴尬，qBittorrent 编译不支持，给 Deluge 用 bug 也很多……  
-PS:OB 最近 https 这方面有改过才导致一些老版本不支持  
+PS：OB 最近 https 这方面有改过才导致一些老版本不支持  
 
 来自 Ubuntu 16.04 Deluge PPA 的 libtorrent 1.0.11，有段时间我可以直接 V4+V6，现在不行了，大概包升级了  
 这个版本无法用于编译 qb，但如果你 qb 已经编译完了再切换到这个包却又没问题……  
@@ -3698,14 +4047,14 @@ bdinfo、bejietu、guazai、jietu、zuozhong
 3. **增加了安装 Flexget 的功能**  
 
 `Seedbox 0.0.3`  
-1. **Rename to Seedbox Script**  
 1. 2017.10.12 19:37  
-2. This is the choice of Steins;Gate.  
-3. 询问是否创建 log  
-4. 补充、完善输出文字，比如正在安装什么的提示  
-5. **增加安装 Deluge 以及 libtorrent-rasterbar 的功能**  
-6. **增加了 alias**  
-7. **增加了滚动条？**  
+2. **Rename to Seedbox Script**  
+3. This is the choice of Steins;Gate.  
+4. 询问是否创建 log  
+5. 补充、完善输出文字，比如正在安装什么的提示  
+6. **增加安装 Deluge 以及 libtorrent-rasterbar 的功能**  
+7. **增加了 alias**  
+8. **增加了滚动条？**  
 
 `qbt 0.0.2`  
 1. 2017.10.12 13:14  
