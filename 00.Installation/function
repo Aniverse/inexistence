@@ -3,11 +3,13 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2019.07.10
-script_version=r10007
+script_update=2020.02.27
+script_version=r10033
 ################################################################################################ Usage Guide
 
 usage_guide() {
+s=/etc/inexistence/00.Installation/function
+rm -f $s ; nano $s
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function --output $OutputLOG
 else
@@ -22,7 +24,7 @@ OPTS=$(getopt -o o: -al output: -- "$@")
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
-    -o | --output ) output="$2" ; shift 2 ;;
+    -o | --output ) OutputLOG="$2" ; shift 2 ;;
     -- ) break ;;
 esac ; done
 
@@ -42,28 +44,70 @@ CW="${bold}${baihongse} ERROR ${jiacu}" ; ZY="${baihongse}${bold} ATTENTION ${ji
 
 ################################################################################################
 
+self_location="$0"
 arch=$(uname -m)
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
+DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
 [[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
-export local_packages=/etc/inexistence/00.Installation
+[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
+
+if [[ $MAXCPUS == 1 ]]; then
+    unset compile_flag_threads
+else
+    compile_flag_threads=-j$MAXCPUS
+fi
+
+inexistence_url="https://github.com/Aniverse/inexistence"
+inexistence_branch=master
+local_repo=/etc/inexistence
+local_packages=$local_repo/00.Installation
 
 ################################################################################################
 ################################################################################################ Basic functions
 ################################################################################################
 
+
+# These codes are from teddysun bbr.sh
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
-function check_status() {
-local LockName=$1
-[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
-[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
-[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
+# These codes are from teddysun bench.sh
+function lines()  { printf "%-100s\n" "-" | sed 's/\s/-/g' ; }
+function lines2() { echo ; printf "%-100s\n" "-" | sed 's/\s/-/g' ; echo ; }
 
+# These codes are from rtinst
+# (Check if a web site is reachable)
+function check_url() {
+    if [[ `wget -S --spider $1 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0 ; else return 1 ; fi
+}
+
+function check_var_OutputLOG() {
+    if [[ -z $OutputLOG ]]; then
+        echo -e "${CW} NO OutputLOG variable found, please check if you have function installed"
+        exit 1
+    fi
+}
+
+
+function check_status() {
+    # When install_app & spinner $!, the variable $status_lock will not be passed to the install script, so we use another file to source
+    source /tmp/Variables
+
+    if [[ -f /tmp/"${status_lock}".1.lock ]]; then
+        echo -e " ${green}${bold}DONE${normal}"
+    elif [[ -f /tmp/"${status_lock}".2.lock ]]; then
+        echo -e " ${red}${bold}FAILED${normal}"
+    else
+        echo -e " ${red}${bold}Unknown State${normal}"
+    fi
+}
+
+
+# These codes are from QuickBox
 function spinner() {
     local pid=$1
     local delay=0.25
@@ -80,22 +124,132 @@ function spinner() {
 
 # These codes are from rtinst and QuickBox
 function apt_install() {
-[[ -z $output ]] && echo "ERROR: No output" && exit 1
-arg=("$@")
-packages=("${arg[@]:1}")
-[[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
-for package_name in "${packages[@]}" ; do
-    if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
-        if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-            install_list="$install_list $package_name"
+    [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
+    packages=("$@")  # arg=("$@") packages=("${arg[@]:1}")
+    [[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
+    for package_name in "${packages[@]}" ; do
+        if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+            if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+                install_list="$install_list $package_name"
+            fi
+        else
+            echo "$package_name not found, skipping" 2>&1 | tee -a "$OutputLOG"
         fi
-    else
-        echo "$package_name not found, skipping" >> $output 2>&1
+    done
+    test -z "$install_list" || apt-get -y install $install_list >> "$OutputLOG" 2>&1
+    if [ ! $? = 0 ]; then
+        echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
+        exit 1
     fi
-done
-test -z "$install_list" || apt-get -y install $install_list >> $output 2>&1
-if [ ! $? = 0 ]; then
-    echo -e "ERROR: Failed to install packages"
-    exit 1
-fi
 }
+
+
+function apt_install_separate() {
+    [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
+    packages=("$@")  # arg=("$@") packages=("${arg[@]:1}")
+    packages=("${arg[@]:1}")
+    [[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
+    for package_name in "${packages[@]}" ; do
+        if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
+            if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+                apt-get -y install $package_name >> "$OutputLOG" 2>&1  ||
+                echo -e "ERROR: Failed to install $package_name" 2>&1 | tee -a "$OutputLOG"
+            fi
+        else
+            echo "$package_name not found, skipping" 2>&1 | tee -a "$OutputLOG"
+        fi
+    done
+}
+
+
+function set_variables_log_location() {
+    LogRootPath=/log/inexistence
+    LOCKLocation=$LogRootPath/lock
+
+    if [[ -z $LogTimes ]]; then
+        LogTimes=$LogRootPath/single
+        LogLocation=$LogTimes/log
+        OutputLOG=$LogLocation/$pm_action.$AppNameLower.txt
+    elif [[ $LogTimes == none ]]; then
+        LogTimes=/tmp/ttmmpp
+        OutputLOG="/dev/null"
+    else
+        LogLocation=$LogTimes/log
+        OutputLOG=$LogTimes/log/$pm_action.$AppNameLower.txt
+    fi
+
+    if [[ $pm_action != uninstall ]]; then
+        [[ $Need_SourceCode == yes ]] && SCLocation=$LogTimes/source
+        DebLocation=$LogRootPath/deb
+    fi
+
+    mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
+    { lines ; echo -e "$(date "+%Y.%m.%d.%H.%M.%S") $AppName" ; lines ; } >> $OutputLOG
+
+    if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
+        cd $SCLocation
+    else
+        cd /tmp
+    fi
+}
+
+
+PortGenerator1() { portGen1=$(shuf -i 10001-32001 -n1) ; } ; portGenerator2() { portGen2=$(shuf -i 10001-32001 -n1) ; }
+PortCheck()      { while ss -ln | grep ':'$portGen1'' | grep -q LISTEN ; do PortGenerator1 ; done ; }
+PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do PortGenerator2 ; done ; }
+
+
+
+function check_remote_git_repo_branch() {
+    local git_repo=$1
+    local git_branch=$2
+    [[ -z $git_repo   ]] && { echo -e "${CW} No git_repo input!${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    [[ -z $git_branch ]] && { echo -e "${CW} No git_branch input!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    rm -f /tmp/.lt.git.tag
+    git ls-remote --tags  $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
+    git ls-remote --heads $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
+    grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    rm -f /tmp/.lt.git.tag
+}
+
+
+
+
+
+
+
+
+################################################################################################
+################################################################################################ Debug functions
+################################################################################################
+
+# [[ $debug == 1 ]] && debug_log_location
+function debug_log_location() {
+    echo ; for i in LogRootPath LogTimes DebLocation SCLocation LogLocation LOCKLocation OutputLOG \
+                    compile_flag_threads git_repo git_branch AppName AppNameLower DebName Need_SourceCode pm_action \
+                    iUser iPass iHome iPort wPort port mode version version_s status_lock arch CODENAME; do
+        echo -n "$i="
+        eval echo "$"$i""
+    done ; echo
+    read -t 10
+}
+
+################################################################################################
+################################################################################################ To be done
+################################################################################################
+
+function get_clients_port() {
+[[ -z $iHome ]] && { echo -e "ERROR: Please specify user" ; exit 1 ; }
+de_port
+de_port_w
+de_port_c
+qb_port
+qb_port_c
+tr_port
+
+sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf
+sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf
+sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf
+sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf
+}
+

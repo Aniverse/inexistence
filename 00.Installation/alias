@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.26
-script_version=r11000
+script_update=2020.02.27
+script_version=r11001
 ################################################################################################
 
 # Usage:      . s-alias
@@ -37,12 +37,17 @@ function gggclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+newpass() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
+sprunge.us() { curl -F 'sprunge=<-' http://sprunge.us ; }
 
 #ulimit -SHn 999999
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
+export repo="https://github.com/Aniverse/inexistence"
+export local_repo_base=/etc/inexistence
+export local_packages=/etc/inexistence/00.Installation
 export eth=$wangka
 
 alias qba="systemctl start qbittorrent@$iUser"
