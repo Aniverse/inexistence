@@ -244,6 +244,39 @@ function install_lt9_deb() {
 
 
 
+# Install from pre-compiled deb package, build by amefs
+function install_lt9_deb2() {
+    lines2 >> $OutputLOG
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+
+    list="libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
+libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
+python-libtorrent_1.1.14-1build1_amd64.deb"
+    mkdir -p /tmp/lt_deb
+    cd /tmp/lt_deb
+    for deb in $list ; do
+        wget -nv --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/libtorrent-rasterbar/$deb/download >> $OutputLOG 2>&1
+    done
+    if [[ $CODENAME != jessie ]]; then
+        apt-get -fuy install ./*deb >> $OutputLOG 2>&1
+    else
+        dpkg -i ./*deb      >> $OutputLOG 2>&1
+        apt-get -fy install >> $OutputLOG 2>&1
+    fi
+    cd
+    rm -rf /tmp/lt_deb
+
+    echo >> $OutputLOG
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.deb.lock
+}
+
+
+
+
+
 function install_lt_dependencies_action() {
     if [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]]; then
         echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
@@ -268,6 +301,12 @@ case $mode in
 
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt9_deb & spinner $!
+              ;;
+
+    deb3    ) install_lt_dependencies_action ; version=1.1.14
+
+              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              install_lt9_deb2 & spinner $!
               ;;
 
     source  ) install_lt_dependencies_action
