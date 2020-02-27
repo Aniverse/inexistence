@@ -1,11 +1,60 @@
 # ChangeLog  
 
 
+
+
+
+
+## 2020.02.27
+
+`the inexistence project`  
+- 同步 separate-script 的改动，准备之后删除这个分支（commits 历史打算保留）  
+- 具体来说，separate-script 分支对子脚本进行了以下同一类型的改动：  
+1. 各类重复 function 移动到 function 脚本内，并 source function  
+2. 脚本运行前 unset 变量  
+3. 加入 AppName、AppNameLower、pm_action、Need_SourceCode、DebName 等变量  
+4. 使用 set_variables_log_location 来设置各类变量并创建目录  
+5. 用 +check_var_OutputLOG 确保 function 已被 source  
+6. 优化显示效果，包括日志里也增强了易读性  
+
+`inexistence`  
+1. BugFix：修复 deluge skip hash check 下载链接错误的问题  
+2. BugFix：修复 deluge skip hash check 补丁没打好的问题  
+
+`alias r11002`  
+1. 同步 separate-script 分支的修改  
+2. 加入 `newpass` 和 `sprunge.us`，后者配合管道使用，方便直接上传日志  
+3. 加入脚本相关的环境变量  
+4. 加入脚本内部的 usage，包括从老版升级的部分  
+
+`function r10035`  
+1. 同步 separate-script 分支的修改  
+2. 注释里说明代码是从哪里抄来的  
+3. 增加 function lines  
+4. 增加 function apt_install 和 apt_install_separate  
+5. 增加 function set_variables_log_location  
+6. 增加 function PortGenerator 和 PortCheck  
+7. 增加 function check_remote_git_repo_branch  
+8. 增加 function debug_log_location  
+9. 修复 No such file: /tmp/Variables  
+10. check_status 增加 `ERROR: No Variables` 状态  
+
+`libtorrent-rasterbar/install`  
+1. 合并 separate-script 分支的修改  
+2. 修复非 fpm 安装时的一些小问题  
+3. 增加 deb3 模式，安装 efs 编译的 1.1.14 deb 包  
+
+
+
+
+
 ## 2020.02.25-26
 
 `ChangeLog`
 1. 快一年没更新 changelog 了吧……  
 2. 先更新 2020 年的  
+3. 补全了 2019 年缺的  
+4. 修正了一些过往的小问题  
 
 `the inexistence project`  
 1. **删除 commits 历史中的无用文件**  
@@ -140,7 +189,7 @@
 `the inexistence project`  
 1. 更新 systemd 配置文件，关闭使用 kill -9 $MAINPID（然而似乎不太好用）  
 2. 更新 systemd 配置文件，LimitNOFILE 从 666666 改为 infinity（似乎改了反而降低到 65536 了）  
-3. qb 的 systemd 不再指定端口  
+3. qb 的 systemd 不再指定 WebUI 端口  
 4. tr 的 systemd 指定配置文件路径，并加入 reload action  
 
 `inexistence 1.1.3.12`  
@@ -180,11 +229,11 @@
 2. Feature：用 function check_var 检查变量*  
 3. Feature：Ikoula netplan 改为覆盖式写入  
 4. **Feature：各个单独的步骤都 function 化**  
-5. **Feature：新增 online_dibbler**  
-6. **Feature：新增 online_odhcp6c**  
-7. **Feature：新增清理脚本对系统文件修改的功能**  
-8. **Feature：新增帮助界面**  
-9. **Feature：新增测试界面**  
+5. **New Feature：新增 online_dibbler**  
+6. **New Feature：新增 online_odhcp6c**  
+7. **New Feature：新增清理脚本对系统文件修改的功能**  
+8. **New Feature：新增帮助界面**  
+9. **New Feature：新增测试界面**  
 
 `alias r10009`
 1. `yongle` 的单位改为 GiB  
@@ -207,11 +256,11 @@
 ## 2020.01.02
 
 `inexistence 1.1.3.7`  
-1. **Feature：增加 qbittorrent 4.2.1**  
-2. **Feature：增加 qt 5.12**  
-3. Feature：增加安装 gnupg  
-4. UI：qBittorrent 选项顺序调整  
-5. **Feature：增加 Deluge 2.0.3**  
+1. **New Feature：增加 qbittorrent 4.2.1**  
+2. **New Feature：增加 qt 5.12**  
+3. **New Feature：增加 Deluge 2.0.3**
+4. Feature：增加安装 gnupg  
+5. UI：qBittorrent 选项顺序调整  
 6. UI：去掉一些几乎没人用的 tr 版本选项  
 
 
@@ -243,10 +292,10 @@
 3. BugFix：修复 DN 忘记加 python-libtorrent deb 包的问题  
 
 `Updates from PR`
-1. **Feature：增加 Debian10 的预编译 deb 包，from efs**  
-2. **Feature：允许各类老系统升级到最新的 LTS**  
+1. **Feature：增加 Debian10 的预编译 libtorrent deb 包，from efs**  
+2. **New Feature：允许各类老系统升级到最新的 LTS**  
 具体来说，现在新增了 Debian 8/9 升级到 9/10，Ubuntu 16.04 升级到 18.04  
-3. **Feature：增加 qBittorrent 4.1.9.1 并设为默认选项**  
+3. **New Feature：增加 qBittorrent 4.1.9.1 并设为默认选项**  
 4. Codes：去掉了一些多余的空格  
 
 
@@ -256,7 +305,7 @@
 ## 2019.10.16
 
 `inexistence 1.2.2.25`  
-1. Feature：新增 qBittorrent 4.1.8 选项，移除 4.1.6 选项  
+1. New Feature：新增 qBittorrent 4.1.8 选项，移除 4.1.6 选项  
 
 `jietu r20047`  
 1. 同步另外一个分支的更新  
@@ -278,8 +327,8 @@
 ## 2019.08.21
 
 `inexistence 1.1.2.24`  
-1. **Feature：增加 rTorrent 0.9.8 和 feature-bind 选项**  
-2. Feature：新增 qBittorrent 4.1.7 选项
+1. **New Feature：增加 rTorrent 0.9.8 和 feature-bind 选项**  
+2. New Feature：新增 qBittorrent 4.1.7 选项
 3. BugFix：修复 debian 开启 backports 时源写错了的问题  
 
 
@@ -301,7 +350,7 @@
 - add status check  
 
 `separate-script branch`
-1.  Add separate script of wine, mono install and uninstall
+1. Add separate script of wine, mono install and uninstall
 2. 其他的改了一堆，我都懒得写了。。。  
 
 
@@ -310,18 +359,17 @@
 
 ## 2019.07.10 Debian 10
 
-我特么的看 commits 看晕了，得上链接对比了：  
-https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada  
+我看 commits 看晕了，看这个直观点：https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada  
 
 `the inexistence project`  
 1. 部分子脚本重命名、路径变更  
 2. 增加 rclone install 与 uninstall  
 
 `inexistence`  
-1. **Feature：正式支持 Debian 10**  
+1. **New Feature：正式支持 Debian 10**  
 2. **Feature：为 Debian10 开启 rTorrent**  
-3. **Feature：使用子脚本安装 rclone**  
-4. **Feature：使用子脚本配置 qBittorrent**  
+3. **New Feature：使用子脚本安装 rclone**  
+4. **New Feature：使用子脚本配置 qBittorrent**  
 5. Feature：又加了一些 step one 安装的包  
 6. UI：移除 qBittorrent 4.1.4-4.1.5 安装选项  
 7. UI：移除 Debian8 警告  
@@ -346,8 +394,8 @@ https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada
 ## 2019.07.08/09
 
 `inexistence 1.1.2.13`  
-1. Feature：为 Debian 系统开启 backports 源支持（如果原来没有的话）  
-2. **Feature：添加 ruby-dev 包，并安装 fpm**  
+1. New Feature：为 Debian 系统开启 backports 源支持（如果原来没有的话）  
+2. **New Feature：添加 ruby-dev 包，并安装 fpm**  
 3. Feature：改进 mono 安装  
 4. Feature：源码编译 vnstat 移动到后边  
 
@@ -376,7 +424,7 @@ https://github.com/Aniverse/inexistence/compare/15ac55d...60ecada
 2. UI：增加 OVZ 等架构的 VPS 跑脚本时候的警告  
 3. BugFix：为了避免某些奇怪的 bug，OpenVZ 单独安装 atop  
 4. Codes：部分 function 名字去掉开头的 _  
-5. Feature：Debian 8 的源里增加 `http://security.debian.org/ jessie/updates`  
+5. New Feature：Debian 8 的源里增加 `http://security.debian.org/ jessie/updates`  
 6. Feature：移除安装 netplan 包  
 
 `ipv6 r20004`  
@@ -453,7 +501,7 @@ https://github.com/Aniverse/inexistence/compare/0a9ef1a...6abdab5
 6. Codes：修改部分 function 名称，去掉开头的 _  
 7. Feature：增加 locate 包  
 8. Feature：移除 jessie 的 gcc 7.3 deb 包  
-9. **Feature：使用 alias 脚本写入 bashrc**  
+9. **New Feature：使用 alias 脚本写入 bashrc**  
 10. Codes：新增变量 $WebROOT  
 11. BugFix：Debian 10 下编译安装 libtorrent-rasterbar  
 
@@ -1857,7 +1905,7 @@ fix auth of transmission miss in flexget config
 
 
 
-## 2018.05.08
+## 2018.05.08 Ubuntu 18.04
 
 `inexistence 1.0.5`  
 1. **Bump version to 1.0.5**  
@@ -3287,7 +3335,7 @@ wget 加入了是否安装的检测，没安装的话再执行安装
 11. 替换 /etc/apt/sources.list 前先做一个备份  
 12. 加入了检查系统和 Deluge 所用的 libtorrent-ratserbar 的功能  
 13. 将针对 qBittorrent 是否编译 libtorrent-ratserbar 时判断条件里的是否为 Debian 修正为是否为 Debian 8 系统
-14. 有一个严重 bug 我也不知道解决了没有（2017.01.22：没有！）  
+14. 有一个严重 bug 我也不知道解决了没有（2018.01.22：没有！）  
 在 Online.net 独服的 Ubuntu 16.04 下，安装 Deluge 编译完 libtorrent-rasterbar 后安装 libtorrent-rasterbar-dev ，会导致冲突，然后 apt-get install 就炸了……  
 
 
