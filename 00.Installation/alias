@@ -4,12 +4,25 @@
 # Author: Aniverse
 #
 script_update=2020.02.27
-script_version=r11001
+script_version=r11002
 ################################################################################################
 
 # Usage:      . s-alias
 # source /etc/bash.bashrc
 # nano +999 /etc/bash.bashrc             nano +999 /usr/local/bin/s-alias
+
+usage_guide() {
+source /etc/bash.bashrc
+. s-alias 1
+
+iUser=
+wangka=
+LogBase=/log/inexistence/1
+IntoBashrc=IntoBashrc
+while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
+    sed -i '$d' /etc/bash.bashrc
+done
+}
 
 iUser=$1
 wangka=$2
