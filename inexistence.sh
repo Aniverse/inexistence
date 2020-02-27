@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.8
+INEXISTENCEVER=1.1.4.9
 INEXISTENCEDATE=2020.02.27
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1953,6 +1953,8 @@ elif [[ $qb_version == "Install from PPA" ]]; then
     apt-get install -y qbittorrent-nox
 else
     dpkg -l | grep qbittorrent-nox -q && dpkg -r qbittorrent-nox
+    apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
+    libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
     if [[ $CODENAME == jessie ]]; then
         apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         apt-get autoremove -y
@@ -1963,8 +1965,6 @@ else
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         qmake --version
     else
-        apt-get -y install build-essential pkg-config automake libtool git screen libgeoip-dev python3 python3-dev zlib1g-dev \
-        libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
         if [[ $CODENAME =~ (stretch|xenial) ]]; then
             mkdir -p /tmp/qb ; cd /tmp/qb
             wget -qO qt512xmlpatterns_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512xmlpatterns_5.12.6-1basyskom1_amd64.deb
@@ -2086,13 +2086,6 @@ else
         cd deluge*$de_version
     fi
 
-    if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
-        wget https://raw.githubusercontent.com/Aniverse/inexistence/files/miscellaneous/deluge.1.3.15.skip.no.full.allocate.patch \
-        -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
-        cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
-        patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
-    fi
-
     ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
     ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
     ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
@@ -2117,6 +2110,13 @@ else
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
     python setup.py install_data # For Desktop users
+
+    if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
+        wget https://raw.githubusercontent.com/Aniverse/inexistence/files/miscellaneous/deluge.1.3.15.skip.no.full.allocate.patch \
+        -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+        cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
+        patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+    fi
 
     [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
 
