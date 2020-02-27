@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.27
-script_version=r10034
+script_version=r10035
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -99,12 +99,14 @@ function check_status() {
         source /tmp/Variables
     fi
 
-    if [[ -f /tmp/"${status_lock}".1.lock ]]; then
+    if [[ -z "${status_lock}" ]]; then
+        echo -e " ${red}${bold}ERROR: No Variables${normal}"
+    elif [[ -f /tmp/"${status_lock}".1.lock ]]; then
         echo -e " ${green}${bold}DONE${normal}"
     elif [[ -f /tmp/"${status_lock}".2.lock ]]; then
         echo -e " ${red}${bold}FAILED${normal}"
     else
-        echo -e " ${red}${bold}Unknown State${normal}"
+        echo -e " ${red}${bold}ERROR: Unknown State${normal}"
     fi
 }
 
