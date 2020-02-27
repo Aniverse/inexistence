@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.27
-script_version=r10033
+script_version=r10034
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -95,7 +95,9 @@ function check_var_OutputLOG() {
 
 function check_status() {
     # When install_app & spinner $!, the variable $status_lock will not be passed to the install script, so we use another file to source
-    source /tmp/Variables
+    if [[ -f /tmp/Variables ]]; then
+        source /tmp/Variables
+    fi
 
     if [[ -f /tmp/"${status_lock}".1.lock ]]; then
         echo -e " ${green}${bold}DONE${normal}"
