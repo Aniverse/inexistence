@@ -1,0 +1,182 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2020.02.28
+script_version=r20000
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/flexget/install
+    rm -f $s ; nano $s ; bash $s
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/install)
+}
+
+################################################################################################ Get options
+
+unset AppName AppNameLower Need_SourceCode pm_action \
+      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      user
+
+function show_usage() { echo " Invalid option $1" ; exit 1 ; }
+
+OPTS=$(getopt -o u:v:l:d -al user:,version:,debug,logbase:,system -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -v | --version      ) version="$2"  ; shift 2 ;;
+    -u | --user         ) user="$2"     ; shift 2 ;;
+         --logbase      ) LogTimes="$2" ; shift 2 ;;
+         --system       ) unset user    ; shift   ;;
+         --debug        ) debug=1       ; shift   ;;
+    -- ) shift ; break ;;
+esac ; done
+
+################################################################################################ Set Variables
+
+AppName=FlexGet
+AppNameLower=flexget
+Need_SourceCode=no
+pm_action=install
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function
+fi
+
+set_variables_log_location
+[[ $debug == 1 ]] && debug_log_location
+
+################################################################################################
+
+
+
+
+
+function install_python3() {
+
+    echo >> $OutputLOG
+
+    if [[ "$CODENAME" == "xenial" ]]; then
+        apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F23C5A6CF475977595C89F51BA6932366A755776 >> "$OutputLOG" 2>&1
+        LC_ALL=en_US.UTF-8 add-apt-repository ppa:deadsnakes/ppa -y >> "$OutputLOG" 2>&1
+        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update >> "$OutputLOG" 2>&1
+        apt-get install -y python3.6 >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2 >> "$OutputLOG" 2>&1
+    elif [[ "$CODENAME" =~ "jessie|stretch" ]]; then
+        apt_install_separate build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
+        wget -nv -O Python-3.7.6.tar.xz https://www.python.org/ftp/python/3.7.6/Python-3.7.6.tar.xz >> "$OutputLOG" 2>&1
+        tar -xf Python-3.7.6.tar.xz
+        cd Python-3.7.6
+        ./configure  >> "$OutputLOG" 2>&1
+        time make -j$(nproc)  >> "$OutputLOG" 2>&1
+        make install  >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1 >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7 2 >> "$OutputLOG" 2>&1
+        cd ..
+        rm -rf {Python-3.7.6.tar.xz,Python-3.7.6}
+        if [[ ! -f /usr/local/lib/python3.7/site-packages/lsb_release.py ]]; then
+        	ln -s /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.7/site-packages/lsb_release.py
+        fi
+    else
+        apt_install_separate   python3-pip python3-setuptools
+    fi
+
+    python3_ver=$(python3 -V | grep -oE "[0-9.]+")
+
+
+
+    status_lock=Python3
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    if version_gt $python3_ver 3.6; then
+        touch /tmp/$status_lock.1.lock
+    else
+        touch /tmp/$status_lock.2.lock
+    fi
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/Python3.lock
+    echo >> $OutputLOG
+
+}
+
+
+
+
+
+function install_flexget3() {
+
+    echo >> $OutputLOG
+
+    wget -nv -O get-pip.py https://bootstrap.pypa.io/get-pip.py >> "$OutputLOG" 2>&1
+    python3 get-pip.py --force-reinstall >> "$OutputLOG" 2>&1
+    pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
+    pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
+
+    pip3 install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
+    pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
+    pip3 install --ignore-installed flexget==3.0.31   >> "$OutputLOG" 2>&1
+    pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
+
+
+}
+
+
+
+
+
+
+
+
+echo -ne "Installing Python3 ..." | tee -a $OutputLOG
+install_python3 & spinner $!
+check_status $status_lock | tee -a $OutputLOG
+
+
+echo -ne "Installing $AppName ..." | tee -a $OutputLOG
+install_flexget & spinner $!
+check_status $status_lock | tee -a $OutputLOG
+
+[[ $debug == 1 ]] && which flexget
+
+
+
+
+
+################################################################################################
+
+
+
+
+# Deprecated
+function install_flexget2_user() {
+
+    echo >> $OutputLOG
+
+    apt_install python python-dev python-pip
+    python2 -m pip install --upgrade pip >> "$OutputLOG" 2>&1
+    python2 -m pip install pathlib >> "$OutputLOG" 2>&1
+    python2 -m pip install transmissionrpc deluge-client >> "$OutputLOG" 2>&1
+
+    if [[ -z $user ]]; then
+        python2 -m pip install flexget >> "$OutputLOG" 2>&1
+    else
+        su $user -c 'python2 -m pip install flexget --user' >> "$OutputLOG" 2>&1
+        export PATH=/home/$user/.local/bin:$PATH
+    fi
+
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    which flexget > /dev/null && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+    echo >> $OutputLOG
+
+}
