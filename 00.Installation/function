@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.27
-script_version=r10035
+script_update=2020.02.28
+script_version=r10036
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -71,9 +71,30 @@ local_packages=$local_repo/00.Installation
 ################################################################################################ Basic functions
 ################################################################################################
 
+# ⚠ ✗ ✓
+function _excute() {
+	($1 >> "$OutputLOG" 2>&1)
+}
+function echo_task() {
+	# echo -ne "$1" | tee -a $OutputLOG
+    printf "%s" "$@" | tee -a $OutputLOG
+}
+function status_done() {
+	echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
+}
+function status_failed() {
+	echo -e "${red}${bold}FAILED${normal}" | tee -a $OutputLOG
+}
+function echo_warning() {
+    printf "${yellow}${bold}WARNING: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+}
+function echo_error() {
+    printf "${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+}
 
 # These codes are from teddysun bbr.sh
-function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -1)" == "$1" ; }
+function version_gt(){ test "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1"; }
 
 # These codes are from teddysun bench.sh
 function lines()  { printf "%-100s\n" "-" | sed 's/\s/-/g' ; }
@@ -218,6 +239,38 @@ function check_remote_git_repo_branch() {
 
 
 
+# From QuickBox Lite
+function APT_UPGRADE() {
+	echo_task "Checking and performing updates to system ... "
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+	## auto solve lock
+	if [ "$?" -eq 2 ]; then
+		echo_error "dpkg database is locked"
+        echo_task "Try to fix dpkg lock ... "
+		rm -f /var/lib/dpkg/updates/0*
+		locks=$(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*)
+		if [[ ${locks} == $(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*) ]]; then
+			for l in ${locks}; do
+				rm -rf ${l}
+			done
+			_excute "dpkg --configure -a"
+			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+		fi
+		if ! (apt-get check >/dev/null); then
+			apt-get install -f >> $OutputLOG 2>&1
+			if ! (apt-get check >/dev/null); then
+				# whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
+                echo_error "It seems there is something error when using apt-get, exiting ..."
+				exit 1
+			fi
+		fi
+    else
+        echo -e "${green}${bold}DONE${normal}"
+	fi
+	_success "System updated."
+}
 
 
 
