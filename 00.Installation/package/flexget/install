@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.02.28
-script_version=r20001
+script_version=r20002
 
 ################################################################################################ Debug
 
@@ -108,6 +108,30 @@ function install_python3() {
 
 
 
+function patch_flexget() {
+    pypath=/usr/local/lib/python$(python3 -V | grep -oE "3.[0-9]")/dist-packages
+    mkdir -p /tmp
+    cat << EOF > /tmp/flexget-remove-passwd-check.patch
+diff -Nur flexget/webserver.py flexget-patch/webserver.py
+--- flexget/webserver.py	2020-02-28 11:50:07.423005342 +0800
++++ flexget-patch/webserver.py	2020-02-28 11:57:52.831474088 +0800
+@@ -241,6 +241,7 @@
+ @with_session
+ def change_password(username='flexget', password='', session=None):
+     check = zxcvbn.zxcvbn(password, user_inputs=[username])
++    check['score'] = 4
+     if check['score'] < 3:
+         warning = check['feedback']['warning']
+         suggestions = ' '.join(check['feedback']['suggestions'])
+EOF
+    patch -p1 -d ${pypath}/flexget/ < /tmp/flexget-remove-passwd-check.patch >> "$OutputLOG" 2>&1
+    python3 -m compileall ${pypath}/flexget/webserver.py >> "$OutputLOG" 2>&1
+    rm -f /tmp/flexget-remove-passwd-check.patch
+}
+
+
+
+
 
 function install_flexget3() {
 
@@ -122,6 +146,8 @@ function install_flexget3() {
     pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
     pip3 install --ignore-installed flexget==3.0.31   >> "$OutputLOG" 2>&1
     pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
+
+    patch_flexget
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
