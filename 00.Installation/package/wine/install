@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.01.14
-script_version=r10002
+script_update=2020.02.28
+script_version=r10003
 
 ################################################################################################ Debug
 
@@ -71,9 +71,9 @@ function install_wine() {
     dpkg --add-architecture i386 >> $OutputLOG 2>&1
   # wget -O- https://dl.winehq.org/wine-builds/Release.key | apt-key add - >> $OutputLOG
   # apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F >> $OutputLOG
-    wget https://dl.winehq.org/wine-builds/winehq.key -O winehq.key >> $OutputLOG 2>&1
-    apt-key add winehq.key >> $OutputLOG 2>&1
-    rm -f winehq.key
+    wget -nv https://dl.winehq.org/wine-builds/winehq.key -O /tmp/winehq.key >> $OutputLOG 2>&1
+    apt-key add /tmp/winehq.key >> $OutputLOG 2>&1
+    rm -f /tmp/winehq.key
 
   # if [[ $DISTRO == Ubuntu ]]; then
   #     apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/ >> $OutputLOG 2>&1
@@ -82,7 +82,7 @@ function install_wine() {
         echo "deb https://dl.winehq.org/wine-builds/$DISTROL/ $CODENAME main" > /etc/apt/sources.list.d/wine.list
   # fi
 
-    apt-get update >> $OutputLOG 2>&1
+    APT_UPGRADE
     apt_install winehq-stable >> $OutputLOG 2>&1       # --install-recommends
 
     wget -nv -N https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/local/bin/winetricks >> $OutputLOG 2>&1
