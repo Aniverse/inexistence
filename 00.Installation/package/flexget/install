@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.02.28
-script_version=r20000
+script_version=r20001
 
 ################################################################################################ Debug
 
@@ -92,12 +92,10 @@ function install_python3() {
 
     python3_ver=$(python3 -V | grep -oE "[0-9.]+")
 
-
-
     status_lock=Python3
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    if version_gt $python3_ver 3.6; then
+    if version_ge $python3_ver 3.6; then
         touch /tmp/$status_lock.1.lock
     else
         touch /tmp/$status_lock.2.lock
@@ -116,7 +114,7 @@ function install_flexget3() {
     echo >> $OutputLOG
 
     wget -nv -O get-pip.py https://bootstrap.pypa.io/get-pip.py >> "$OutputLOG" 2>&1
-    python3 get-pip.py --force-reinstall >> "$OutputLOG" 2>&1
+    python3 get-pip.py --force-reinstall              >> "$OutputLOG" 2>&1
     pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
     pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
 
@@ -125,11 +123,18 @@ function install_flexget3() {
     pip3 install --ignore-installed flexget==3.0.31   >> "$OutputLOG" 2>&1
     pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    if [[ -n $(which flexget) ]]; then
+        touch /tmp/$status_lock.1.lock
+    else
+        touch /tmp/$status_lock.2.lock
+    fi
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+    echo >> $OutputLOG
 
 }
-
-
-
 
 
 
@@ -141,7 +146,7 @@ check_status $status_lock | tee -a $OutputLOG
 
 
 echo -ne "Installing $AppName ..." | tee -a $OutputLOG
-install_flexget & spinner $!
+install_flexget3 & spinner $!
 check_status $status_lock | tee -a $OutputLOG
 
 [[ $debug == 1 ]] && which flexget
