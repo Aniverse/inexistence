@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.02.28
-script_version=r10036
+script_version=r10037
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -91,6 +91,9 @@ function echo_warning() {
 function echo_error() {
     printf "${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
 }
+function echo_info() {
+    printf "${cyan}${bold}Info: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+}
 
 # These codes are from teddysun bbr.sh
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -1)" == "$1" ; }
@@ -121,13 +124,17 @@ function check_status() {
     fi
 
     if [[ -z "${status_lock}" ]]; then
-        echo -e " ${red}${bold}ERROR: No Variables${normal}"
+        # echo -e " ${red}${bold}ERROR: No Variables${normal}"
+        echo_error "No Variables"
     elif [[ -f /tmp/"${status_lock}".1.lock ]]; then
-        echo -e " ${green}${bold}DONE${normal}"
+        # echo -e " ${green}${bold}DONE${normal}"
+        status_done
     elif [[ -f /tmp/"${status_lock}".2.lock ]]; then
-        echo -e " ${red}${bold}FAILED${normal}"
+        # echo -e " ${red}${bold}FAILED${normal}"
+        status_failed
     else
-        echo -e " ${red}${bold}ERROR: Unknown State${normal}"
+        # echo -e " ${red}${bold}ERROR: Unknown State${normal}"
+        echo_error "Unknown State"
     fi
 }
 
@@ -147,9 +154,10 @@ function spinner() {
     printf "    \b\b\b\b"
 }
 
+
 # These codes are from rtinst and QuickBox
 function apt_install() {
-    [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
+    # [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
     packages=("$@")  # arg=("$@") packages=("${arg[@]:1}")
     [[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
     for package_name in "${packages[@]}" ; do
@@ -161,7 +169,8 @@ function apt_install() {
             echo "$package_name not found, skipping" 2>&1 | tee -a "$OutputLOG"
         fi
     done
-    test -z "$install_list" || apt-get -y install $install_list >> "$OutputLOG" 2>&1
+    # test -z "$install_list" || apt-get -y install $install_list >> "$OutputLOG" 2>&1
+    test -z "$install_list" || apt-get -y --allow-unauthenticated -f $install_list >> "$OutputLOG" 2>&1
     if [ ! $? = 0 ]; then
         echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
         exit 1
@@ -170,18 +179,18 @@ function apt_install() {
 
 
 function apt_install_separate() {
-    [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
+    # [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
     packages=("$@")  # arg=("$@") packages=("${arg[@]:1}")
     packages=("${arg[@]:1}")
-    [[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
+    [[ -z "$packages" ]] && echo_error "No packages input" # && exit 1
     for package_name in "${packages[@]}" ; do
         if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
             if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-                apt-get -y install $package_name >> "$OutputLOG" 2>&1  ||
-                echo -e "ERROR: Failed to install $package_name" 2>&1 | tee -a "$OutputLOG"
+                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package_name >> "$OutputLOG" 2>&1  ||
+                echo_error "Failed to install $package_name"
             fi
         else
-            echo "$package_name not found, skipping" 2>&1 | tee -a "$OutputLOG"
+            echo_info "$package_name not found, skipping"
         fi
     done
 }
@@ -224,7 +233,6 @@ PortCheck()      { while ss -ln | grep ':'$portGen1'' | grep -q LISTEN ; do Port
 PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do PortGenerator2 ; done ; }
 
 
-
 function check_remote_git_repo_branch() {
     local git_repo=$1
     local git_branch=$2
@@ -236,7 +244,6 @@ function check_remote_git_repo_branch() {
     grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
 }
-
 
 
 # From QuickBox Lite
