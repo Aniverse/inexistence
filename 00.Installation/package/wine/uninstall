@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2019.07.11
-script_version=r10000
+script_update=2020.02.28
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -47,6 +47,7 @@ else
 fi
 
 set_variables_log_location
+[[ $debug == 1 ]] && debug_log_location
 
 ################################################################################################
 
@@ -58,13 +59,15 @@ function uninstall_wine() {
 
     echo >> $OutputLOG
 
-    if [[ $DISTRO == Ubuntu ]]; then
-        apt-add-repository -ry https://dl.winehq.org/wine-builds/ubuntu/ >> $OutputLOG 2>&1
-    elif [[ $DISTRO == Debian ]]; then
-        rm -f /etc/apt/sources.list.d/wine.list >> $OutputLOG 2>&1
-    fi
+    #if [[ $DISTRO == Ubuntu ]]; then
+    #    apt-add-repository -ry https://dl.winehq.org/wine-builds/ubuntu/ >> $OutputLOG 2>&1
+    #elif [[ $DISTRO == Debian ]]; then
+    #    rm -f /etc/apt/sources.list.d/wine.list >> $OutputLOG 2>&1
+    #fi
 
-    apt-get update >> $OutputLOG 2>&1
+    rm -f /etc/apt/sources.list.d/wine.list /usr/local/bin/winetricks
+
+    APT_UPGRADE
     apt-get purge -y winehq-stable >> $OutputLOG 2>&1
     apt-get autoremove -y >> $OutputLOG 2>&1
 
