@@ -1,12 +1,14 @@
 #!/bin/bash
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
-# 方便盒子使用的一个没啥卵用的辣鸡脚本
 
-SCRIPTVER=0.9.2.004
-SCRIPTUPDATE=2019.05.16.放弃治疗
+SCRIPTVER=0.9.3
+SCRIPTUPDATE=2020.02.28.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
+
+# 2020.02.28
+# 说实话，我现在真的很不想动这个脚本，看着就感觉太乱了
 
 # 判断客户端是否在运行---------------------------------------------------------------------
 
@@ -39,14 +41,13 @@ function _check_install(){
   elif [[ "${client_name}" == "deluged"             ]]; then client_name=de
   elif [[ "${client_name}" == "rtorrent"            ]]; then client_name=rt
   elif [[ "${client_name}" == "flexget"             ]]; then client_name=flex
-  elif [[ "${client_name}" == "virt-what"           ]]; then client_name=virtwhat
-  elif [[ "${client_name}" == "lsb_release"         ]]; then client_name=lsb ; fi
+  fi
 
   if [[ -a $client_location ]]; then eval ${client_name}_installed=Yes
   else eval ${client_name}_installed=No ; fi ; }
   
 # 检查客户端安装情况
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone virt-what lsb_release smartctl irssi ffmepg mediainfo; do client_name=$apps ; _check_install ; done
+for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone smartctl irssi ffmepg mediainfo; do client_name=$apps ; _check_install ; done
     
 # 操作系统检测
 get_opsy() {
@@ -65,7 +66,6 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then faxingban="cent
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
-grep buster /etc/os-release -q && CODENAME=buster
 [[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
 [[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
 
@@ -96,17 +96,16 @@ opsy=$( get_opsy )
 kern=$( uname -r )
 
 [ -d /etc/inexistence ] && inexistence=1
-grep -i Inexistence /etc/bash.bashrc -q && tweaks=1
+grep -i s-alias /etc/bash.bashrc -q && tweaks=1
 inexistence_ver=$(cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}' | head -1)
 inexistence_date=$(cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}' | head -1)
-iUser=$(cat /log/inexistence/version | grep inexistence.user   | awk '{print $NF}' | head -1)
+iUser=$(cat /log/inexistence/version | grep inexistence.user | awk '{print $NF}' | head -1)
 # --------------------------------------------------------------------------------
 
 
 function _ip() { echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
 
-# serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
-  serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}' )
+  serveripv4=$( ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' )
   isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
   isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
@@ -212,13 +211,13 @@ echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jia
 echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 Flexget Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
 echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 Flexget Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
 echo
-echo -e " ${green}cdqb${jiacu}  = 切换目录到  qBittorrent 的下载目录   ${green}ruisua${jiacu} = 开启锐速    ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
-echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录   ${green}ruisub${jiacu} = 关闭锐速    ${green}  fgs  ${jiacu} = 修改 Flexget 设置"
-echo -e " ${green}cdrt${jiacu}  = 切换目录到   rTorrent   的下载目录   ${green}ruisuc${jiacu} = 检查锐速   ${green}shanchu${jiacu}  = rm -rf，删除     "
-echo -e " ${green}cdtr${jiacu}  = 切换目录到 Transmission 的下载目录   ${green}ruisur${jiacu} = 重启锐速   ${green}quanxian${jiacu} = 递归赋予 777 权限"
+echo -e " ${green}cdqb${jiacu}  = 切换目录到  qBittorrent 的下载目录   ${green}sssa / lssa${jiacu} = 开启锐速   ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
+echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录   ${green}sssb / lssb${jiacu} = 关闭锐速   ${green}  fgs  ${jiacu} = 修改 Flexget 设置"
+echo -e " ${green}cdrt${jiacu}  = 切换目录到   rTorrent   的下载目录   ${green}sssc / lssc${jiacu} = 检查锐速   ${green}shanchu${jiacu}  = rm -rf，删除     "
+echo -e " ${green}cdtr${jiacu}  = 切换目录到 Transmission 的下载目录   ${green}sssr / lssr${jiacu} = 重启锐速   ${green}quanxian${jiacu} = 递归赋予 777 权限"
 echo
-echo -e " ${green}swap-on${jiacu}  = 开启 2GB Swap                        ${green}yongle${jiacu} = 后接一个目录，查看该目录用了多少硬盘空间"
-echo -e " ${green}swap-off${jiacu} = 关闭 swap                            ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能，按 q 退出"
+echo -e " ${green}swapon${jiacu}  = 开启 2GB Swap                         ${green}yongle${jiacu} = 后接一个目录，查看该目录用了多少硬盘空间"
+echo -e " ${green}swapoff${jiacu} = 关闭 swap                             ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能，按 Ctrl+C 退出"
 echo -e " ${green}s-end${jiacu} = 显示脚本安装完后输出的信息              ${green}ios${jiacu} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
 echo -e " ${green}vnss ${jiacu} = 显示盒子最近一个月的流量统计            ${green}vns${jiacu} = 查看当前网速情况，按 Ctrl+C 退出"
 echo -e " ${green}sshr ${jiacu} = 开启 SSH root 登陆                      ${green}vms${jiacu} = 查看当前内存、CPU、IO 状况"
@@ -283,16 +282,63 @@ function _stats() {
 
 if [[ $virtwhat_installed == No ]] || [[ $lsb_installed == No ]] || [[ $smartctl_installed == No ]]; then
     echo  -ne "${wuguangbiao}${cyan}${bold}你可能是第一次运行 mingling, ${normal}"
-    echo  -ne "${cyan}${bold}现在正在安装 ${yellow}lsb-release${jiacu} ${yellow}virt-what${jiacu} ${yellow}smartmontools${jiacu} 用于系统信息监测 ...${normal}"
-    apt-get install -yqq virt-what lsb_release smartmontools > /dev/null 2>&1
+    echo  -ne "${cyan}${bold}现在正在安装 ${yellow}lsb-release${jiacu} ${yellow}smartmontools${jiacu} 用于系统信息监测 ...${normal}"
+    apt-get install -yqq smartmontools > /dev/null 2>&1
     echo  -e "${guangbiao}"
 fi
 
 _ip
+
+cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
+virtualx=$(dmesg 2>1)
+[[ $(which dmidecode) ]] && {
+sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
+sys_product=$(dmidecode -s system-product-name) 2>/dev/null
+sys_ver=$(dmidecode -s system-version) 2>/dev/null ; }
+
+dmi=$(LANG=C dmidecode 2>&1)
+arch2=$(uname -p)
+
+if grep docker /proc/1/cgroup -qa 2>/dev/null ; then
+    virt="Docker"
+elif grep lxc /proc/1/cgroup -qa 2>/dev/null; then
+    virt="Lxc"
+elif grep -qa container=lxc /proc/1/environ 2>/dev/null; then
+    virt="Lxc"
+elif [[ -f /proc/user_beancounters ]]; then
+    virt="OpenVZ"
+elif [[ "$virtualx" == *kvm-clock* ]] || [[ "$cname" == *KVM* ]]; then
+    virt="KVM"
+elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
+    virt="VMware"
+elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
+    virt="Parallels"
+elif [[ "$virtualx" == *VirtualBox* ]]; then
+    virt="VirtualBox"
+elif [[ "$sys_manu" == *"Microsoft Corporation"* ]] && [[ "$sys_product" == *"Virtual Machine"* ]]; then
+    [[ "$sys_ver" == *"7.0"* || "$sys_ver" == *"Hyper-V" ]] && virt="Hyper-V" || virt="Microsoft Virtual Machine"
+elif grep -q '^vendor_id.*PowerVM Lx86' /proc/cpuinfo; then
+    virt="IBM PowerVM Lx86"
+elif echo "$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "$dmi" | grep -q 'Product.* LPAR'; then
+    virt="Virtage"
+elif grep -q '^vendor_id.*IBM/S390' /proc/cpuinfo; then
+    virt="IBM SystemZ"
+elif [[ -e /proc/xen ]] || [[ $(grep -q xen /sys/hypervisor/type 2>/dev/null) ]]; then
+    virt="Xen"
+    grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null && virt="Xen-Dom0" || virt="Xen-DomU"
+#elif [[ "$arch2" = ia64 ]] && [[ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]]; then
+#   virt="Xen-HVM"
+elif grep -q UML "/proc/cpuinfo"; then
+    virt="UML"
+fi
+
+[[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
+[[ -z "$virtual" ]] && virt="未检测到虚拟化（可能是独立服务器）"
+
 echo "${bold}正在检查盒子的各项参数 ...${normal}"
 
-disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
-disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
+disk_size1=($( LANG=C df -hPl | grep -wvP '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem|docker|md[0-9]+/[a-z]*' | awk '{print $2}' ))
+disk_size1=($( LANG=C df -hPl | grep -wvP '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem|docker|md[0-9]+/[a-z]*' | awk '{print $3}' ))
 disk_total_size=$( calc_disk ${disk_size1[@]} )
 disk_used_size=$( calc_disk ${disk_size2[@]} )
 uptime1=$( awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60} {printf("%d days %d hour %d min\n",a,b,c)}' /proc/uptime )
@@ -307,7 +353,9 @@ cpu_percent=$( top -b -n 1|grep Cpu|awk '{print $2}'|cut -f 1 -d "." )
 cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
 cpucores=$( expr $cpucores_single \* $cpunumbers )
 cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
-[[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
+if [[ -z $virtual ]] || [[ $virtual == Docker ]]; then
+    [[ $cpunumbers == 2 ]] && CPUNum='双路 ' ; [[ $cpunumbers == 4 ]] && CPUNum='四路 ' ; [[ $cpunumbers == 8 ]] && CPUNum='八路 '
+fi
 
 freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 tram=$( free -m | awk '/Mem/ {print $2}' )
@@ -321,7 +369,7 @@ users=`users | wc -w`
 processes=`ps aux | wc -l`
 date=$( date +%Y-%m-%d" "%H:%M:%S )
 
-DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release -cs) ; virtua=$(virt-what) 2>/dev/null
+# DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release -cs) ; virtua=$(virt-what) 2>/dev/null
 
   clear ; echo
   echo " ${bailanse}${bold}                                           03. 系统信息                                            ${normal}"
@@ -342,13 +390,7 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
   echo
   echo -e  "${bold}  操作系统    : ${cyan}$DISTRO $RELEASE $CODENAME ($lbit Bit)${normal}"
   echo -e  "${bold}  系统内核    : ${cyan}$kern${normal}"
-  echo -ne "${bold}  虚拟化      : "
-
-  if [[ $virtua ]]; then
-      echo -e "${cyan}$virtua${normal}"
-  else
-      echo -e "${cyan}未检测到虚拟化${normal}"
-  fi
+  echo -ne "${bold}  虚拟化      : ${cyan}$virt${normal}"
 
   echo -e  "${bold}  IPv4 地址   : ${cyan}$serveripv4${normal}"
   echo -ne "${bold}  IPv6 地址   : ${cyan}"
@@ -356,7 +398,7 @@ DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release 
   if [[ $serveripv6 ]]; then
       echo -e "$serveripv6${normal}"
   else
-      echo -e "No IPv6 Address Found${normal}"
+      echo -e "未检测到公网 IPv6 地址${normal}"
   fi
 
   echo -e "${bold}  服务器时间  : ${cyan}$date${normal}" ; }
@@ -506,7 +548,7 @@ function _xunwen1() { echo -ne "${yellow}${bold}你还想做什么吗？(默认�
 
 # 06-4. 检查相关脚本是否存在
 function _systemd_check() {
-if [[ ! -f /etc/systemd/system/qbittorrent@.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/qbittorrent@.service ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/transmission.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/flexget.service      ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/deluged.service ]] || [[ ! -f /etc/systemd/system/deluge-web.service ]]; then echo -e "  ${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
@@ -522,10 +564,11 @@ function _show_scripts_menu() { clear ; echo
   echo -e " ${black}${on_white}${bold}                                       07. 运行其他一键脚本                                         ${normal} "
   echo -e " ${bold}"
   echo -e "  ${green}(01) ${jiacu}安装 inexistence"
-  echo -e "  ${green}(02) ${jiacu}安装 BBR 或 魔改版 BBR 或 锐速"
-  echo -e "  ${green}(06) ${jiacu}运行 ZBench"
-  echo -e "  ${green}(07) ${jiacu}运行 ABench"
-  echo -e "  ${green}(08) ${jiacu}配置 IPv6 (Online.net 独服非 Ubuntu 18.04 适用)"
+  echo -e "  ${green}(02) ${jiacu}运行 AccTCP（锐速、bbr、bbrplus、魔改 bbr）"
+  echo -e "  ${green}(03) ${jiacu}配置 IPv6 （Online.net / Scaleway 和 Ikoula 独服）"
+  echo -e "  ${green}(04) ${jiacu}运行 ABench"
+  echo -e "  ${green}(05) ${jiacu}运行 ZBench"
+  echo -e "  ${green}(06) ${jiacu}使用 iperf 测试网速"
   echo -e "  ${green}(10) ${jiacu}返回 main menu"
   echo -e "  ${normal}"
   echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
@@ -536,15 +579,17 @@ function _scripts_menu_response() {
 read response
 case $response in
     01 |  1) # 安装 inexistence
-             bash <(wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh) ;;
-    02 |  2) # 安装 BBR 或 魔改BBR 或 锐速
-             bash -c "$( wget -qO- https://github.com/Aniverse/TrCtrlProToc0l/raw/master/A )" ;;
-    06 |  6) # 运行 ZBench
+             bash <(wget -qO- https://git.io/abcde) ;;
+    02 |  2) # 运行 AccTCP
+             bash <(wget -qO- https://git.io/AccTCP) ;;
+    03 |  3) # 配置 IPv6
+             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6) ;;
+    04 |  4) # 运行 ABench
+             bash <(wget -qO- https://git.io/ceshi) ;;
+    05 |  5) # 运行 ZBench
              bash -c "$( wget -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
-    07 |  7) # 运行 A Bench
-             bash <(wget -qO- https://github.com/Aniverse/A/raw/i/a) ;;
-    08 |  8) # 配置 IPv6
-             bash -c "$( wget -qO- https://raw.githubusercontent.com/Aniverse/inexistence/master/00.Installation/script/ipv6 )" ;;
+    06 |  6) # 使用 iperf 测试网速
+             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/iperfff)
     10 | "") # 返回主菜单
              echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
           *) # 返回主菜单
@@ -558,7 +603,8 @@ esac ; }
 function _doc() { clear ; echo
 echo -e " ${black}${on_white}${bold}                                       08. 某辣鸡的脚本说明                                         ${normal} "
 echo -e " ${bold}"
-echo -e " ${red}注意${jiacu} 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确"
+echo -e " 2020.02.28 这个 mingling 脚本我基本弃坑了的，有什么问题也很正常……\n"
+echo -e " 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确"
 echo -e " 很多代码是各处抄来的，具体抄了哪些此处就不写上了。感谢那些写脚本的大佬"
 
 echo -e " 如果你的 SSH 窗口宽度值较小，可能排版会比较糟糕，建议拉大一点看看"
