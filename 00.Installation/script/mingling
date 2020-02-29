@@ -2,13 +2,17 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.3.1
-SCRIPTUPDATE=2020.02.28.放弃治疗
+SCRIPTVER=0.9.3.2
+SCRIPTUPDATE=2020.02.29.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 
 # 2020.02.28
 # 说实话，我现在真的很不想动这个脚本，看着就感觉太乱了
+
+usage_guide() {
+s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
+}
 
 # 判断客户端是否在运行---------------------------------------------------------------------
 
@@ -566,18 +570,20 @@ if [[ $Unusable == 1 ]]; then echo -e "${red}${bold}虽然某些功能无法使�
 
 
 # 07-1. 脚本菜单，未完待续
-function _show_scripts_menu() { clear ; echo
-  echo -e " ${black}${on_white}${bold}                                       07. 运行其他一键脚本                                         ${normal} "
-  echo -e " ${bold}"
-  echo -e "  ${green}(01) ${jiacu}安装 inexistence"
-  echo -e "  ${green}(02) ${jiacu}运行 AccTCP（锐速、bbr、bbrplus、魔改 bbr）"
-  echo -e "  ${green}(03) ${jiacu}配置 IPv6 （Online.net / Scaleway 和 Ikoula 独服）"
-  echo -e "  ${green}(04) ${jiacu}运行 ABench"
-  echo -e "  ${green}(05) ${jiacu}运行 ZBench"
-  echo -e "  ${green}(06) ${jiacu}使用 iperf 测试网速"
-  echo -e "  ${green}(10) ${jiacu}返回 main menu"
-  echo -e "  ${normal}"
-  echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
+function _show_scripts_menu() {
+    clear ; echo
+    echo -e " ${black}${on_white}${bold}                                       07. 运行其他一键脚本                                         ${normal} "
+    echo -e " ${bold}"
+    echo -e "  ${green}(01) ${jiacu}安装 inexistence"
+    echo -e "  ${green}(02) ${jiacu}运行 AccTCP（锐速、bbr、bbrplus、魔改 bbr）"
+    echo -e "  ${green}(03) ${jiacu}配置 IPv6 （Online.net / Scaleway 和 Ikoula 独服）"
+    echo -e "  ${green}(04) ${jiacu}运行 ABench"
+    echo -e "  ${green}(05) ${jiacu}运行 ZBench"
+    echo -e "  ${green}(06) ${jiacu}使用 iperf 测试网速"
+    echo -e "  ${green}(10) ${jiacu}返回 main menu"
+    echo -e "  ${normal}"
+    echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}"
+}
 
 
 # 07-2. 脚本菜单回应
@@ -595,7 +601,7 @@ case $response in
     05 |  5) # 运行 ZBench
              bash -c "$( wget -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
     06 |  6) # 使用 iperf 测试网速
-             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/iperfff)
+             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/iperfff) ;;
     10 | "") # 返回主菜单
              echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
           *) # 返回主菜单
