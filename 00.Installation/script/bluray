@@ -38,7 +38,7 @@ BATCH=0
 WEB_FOLDER="/etc/inexistence/04.Upload"
 # --------------------------------------------------------------------------------
 #
-# 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径（请确保 rclone 命令可用）
+# 如果你要用 rclone 自动上传文件，请把 RCLONE 改成 1，然后 RCLONEPATH 改成你 rclone remote 的路径（请确保 rclone 已配置好且在 $PATH 内）
 #
 RCLONE=0
 RCLONEPATH="Replace:/here/with/your/remote/path"
@@ -52,8 +52,12 @@ RCLONEPATH="Replace:/here/with/your/remote/path"
 #
 #
 #
-# bash <(curl -s https://raw.githubusercontent.com/Aniverse/bluray/master/bluray)
-# wget -qO /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray && chmod +x /usr/local/bin/bluray
+#
+usage() {
+bash <(wget -qO- https://git.io/bluray) -u
+bash <(curl -s https://raw.githubusercontent.com/Aniverse/bluray/master/bluray)
+wget -qO /usr/local/bin/bluray https://git.io/bluray && chmod +x /usr/local/bin/bluray
+}
 # --------------------------------------------------------------------------------
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3);
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
@@ -66,11 +70,12 @@ baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_
 heibaise=${black}${on_white}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 # --------------------------------------------------------------------------------
-BDDATE=2019.02.25
-BDVER=2.9.6
+BDDATE=2020.03.01
+BDVER=3.0.3
 DeBUG=0
 # --------------------------------------------------------------------------------
 using_bdinfo=new
+sstn=No
 bdinfocli_path="/etc/inexistence/02.Tools/bdinfocli.exe"
 [[ $using_bdinfo == new ]] && bdinfocli_path="/etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe"
 convert=1
@@ -80,7 +85,7 @@ function even_number () { [ ! $(($2%2)) == 0 ] && eval $1=$( expr $2 + 1 ) ; }
 
 # 获取参数
 
-OPTS=$(getopt -n "$0" -o bdyp:i:s:t: --long "debug,default,yes,no-convert,path:,bdinfo:,screenshot:,tracker:" -- "$@")
+OPTS=$(getopt -n "$0" -o bdyp:i:s:t:u --long "debug,default,yes,no-convert,path:,bdinfo:,screenshot:,tracker:,upgrade" -- "$@")
 
 eval set -- "$OPTS"
 
@@ -95,6 +100,7 @@ while true; do
     -y | --yes         ) ForceYes=1        ; shift ;;
          --no-vcs      ) sstn=No           ; shift ;;
          --no-convert  ) convert=0         ; shift ;;
+    -u | --upgrade     ) do_upgrade=1      ; shift ;;
      * ) break ;;
   esac
 done
@@ -132,7 +138,7 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 # Logo
-function _logo() { clear ; wget --no-check-certificate -t1 -T7 -qO- https://github.com/Aniverse/inexistence/raw/master/03.Files/bluray.logo.1 ; echo -e "${bold}Automated Blu-ray Upload Toolkit ${green}$BDVER${normal}" ; }
+function _logo() { clear ; wget --no-check-certificate -t1 -T7 -qO- https://github.com/Aniverse/inexistence/raw/files/logo/bluray.logo.1 ; echo -e "${bold}Automated Blu-ray Upload Toolkit ${green}$BDVER ($BDDATE)${normal}" ; }
 
 
 # 必要软件检查
@@ -149,7 +155,8 @@ fi ; }
 
 # 检查必要软件是否齐全
 function _check_install_2(){
-for apps in ffmpeg vcs mono mktorrent convert montage identify bash getopt cut nconvert bc expr ; do
+# vcs montage identify
+for apps in ffmpeg mono mktorrent convert bash getopt cut nconvert bc expr ; do
     app_name=$apps ; _check_install
 done
 rm -rf tmpmissingapp
@@ -180,7 +187,11 @@ function _install_vcs() { wget --no-check-certificate -qO /usr/local/bin/vcs htt
 
 
 # 有 root 权限的盒子安装 nconvert
-function _install_nconvert() { wget --no-check-certificate -qO /usr/local/bin/nconvert https://raw.githubusercontent.com/Aniverse/bluray/master/tools/nconvert && chmod 755 /usr/local/bin/nconvert ; }
+function _install_nconvert() { 
+wget -t1 -T5 http://download.xnview.com/NConvert-linux64.tgz -O NConvert-linux64.tgz && {
+tar zxf NConvert-linux64.tgz
+mv NConvert/nconvert /usr/local/bin
+rm -rf NConvert* ; } ; }
 
 
 # 有 root 权限的盒子安装 bdinfo
@@ -268,7 +279,7 @@ while [[ $appmissing == Yes ]]; do
 
         while [[ $installresponce = 0 ]]; do
             installresponce=1
-            echo -n "${yellow}${bold}What would you like to do?${normal} (Default ${cyan}02${normal}) " ; read -e responce ; echo
+            echo -n "${yellow}${bold}What would you like to do?${normal} (Default ${cyan}04${normal}) " ; read -e responce ; echo
         done
 
         case $responce in
@@ -276,19 +287,19 @@ while [[ $appmissing == Yes ]]; do
                          if [[ $NoRoot == 1 ]]; then
                              installresponce=0 && echo -e "${baihongse}${bold}ERROR${normal}${bold} You DONOT have ROOT privilege${normal}\n"
                          else
-                             apt-get install -y mono-complete mktorrent imagemagick bc
+                             apt-get install -y mono-complete mktorrent bc # imagemagick
                              [[ ! $( command -v ffmpeg   ) ]] && _install_ffmpeg
-                             [[ ! $( command -v vcs      ) ]] && _install_vcs
+                             # [[ ! $( command -v vcs      ) ]] && _install_vcs
                              [[ ! $( command -v nconvert ) ]] && _install_nconvert
                              _install_bdinfo ; installdone=1 ; appmissing=No ; _check_install_2
                          fi ;;
-            02 | 2 | "") # 无需 root，使用脚本内置库运行
+            02 | 2) # 无需 root，使用脚本内置库运行
                          echo "${bold}The script will use built-in library ...${normal}"
                          _check_library
                          installdone=1 ; appmissing=No ; _check_install_2 ;;
             03 | 3)      # 继续运行
 						 installdone=1 ; appmissing=No2 ;;
-            04 | 4)      # 退出脚本
+            04 | 4 | "")      # 退出脚本
                          echo "${bold}Exiting script ...${normal}" ; exit 0 ;;
             *)           # 重新输入
                          installresponce=0 ;;
@@ -302,7 +313,7 @@ done
 _logo
 [[ $NoRoot == 1 ]] && echo -e "\n${ZY}Since you run this script without root privileges, BDISO is not supported${normal}"
 if [[ $appmissing == No2 ]]; then
-    echo -e "\n${JG}There might be some issues since ${baihongse}${tmpmissingapp%?}${normal}${bold} is missing ...${normal}"
+    echo -e "\n${JG} There might be some issues since ${baihongse}${tmpmissingapp%?}${normal}${bold} is missing ...${normal}"
 else
     echo -e "\n${bold}Good, All the needed softwares are installed ...${normal}"
 fi ; }
@@ -839,28 +850,29 @@ echo -e "${normal}${bold}${baihongse}                DEBUG INFO END             
 # 获取BD info
 function _getinfo() {
 
-[[ $using_bdinfo == old ]] && [[ $bdscan == auto ]] && echo -ne '1\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
+[[ $using_bdinfo == old ]] && [[ $bdscan == auto ]] && echo -ne '1\n'    | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 [[ $using_bdinfo == new ]] && [[ $bdscan == auto ]] && echo -ne '1\nq\n' | mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 [[ $bdscan == manual ]] && mono "${bdinfocli_path}" "${bdpath}" "${outputpath}"
 
 if [[ ! $bdscan == no ]]; then
-
-  # BDinfoCLI 0.7.3 也能输出 Quick Summary
-  # [[ $using_bdinfo == old ]] && {
-    sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
-    count=`wc -l temptext | awk '{print $1-1}' `
-    head -n $count temptext > "${outputpath}/bdinfo.quick.txt"
-    rm temptext
-  # }
-
-    sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > temptext
-    count=`wc -l temptext | awk '{print $1-2}' `
-    head -n $count temptext > "${outputpath}/bdinfo.main.txt"
-    rm temptext
-
-    mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.full.txt"
-    echo -e "\n\n${bold}${green}Scanning BDinfo DONE${normal}\n\n"
-
+    if [[ -f "${outputpath}/BDINFO.${file_title}.txt" ]]; then
+      # BDinfoCLI 0.7.3 也能输出 Quick Summary
+      # [[ $using_bdinfo == old ]] && {
+        sed -n '/QUICK SUMMARY/,//p' "${outputpath}/BDINFO.${file_title}.txt" > $HOME/temptext
+        count=`wc -l $HOME/temptext | awk '{print $1-1}' `
+        head -n $count $HOME/temptext > "${outputpath}/bdinfo.quick.txt"
+        rm $HOME/temptext
+      # }
+        sed -n '/DISC INFO/,/FILES/p' "${outputpath}/BDINFO.${file_title}.txt" > $HOME/temptext
+        count=`wc -l $HOME/temptext | awk '{print $1-2}' `
+        head -n $count $HOME/temptext > "${outputpath}/bdinfo.main.txt"
+        rm $HOME/temptext
+        mv "${outputpath}/BDINFO.${file_title}.txt" "${outputpath}/bdinfo.full.txt"
+        echo -e "\n\n${bold}${green}Scanning BDinfo DONE${normal}\n\n"
+    else
+        echo -e "\n\n${bold}${red}Scanning BDinfo FAILED${normal}\n\n"
+        BDinfoFailed=y
+    fi
 fi ; }
 
 
@@ -954,55 +966,64 @@ function _rcloneup() { rclone copy -v --stats 5s "${outputpath}" "${RCLONEPATH}"
 
 # 结果输出
 function _end() {
-
-[[ $move_when_complete == 1 ]] && mv ` ls "/etc/inexistence/06.BluRay/temp/$file_title_clean" ` "$bdpath" && rm -rf "/etc/inexistence/06.BluRay/temp/$file_title_clean"
-
-# 不要解除挂载，解除挂载了等会儿怎么 seeding？
-# [[ $stufftype == "BDISO" ]] && umount "$bdisopath" # && rm -rf "/etc/inexistence/06.BluRay/$file_title_clean" "/etc/inexistence/06.BluRay/temp/$file_title_clean"
-
-file_title_short=` echo "${file_title_clean}" | cut -c1-40  `
-[[ $BATCH == 1 ]] && { rar a -m5 "${WEB_FOLDER}/${file_title_short}.rar" "$outputpath" ; }
-
-endtime=$(date +%s) 
-timeused=$(( $endtime - $starttime ))
-
-clear ; echo -e "${bold}Done. Files are stored in ${yellow}\"${outputpath}\"${normal}"
-
-# [[ ! $resolution == no ]] && [[ $UHDBD == 1 ]] && echo -e "\n${bold}${red}ATTENTION${jiacu} Some of screenshots may be ${red}broken${jiacu}, you need to check it manually"
-
-# echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
-echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -2 -t ; echo
-
-[[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}\n"
-
-[[ $BATCH == 1 ]] && echo -e "${bold}Download batch via the following link: \n${green}${DOWNLOAD_LINK_BASE}/${file_title_short}.rar${normal}\n"
-
-if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
-    timeusedmin=$(expr $timeused / 60) ; timeusedsec=$(expr $timeused % 60)
-    echo -e "${bold}${yellow}Time used: ${timeusedmin} min ${timeusedsec} sec${normal}"
-elif [[ $timeused -ge 3600 ]]; then
-    timeusedhour=$(expr $timeused / 3600) ; timeusedmin=$(expr $(expr $timeused % 3600) / 60) ; timeusedsec=$(expr $timeused % 60)
-    echo -e "${bold}${yellow}Time used: ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
-else
-   echo -e "${bold}${yellow}Time used: ${timeused} sec${normal}"
-fi
-
-if [[ ! $bdscan == no ]] ; then
-    echo -ne "\n${yellow}${bold}Would you like to show BDinfo summary in ssh?${normal} [${cyan}Y${normal}]es or [N]o " ; read responce
-    case $responce in
-        [yY] | [yY][Ee][Ss] )  showinfo=Yes ;;
-        [nN] | [nN][Oo]     )  showinfo=No  ;;
-        ""   | *            )  showinfo=Yes ;;
-    esac
-    echo
-    if [[ $showinfo == Yes ]] ; then
-        echo -e "\n${bold}${blue}-------------------------------------- BDinfo Main Summary ---------------------------------------${normal}\n"
-        cat "${outputpath}/bdinfo.main.txt"
-        echo -e "\n${bold}${blue}------------------------------------------- BDinfo END -------------------------------------------${normal}"
+    if [[ $move_when_complete == 1 ]]; then
+        mv ` ls "/etc/inexistence/06.BluRay/temp/$file_title_clean" ` "$bdpath"
+        rm -rf "/etc/inexistence/06.BluRay/temp/$file_title_clean"
     fi
-fi
 
-echo ; }
+    # 不要解除挂载，解除挂载了等会儿怎么 seeding？
+    # [[ $stufftype == "BDISO" ]] && umount "$bdisopath" # && rm -rf "/etc/inexistence/06.BluRay/$file_title_clean" "/etc/inexistence/06.BluRay/temp/$file_title_clean"
+
+    file_title_short=` echo "${file_title_clean}" | cut -c1-40  `
+    [[ $BATCH == 1 ]] && { rar a -m5 "${WEB_FOLDER}/${file_title_short}.rar" "$outputpath" ; }
+
+    endtime=$(date +%s) 
+    timeused=$(( $endtime - $starttime ))
+
+    clear
+    if [[ $BDinfoFailed == y ]];then
+        echo -e "${bold}${red}ERROR: Scanning BDinfo FAILED${normal}\n"
+        echo -e "${bold}${red}Other f1iles are stored in ${yellow}\"${outputpath}\"${normal}"
+    else
+        echo -e "${bold}Done. Files are stored in ${yellow}\"${outputpath}\"${normal}"
+    fi
+
+    # [[ ! $resolution == no ]] && [[ $UHDBD == 1 ]] && echo -e "\n${bold}${red}ATTENTION${jiacu} Some of screenshots may be ${red}broken${jiacu}, you need to check it manually"
+
+    # echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -4 -t ; echo
+    echo ; ls -hAlvZ "${outputpath}" | grep -v total | awk '{print $NF}' | pr -2 -t ; echo
+
+    [[ $copy_bdiso_to_bdmv == 1 ]] && echo -e "${bold}BDISO copied to ${yellow}\"${bdpath}\"${normal}\n"
+    
+    [[ $BATCH == 1 ]] && echo -e "${bold}Download batch via the following link: \n${green}${DOWNLOAD_LINK_BASE}/${file_title_short}.rar${normal}\n"
+    
+    if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
+        timeusedmin=$(expr $timeused / 60) ; timeusedsec=$(expr $timeused % 60)
+        echo -e "${bold}${yellow}Time used: ${timeusedmin} min ${timeusedsec} sec${normal}"
+    elif [[ $timeused -ge 3600 ]]; then
+        timeusedhour=$(expr $timeused / 3600) ; timeusedmin=$(expr $(expr $timeused % 3600) / 60) ; timeusedsec=$(expr $timeused % 60)
+        echo -e "${bold}${yellow}Time used: ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    else
+       echo -e "${bold}${yellow}Time used: ${timeused} sec${normal}"
+    fi
+
+    if [[ ! $bdscan == no ]] && [[ -z $BDinfoFailed ]] ; then
+        echo -ne "\n${yellow}${bold}Would you like to show BDinfo summary in ssh?${normal} [${cyan}Y${normal}]es or [N]o " ; read responce
+        case $responce in
+            [yY] | [yY][Ee][Ss] )  showinfo=Yes ;;
+            [nN] | [nN][Oo]     )  showinfo=No  ;;
+            ""   | *            )  showinfo=Yes ;;
+        esac
+        echo
+        if [[ $showinfo == Yes ]] ; then
+            echo -e "\n${bold}${blue}-------------------------------------- BDinfo Main Summary ---------------------------------------${normal}\n"
+            cat "${outputpath}/bdinfo.main.txt"
+            echo -e "\n${bold}${blue}------------------------------------------- BDinfo END -------------------------------------------${normal}"
+        fi
+    fi
+
+    echo
+}
 
 
 
@@ -1014,12 +1035,20 @@ echo ; }
 
 
 # 结构
+
+if [[ $do_upgrade == 1 ]] && [[ $EUID == 0 ]]; then
+    _logo
+    echo -e "Installing latest script ... "
+    wget -qO /usr/local/bin/bluray https://git.io/bluray && chmod +x /usr/local/bin/bluray && echo -e "${green}DONE${normal}\n"
+    exit 0
+fi
+
 _intro
 _askpath
 _stuff_work
 _askscan
 _askresolution
-_askthumbnail
+#_askthumbnail
 _askmktorrent
 [[ $USELESS == 1 ]] && _askuselessfiles
 [[ $RCLONE == 1 ]] && _askrclone
