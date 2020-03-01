@@ -28,7 +28,13 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 
 ![脚本参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.09.png)
 
-脚本支持自定义参数，具体参数的说明在下文中有说明  
+脚本支持自定义参数运行，比如我个人常用的参数是：
+```
+bash <(wget -qO- https://git.io/abcde) --apt-no --tweaks-yes --bbr-no --tools-no \
+--wine-yes --rclone-yes --flexget-yes --flood-no --rdp-no --skip-system-upgrade  \
+--de 1.3.15 --qb 4.1.9 --lt RC_1_1 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
+```
+具体参数的解释在下文中有说明  
 
 ![引导界面](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.01.png)
 
@@ -237,8 +243,7 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 
 ## mingling
 
-方便刷子们使用的一个脚本，有很多功能如果你没安装 `inexistence` 的话是用不了的  
-有些功能还没做完，不过这个脚本我有点放弃治疗了，无限期弃更，说真的这个东西我自己都懒得用  
+**这个脚本我基本放弃治疗的，很少更新，会有过时的问题**  
 不做具体的介绍了，直接看图吧  
 
 ![mingling.00](https://github.com/Aniverse/pics/raw/master/inexistence/mingling.00.png)
@@ -255,6 +260,24 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 
 
 
+## Blu-ray
+
+关于 bluray 脚本的详细介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
+inexistence 自带 bluray，不过不包括它的软件库（然而你可以直接用 inexistence 安装 ffmpeg、bdinfocli、mono）  
+更新 bluray 脚本的命令是：  
+```
+bash <(wget -qO- https://git.io/bluray) -u
+```
+此外，如果你只用 bluray 扫描 bdinfo，可以使用以下参数运行：  
+```
+bluray -t no -y -s no -i auto -p "路径"
+```
+你也可以写成 alias，加到 `~/.profile` 或 `~/.bashrc` 之类的文件里  
+```
+alias bdinfo4k="bluray -t no -y -s no -i auto -p"
+```
+
+
 
 
 
@@ -262,6 +285,7 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 
 这个是单独抽出来的，用于给 BDMV 扫描 BDinfo 的脚本  
 运行完以后可以直接在 SSH 上输出 BDinfo Quick Summary  
+**注意：这个脚本不支持 UHD Blu-ray，如果需要扫 4K 蓝光，请用 bluray 脚本**  
 
 ![bdinfo输出结果](https://github.com/Aniverse/pics/raw/master/aBox/bdinfo.01.png)
 
@@ -371,20 +395,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ![jiegua.01](https://github.com/Aniverse/pics/raw/master/aBox/jiegua.01.png)
 
 `guazai` + `jietu` + `jiegua` 三连
-
-
-
-
-
-
-
-
-## Blu-ray
-
-关于 bluray 脚本的介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
-inexistence 自带 bluray，不过不包括它的软件库  
-（然而你可以直接用 inexistence 安装 ffmpeg、vcs、bdinfocli、mono、imagemagick）  
-
 
 
 
