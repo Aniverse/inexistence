@@ -3,17 +3,23 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.01.27
-script_version=r11007.5
+script_update=2020.03.02
+script_version=r11020
 
-usage_guide() {
-s=/etc/inexistence/00.Installation/package/qbittorrent/configure
-rm $s ; nano $s ; chmod 755 $s
-bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/qbittorrent/configure
+    rm -f $s ; nano $s
+    bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
 }
+
 ################################################################################################ Get options
 
-function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+unset AppName AppNameLower Need_SourceCode pm_action \
+      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      iUser iPass iHome wPort iPort lang
 
 OPTS=$(getopt -n "$0" -o u:p:w:i:h:l: --long "username:,password:,home:,wport:,iport:,lang:,logbase:" -- "$@")
 eval set -- "$OPTS"
@@ -26,12 +32,30 @@ while true; do
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
     -l | --lang     ) lang="$2"     ; shift 2 ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
-    -- ) shift; break ;;
+    -- ) shift 2 ; break ;;
      * ) break ;;
   esac
 done
 
-[[ -z $iUser || -z $iPass ]] && { echo -e "Please specify username and password" ; exit 1 ; }
+################################################################################################ Set Variables
+
+AppName=qBittorrent
+AppNameLower=qbittorrent
+Need_SourceCode=no  # do not need source code when configuring
+pm_action=configure
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function
+fi
+
+set_variables_log_location
+[[ $debug == 1 ]] && debug_log_location
+
+[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
+id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
 [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=2017
@@ -39,15 +63,14 @@ done
 [[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
 
-LogRootPath=/log/inexistence
-[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
-OutputLOG=$LogTimes/configure/qbittorrent.txt
-mkdir -p $(dirname $OutputLOG)
-source /etc/inexistence/00.Installation/function --output $OutputLOG
+qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
 
 ################################################################################################
 
-cat > /etc/systemd/system/qbittorrent@.service << EOF
+function configure_qbittorrent() {
+
+    echo >> $OutputLOG
+    cat << EOF > /etc/systemd/system/qbittorrent@.service
 [Unit]
 Description=qBittorrent Daemon Service
 After=network.target
@@ -65,27 +88,22 @@ TimeoutSec=300
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daemon-reload
+    systemctl daemon-reload
 
-################################################################################################
+    if [[ -d $iHome/.config/qBittorrent ]]; then
+        mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
+        rm -rf mv $iHome/.config/qBittorrent
+    fi
 
-function configure_qbittorrent() {
+    mkdir -p $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent
 
-echo >> $OutputLOG
+    cp -f $local_packages/package/qbittorrent/qb /usr/local/bin/qb >> $OutputLOG 2>&1
+    chmod 755 /usr/local/bin/qb >> $OutputLOG 2>&1
 
-[[ -d $iHome/.config/qBittorrent ]] && {
-mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
-rm -rf mv $iHome/.config/qBittorrent ; }
+    chmod -R 755  $iHome/.config/qBittorrent   $iHome/qbittorrent
+    chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
 
-mkdir -p $iHome/qbittorrent/{download,torrent,watch} $iHome/.config/qBittorrent
-chmod -R 755 $iHome/.config/qBittorrent
-chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
-
-cp $local_packages/package/qbittorrent/qb /usr/local/bin
-chmod 755 /usr/local/bin/qb
-
-qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
-cat > $iHome/.config/qBittorrent/qBittorrent.conf << EOF
+    cat << EOF > $iHome/.config/qBittorrent/qBittorrent.conf
 [Application]
 FileLogger\Enabled=true
 FileLogger\Age=6
@@ -118,50 +136,40 @@ General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
 WebUI\CSRFProtection=false
 WebUI\Port=$wPort
-
+WebUI\Username=$iUser
 EOF
 
-CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
-qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )
-
-
-
-if version_ge $qbtnox_ver 4.2.0 ; then
-
-    git clone --depth=1 https://github.com/KozakaiAya/libqbpasswd.git libqbpasswd
-    cd libqbpasswd
-    make
-    cp -f qb_password_gen /usr/local/bin/qb_password_gen
-    cd .. && rm -rf libqbpasswd
-    qbPass=$(/usr/local/bin/qb_password_gen $iPass)
-    cat >> $iHome/.config/qBittorrent/qBittorrent.conf << EOF
-WebUI\Username=$iUser
+    if version_ge $qb_installed_ver 4.2.0 ; then
+        git clone --depth=1 https://github.com/KozakaiAya/libqbpasswd.git libqbpasswd >> $OutputLOG 2>&1
+        cd libqbpasswd
+        make >> $OutputLOG 2>&1
+        cp -f qb_password_gen /usr/local/bin/qb_password_gen
+        cd .. && rm -rf libqbpasswd
+        qbPass=$(/usr/local/bin/qb_password_gen $iPass)
+        cat << EOF >> $iHome/.config/qBittorrent/qBittorrent.conf
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
 EOF
-
-else
-
-    qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
-    cat >> $iHome/.config/qBittorrent/qBittorrent.conf << EOF
-WebUI\Username=$iUser
+    else
+        qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
+        cat << EOF >> $iHome/.config/qBittorrent/qBittorrent.conf
 WebUI\Password_ha1=@ByteArray($qbPass)
 EOF
+    fi
 
-fi
+    systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
+    systemctl start  qbittorrent@$iUser >> $OutputLOG 2>&1
+    [[ -d /var/www/h5ai ]] && ln -s   $iHome/qbittorrent/download   /var/www/h5ai/$iUser/qbittorrent
 
-systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
-systemctl start qbittorrent@$iUser
-[[ -d /var/www/h5ai ]] && ln -s $iHome/qbittorrent/download /var/www/h5ai/$iUser/qbittorrent
-
-status_lock=qbt-config
-rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-ps --user $iUser | grep qbittorrent-nox -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-echo >> $OutputLOG
+    status_lock=$AppName-c
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    ps --user $iUser | grep qbittorrent-nox -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
 }
 
 
 
 
-echo -ne "Configurating qBittorrent ..." | tee -a $OutputLOG
+echo -ne "Configuring $AppName ..." | tee -a $OutputLOG
 configure_qbittorrent & spinner $!
-check_status qbt-config | tee -a $OutputLOG
+check_status $status_lock | tee -a $OutputLOG
