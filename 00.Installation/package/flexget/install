@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.02.28
-script_version=r20002
+script_update=2020.03.02
+script_version=r20003
 
 ################################################################################################ Debug
 
@@ -46,8 +46,7 @@ pm_action=install
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 
 set_variables_log_location
@@ -66,17 +65,19 @@ function install_python3() {
     if [[ "$CODENAME" == "xenial" ]]; then
         apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F23C5A6CF475977595C89F51BA6932366A755776 >> "$OutputLOG" 2>&1
         LC_ALL=en_US.UTF-8 add-apt-repository ppa:deadsnakes/ppa -y >> "$OutputLOG" 2>&1
-        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update >> "$OutputLOG" 2>&1
-        apt-get install -y python3.6 >> "$OutputLOG" 2>&1
+        APT_UPGRADE
+        apt_install_check    python3.6
+        apt_install_separate
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2 >> "$OutputLOG" 2>&1
-    elif [[ "$CODENAME" =~ "jessie|stretch" ]]; then
-        apt_install_separate build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
+    elif [[ "$CODENAME" =~ (jessie|stretch) ]]; then
+        apt_install_check    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
+        apt_install_separate
         wget -nv -O Python-3.7.6.tar.xz https://www.python.org/ftp/python/3.7.6/Python-3.7.6.tar.xz >> "$OutputLOG" 2>&1
         tar -xf Python-3.7.6.tar.xz
         cd Python-3.7.6
         ./configure  >> "$OutputLOG" 2>&1
-        time make -j$(nproc)  >> "$OutputLOG" 2>&1
+        time make -j$(nproc) >> "$OutputLOG" 2>&1
         make install  >> "$OutputLOG" 2>&1
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1 >> "$OutputLOG" 2>&1
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
@@ -87,7 +88,8 @@ function install_python3() {
         	ln -s /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.7/site-packages/lsb_release.py
         fi
     else
-        apt_install_separate   python3-pip python3-setuptools
+        apt_install_check    python3-pip python3-setuptools
+        apt_install_separate
     fi
 
     python3_ver=$(python3 -V | grep -oE "[0-9.]+")
@@ -191,7 +193,8 @@ function install_flexget2_user() {
 
     echo >> $OutputLOG
 
-    apt_install python python-dev python-pip
+    apt_install_check    python python-dev python-pip
+    apt_install_separate
     python2 -m pip install --upgrade pip >> "$OutputLOG" 2>&1
     python2 -m pip install pathlib >> "$OutputLOG" 2>&1
     python2 -m pip install transmissionrpc deluge-client >> "$OutputLOG" 2>&1
