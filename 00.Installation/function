@@ -3,18 +3,17 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.28
-script_version=r10037
+script_update=2020.03.01
+script_version=r10038
 ################################################################################################ Usage Guide
 
 usage_guide() {
-s=/etc/inexistence/00.Installation/function
-rm -f $s ; nano $s
+s=/etc/inexistence/00.Installation/function;rm -f $s ; nano $s
+
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
-    source /etc/inexistence/00.Installation/function --output $OutputLOG
+    source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function --output $OutputLOG
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 }
 
@@ -157,9 +156,10 @@ function spinner() {
 
 # These codes are from rtinst and QuickBox
 function apt_install() {
+    local install_list
     # [[ -z "$OutputLOG" ]] && echo "ERROR: No output" && exit 1
     packages=("$@")  # arg=("$@") packages=("${arg[@]:1}")
-    [[ -z "$packages" ]] && echo "ERROR: No packages" && exit 1
+    [[ -z "$packages" ]] && echo "ERROR: No packages" | tee -a $OutputLOG && exit 1
     for package_name in "${packages[@]}" ; do
         if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
             if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
@@ -170,10 +170,12 @@ function apt_install() {
         fi
     done
     # test -z "$install_list" || apt-get -y install $install_list >> "$OutputLOG" 2>&1
-    test -z "$install_list" || apt-get -y --allow-unauthenticated -f $install_list >> "$OutputLOG" 2>&1
-    if [ ! $? = 0 ]; then
-        echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
-        exit 1
+    if [[ -n "$install_list" ]]; then
+        apt-get -y --allow-unauthenticated -f install $install_list >> "$OutputLOG" 2>&1
+        if [ ! $? = 0 ]; then
+            echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
+            exit 1
+        fi
     fi
 }
 
@@ -186,10 +188,12 @@ function apt_install_separate() {
     for package_name in "${packages[@]}" ; do
         if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
             if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package_name >> "$OutputLOG" 2>&1  ||
-                echo_error "Failed to install $package_name"
+                DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package_name >> "$OutputLOG" 2>&1 ||
+                { echo | tee -a $OutputLOG ; echo_error "Failed to install $package_name" ; }
             fi
         else
+            # Since we use echo -ne when echo_task, so use echo to start a newline
+            echo | tee -a $OutputLOG
             echo_info "$package_name not found, skipping"
         fi
     done
