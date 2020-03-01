@@ -1,15 +1,16 @@
 #!/bin/bash
 #
-# https://github.com/Aniverse/inexistence
+# https://github.com/Aniverse/aBox
 # Author: Aniverse
 #
-script_update=2020.02.22
-script_version=r30101
+script_update=2020.02.25
+script_version=r30203
 ################################################################################################
 
 usage_guide() {
-s=/usr/local/bin/ipv66;rm -f $s;nano $s;chmod 755 $s
-bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -m ol2 -6 XXX -d XXX -s 56 ; }
+s=/usr/local/bin/ipv6;rm -f $s;nano $s;chmod 755 $s
+bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6)    -m ol2 -6 XXX -d XXX -s 56
+}
 
 ################################################################################################ Get options
 
@@ -52,6 +53,8 @@ heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
 CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
 
 ################################################################################################
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$PATH
 
 SysSupport="可能不支持"
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
@@ -175,16 +178,16 @@ function check_var() {
 
 # Ikoula 独服（/etc/network/interfaces）
 # 这个是只添加
-function ikoula_interfaces() {
+function ikoula_ifupdown() {
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]] || [[ $force == 1 ]] ; then
         file_backup
         [[ $force == 1 ]] && interfaces_file_clean
         cat << EOF >> /etc/network/interfaces
 ### Added by IPv6_Script ###
 iface $interface inet6 static
-address 2a00:c70:1:$AAA:$BBB:$CCC:$DDD:1
-netmask 96
-gateway 2a00:c70:1:$AAA:$BBB:$CCC::1
+      address 2a00:c70:1:$AAA:$BBB:$CCC:$DDD:1
+      netmask 96
+      gateway 2a00:c70:1:$AAA:$BBB:$CCC::1
 ### IPv6_Script END ###
 EOF
         systemctl_restart
@@ -225,6 +228,13 @@ EOF
 
 # Ikoula 独服，Ubuntu 18.04 系统（netplan）
 function ikoula_netplan() {
+
+    # fxxk ikoula
+    sed -i '/^.*net.ipv6.conf.all.disable_ipv6.*/'d       /etc/sysctl.d/40-ikoula.conf
+    sed -i '/^.*net.ipv6.conf.default.disable_ipv6.*/'d   /etc/sysctl.d/40-ikoula.conf
+    sed -i '/^.*net.ipv6.conf.lo.disable_ipv6.*/'d        /etc/sysctl.d/40-ikoula.conf
+    sed -i '/^.*net.ipv6.conf.eth0.disable_ipv6.*/'d      /etc/sysctl.d/40-ikoula.conf
+
     file_backup
     cat << EOF > /etc/netplan/01-netcfg.yaml
 network:
@@ -234,7 +244,6 @@ network:
     $interface:
       dhcp4: no
       dhcp6: no
-      accept-ra: no
       addresses: [$AAA.$BBB.$CCC.$DDD/24, '2400:c70:1:$AAA:$BBB:$CCC:$DDD:1/96']
       gateway4: $AAA.$BBB.$CCC.1
       gateway6: 2a00:c70:1:$AAA:$BBB:$CCC::1
@@ -264,9 +273,14 @@ function write_dhclient6_systemd() {
 Description=dhclient for sending DUID IPv6
 Wants=network.target
 Before=network.target
+
 [Service]
+#Restart=always
+#RestartSec=10
 Type=forking
 ExecStart=$(which dhclient) -cf /etc/dhcp/dhclient6.conf -6 -P -v $interface
+ExecStop=$(which dhclient) -x -pf /var/run/dhclient6.pid
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -282,9 +296,11 @@ Description=redo netplan apply after dhclient
 Wants=dhclient.service
 After=dhclient.service
 Before=network.target
+
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/netplan apply
+
 [Install]
 WantedBy=dhclient.service
 EOF
@@ -298,20 +314,21 @@ function online_interfaces_file_mod() {
     cat << EOF >> /etc/network/interfaces
 ### Added by IPv6_Script ###
 iface $interface inet6 static
-address $IPv6
-netmask $subnet
-#accept_ra 1
-#pre-up modprobe ipv6
-#pre-up dhclient -cf /etc/dhcp/dhclient6.conf -pf /run/dhclient6.$interface.pid -6 -P $interface
-#pre-down dhclient -x -pf /run/dhclient6.$interface.pid
+      address $IPv6
+      netmask $subnet
+#     accept_ra 1
+#     pre-up modprobe ipv6
+#     pre-up dhclient -cf /etc/dhcp/dhclient6.conf -pf /run/dhclient6.$interface.pid -6 -P $interface
+#     pre-down dhclient -x -pf /run/dhclient6.$interface.pid
 ### IPv6_Script END ###
 EOF
+# pre-up /sbin/dhclient -1 -v -pf /run/dhclient6.$interface.pid -lf /var/lib/dhcp/dhclient6.$interface.leases -cf /etc/dhcp/dhclient6.conf -6 -P $interface
 }
 
 
 
 # Online／OneProvider Paris 独服，Ubuntu 16.04，Debian 8/9/10
-function online_interfaces() {
+function online_dhclient() {
     check_var
     file_backup
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]]; then
@@ -344,6 +361,7 @@ function online_netplan() {
 EOF
     systemctl start dhclient.service
     systemctl start dhclient-netplan.service
+    netplan apply
 }
 
 
@@ -477,8 +495,7 @@ function netplan_netcfg_file_clean() {
 }
 
 function systemctl_restart() {
-  # systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED${normal}"
-    sleep 0
+    systemctl restart networking.service || echo -e "\n${red}systemctl restart networking.service FAILED${normal}"
 }
 
 function ipv6_test() {
@@ -561,7 +578,7 @@ ping6 -c 5 ipv6.google.com"
 }
 
 function ask_pause() {
-    read -p "${bold}敲回车开始执行操作  ${normal} " pause
+    read -p "${bold}敲回车开始执行操作 ${normal} " pause
     echo
 }
 
@@ -597,24 +614,25 @@ ${bold}${baiqingse}IPv6 Script $script_version${normal}
 
 ${bold}${green}Usage: ${normal}
 -m     Specify IPv6 configuring mode
-       ik    Ikoula interfaces, only for Ikoula servers using ifdown
+       ik    Ikoula ifupdown, only for Ikoula servers using ifupdown
              Typically, This is for Ubuntu 14.04/16.04, Debian 7/8/9/10
        ik2   Ikoula netplan, only for Ikoula servers using netplan
              Typically, This is ONLY for Ubuntu 18.04
-       ol    Online interfaces, only for Online/OneProvider servers using ifdown
+       ol    Online dhclient, only for Online/OneProvider servers using ifupdown
              Typically, This is for Ubuntu 16.04, Debian 8/9/10
        ol2   Online netplan, only for Online/OneProvider servers using netplan
              Typically, This is ONLY for Ubuntu 18.04
        ol3   Online dibbler, only for Online/OneProvider servers
              Typically, This is for Ubuntu 16.04/18.04, Debian 8/9/10
        ol4   Online odhcp6c, only for Online/OneProvider servers
-             Still in development
+             Typically, This is for Ubuntu 16.04/18.04, Debian 8/9/10
 -6     Inupt IPv6
 -d     Input DUID
 -s     Input subnet
+-i     Input interface
 -r     Do a reboot without confirmation after executing script
--h     Show this info
 -t     Test IPv6 connectivity
+-h     Show this info
 
 ${bold}${green}Examples: ${normal}
 
@@ -670,11 +688,11 @@ ${green}<4>${cyan} 所使用的网卡名称          ${blue}$interface${jiacu}
 
 ${on_blue}------------------- 下列为可用的配置模式 -------------------${jiacu}
 
-${green}<11>${cyan} Online interfaces （Debian 8/9/10，Ubuntu 16.04）
+${green}<11>${cyan} Online dhclient6  （Debian 8/9/10，Ubuntu 16.04）（调试中，先别用这个）
 ${green}<12>${cyan} Online netplan    （Ubuntu 18.04）
 ${green}<13>${cyan} Online dibbler    （Debian 8/9/10，Ubuntu 16.04/18.04）
 ${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10，Ubuntu 16.04/18.04）
-${green}<21>${cyan} Ikoula interfaces （Debian 8/9/10，Ubuntu 16.04）
+${green}<21>${cyan} Ikoula ifupdown   （Debian 8/9/10，Ubuntu 16.04）
 ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
 
 ${red}<90>${jiacu} 重启
@@ -711,9 +729,9 @@ ${red}<99>${jiacu} 退出脚本（直接回车也是退出）
 
 function mode_action() {
 case $mode in
-    ik  ) ikoula_interfaces   ; ask_reboot ;;
+    ik  ) ikoula_ifupdown     ; ask_reboot ;;
     ik2 ) ikoula_netplan      ; ipv6_test  ;;
-    ol  ) online_interfaces   ; ipv6_test   ; ask_reboot ;;
+    ol  ) online_dhclient     ; ipv6_test   ; ask_reboot ;;
     ol2 ) online_netplan      ; ipv6_test  ;;
     ol3 ) online_dibbler      ; ask_reboot ;;
     ol4 ) online_odhcp6c      ; ipv6_test  ;;
@@ -739,6 +757,8 @@ function references() {
 # https://blog.gloriousdays.pw/2017/10/11/online-dedibox-ipv6-configuration/
 # https://ymgblog.com/2018/03/14/383/
 # https://ymgblog.com/2018/03/12/345/
+# https://www.timelate.com/archives/add-ipv6-address-for-ikoula-ubuntu-18-04-dedicated-server.html
 # https://documentation.online.net/en/dedicated-server/network/ipv6/prefix
+# https://en-wiki.ikoula.com/en/How_to_calculate_my_IPV6
 sleep 0
 }
