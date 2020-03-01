@@ -3,71 +3,89 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2019.07.10
-script_version=r11006
+script_update=2020.03.02
+script_version=r11009
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/rclone/install
+    rm -f $s ; nano $s ; bash $s
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/rclone/install)
+}
 
 ################################################################################################ Get options
 
+unset AppName AppNameLower Need_SourceCode pm_action \
+      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+
 function show_usage() { echo " Invalid option $1
 Usage:
-      -v        Specifiy which version of rclone to be installed
+      -v        Specifiy which version to be installed
+      -l        Specifiy LogBase
+      -d        Enable debug mode
 "
 exit 1 ; }
 
-OPTS=$(getopt -o v: -al debug,version:,logbase: -- "$@")
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase: -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
     -v | --version      ) version="$2"  ; shift 2 ;;
-         --logbase      ) LogTimes="$2" ; shift 2 ;;
-         --debug        ) debug=1       ; shift   ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
 
-LogRootPath=/log/inexistence
-[[ -z $LogTimes ]] && LogTimes=$LogRootPath/single
-OutputLOG=$LogTimes/install/rclone.txt    # /dev/null
-LOCKLocation=$LogRootPath/lock
+################################################################################################ Set Variables
+
+AppName=rclone
+AppNameLower=rclone
+Need_SourceCode=no
+pm_action=install
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
-    source /etc/inexistence/00.Installation/function --output $OutputLOG
+    source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function --output $OutputLOG
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
+
+set_variables_log_location
 
 ################################################################################################
 
-mkdir -p $LOCKLocation $LogTimes/install
-echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")\n\n\n" >> $OutputLOG
+
+
 
 function install_rclone() {
     echo >> $OutputLOG
-    cd $SCLocation
+    cd /tmp
 
-    wget https://downloads.rclone.org/rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
-    unzip rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
-    cd rclone-*-linux-amd64 >> $OutputLOG 2>&1
-    cp rclone /usr/bin/ >> $OutputLOG 2>&1
-    chown root:root /usr/bin/rclone >> $OutputLOG 2>&1
-    chmod 755 /usr/bin/rclone >> $OutputLOG 2>&1
-    mkdir -p /usr/local/share/man/man1 >> $OutputLOG 2>&1
+    wget -nv https://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone-current-linux-amd64.zip >> $OutputLOG 2>&1
+    unzip rclone-current-linux-amd64.zip  >> $OutputLOG 2>&1
+    cd rclone-*-linux-amd64               >> $OutputLOG 2>&1
+    cp rclone /usr/bin/                   >> $OutputLOG 2>&1
+    chown root:root /usr/bin/rclone       >> $OutputLOG 2>&1
+    chmod 755 /usr/bin/rclone             >> $OutputLOG 2>&1
+    mkdir -p /usr/local/share/man/man1    >> $OutputLOG 2>&1
     cp rclone.1 /usr/local/share/man/man1 >> $OutputLOG 2>&1
-    mandb >> $OutputLOG 2>&1
+    mandb                                 >> $OutputLOG 2>&1
     cd ..
     rm -rf rclone-*-linux-amd64 rclone-current-linux-amd64.zip
 
-    status_lock=rclone
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
     which rclone > /dev/null && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/rclone.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
     echo >> $OutputLOG
 }
 
 
 
 
-echo -ne "Installing rclone ..." | tee -a $OutputLOG
+echo -ne "Installing $AppName ..." | tee -a $OutputLOG
 install_rclone & spinner $!
 check_status $status_lock | tee -a $OutputLOG
