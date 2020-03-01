@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.02.28
-script_version=r10003
+script_update=2020.03.02
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -49,8 +49,7 @@ pm_action=install
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 
 set_variables_log_location
@@ -83,7 +82,8 @@ function install_wine() {
   # fi
 
     APT_UPGRADE
-    apt_install winehq-stable >> $OutputLOG 2>&1       # --install-recommends
+    apt_install_check winehq-stable
+    apt_install_separate # && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock     # --install-recommends
 
     wget -nv -N https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/local/bin/winetricks >> $OutputLOG 2>&1
     chmod 755 /usr/local/bin/winetricks >> $OutputLOG 2>&1
