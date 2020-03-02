@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r10042
+script_version=r10043
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -236,7 +236,7 @@ function set_variables_log_location() {
     fi
 
     mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
-    { lines ; echo -e "$(date "+%Y.%m.%d.%H.%M.%S") $AppName" ; lines ; } >> $OutputLOG
+    { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName" ; lines ; } >> $OutputLOG
 
     if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
         cd $SCLocation
@@ -299,18 +299,6 @@ function APT_UPGRADE() {
 }
 
 
-function cat_outputlog() {
-    if [[ $show_log == 1 ]]; then
-        lines
-        echo -e "${bold}${OutputLOG}${normal}"
-        lines
-        cat ${OutputLOG}
-        lines2
-        exit
-    fi
-}
-
-
 ################################################################################################
 ################################################################################################ Debug functions
 ################################################################################################
@@ -327,6 +315,19 @@ function debug_log_location() {
         done
         echo
         read -t 10
+    fi
+}
+
+
+function cat_outputlog() {
+    if [[ $show_log == 1 ]]; then
+        lines
+        echo -e "${bold}${OutputLOG}${normal}"
+        # lines           # Since OutputLOG has lines itself
+        cat ${OutputLOG}
+        lines2
+        tail -f ${OutputLOG}
+        exit
     fi
 }
 
