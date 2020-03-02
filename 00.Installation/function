@@ -90,7 +90,7 @@ function echo_warning() {
     printf " ${yellow}${bold}WARNING: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
 }
 function echo_error() {
-    printf " ${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG       # ; exit 1
 }
 function echo_info() {
     printf " ${cyan}${bold}Info: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG

@@ -22,11 +22,13 @@
 `the inexistence project`  
 1. 子脚本更新使用 `cat_outputlog`、`show_usage` 等 function  
 
-`inexistence 1.1.5.1`  
+`inexistence 1.1.5.3`  
 1. **Bump version to 1.1.5**  
-2. **New Feature：加入 `--separate` 参数，启用 flexget/wine/mono 子脚本**  
-3. BugFix：修复 systemd unit 的权限问题  
-4. Fix：CRLF → LF  
+2. **New Feature：加入 `--separate` 参数，可以启用子脚本**  
+3. **启用 flexget/wine/mono 子脚本，删除重复代码**  
+4. **FlexGet 切换到普通用户运行，而不是原先的 root**  
+5. BugFix：修复 systemd unit 的权限问题  
+6. Fix：CRLF → LF  
 
 `function r10044`  
 1. BugFix：修复 `check_remote_git_repo_branch` 可能没有 git 的问题  
@@ -45,6 +47,11 @@
 3. Python3 lock 文件名改为小写  
 4. 增加更多的 `>> "$OutputLOG" 2>&1`  
 5. 修复 Debian 8 下 OpenSSL 的问题，使用 backports 的 1.0.2  
+
+`flexget\configure r10006`
+1. 合并 separate-script 分支的修改  
+2. 放弃对用户名的 patch  
+3. 放弃用户态模式下的配置，相关代码仍然保留  
 
 `README 1.2.5`
 - **加回 to do list**  
