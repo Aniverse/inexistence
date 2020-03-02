@@ -2,22 +2,52 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2020.03.02
 
-`function r10041`  
+`the inexistence project`  
+1. 子脚本更新使用 `cat_outputlog`、`show_usage` 等 function  
+
+`inexistence 1.1.5.1`  
+1. **Bump version to 1.1.5**  
+2. **New Feature：加入 `--separate` 参数，启用 flexget/wine/mono 子脚本**  
+3. BugFix：修复 systemd unit 的权限问题  
+4. Fix：CRLF → LF  
+
+`function r10044`  
 1. BugFix：修复 `check_remote_git_repo_branch` 可能没有 git 的问题  
 2. Feature：保险起见，`apt_install` 之前做 `APT_UPGRADE`  
-3. Feature：增加 `cat_outputlog`，自带判断启用条件`if [[ $show_log == 1 ]]`  
-4. Feature：`debug_log_location`增加条件 `if [[ $debug == 1 ]]`  
+3. Feature：增加 `cat_outputlog`，自带判断启用条件 `if [[ $show_log == 1 ]]`  
+4. Feature：`debug_log_location` 增加条件 `if [[ $debug == 1 ]]`  
 
-`libtorrent-rasterbar\install r10057`
+`libtorrent-rasterbar\install r10059`
 1. 修复 status_lock 的创建方式  
 2. 增加 `--log` 以查看日志  
+3. 增加 `purge_old_libtorrent`，防止不同 deb 间覆盖安装的问题  
 
+`flexget\install r20006`
+1. 更新 `show_usage` 和 `getopt`  
+2. 在安装 Py3 前先检查 lock，避免跑两次 Py3 安装过程  
+3. Python3 lock 文件名改为小写  
+4. 增加更多的 `>> "$OutputLOG" 2>&1`  
+5. 修复 Debian 8 下 OpenSSL 的问题，使用 backports 的 1.0.2  
 
-
-
-
+`README 1.2.5`
+- **加回 to do list**  
 
 
 
@@ -32,6 +62,7 @@ source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Install
 ```
 2. 子脚本使用了新的 `APT_UPGRADE`、`apt_install_check` 和 `apt_install_separate`  
 3. 同步 bluray 的改动  
+4. ipv6 重命名为 ipv6.old，ipv6.sh 重命名为 ipv6（同步 aBox 的修改）  
 
 `bluray 3.0.3`  
 1. **Bump version to 3.0.3**  
@@ -52,8 +83,8 @@ bash <(wget -qO- https://git.io/bluray) -u
 ```
 
 `function r10039`  
-1. 修复 `apt_install` 实际上什么也装不了的 bug，并命名为 together  
-2. 引入 `apt_install_check`，重写 `apt_install_separate`  
+1. **引入 `apt_install_check`，重写 `apt_install_separate`**  
+2. 修复 `apt_install` 实际上什么也装不了的 bug，并改名为 `apt_install_together`  
 
 `README 1.2.4`  
 1. **在参数说明处，加上了我个人常用的参数**  
