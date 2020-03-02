@@ -401,6 +401,28 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 
 
+
+## To do list
+
+近期
+* [ ] 增加 flexget/install
+* [ ] 增加 flexget/configure
+* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用
+* [ ] 增加 deluge/configure
+* [ ] 增加 transmission/configure
+* [ ] 增加 flood/install
+* [ ] 增加 novnc（届时可能会暂时移除 x2go）
+* [ ] 更新 README 的图片
+远期
+* [ ] 新增分支 debian8，作为最后一个支持 debian8 的版本
+* [ ] 在新的 master 分支上抛弃 Debian 8 支持
+* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr 问题
+* [ ] 在新的 master 分支上去除脚本里的 install from ppa. repo
+* [ ] 在新的 master 分支上增加 Ubuntu 20.04 LTS 支持
+不知何时
+* [ ] Deluge 2 w/ Python3
+
+
 ## Something else
 
 还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  
