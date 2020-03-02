@@ -2,8 +2,8 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.3.2
-SCRIPTUPDATE=2020.02.29.放弃治疗
+SCRIPTVER=0.9.3.3
+SCRIPTUPDATE=2020.03.02.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 

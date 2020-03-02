@@ -13,14 +13,14 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.4.9
-INEXISTENCEDATE=2020.02.27
+INEXISTENCEVER=1.1.5.0
+INEXISTENCEDATE=2020.03.02
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -70,6 +70,7 @@ while [ -n "$1" ] ; do case "$1" in
     --mt-double     ) MAXCPUS=2         ; shift ;;
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
     --skip-system-upgrade ) skip_system_upgrade=1 ; shift ;;
+    --separate      ) separate=1        ; shift ;;
     --tr-deb        ) tr_version=2.94   ; TRdefault=deb ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
 
@@ -1618,7 +1619,7 @@ echo $iUser >> $LogBase/iUser.txt
 
 if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
     cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
-    wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
+    wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
     sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 elif [[ $aptsources == Yes ]] && [[ $CODENAME == jessie ]]; then
@@ -1862,7 +1863,7 @@ apt-get --force-yes clean
 
 echo -e "${baihongse}executing update${normal}\n"
 cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/master/00.Installation/template/$DISTROL.apt.sources
+wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
 [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 
 if [[ $UPGRDAE3 == Yes ]]; then
@@ -2041,9 +2042,8 @@ bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -
 # 安装 Deluge
 function install_deluge() {
 
-    if [[ $de_test == yes ]] ; then
-        [[ $de_version == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -v $de_version
-        [[ $de_branch  == yes ]] && bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/install/deluge/install) -b $de_version
+    if [[ $separate == 1 ]] ; then
+        bash $local_packages/package/deluge/install -v $de_version
     else
 
 if [[ $de_version == "Install from repo" ]]; then
