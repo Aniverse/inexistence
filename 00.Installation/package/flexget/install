@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.02
-script_version=r20006
+script_version=r20007
 
 ################################################################################################ Debug
 
@@ -122,12 +122,14 @@ function install_python3() {
 
 
 function patch_flexget() {
-    pypath=/usr/local/lib/python$(python3 -V | grep -oE "3.[0-9]")/dist-packages
+    # pypath=/usr/local/lib/python$(python3 -V | grep -oE "3.[0-9]")/dist-packages
+    # Debian 9, /usr/local/lib/python3.7/site-packages
+    pypath=$(python3 -m site 2>1 | grep package | head -1 | cut -d \' -f2)
     mkdir -p /tmp
     cat << EOF > /tmp/flexget-remove-passwd-check.patch
 diff -Nur flexget/webserver.py flexget-patch/webserver.py
---- flexget/webserver.py	2020-02-28 11:50:07.423005342 +0800
-+++ flexget-patch/webserver.py	2020-02-28 11:57:52.831474088 +0800
+--- webserver.py	2020-02-28 11:50:07.423005342 +0800
++++ webserver.py	2020-02-28 11:57:52.831474088 +0800
 @@ -241,6 +241,7 @@
  @with_session
  def change_password(username='flexget', password='', session=None):
@@ -137,7 +139,7 @@ diff -Nur flexget/webserver.py flexget-patch/webserver.py
          warning = check['feedback']['warning']
          suggestions = ' '.join(check['feedback']['suggestions'])
 EOF
-    patch -p1 -d ${pypath}/flexget/ < /tmp/flexget-remove-passwd-check.patch >> "$OutputLOG" 2>&1
+    patch -d ${pypath}/flexget/ < /tmp/flexget-remove-passwd-check.patch >> "$OutputLOG" 2>&1
     python3 -m compileall ${pypath}/flexget/webserver.py >> "$OutputLOG" 2>&1
     rm -f /tmp/flexget-remove-passwd-check.patch
 }
