@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r11056
+script_version=r11057
 
 ################################################################################################ Debug
 
@@ -27,14 +27,16 @@ Usage:
       -m        Install mode, can only be specified as apt, deb, deb2, deb3 or source
       -v        Specifiy which version of libtorrent-rasterbar to be installed
       -b        Specifiy which branchn of libtorrent-rasterbar to be installed
+      -l        Specifiy LogBase (Not log file)
       --debug   Enable debug mode
                 Note that installing specific version may cause installation failure
                 or the version you installed is not compatible with the version of
                 your Deluge or qBittorrent
+      --log     Show logfile's content
 "
 exit 1 ; }
 
-OPTS=$(getopt -o dm:v:b:l: --long debug,mode:,version:,branch:,logbase: -- "$@")
+OPTS=$(getopt -o dm:v:b:l: --long debug,mode:,version:,branch:,logbase:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -44,6 +46,7 @@ while [ -n "$1" ] ; do case "$1" in
     -b | --branch       ) branch="$2"   ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
          --             ) shift         ; break   ;;
 esac ; done
 
@@ -65,7 +68,8 @@ fi
 
 set_variables_log_location
 check_var_OutputLOG
-[[ $debug == 1 ]] && debug_log_location
+debug_log_location
+cat_outputlog
 
 ################################################################################################ Set Variables 2
 
@@ -290,19 +294,16 @@ function install_lt_dependencies_action() {
 
 case $mode in
     deb     ) install_lt_dependencies_action ; version=1.0.11
-
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt8_deb & spinner $!
               ;;
 
     deb2    ) install_lt_dependencies_action ; version=1.1.13
-
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt9_deb & spinner $!
               ;;
 
     deb3    ) install_lt_dependencies_action ; version=1.1.14
-
               echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
               install_lt9_deb2 & spinner $!
               ;;
