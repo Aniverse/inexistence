@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.3
+INEXISTENCEVER=1.1.5.4
 INEXISTENCEDATE=2020.03.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2568,15 +2568,13 @@ unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
 RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
 FXWEB=":6566" ; FDWEB=":3000"
 
-if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then destatus="${green}Running ${normal}" ; else destatus="${red}Inactive${normal}" ; fi
+if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then
+    destatus="${green}Running ${normal}"
+else
+    destatus="${red}Inactive${normal}" 
+fi
 
-# systemctl is-active flexget 其实不准，flexget daemon status 输出结果太多种……
-# [[ $(systemctl is-active flexget) == active ]] && flexget_status="${green}Running ${normal}" || flexget_status="${red}Inactive${normal}"
-
-flexget daemon status >> /tmp/flexgetpid.log 2>&1 # 这个速度慢了点但应该最靠谱
-[[ `grep PID /tmp/flexgetpid.log` ]] && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
-[[ -e $LockLocation/flexget.pass.lock ]] && flexget_status="${bold}${bailanse}CheckPass${normal}"
-[[ -e $LockLocation/flexget.conf.lock ]] && flexget_status="${bold}${bailanse}CheckConf${normal}"
+ps --user $iUser | grep flexget -q  && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
 Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
 
 clear ; }
