@@ -1,0 +1,261 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+# Thanks to amefs
+
+script_update=2019.07.14
+script_version=r10004
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_repo_base=/etc/inexistence
+    export local_packages=$local_repo_base/00.Installation
+    export s=$local_packages/package/flexget/configure
+    rm -f $s ; nano $s       ; bash $s
+    bash $s -w 6788 -u black -p
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/configure)
+}
+
+################################################################################################ Get options
+
+unset AppName AppNameLower Need_SourceCode pm_action \
+      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      mode iUser iPass iHome wPort
+
+function show_usage() { echo " Invalid option $1" ; exit 1 ; }
+
+OPTS=$(getopt -o u:p:l:w:d --long user:,password:,debug,logbase:,wport:,system,single -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -u | --user         ) iUser="$2"    ; shift 2 ;;
+    -p | --password     ) iPass="$2"    ; shift 2 ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -w | --wport        ) wPort="$2"    ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
+         --system       ) mode=system   ; shift   ;;
+         --single       ) mode=single   ; shift   ;;
+    -- ) shift ; break ;;
+esac ; done
+
+################################################################################################ Set Variables
+
+AppName=FlexGet
+AppNameLower=flexget
+Need_SourceCode=no
+pm_action=configure
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function
+fi
+
+set_variables_log_location
+[[ $debug == 1 ]] && debug_log_location
+
+[[ -z $mode ]] && mode=system
+[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password!" ; exit 1 ; }
+id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist!" ; exit 1 ; }
+[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
+[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
+[[ -z $wPort ]] && wPort=6566
+
+################################################################################################ Sub Functions
+
+function flexget_config_file() {
+    [[ -z $qb_port ]] && qb_port=2017
+    [[ -z $de_port ]] && de_port=58846
+    [[ -z $tr_port ]] && tr_port=9099
+    cat  << EOF > /tmp/flexget.conf
+# Here are some guides
+#
+# https://ymgblog.com/2018/04/30/396/
+# https://npchk.info/linux-flexget-rss/
+# https://linkthis.me/2018/02/15/the-note-of-using-flexget/
+#
+# https://github.com/Aniverse/WiKi/blob/master/Flexget.md
+# https://github.com/Aniverse/WiKi/blob/master/How.to.use.RSS.md#flexget-rss
+#
+# For more usages, check the offical site: https://flexget.com
+
+templates:
+  standard:
+    free_space:
+      path: /home/$iUser
+      space: 10240
+    seen:
+      fields:
+        - url                                # In order to accept entries that have different urls but share the same title
+  de:
+    deluge:
+      path: /home/$iUser/deluge/download/
+      host: localhost
+      port: $de_port
+      username: $iUser
+      password: $iPass
+  qb:
+    qbittorrent:
+      path: /home/$iUser/qbittorrent/download/
+      host: localhost
+      port: $qb_port
+      username: $iUser
+      password: $iPass
+  tr:
+    transmission:
+      path: /home/$iUser/transmission/download/
+      host: localhost
+      port: $tr_port
+      username: $iUser
+      password: $iPass
+  size:
+    content_size:
+      min: 6000
+      max: 666666
+      strict: no
+tasks:
+  Web-HDSky:
+    rss: https://hdsky.me/torrentrss.php
+    regexp:
+      accept:
+        - HDSWEB
+    template:
+      - de
+      - standard
+    content_size:
+      min: 7000
+      max: 500000
+      strict: no
+    deluge:
+      label: WEB-DL
+      max_up_speed: 102400                   # Limit upload speed to 100 MiB/s in case of being auto-banned
+      move_completed_path: /mnt/HDSky/HDSWEB
+  ADC-AnimeBD-JPN:
+    rss: http://asiandvdclub.org/rss.xml
+    if:
+      - "'Anime' and 'AVC' in title": accept
+      - "'subs only' in title": reject
+      - "'Custom' in description": reject
+    headers:
+      Cookie: "uid=12345; pass=abcdefg"      # RSS on ADC requires cookies for authentication
+    urlrewrite:                              # manipulate download page's URLs into proper download URLs
+      sitename:
+        regexp: 'http://asiandvdclub.org/details.php\?id=(?P<id>\d+)'
+        format: 'http://asiandvdclub.org/download.php?id=\g<id>'
+    template: qb
+    qbittorrent:
+      label: ADC
+      maxdownspeed: 30000                    # It seems this function only works for qBittorent 4.1.0 and later
+      
+web_server:
+  port: $wPort
+  web_ui: yes
+  run_v2: yes
+# base_url: /flexget
+
+# schedules is disabled by default, you need to enable it or use cron to RSS
+schedules: no
+
+EOF
+    cp -f /tmp/flexget.conf $iHome/.config/flexget/config.yml
+}
+
+
+function flexget_systemd() {
+    cat  << EOF > /etc/systemd/system/flexget@.service
+[Unit]
+Description=Flexget Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+UMask=000
+ExecStart=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon start
+ExecStartPre=/bin/rm -f /home/%i/.config/flexget/.config-lock
+ExecStop=/usr/bin/pkill -9 flexget
+ExecReload=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon reload
+TimeoutStartSec=10
+TimeoutStopSec=5
+
+#Group=%I
+#WorkingDirectory=/home/%i/.config/flexget/
+#Restart=on-failure
+#ExecStop=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon stop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+}
+
+
+function flexget_username_patch() {
+    cd /tmp
+    if [[ -f $local_packages/package/flexget/flexget-user-passwd.patch ]]; then
+        cp $local_packages/package/flexget/flexget-user-passwd.patch /tmp/flexget-user-passwd.patch
+    else
+        wget -qO /tmp/flexget-user-passwd.patch https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/flexget-user-passwd.patch
+    fi
+    sed -i "s/replace/${iUser}/g" /tmp/flexget-user-passwd.patch
+    patch -p1 -d ${pypath}/flexget/ < /tmp/flexget-user-passwd.patch >> "$OutputLOG" 2>&1
+    python2 -m compileall ${pypath}/flexget/webserver.py >> "$OutputLOG" 2>&1
+    sed -i "s/\\\'flexget\\\'/\\\'\\\'/g" ${pypath}/flexget/ui/v1/app/scripts/app.js
+    rm -rf /tmp/flexget-user-passwd.patch
+}
+
+
+################################################################################################ Main Function
+
+
+function configure_flexget() {
+
+    echo >> $OutputLOG
+    systemctl disable flexget@$iUser >> "$OutputLOG" 2>&1
+    systemctl stop    flexget@$iUser >> "$OutputLOG" 2>&1
+
+    if [[ -d $iHome/.config/flexget ]]; then
+        mv -f $iHome/.config/flexget $iHome/.config/flexget.old.$times >> "$OutputLOG" 2>&1
+        rm -rf mv $iHome/.config/flexget
+    fi
+
+    mkdir -p /$iHome/.config/flexget    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
+    flexget_config_file
+
+    if [[ $mode == system ]]; then
+        flexget_cmd=/usr/local/bin/flexget
+        flexget_systemd
+        pypath=/usr/local/lib/python2.7/dist-packages
+        flexget_username_patch
+    elif [[ $mode == single ]]; then
+        flexget_cmd=$iHome/.local/bin/flexget
+        flexget_systemd
+        pypath=$iHome/.local/lib/python2.7/site-packages
+        flexget_username_patch
+    fi
+
+    $flexget_cmd -c $iHome/.config/flexget/config.yml web passwd $iPass >> "$OutputLOG" 2>&1
+    chown $iUser.$iUser -R $iHome/.config/flexget/ >> "$OutputLOG" 2>&1
+    systemctl enable flexget@$iUser >> "$OutputLOG" 2>&1
+    systemctl start  flexget@$iUser >> "$OutputLOG" 2>&1
+
+    status_lock=$AppNameLower-c
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    ps --user $iUser | grep flexget -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
+
+}
+
+
+
+
+
+echo -ne "Configuring $AppName ..." | tee -a $OutputLOG
+configure_flexget & spinner $!
+check_status $status_lock | tee -a $OutputLOG
