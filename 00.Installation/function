@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r10043
+script_version=r10044
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -110,6 +110,23 @@ function check_url() {
     if [[ `wget -S --spider $1 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0 ; else return 1 ; fi
 }
 
+
+# These codes are from QuickBox
+function spinner() {
+    local pid=$1
+    local delay=0.25
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+
 function check_var_OutputLOG() {
     if [[ -z $OutputLOG ]]; then
         echo -e "${CW} NO OutputLOG variable found, please check if you have function installed"
@@ -140,19 +157,74 @@ function check_status() {
 }
 
 
-# These codes are from QuickBox
-function spinner() {
-    local pid=$1
-    local delay=0.25
-    local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
+function set_variables_log_location() {
+    LogRootPath=/log/inexistence
+    LOCKLocation=$LogRootPath/lock
+
+    if [[ -z $LogTimes ]]; then
+        LogTimes=$LogRootPath/single
+        LogLocation=$LogTimes/log
+        OutputLOG=$LogLocation/$pm_action.$AppNameLower.txt
+    elif [[ $LogTimes == none ]]; then
+        LogTimes=/tmp/ttmmpp
+        OutputLOG="/dev/null"
+    else
+        LogLocation=$LogTimes/log
+        OutputLOG=$LogTimes/log/$pm_action.$AppNameLower.txt
+    fi
+
+    if [[ $pm_action != uninstall ]]; then
+        [[ $Need_SourceCode == yes ]] && SCLocation=$LogTimes/source
+        DebLocation=$LogRootPath/deb
+    fi
+
+    mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
+    { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName" ; lines ; } >> $OutputLOG
+
+    if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
+        cd $SCLocation
+    else
+        cd /tmp
+    fi
+}
+
+
+################################################################################################
+################################################################################################ APT-GET
+################################################################################################
+
+
+# From QuickBox Lite
+function APT_UPGRADE() {
+	[[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+	## auto solve lock
+	if [ "$?" -eq 2 ]; then
+		echo_error "dpkg database is locked"
+        echo_task "Try to fix dpkg lock ... "
+		rm -f /var/lib/dpkg/updates/0*
+		locks=$(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*)
+		if [[ ${locks} == $(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*) ]]; then
+			for l in ${locks}; do
+				rm -rf ${l}
+			done
+			_excute "dpkg --configure -a"
+			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+		fi
+		if ! (apt-get check >/dev/null); then
+			apt-get install -f >> $OutputLOG 2>&1
+			if ! (apt-get check >/dev/null); then
+				# whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
+                echo_error "It seems there is something error when using apt-get, exiting ..."
+				exit 1
+			fi
+		fi
+        status_done
+    else
+        [[ $APT_UPGRADE_SINGLE == 1 ]] && status_done
+	fi
 }
 
 
@@ -214,36 +286,9 @@ function apt_install_separate() {
 }
 
 
-function set_variables_log_location() {
-    LogRootPath=/log/inexistence
-    LOCKLocation=$LogRootPath/lock
-
-    if [[ -z $LogTimes ]]; then
-        LogTimes=$LogRootPath/single
-        LogLocation=$LogTimes/log
-        OutputLOG=$LogLocation/$pm_action.$AppNameLower.txt
-    elif [[ $LogTimes == none ]]; then
-        LogTimes=/tmp/ttmmpp
-        OutputLOG="/dev/null"
-    else
-        LogLocation=$LogTimes/log
-        OutputLOG=$LogTimes/log/$pm_action.$AppNameLower.txt
-    fi
-
-    if [[ $pm_action != uninstall ]]; then
-        [[ $Need_SourceCode == yes ]] && SCLocation=$LogTimes/source
-        DebLocation=$LogRootPath/deb
-    fi
-
-    mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
-    { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName" ; lines ; } >> $OutputLOG
-
-    if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
-        cd $SCLocation
-    else
-        cd /tmp
-    fi
-}
+################################################################################################
+################################################################################################
+################################################################################################
 
 
 PortGenerator1() { portGen1=$(shuf -i 10001-32001 -n1) ; } ; portGenerator2() { portGen2=$(shuf -i 10001-32001 -n1) ; }
@@ -253,7 +298,7 @@ PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do Port
 
 function check_remote_git_repo_branch() {
     [[ -z $(which git) ]] && { apt-get install -y git > /dev/null 2>&1 ; }
-    [[ -z $(which git) ]] && { echo -e "${CW} No git_found ${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    [[ -z $(which git) ]] && { echo -e "${CW} No git_found ${normal}"       ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     local git_repo=$1
     local git_branch=$2
     [[ -z $git_repo   ]] && { echo -e "${CW} No git_repo input ${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
@@ -263,39 +308,6 @@ function check_remote_git_repo_branch() {
     git ls-remote --heads $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
     grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
-}
-
-
-# From QuickBox Lite
-function APT_UPGRADE() {
-	# echo_task "Checking and performing updates to system ... "
-	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
-	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
-	## auto solve lock
-	if [ "$?" -eq 2 ]; then
-		echo_error "dpkg database is locked"
-        echo_task "Try to fix dpkg lock ... "
-		rm -f /var/lib/dpkg/updates/0*
-		locks=$(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*)
-		if [[ ${locks} == $(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*) ]]; then
-			for l in ${locks}; do
-				rm -rf ${l}
-			done
-			_excute "dpkg --configure -a"
-			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
-			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
-		fi
-		if ! (apt-get check >/dev/null); then
-			apt-get install -f >> $OutputLOG 2>&1
-			if ! (apt-get check >/dev/null); then
-				# whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
-                echo_error "It seems there is something error when using apt-get, exiting ..."
-				exit 1
-			fi
-		fi
-    else
-        echo -e "${green}${bold}DONE${normal}"
-	fi
 }
 
 
