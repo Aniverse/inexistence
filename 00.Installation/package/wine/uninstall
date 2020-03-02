@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.02
-script_version=r10003
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -16,12 +16,22 @@ usage_for_debug() {
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
 
-function show_usage() { echo " Invalid option $1" ; exit 1 ; }
+AppName=wine
+AppNameLower=wine
+Need_SourceCode=no
+pm_action=uninstall
 
-OPTS=$(getopt -o v:l:d -al version:,debug,logbase: -- "$@")
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -l        Specifiy LogBase
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -29,15 +39,11 @@ while [ -n "$1" ] ; do case "$1" in
     -v | --version      ) version="$2"  ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
 
 ################################################################################################ Set Variables
-
-AppName=wine
-AppNameLower=wine
-Need_SourceCode=no
-pm_action=uninstall
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
@@ -83,6 +89,6 @@ function uninstall_wine() {
 
 
 
-echo -ne "Uninstalling $AppName ..." | tee -a $OutputLOG
+echo_task "Uninstalling $AppName ..."
 uninstall_wine & spinner $!
-check_status $status_lock | tee -a $OutputLOG
+check_status $status_lock

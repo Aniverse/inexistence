@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r11057
+script_version=r11058
 
 ################################################################################################ Debug
 
@@ -19,21 +19,26 @@ usage_for_me() {
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
 
-function show_usage() { echo " Invalid option $1
+AppName=libtorrent-rasterbar
+AppNameLower=libtorrent-rasterbar
+DebName=libtorrent-rasterbar
+Need_SourceCode=yes
+pm_action=install
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
 Usage:
       -m        Install mode, can only be specified as apt, deb, deb2, deb3 or source
       -v        Specifiy which version of libtorrent-rasterbar to be installed
       -b        Specifiy which branchn of libtorrent-rasterbar to be installed
       -l        Specifiy LogBase (Not log file)
+      --log     Show logfile's content
       --debug   Enable debug mode
                 Note that installing specific version may cause installation failure
                 or the version you installed is not compatible with the version of
-                your Deluge or qBittorrent
-      --log     Show logfile's content
-"
+                your Deluge or qBittorrent"
 exit 1 ; }
 
 OPTS=$(getopt -o dm:v:b:l: --long debug,mode:,version:,branch:,logbase:,log -- "$@")
@@ -51,12 +56,6 @@ while [ -n "$1" ] ; do case "$1" in
 esac ; done
 
 ################################################################################################ Set Variables 1
-
-AppName=libtorrent-rasterbar
-AppNameLower=libtorrent-rasterbar
-DebName=libtorrent-rasterbar
-Need_SourceCode=yes
-pm_action=install
 
 git_repo="https://github.com/arvidn/libtorrent"
 
@@ -281,9 +280,9 @@ python-libtorrent_1.1.14-1build1_amd64.deb"
 
 function install_lt_dependencies_action() {
     if [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]]; then
-        echo -ne "Installing libtorrent-rasterbar build dependencies ..." | tee -a $OutputLOG
+        echo_task "Installing libtorrent-rasterbar build dependencies ..."
         install_lt_dependencies & spinner $!
-        check_status $status_lock | tee -a $OutputLOG
+        check_status $status_lock
     fi
 }
 
@@ -294,26 +293,26 @@ function install_lt_dependencies_action() {
 
 case $mode in
     deb     ) install_lt_dependencies_action ; version=1.0.11
-              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..."
               install_lt8_deb & spinner $!
               ;;
 
     deb2    ) install_lt_dependencies_action ; version=1.1.13
-              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..."
               install_lt9_deb & spinner $!
               ;;
 
     deb3    ) install_lt_dependencies_action ; version=1.1.14
-              echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..." | tee -a $OutputLOG
+              echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..."
               install_lt9_deb2 & spinner $!
               ;;
 
     source  ) install_lt_dependencies_action
 
               if echo $branch | grep -qEo "[012]_[0-9]_[0-9]+"; then
-                  echo -ne "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG
+                  echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ..."
               else
-                  echo -ne "Installing libtorrent-rasterbar ${bold}$branch branch (${cyan}$version${jiacu})${normal} from source codes ..." | tee -a $OutputLOG
+                  echo_task "Installing libtorrent-rasterbar ${bold}$branch branch (${cyan}$version${jiacu})${normal} from source codes ..."
               fi
 
               install_lt_source & spinner $!

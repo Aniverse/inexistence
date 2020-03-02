@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.02
-script_version=r20004
+script_version=r20005
 
 ################################################################################################ Debug
 
@@ -17,8 +17,7 @@ usage_for_debug() {
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
       user
 
 AppName=FlexGet
@@ -178,14 +177,14 @@ function install_flexget3() {
 
 
 if [[ ! -f $LOCKLocation/python3.lock ]]; then
-    echo -ne "Installing Python3 ..." | tee -a $OutputLOG
+    echo_task "Installing Python3 ..."
     install_python3 & spinner $!
-    check_status $status_lock | tee -a $OutputLOG
+    check_status $status_lock
 fi
 
-echo -ne "Installing $AppName ..." | tee -a $OutputLOG
+echo_task "Installing $AppName ..."
 install_flexget3 & spinner $!
-check_status $status_lock | tee -a $OutputLOG
+check_status $status_lock
 
 [[ $debug == 1 ]] && which flexget
 
