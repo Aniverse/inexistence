@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2019.07.14
-script_version=r10004
+script_update=2020.03.02
+script_version=r10005
 
 ################################################################################################ Debug
 
@@ -14,20 +14,32 @@ usage_for_debug() {
     export local_repo_base=/etc/inexistence
     export local_packages=$local_repo_base/00.Installation
     export s=$local_packages/package/flexget/configure
-    rm -f $s ; nano $s       ; bash $s
+    rm -f $s ; nano $s
     bash $s -w 6788 -u black -p
     bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/configure)
 }
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
       mode iUser iPass iHome wPort
 
-function show_usage() { echo " Invalid option $1" ; exit 1 ; }
+AppName=FlexGet
+AppNameLower=flexget
+Need_SourceCode=no
+pm_action=configure
 
-OPTS=$(getopt -o u:p:l:w:d --long user:,password:,debug,logbase:,wport:,system,single -- "$@")
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -l        Specifiy LogBase (Not log file)
+      -w        Specifiy FlexGet WebUI port
+      -p        Specifiy FlexGet WebUI password
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -a -o u:p:l:w:d --long user:,password:,debug,logbase:,wport:,system,single,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -39,29 +51,30 @@ while [ -n "$1" ] ; do case "$1" in
     -d | --debug        ) debug=1       ; shift   ;;
          --system       ) mode=system   ; shift   ;;
          --single       ) mode=single   ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
+#  -u and --system, --single is deprecated currently
 
-################################################################################################ Set Variables
-
-AppName=FlexGet
-AppNameLower=flexget
-Need_SourceCode=no
-pm_action=configure
+################################################################################################ Set Variables 1
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 
 set_variables_log_location
-[[ $debug == 1 ]] && debug_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
 
-[[ -z $mode ]] && mode=system
-[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password!" ; exit 1 ; }
-id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist!" ; exit 1 ; }
+################################################################################################ Set Variables 2
+
+# [[ -z $mode ]] && mode=system
+# [[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password!" ; exit 1 ; }
+[[ -z $iPass ]] && { echo -e "ERROR: Please input password" ; exit 1 ; }
+id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
 [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=6566
@@ -178,7 +191,7 @@ User=%I
 UMask=000
 ExecStart=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon start
 ExecStartPre=/bin/rm -f /home/%i/.config/flexget/.config-lock
-ExecStop=/usr/bin/pkill -9 flexget
+ExecStop=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon stop
 ExecReload=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon reload
 TimeoutStartSec=10
 TimeoutStopSec=5
@@ -186,7 +199,6 @@ TimeoutStopSec=5
 #Group=%I
 #WorkingDirectory=/home/%i/.config/flexget/
 #Restart=on-failure
-#ExecStop=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon stop
 
 [Install]
 WantedBy=multi-user.target
@@ -195,25 +207,62 @@ EOF
 }
 
 
-function flexget_username_patch() {
-    cd /tmp
-    if [[ -f $local_packages/package/flexget/flexget-user-passwd.patch ]]; then
-        cp $local_packages/package/flexget/flexget-user-passwd.patch /tmp/flexget-user-passwd.patch
-    else
-        wget -qO /tmp/flexget-user-passwd.patch https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/flexget-user-passwd.patch
-    fi
-    sed -i "s/replace/${iUser}/g" /tmp/flexget-user-passwd.patch
-    patch -p1 -d ${pypath}/flexget/ < /tmp/flexget-user-passwd.patch >> "$OutputLOG" 2>&1
-    python2 -m compileall ${pypath}/flexget/webserver.py >> "$OutputLOG" 2>&1
-    sed -i "s/\\\'flexget\\\'/\\\'\\\'/g" ${pypath}/flexget/ui/v1/app/scripts/app.js
-    rm -rf /tmp/flexget-user-passwd.patch
-}
-
-
 ################################################################################################ Main Function
 
 
+
+
+
 function configure_flexget() {
+
+    echo >> $OutputLOG
+    systemctl disable flexget@$iUser >> "$OutputLOG" 2>&1
+    systemctl stop    flexget@$iUser >> "$OutputLOG" 2>&1
+
+    if [[ -d $iHome/.config/flexget ]]; then
+        mv -f  $iHome/.config/flexget $iHome/.config/flexget.old.$times >> "$OutputLOG" 2>&1
+        rm -rf $iHome/.config/flexget
+    fi
+
+    mkdir -p /$iHome/.config/flexget    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
+    flexget_config_file
+    flexget_cmd=/usr/local/bin/flexget
+    flexget_systemd
+
+    # $flexget_cmd -c $iHome/.config/flexget/config.yml web passwd $iPass >> "$OutputLOG" 2>&1
+    su $iUser -c "$flexget_cmd -c $iHome/.config/flexget/config.yml  web  passwd  $iPass"  >> "$OutputLOG" 2>&1
+    
+    chown $iUser.$iUser -R $iHome/.config/flexget/  >> "$OutputLOG" 2>&1
+    systemctl enable flexget@$iUser                 >> "$OutputLOG" 2>&1
+    systemctl start  flexget@$iUser                 >> "$OutputLOG" 2>&1
+
+    status_lock=$AppNameLower-c
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    ps --user $iUser | grep flexget -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
+
+}
+
+
+
+
+
+echo_task "Configuring $AppName ..."
+configure_flexget & spinner $!
+check_status $status_lock
+
+
+
+
+
+################################################################################################ Deprecated
+
+
+
+
+
+function configure_flexget_old() {
 
     echo >> $OutputLOG
     systemctl disable flexget@$iUser >> "$OutputLOG" 2>&1
@@ -254,8 +303,76 @@ function configure_flexget() {
 
 
 
+function flexget_systemd_old() {
+    cat  << EOF > /etc/systemd/system/flexget@.service
+[Unit]
+Description=Flexget Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+UMask=000
+ExecStart=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon start
+ExecStartPre=/bin/rm -f /home/%i/.config/flexget/.config-lock
+ExecStop=/usr/bin/pkill -9 flexget
+ExecReload=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon reload
+TimeoutStartSec=10
+TimeoutStopSec=5
+
+#Group=%I
+#WorkingDirectory=/home/%i/.config/flexget/
+#Restart=on-failure
+#ExecStop=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon stop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+}
 
 
-echo -ne "Configuring $AppName ..." | tee -a $OutputLOG
-configure_flexget & spinner $!
-check_status $status_lock | tee -a $OutputLOG
+
+function flexget_systemd_old() {
+    cat  << EOF > /etc/systemd/system/flexget@.service
+[Unit]
+Description=Flexget Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+UMask=000
+ExecStart=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon start
+ExecStartPre=/bin/rm -f /home/%i/.config/flexget/.config-lock
+ExecStop=/usr/bin/pkill -9 flexget
+ExecReload=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon reload
+TimeoutStartSec=10
+TimeoutStopSec=5
+
+#Group=%I
+#WorkingDirectory=/home/%i/.config/flexget/
+#Restart=on-failure
+#ExecStop=$flexget_cmd -c /home/%i/.config/flexget/config.yml daemon stop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+}
+
+
+
+function flexget_username_patch() {
+    cd /tmp
+    if [[ -f $local_packages/package/flexget/flexget-user-passwd.patch ]]; then
+        cp $local_packages/package/flexget/flexget-user-passwd.patch /tmp/flexget-user-passwd.patch
+    else
+        wget -qO /tmp/flexget-user-passwd.patch https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/flexget/flexget-user-passwd.patch
+    fi
+    sed -i "s/replace/${iUser}/g" /tmp/flexget-user-passwd.patch
+    patch -p1 -d ${pypath}/flexget/ < /tmp/flexget-user-passwd.patch >> "$OutputLOG" 2>&1
+    python2 -m compileall ${pypath}/flexget/webserver.py >> "$OutputLOG" 2>&1
+    sed -i "s/\\\'flexget\\\'/\\\'\\\'/g" ${pypath}/flexget/ui/v1/app/scripts/app.js
+    rm -rf /tmp/flexget-user-passwd.patch
+}
