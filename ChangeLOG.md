@@ -2,6 +2,113 @@
 
 
 
+## 2020.03.02
+
+`function r10041`  
+1. BugFix：修复 `check_remote_git_repo_branch` 可能没有 git 的问题  
+2. Feature：保险起见，`apt_install` 之前做 `APT_UPGRADE`  
+3. Feature：增加 `cat_outputlog`，自带判断启用条件`if [[ $show_log == 1 ]]`  
+4. Feature：`debug_log_location`增加条件 `if [[ $debug == 1 ]]`  
+
+`libtorrent-rasterbar\install r10057`
+1. 修复 status_lock 的创建方式  
+2. 增加 `--log` 以查看日志  
+
+
+
+
+
+
+
+
+
+
+## 2020.03.01
+
+`the inexistence project`  
+1. 子脚本的 source 外部引用方式更新为  
+```
+source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+```
+2. 子脚本使用了新的 `APT_UPGRADE`、`apt_install_check` 和 `apt_install_separate`  
+3. 同步 bluray 的改动  
+
+`bluray 3.0.3`  
+1. **Bump version to 3.0.3**  
+距离上次更新有 11 个月左右了  
+2. **Feature：隐藏是否创建缩略图的问题**  
+基本上没啥用，注释掉了  
+3. **Feature：检查脚本运行依赖时，不再要求 vns, montage, identify**  
+4. **Feature：加入安装/更新本脚本的功能，使用参数 `-i`**  
+5. Feature：修复在没有写入权限的目录下运行脚本时无法提取 bdinfo quick summary 的问题  
+6. Feature：检查 BDinfo 扫描是否成功，并在最后的结尾处做提示  
+7. UI：脚本缺少依赖时，默认选项改为退出脚本  
+8. UI：在显示版本号时也显示脚本更新时间  
+9. BugFix：修复 logo 下载链接失效的问题  
+10. 更新 README  
+11. 加入短链接  
+```
+bash <(wget -qO- https://git.io/bluray) -u
+```
+
+`function r10039`  
+1. 修复 `apt_install` 实际上什么也装不了的 bug，并命名为 together  
+2. 引入 `apt_install_check`，重写 `apt_install_separate`  
+
+`README 1.2.4`  
+1. **在参数说明处，加上了我个人常用的参数**  
+2. **bluray 脚本介绍重写，添加更新命令和 alias**  
+3. 把 bluray 脚本的介绍移到 mingling 下，bdinfo 前  
+4. 注明 bdinfo 脚本不支持 UHD，UHD 扫描请使用 bluray 脚本  
+5. 提示 mingling 脚本可能会过时  
+
+
+
+
+
+## 2020.02.28
+
+`function r10037`  
+1. 引入 `APT_UPGRADE`  
+2. 引入 `echo_task` 和 `echo_error` 等通用信息相关 function  
+3. 更新 `apt_install_separate` 中的 apt 选项以及输出  
+
+`mingling 0.9.3.1`  
+1. **Bump version to 0.9.3**  
+距离上次更新很久了，需要改的东西挺多的了，上一个版本已经严重过时了  
+2. 去除 virt-what 和 lsb_release 的依赖  
+3. 更新是否启用了 tweaks 的检测  
+4. 更新了 serveripv4 内网检测  
+5. 更新了命令说明界面里的命令  
+ruisua → sssa / lssa，swap-on → swapon  
+6. 使用 superbench.sh 的办法检测虚拟化  
+7. 更新了硬盘空间计算方式  
+8. 优化了多路 CPU 的判定方式  
+9. “运行其他一键脚本”的菜单里，更新脚本链接，加入 iperfff  
+10. 更新 “某辣鸡的脚本说明”  
+11. update_mingling 里移除 bdjietu 等，加入 password 等  
+虽然 password 很久没写了，还没完成……  
+
+`flexget/install r20002`  
+1. 合并 separate-script 分支的修改  
+2. 放弃单用户安装，改为安装到系统  
+3. **抛弃 flexget 2，全面使用 flexget3**  
+4. 加入 `install_python3`  
+5. 不针对 WebUI 用户名打补丁，不过**移除了密码复杂性验证**  
+
+`wine/install r10003`  
+1. 合并 separate-script 分支的修改  
+2. 加入 APT_UPGRADE  
+
+`wine/uninstall r10002`  
+1. 合并 separate-script 分支的修改  
+2. 加入 APT_UPGRADE  
+
+`mono/install r10005`  
+1. 合并 separate-script 分支的修改  
+2. 加入 APT_UPGRADE  
+
+
 
 
 
@@ -17,7 +124,7 @@
 5. 用 +check_var_OutputLOG 确保 function 已被 source  
 6. 优化显示效果，包括日志里也增强了易读性  
 
-`inexistence`  
+`inexistence 1.1.4.9`  
 1. BugFix：修复 deluge skip hash check 下载链接错误的问题  
 2. BugFix：修复 deluge skip hash check 补丁没打好的问题  
 
@@ -39,7 +146,7 @@
 9. 修复 No such file: /tmp/Variables  
 10. check_status 增加 `ERROR: No Variables` 状态  
 
-`libtorrent-rasterbar/install`  
+`libtorrent-rasterbar/install r10054`  
 1. 合并 separate-script 分支的修改  
 2. 修复非 fpm 安装时的一些小问题  
 3. 增加 deb3 模式，安装 efs 编译的 1.1.14 deb 包  
@@ -81,7 +188,7 @@
 3. 改进了 `Customed alias is enabled` 的提示方式  
 现在是输入 `. s-alias 1` 来激活，也不用 cd 到目录了  
 
-`README`
+`README 1.2.3`
 1. 添加了短网址的 usage  
 2. 更新了图片的链接到另外一个图床专用的项目  
 3. 更新了 `--lt` 参数的用法  
@@ -112,7 +219,7 @@
 15. BugFix：修复 cli 下使用 `-m` 参数没反应的问题  
 16. 之后的移到 aBox 去更新了。。。。。  
 
-`README`
+`README 1.2.2`
 1. **更新 ipv6 脚本的说明**  
 老的 ipv6 脚本的说明直接移除  
 2. **efs nb!**  
@@ -198,7 +305,7 @@
 `alias`  
 - 更新了 del、dewl、trl  
 
-`README`
+`README 1.2.1`
 1. 更新 transmission 部分的说明  
 2. 更新 `ipv6.sh` 的使用说明，加上了详细用法  
 
@@ -240,7 +347,7 @@
 2. 加入 `fiobench`、`dddd=rm -rf`  
 3. `swap-on` → `swapon`  
 
-`README`
+`README 1.2.0`
 1. 针对最近的脚本改动进行更新  
 2. 去除了 qb 3.3.17 的说明  
 3. Deluge 2.0.3 相关提示  
@@ -475,7 +582,7 @@
 `alias 107`  
 - 增加 abench 和 bench  
 
-`README`  
+`README 1.1.7`  
 1. 增加 Debian 10 相关说明  
 2. 更新 qb 3.3.17 的说明  
 3. 增加 Flood 挂载点和端口号的说明  
