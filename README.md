@@ -405,26 +405,35 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ## To do list
 
 近期  
-* [ ] 增加 flexget/install
-* [ ] 增加 flexget/configure
-* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用
-* [ ] 增加 deluge/configure
-* [ ] 增加 transmission/configure
-* [ ] 增加 flood/install
-* [ ] 增加 novnc（届时可能会暂时移除 x2go）
-* [ ] 更新 README 的图片
+
+* [x] 增加 flexget/install  
+* [x] 增加 flexget/configure  
+* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
+* [ ] 增加 deluge/configure  
+* [ ] 增加 transmission/configure  
+* [ ] 增加 flood/install  
+* [ ] 增加 novnc（届时可能会暂时移除 x2go）  
+* [ ] 更新 README 的图片  
+
 中期  
-* [ ] 新增分支 debian8，作为最后一个支持 debian8 的版本
-* [ ] 在新的 master 分支上抛弃 Debian 8 支持
-* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr 问题
-* [ ] 在新的 master 分支上去除脚本里的 install from ppa. repo
-* [ ] 增加 deluge/install
-* [ ] 增加 qbittorrent/install
-* [ ] 增加 transmission/install
+
+* [ ] 新增分支 debian8，作为最后一个支持 debian8 的版本  
+* [ ] 在新的 master 分支上抛弃 Debian 8 支持  
+* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr 问题  
+* [ ] 在新的 master 分支上去除脚本里的 install from ppa. repo  
+* [ ] 在新的 master 分支上去除 libtorrent 1.0 选项  
+* [ ] 在新的 master 分支上去除 rTorrent 0.9.6 及以下的选项  
+* [ ] 增加 deluge/install  
+* [ ] 增加 qbittorrent/install  
+* [ ] 增加 transmission/install  
+
 远期  
-* [ ] 在新的 master 分支上增加 Ubuntu 20.04 LTS 支持
+
+* [ ] 在新的 master 分支上增加 Ubuntu 20.04 LTS 支持  
+
 不知何时  
-* [ ] Deluge 2 w/ Python3
+
+* [ ] Deluge 2 w/ Python3  
 
 
 ## Something else
