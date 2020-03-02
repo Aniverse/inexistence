@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r11058
+script_version=r11059
 
 ################################################################################################ Debug
 
@@ -278,14 +278,37 @@ python-libtorrent_1.1.14-1build1_amd64.deb"
 
 
 
+function purge_old_libtorrent() {
+    if [[ -f $LOCKLocation/$AppNameLower.lock ]]; then
+        echo_task "Uninstalling pre-installed libtorrent-rasterbar ..."
+        echo >> $OutputLOG
+        dpkg_list="libtorrent-rasterbar libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10libtorrent-rasterbar-dev python-libtorrent"
+        for package in dpkg_list; do
+            apt-get purge -y $package  >> $OutputLOG 2>&1
+            dpkg -r $package           >> $OutputLOG 2>&1
+        done
+        status_done
+    fi
+}
+
+
+
+
+
 function install_lt_dependencies_action() {
     if [[ ! -f $LOCKLocation/libtorrent-rasterbar.dependencies.lock ]]; then
         echo_task "Installing libtorrent-rasterbar build dependencies ..."
         install_lt_dependencies & spinner $!
         check_status $status_lock
     fi
+    purge_old_libtorrent
 }
 
+
+
+
+
+################################################################################################
 
 
 
