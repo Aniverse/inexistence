@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.0
+INEXISTENCEVER=1.1.5.1
 INEXISTENCEDATE=2020.03.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -1707,6 +1707,7 @@ sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
 [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
 git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
 chmod -R 755 /etc/inexistence
+chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
 
 # Add user
 if id -u $iUser >/dev/null 2>&1; then
@@ -2361,10 +2362,15 @@ touch $LockLocation/transmission.lock ; }
 
 function install_flexget() {
 
-  pip install --upgrade pyopenssl
-  pip install --upgrade cryptography
-  pip install flexget
-  pip install transmissionrpc deluge-client
+    if [[ $separate == 1 ]] ; then
+        bash $local_packages/package/flexget/install --logbase $LogTimes
+    else
+        pip install --upgrade pyopenssl
+        pip install --upgrade cryptography
+        pip install flexget
+        pip install transmissionrpc deluge-client
+        touch $LockLocation/flexget.lock
+    fi
 
   mkdir -p /home/$iUser/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
 
@@ -2382,8 +2388,8 @@ function install_flexget() {
   systemctl enable /etc/systemd/system/flexget.service
   systemctl start flexget
 
-  touch $LockLocation/flexget.lock
-  echo -e "\n\n\n${bailvse}  FLEXGET-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+  echo -e "\n\n\n${bailvse}  FLEXGET-INSTALLATION-COMPLETED  ${normal}\n\n"
+}
 
 
 
@@ -2542,6 +2548,11 @@ echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 function install_wine() {
 
+    if [[ $separate == 1 ]] ; then
+        bash $local_packages/package/mono/install --logbase $LogTimes
+        bash $local_packages/package/wine/install --logbase $LogTimes
+    else
+
 # mono
 # http://www.mono-project.com/download/stable/#download-lin
 # https://download.mono-project.com/sources/mono/
@@ -2591,7 +2602,10 @@ touch $LockLocation/winemono.lock
 echo -e "\n\n\n${bailvse}Version${normal}"
 echo "${bold}${green}`wine --version`"
 echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
-echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n"
+
+    fi
+}
 
 
 
