@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.01
-script_version=r10039
+script_update=2020.03.02
+script_version=r10040
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -187,6 +187,7 @@ function apt_install_together() {
     # test -z "$apt_install_list" || apt-get -y install "$apt_install_list" >> "$OutputLOG" 2>&1
     if [[ -n "$apt_install_list" ]]; then
         # apt-get -y --allow-unauthenticated -f install "$apt_install_list" >> "$OutputLOG" 2>&1
+        APT_UPGRADE
         DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "$apt_install_list" >> "$OutputLOG" 2>&1
         if [ ! $? = 0 ]; then
             echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
@@ -198,6 +199,7 @@ function apt_install_together() {
 
 function apt_install_separate() {
     if [[ -n "$apt_install_list" ]]; then
+        APT_UPGRADE
         for package in $apt_install_list; do
             DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package >> "$OutputLOG" 2>&1
             # || { echo | tee -a $OutputLOG ; echo_error "Failed to install $package" ; exit 1 ; }
@@ -248,10 +250,12 @@ PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do Port
 
 
 function check_remote_git_repo_branch() {
+    [[ -z $(which git) ]] && { apt-get install -y git > /dev/null 2>&1 ; }
+    [[ -z $(which git) ]] && { echo -e "${CW} No git_found ${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     local git_repo=$1
     local git_branch=$2
-    [[ -z $git_repo   ]] && { echo -e "${CW} No git_repo input!${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
-    [[ -z $git_branch ]] && { echo -e "${CW} No git_branch input!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    [[ -z $git_repo   ]] && { echo -e "${CW} No git_repo input ${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    [[ -z $git_branch ]] && { echo -e "${CW} No git_branch input ${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
     git ls-remote --tags  $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
     git ls-remote --heads $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
@@ -262,7 +266,7 @@ function check_remote_git_repo_branch() {
 
 # From QuickBox Lite
 function APT_UPGRADE() {
-	echo_task "Checking and performing updates to system ... "
+	# echo_task "Checking and performing updates to system ... "
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
 	## auto solve lock
@@ -290,7 +294,6 @@ function APT_UPGRADE() {
     else
         echo -e "${green}${bold}DONE${normal}"
 	fi
-	_success "System updated."
 }
 
 
