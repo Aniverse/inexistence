@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.2
+INEXISTENCEVER=1.1.5.3
 INEXISTENCEDATE=2020.03.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -958,7 +958,7 @@ while [[ $lt_version = "" ]]; do
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.14${normal} (${blue}RC_1_1${normal} branch)"
-#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.3 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
+#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.4 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
 #   echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
@@ -1078,7 +1078,7 @@ done
 
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
 [[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.14
-[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.3
+[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.4
 
 if [[ $lt_version == system ]]; then
     echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
@@ -1906,43 +1906,6 @@ exit 0 ; }
 
 
 
-# --------------------- 安装 libtorrent-rasterbar --------------------- #
-
-function install_libtorrent_rasterbar() {
-
-if   [[ $lt_version == RC_1_0 ]]; then
-    bash $local_packages/package/libtorrent-rasterbar/install -m deb
-elif [[ $lt_version == RC_1_1 ]]; then
-  # bash $local_packages/package/libtorrent-rasterbar/install -m deb2
-    echo -e "Installing libtorrent-rasterbar ${bold}${cyan}1.1.14${normal} from AMEFS pre-compiled deb package ..." | tee -a $OutputLOG
-    list="libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
-libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
-python-libtorrent_1.1.14-1build1_amd64.deb"
-    mkdir -p /tmp/lt_deb
-    cd /tmp/lt_deb
-    for deb in $list ; do
-        wget --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/libtorrent-rasterbar/$deb/download
-    done
-    if [[ $CODENAME != jessie ]]; then
-        apt-get -fuy install ./*deb
-    else
-        dpkg -i ./*deb
-        apt-get -fy install
-    fi
-    cd
-    rm -rf /tmp/lt_deb
-elif [[ $lt_version == RC_1_2 ]]; then
-    bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
-else
-    bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
-fi
-}
-
-
-
-
-
-
 # --------------------- 安装 qBittorrent --------------------- #
 
 function install_qbittorrent() {
@@ -2029,14 +1992,6 @@ else
 fi ; }
 
 
-
-
-# 设置 qBittorrent#
-function config_qbittorrent() {
-
-bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
-
-}
 
 
 
@@ -2358,44 +2313,6 @@ touch $LockLocation/transmission.lock ; }
 
 
 
-# --------------------- 安装、配置 Flexget --------------------- #
-
-function install_flexget() {
-
-    if [[ $separate == 1 ]] ; then
-        bash $local_packages/package/flexget/install --logbase $LogTimes
-    else
-        pip install --upgrade pyopenssl
-        pip install --upgrade cryptography
-        pip install flexget
-        pip install transmissionrpc deluge-client
-        touch $LockLocation/flexget.lock
-    fi
-
-  mkdir -p /home/$iUser/{transmission,qbittorrent,rtorrent,deluge}/{download,watch} /root/.config/flexget
-
-  cp -f /etc/inexistence/00.Installation/template/config/flexget.config.yml /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTUSERNAME/$iUser/g" /root/.config/flexget/config.yml
-  sed -i "s/SCRIPTPASSWORD/$iPass/g" /root/.config/flexget/config.yml
-
-  flexget web passwd $iPass 2>&1 | tee /tmp/flex.pass.output
-  rm -rf $LockLocation/flexget.{pass,conf}.lock
-  [[ `grep "not strong enough" /tmp/flex.pass.output` ]] && { touch $LockLocation/flexget.pass.lock ; echo -e "\nFailed to set flexget webui password\n" ; }
-  [[ `grep "schema validation" /tmp/flex.pass.output` ]] && { touch $LockLocation/flexget.conf.lock ; echo -e "\nFailed to set flexget config and webui password\n" ; }
-
-  cp -f /etc/inexistence/00.Installation/template/systemd/flexget.service /etc/systemd/system/flexget.service
-  systemctl daemon-reload
-  systemctl enable /etc/systemd/system/flexget.service
-  systemctl start flexget
-
-  echo -e "\n\n\n${bailvse}  FLEXGET-INSTALLATION-COMPLETED  ${normal}\n\n"
-}
-
-
-
-
-
-
 # --------------------- 安装 BBR --------------------- #
 
 function install_bbr() {
@@ -2526,75 +2443,6 @@ apt-get -y install x2goserver x2goserver-xsession pulseaudio
 touch $LockLocation/x2go.lock
 
 echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
-
-
-
-
-
-# --------------------- 安装 wine 与 mono --------------------- #
-
-function install_wine() {
-
-    if [[ $separate == 1 ]] ; then
-        bash $local_packages/package/mono/install --logbase $LogTimes
-        bash $local_packages/package/wine/install --logbase $LogTimes
-    else
-
-echo -e "Installing Wine ... \n\n\n"
-
-# mono
-# http://www.mono-project.com/download/stable/#download-lin
-# https://download.mono-project.com/sources/mono/
-# http://www.mono-project.com/docs/compiling-mono/compiling-from-git/
-
-# These codes are from https://github.com/liaralabs/swizzin/blob/master/sources/functions/mono
-if [[ $DISTROL == ubuntu ]]; then
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-elif [[ $CODENAME == jessie ]]; then
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-    wget -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-    dpkg -i libjpeg8.deb
-    rm -rf libjpeg8.deb
-elif [[ $CODENAME == stretch ]]; then
-    apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-fi
-
-#[[ $CODENAME != buster ]] && echo "deb https://download.mono-project.com/repo/${DISTROL} ${CODENAME}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono.list
-echo "deb http://download.mono-project.com/repo/$DISTROL stable-$CODENAME main" > /etc/apt/sources.list.d/mono.list
-
-apt-get update
-apt-get install -y mono-complete ca-certificates-mono
-
-echo -e "\n\n\n${bailanse}  MONO-INSTALLATION-COMPLETED  ${normal}\n\n"
-
-# wine
-# https://wiki.winehq.org/Debian
-
-dpkg --add-architecture i386
-wget -qO- https://dl.winehq.org/wine-builds/Release.key | apt-key add -
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 76F1A20FF987672F
-
-if [[ $DISTRO == Ubuntu ]]; then
-    apt-add-repository -y https://dl.winehq.org/wine-builds/ubuntu/
-elif [[ $DISTRO == Debian ]]; then
-    echo "deb https://dl.winehq.org/wine-builds/$DISTROL/ $CODENAME main" > /etc/apt/sources.list.d/wine.list
-fi
-
-apt-get update
-apt-get install -y winehq-stable # --install-recommends
-
-wget -nv -N https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/local/bin/winetricks
-chmod 755 /usr/local/bin/winetricks
-
-touch $LockLocation/winemono.lock
-
-echo -e "\n\n\n${bailvse}Version${normal}"
-echo "${bold}${green}`wine --version`"
-echo "mono `mono --version 2>&1 | head -n1 | awk '{print $5}'`${normal}"
-echo -e "\n\n\n${bailanse}  WINE-INSTALLATION-COMPLETED  ${normal}\n\n"
-
-    fi
-}
 
 
 
@@ -2792,7 +2640,7 @@ echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
 echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
 [[ $InsFlex != No ]] && [[ $flex_installed == Yes ]] &&
-echo -e " ${cyan}Flexget Login${normal}       ${bold}flexget${normal}"
+echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
 echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
 [[ -e $LockLocation/flexget.pass.lock ]] &&
@@ -2854,11 +2702,23 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 ######################################################################################################
 
 [[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
-[[ -n $lt_version ]] && [[ $lt_version != system ]] && install_libtorrent_rasterbar
 
-[[ $qb_version != No ]] && {
-echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
-config_qbittorrent ; }
+if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
+    if   [[ $lt_version == RC_1_0 ]]; then
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb
+    elif [[ $lt_version == RC_1_1 ]]; then
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
+    elif [[ $lt_version == RC_1_2 ]]; then
+        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
+    else
+        bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
+    fi
+fi
+
+if [[ $qb_version != No ]]; then
+    echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
+    bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+fi
 
 [[ $de_version != No ]] && {
 echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
@@ -2869,19 +2729,26 @@ echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLoca
 [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
 
 [[ $tr_version != No ]] && {
-echo -ne "Installing Transmission ... \n\n\n" ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
-echo -ne "Configuring Transmission ... " ; config_transmission 2>&1 | tee $LogLocation/09.tr2.log ; }
+echo -ne "Installing Transmission ... "  ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
+echo -ne "Configuring Transmission ... " ; config_transmission  2>&1 | tee $LogLocation/09.tr2.log ; }
 
-[[ $InsFlex   == Yes ]]  && { echo -ne "Installing Flexget ... \n\n\n" ; install_flexget 2>&1 | tee $LogLocation/10.flexget.log ; }
+if [[ $InsFlex == Yes ]]; then
+    bash $local_packages/package/flexget/install   --logbase $LogTimes
+    bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
+fi
 if [[ $InsRclone == Yes ]]; then
     bash $local_packages/package/rclone/install --logbase $LogTimes
     echo -ne "Installing gclone ... "
     bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
     echo -e " ${green}${bold}DONE${normal}"
 fi
+if [[ $InsWine == Yes ]]; then
+    bash $local_packages/package/mono/install --logbase $LogTimes
+    bash $local_packages/package/wine/install --logbase $LogTimes
+fi
+
 [[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n"  ; install_vnc  2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
-[[ $InsWine   == Yes ]]  && { install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
 [[ $UseTweaks == Yes ]]  && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
 
