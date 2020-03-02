@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.02
-script_version=r11009
+script_version=r11010
 
 ################################################################################################ Debug
 
@@ -17,10 +17,15 @@ usage_for_debug() {
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
 
-function show_usage() { echo " Invalid option $1
+AppName=rclone
+AppNameLower=rclone
+Need_SourceCode=no
+pm_action=install
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
 Usage:
       -v        Specifiy which version to be installed
       -l        Specifiy LogBase
@@ -28,7 +33,7 @@ Usage:
 "
 exit 1 ; }
 
-OPTS=$(getopt -o v:l:d -al version:,debug,logbase: -- "$@")
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -36,15 +41,11 @@ while [ -n "$1" ] ; do case "$1" in
     -v | --version      ) version="$2"  ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
 
 ################################################################################################ Set Variables
-
-AppName=rclone
-AppNameLower=rclone
-Need_SourceCode=no
-pm_action=install
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
@@ -53,6 +54,9 @@ else
 fi
 
 set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
 
 ################################################################################################
 
@@ -86,6 +90,6 @@ function install_rclone() {
 
 
 
-echo -ne "Installing $AppName ..." | tee -a $OutputLOG
+echo_task "Installing $AppName ..."
 install_rclone & spinner $!
-check_status $status_lock | tee -a $OutputLOG
+check_status $status_lock

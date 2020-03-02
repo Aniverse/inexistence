@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r11020
+script_version=r11021
 
 ################################################################################################ Debug
 
@@ -17,11 +17,29 @@ usage_for_debug() {
 
 ################################################################################################ Get options
 
-unset AppName AppNameLower Need_SourceCode pm_action \
-      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
       iUser iPass iHome wPort iPort lang
 
-OPTS=$(getopt -n "$0" -o u:p:w:i:h:l: --long "username:,password:,home:,wport:,iport:,lang:,logbase:" -- "$@")
+AppName=qBittorrent
+AppNameLower=qbittorrent
+Need_SourceCode=no  # we need to build libqbpasswd
+pm_action=configure
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -u        Username for qBittorrent
+      -p        Password for qBittorrent WebUI
+      -h        Specifiy user's home path
+      -w        WebUI port for qBittorrent
+      -i        Transmission port for qBittorrent
+      -l        language for qBittorrent WebUI
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+[ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
   case "$1" in
@@ -31,28 +49,29 @@ while true; do
     -w | --wport    ) wPort="$2"    ; shift 2 ;;
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
     -l | --lang     ) lang="$2"     ; shift 2 ;;
+    -d | --debug    ) debug=1       ; shift   ;;
+    -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
+         --log      ) show_log=1    ; shift   ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
     -- ) shift 2 ; break ;;
      * ) break ;;
   esac
 done
 
-################################################################################################ Set Variables
-
-AppName=qBittorrent
-AppNameLower=qbittorrent
-Need_SourceCode=no  # do not need source code when configuring
-pm_action=configure
+################################################################################################ Set Variables 1
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
 else
-    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
-    source /tmp/function
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 
 set_variables_log_location
-[[ $debug == 1 ]] && debug_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
+
+################################################################################################ Set Variables 2
 
 [[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
 id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
@@ -145,6 +164,7 @@ EOF
         make >> $OutputLOG 2>&1
         cp -f qb_password_gen /usr/local/bin/qb_password_gen
         cd .. && rm -rf libqbpasswd
+        [[ ! -x /usr/local/bin/qb_password_gen ]] && echo_error "Failed to build libqbpasswd" && exit 1
         qbPass=$(/usr/local/bin/qb_password_gen $iPass)
         cat << EOF >> $iHome/.config/qBittorrent/qBittorrent.conf
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
@@ -170,6 +190,6 @@ EOF
 
 
 
-echo -ne "Configuring $AppName ..." | tee -a $OutputLOG
+echo_task "Configuring $AppName ..."
 configure_qbittorrent & spinner $!
-check_status $status_lock | tee -a $OutputLOG
+check_status $status_lock
