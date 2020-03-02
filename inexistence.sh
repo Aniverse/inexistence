@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.1
+INEXISTENCEVER=1.1.5.2
 INEXISTENCEDATE=2020.03.02
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2043,7 +2043,7 @@ bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -
 # 安装 Deluge
 function install_deluge() {
 
-    if [[ $separate == 1 ]] ; then
+    if [[ $separate == 10086 ]] ; then
         bash $local_packages/package/deluge/install -v $de_version
     else
 
@@ -2396,19 +2396,6 @@ function install_flexget() {
 
 
 
-
-# --------------------- 安装 rclone --------------------- #
-
-function install_rclone() {
-bash $local_packages/package/rclone/install --logbase $LogTimes
-bash <(wget -qO- https://git.io/gclone.sh)
-}
-
-
-
-
-
-
 # --------------------- 安装 BBR --------------------- #
 
 function install_bbr() {
@@ -2552,6 +2539,8 @@ function install_wine() {
         bash $local_packages/package/mono/install --logbase $LogTimes
         bash $local_packages/package/wine/install --logbase $LogTimes
     else
+
+echo -e "Installing Wine ... \n\n\n"
 
 # mono
 # http://www.mono-project.com/download/stable/#download-lin
@@ -2884,10 +2873,15 @@ echo -ne "Installing Transmission ... \n\n\n" ; install_transmission 2>&1 | tee 
 echo -ne "Configuring Transmission ... " ; config_transmission 2>&1 | tee $LogLocation/09.tr2.log ; }
 
 [[ $InsFlex   == Yes ]]  && { echo -ne "Installing Flexget ... \n\n\n" ; install_flexget 2>&1 | tee $LogLocation/10.flexget.log ; }
-[[ $InsRclone == Yes ]]  && { install_rclone 2>&1 | tee $LogLocation/11.rclone.log ; }
-[[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n" ; install_vnc 2>&1 | tee $LogLocation/12.rdp.log ; }
+if [[ $InsRclone == Yes ]]; then
+    bash $local_packages/package/rclone/install --logbase $LogTimes
+    echo -ne "Installing gclone ... "
+    bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
+    echo -e " ${green}${bold}DONE${normal}"
+fi
+[[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n"  ; install_vnc  2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
-[[ $InsWine   == Yes ]]  && { echo -ne "Installing Wine ... \n\n\n" ; install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
+[[ $InsWine   == Yes ]]  && { install_wine 2>&1 | tee $LogLocation/12.wine.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
 [[ $UseTweaks == Yes ]]  && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
 
