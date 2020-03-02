@@ -4,11 +4,13 @@
 # Author: Aniverse
 #
 script_update=2020.03.02
-script_version=r10041
+script_version=r10042
 ################################################################################################ Usage Guide
 
 usage_guide() {
 s=/etc/inexistence/00.Installation/function;rm -f $s ; nano $s
+
+wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/function -O /etc/inexistence/00.Installation/function
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
@@ -79,19 +81,19 @@ function echo_task() {
     printf "%s" "$@" | tee -a $OutputLOG
 }
 function status_done() {
-	echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
+	echo -e " ${green}${bold}DONE${normal}" | tee -a $OutputLOG
 }
 function status_failed() {
-	echo -e "${red}${bold}FAILED${normal}" | tee -a $OutputLOG
+	echo -e " ${red}${bold}FAILED${normal}" | tee -a $OutputLOG
 }
 function echo_warning() {
-    printf "${yellow}${bold}WARNING: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${yellow}${bold}WARNING: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
 }
 function echo_error() {
-    printf "${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${red}${bold}ERROR: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
 }
 function echo_info() {
-    printf "${cyan}${bold}Info: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${cyan}${bold}Info: ${underline}%s${normal}\n" "$@" | tee -a $OutputLOG
 }
 
 # These codes are from teddysun bbr.sh
@@ -298,7 +300,7 @@ function APT_UPGRADE() {
 
 
 function cat_outputlog() {
-    if [[ $show_log == 1 ]] && ; then
+    if [[ $show_log == 1 ]]; then
         lines
         echo -e "${bold}${OutputLOG}${normal}"
         lines
