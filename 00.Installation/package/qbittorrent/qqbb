@@ -15,12 +15,14 @@ id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
 [[ $iUser == root ]] && iHome=/root ; [[ $iUser != root ]] && iHome=/home/$iUser
 ServerIP=$(grep serveripv4 /log/inexistence/serverip 2>/dev/null | awk '{print $2}')
 ################################################################################################
+app_script=qqbb
 app=qBittorrent
 app_systemd=qbittorrent
 app_command=qbittorrent-nox
 app_config=$iHome/.config/qBittorrent/qBittorrent.conf
 app_log=$iHome/.config/qBittorrent/qbittorrent.log
 app_webui_port=$(grep "WebUI.Port" $app_config | grep -oE "[0-9]+")
+app_version=$($app_command --version | awk '{print $2}' | sed "s/v//")
 [[ -n $ServerIP ]] && app_web_url="Web          http://${ServerIP}:${app_webui_port}"
 ################################################################################################
 
@@ -29,16 +31,18 @@ show_usage() {
 echo -e "Usage: qb [action] [username]
 
 Action:
-a            Start   $app
-b            Stop    $app
-c            Check   $app status
+a            Start   ${app}
+b            Stop    ${app}
+c            Check   ${app} status
 l            View    ${app}'s log
-r            Restart $app
+r            Restart ${app}
 s            Edit    ${app}'s configuration file
 x            Enable  ${app}'s auto-start after reboot
 y            Disable ${app}'s auto-start after reboot
 
+$app_script  $script_version ($script_update)
 User         $iUser
+Version      $app $app_version
 Config       $app_config
 Logfile      $app_log
 WebUI Port   $app_webui_port
