@@ -2,8 +2,8 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.3.3
-SCRIPTUPDATE=2020.03.02.放弃治疗
+SCRIPTVER=0.9.3.4
+SCRIPTUPDATE=2020.03.04.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
 
@@ -529,9 +529,9 @@ case $response in
     04 | 4) echo -e "" ; systemctl start   transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
     05 | 5) echo -e "" ; systemctl stop    transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
     06 | 6) echo -e "" ; systemctl restart transmission     > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    07 | 7) echo -e "" ; systemctl start   flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    08 | 8) echo -e "" ; systemctl stop    flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    09 | 9) echo -e "" ; systemctl restart flexget          > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    07 | 7) echo -e "" ; systemctl start   flexget@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    08 | 8) echo -e "" ; systemctl stop    flexget@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+    09 | 9) echo -e "" ; systemctl restart flexget@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Flexget daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
         10) echo -e "" ; su $iUser -c 'rt -i start'      > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
         11) echo -e "" ; su $iUser -c 'rt -i -k stop'    > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
         12) echo -e "" ; su $iUser -c 'rt -i -k restart' > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
@@ -543,7 +543,7 @@ case $response in
         18) echo -e "" ; systemctl restart deluged > /dev/null 2>&1 ; systemctl restart deluge-web > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
         19) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r rtorrent' ;;
         20) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'    ;;
-        21) echo -e "" ; echo ; tail -n100 /root/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
+        21) echo -e "" ; echo ; tail -n100 /home/@$iUser/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
         22) echo -e "" ; nano /root/.config/flexget/config.yml ; _xunwen1 ; _client_menu_response ;;
         23) echo -ne "\n${bold}${cyan}你确定要重启盒子？${normal} [${cyan}Y${jiacu}/n]:${normal} "; read rbt
             case $rbt in [yY] | [yY][Ee][Ss] | "" ) rbt=Yes ;; [nN] | [nN][Oo]) rbt=No ;; *) rbt=Yes ;; esac
