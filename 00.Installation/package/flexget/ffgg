@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.04
-script_version=r10000
+script_version=r10001
 ################################################################################################
 action=$1
 iUser=$2
@@ -15,7 +15,7 @@ id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
 [[ $iUser == root ]] && iHome=/root ; [[ $iUser != root ]] && iHome=/home/$iUser
 ServerIP=$(grep serveripv4 /log/inexistence/serverip 2>/dev/null | awk '{print $2}')
 ################################################################################################
-script_name=ffgg
+app_script=ffgg
 app=FlexGet
 app_systemd=flexget
 app_command=flexget
@@ -40,7 +40,7 @@ s            Edit    ${app}'s configuration file
 x            Enable  ${app}'s auto-start after reboot
 y            Disable ${app}'s auto-start after reboot
 
-$script_name $script_version ($script_update)
+$app_script  $script_version ($script_update)
 User         $iUser
 Version      $app $app_version
 Config       $app_config
