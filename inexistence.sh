@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.4
-INEXISTENCEDATE=2020.03.02
+INEXISTENCEVER=1.1.5.5
+INEXISTENCEDATE=2020.03.04
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1766,6 +1766,11 @@ inexistence.user        $iUser
 inexistence.setup       $(date "+%Y.%m.%d %H:%M")
 ASN                     $asnnnnn
 
+EOF
+
+cat << EOF > $LogBase/serverip
+serveripv4    ${serveripv4}
+serveripv6    ${serveripv6}
 EOF
 
 # Raise open file limits
