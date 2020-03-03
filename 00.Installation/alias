@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.02.27
-script_version=r11002
+script_update=2020.03.03
+script_version=r11003
 ################################################################################################
 
 # Usage:      . s-alias
@@ -94,17 +94,17 @@ alias irssib="su $iUser -c 'rt -i -k stop'"
 alias irssic="su $iUser -c 'rt -i'"
 alias irssir="su $iUser -c 'rt -i -k restart'"
 alias irssiscreen="chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'"
-alias fga="systemctl start flexget"
-alias fgaa="flexget daemon start --daemonize"
-alias fgb="systemctl stop flexget"
-alias fgc="systemctl status flexget"
-alias fgcc="flexget daemon status"
-alias fgr="systemctl restart flexget"
-alias fgrr="flexget daemon reload-config"
-alias fgl="echo ; tail -300 /root/.config/flexget/flexget.log ; echo"
-alias fgs="nano +60 /root/.config/flexget/config.yml"
-alias fgcheck="flexget check"
-alias fge="flexget execute"
+alias fga="systemctl start flexget@$iUser"
+alias fgaa="flexget -c /home/%i/@$iUser/flexget/config.yml daemon start --daemonize"
+alias fgb="systemctl stop flexget@$iUser"
+alias fgc="systemctl status flexget@$iUser"
+alias fgcc="flexget -c /home/%i/@$iUser/flexget/config.yml daemon status"
+alias fgr="systemctl restart flexget@$iUser"
+alias fgrr="flexget -c /home/%i/@$iUser/flexget/config.yml daemon reload-config"
+alias fgl="echo ; tail -300 /home/@$iUser/.config/flexget/flexget.log ; echo"
+alias fgs="nano +60 /home/@$iUser/.config/flexget/config.yml"
+alias fgcheck="flexget -c /home/%i/@$iUser/flexget/config.yml check"
+alias fge="flexget -c /home/%i/@$iUser/flexget/config.yml execute"
 alias fla="systemctl start flood"
 alias flb="systemctl stop flood"
 alias flc="systemctl status flood"
