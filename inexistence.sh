@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.5
+INEXISTENCEVER=1.1.5.6
 INEXISTENCEDATE=2020.03.04
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -89,7 +89,8 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/ga
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
-export local_packages=/etc/inexistence/00.Installation
+export local_package=/etc/inexistence/00.Installation
+export local_script=/usr/local/bin/abox
 
 export LogBase=/log/inexistence
 export LogTimes=$LogBase/$times
@@ -1798,7 +1799,10 @@ echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
 # alias and locales
 [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
-bash $local_packages/alias $iUser $wangka $LogTimes $IntoBashrc
+bash $local_package/alias $iUser $wangka $LogTimes $IntoBashrc
+
+# PATH
+echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
 
 # 脚本设置
 mkdir -p /etc/inexistence/00.Installation
@@ -1811,9 +1815,6 @@ mkdir -p /etc/inexistence/06.BluRay
 mkdir -p /etc/inexistence/07.Screenshots
 mkdir -p /etc/inexistence/08.BDinfo
 mkdir -p /etc/inexistence/09.Torrents
-mkdir -p /etc/inexistence/10.Demux
-mkdir -p /etc/inexistence/11.Remux
-mkdir -p /etc/inexistence/12.Output2
 
 # Bluray Tools
 if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
@@ -1829,8 +1830,9 @@ if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
 fi
 
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
-cp -f /etc/inexistence/00.Installation/script/* /usr/local/bin
-sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
+cp -f $local_package/script/* $local_script
+
+# sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
 echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 }
@@ -1991,6 +1993,8 @@ else
         fi
     fi
 
+    ln -s  $local_package/package/qbittorrent/qqbb  $local_script
+
     cd
     echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
 
@@ -2004,7 +2008,7 @@ fi ; }
 function install_deluge() {
 
     if [[ $separate == 10086 ]] ; then
-        bash $local_packages/package/deluge/install -v $de_version
+        bash $local_package/package/deluge/install -v $de_version
     else
 
 if [[ $de_version == "Install from repo" ]]; then
@@ -2708,19 +2712,19 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
     if   [[ $lt_version == RC_1_0 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb
+        bash $local_package/package/libtorrent-rasterbar/install -m deb
     elif [[ $lt_version == RC_1_1 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
+        bash $local_package/package/libtorrent-rasterbar/install -m deb3
     elif [[ $lt_version == RC_1_2 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
+        bash $local_package/package/libtorrent-rasterbar/install -b RC_1_2
     else
-        bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
+        bash $local_package/package/libtorrent-rasterbar/install -v $lt_version
     fi
 fi
 
 if [[ $qb_version != No ]]; then
     echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
-    bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+    bash $local_package/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
 fi
 
 [[ $de_version != No ]] && {
@@ -2736,18 +2740,18 @@ echo -ne "Installing Transmission ... "  ; install_transmission 2>&1 | tee $LogL
 echo -ne "Configuring Transmission ... " ; config_transmission  2>&1 | tee $LogLocation/09.tr2.log ; }
 
 if [[ $InsFlex == Yes ]]; then
-    bash $local_packages/package/flexget/install   --logbase $LogTimes
-    bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
+    bash $local_package/package/flexget/install   --logbase $LogTimes
+    bash $local_package/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
 fi
 if [[ $InsRclone == Yes ]]; then
-    bash $local_packages/package/rclone/install --logbase $LogTimes
+    bash $local_package/package/rclone/install --logbase $LogTimes
     echo -ne "Installing gclone ... "
     bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
     echo -e " ${green}${bold}DONE${normal}"
 fi
 if [[ $InsWine == Yes ]]; then
-    bash $local_packages/package/mono/install --logbase $LogTimes
-    bash $local_packages/package/wine/install --logbase $LogTimes
+    bash $local_package/package/mono/install --logbase $LogTimes
+    bash $local_package/package/wine/install --logbase $LogTimes
 fi
 
 [[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n"  ; install_vnc  2>&1 | tee $LogLocation/12.rdp.log ; }
