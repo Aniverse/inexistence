@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.02
-script_version=r10044
+script_update=2020.03.04
+script_version=r10045
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -44,6 +44,11 @@ heibaise=${black}${on_white}    ; heihuangse=${on_yellow}${black}
 CW="${bold}${baihongse} ERROR ${jiacu}" ; ZY="${baihongse}${bold} ATTENTION ${jiacu}" ; JG="${baihongse}${bold} WARNING ${jiacu}"
 
 ################################################################################################
+
+LogBase=/log/inexistence
+LOCKLocation=$LogBase/lock
+local_package=/etc/inexistence/00.Installation
+local_script=/usr/local/bin/abox
 
 self_location="$0"
 arch=$(uname -m)
@@ -158,8 +163,6 @@ function check_status() {
 
 
 function set_variables_log_location() {
-    LogRootPath=/log/inexistence
-    LOCKLocation=$LogRootPath/lock
 
     if [[ -z $LogTimes ]]; then
         LogTimes=$LogRootPath/single
@@ -361,5 +364,6 @@ sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf
 sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf
 sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf
 sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf
+grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+"
 }
 
