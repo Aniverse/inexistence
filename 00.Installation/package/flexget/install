@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.04
-script_version=r20008
+script_version=r20009
 
 ################################################################################################ Debug
 
@@ -75,7 +75,7 @@ function install_python3() {
         apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F23C5A6CF475977595C89F51BA6932366A755776 >> "$OutputLOG" 2>&1
         LC_ALL=en_US.UTF-8 add-apt-repository ppa:deadsnakes/ppa -y >> "$OutputLOG" 2>&1
         APT_UPGRADE
-        apt_install_check    python3.6
+        apt_install_check    python3.6 python3.6-gdbm
         apt_install_separate
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2 >> "$OutputLOG" 2>&1
