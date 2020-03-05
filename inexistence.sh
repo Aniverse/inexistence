@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.6.0
-INEXISTENCEDATE=2020.03.05
+INEXISTENCEVER=1.1.6.2
+INEXISTENCEDATE=2020.03.06
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -2288,6 +2288,7 @@ else
 fi
 
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+touch $LockLocation/transmission.lock
 
 cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
@@ -2299,6 +2300,9 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; 
 
 function config_transmission() {
 
+    if [[ $separate == 1 ]] ; then
+        bash $local_package/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
+    else
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
 mkdir -p /home/$iUser/transmission/{download,torrent,watch} /root/.config/transmission-daemon
@@ -2316,8 +2320,9 @@ chmod -R 755 /root/.config/transmission-daemon
 systemctl daemon-reload
 systemctl enable transmission
 systemctl start transmission
+    fi
 
-touch $LockLocation/transmission.lock ; }
+}
 
 
 
