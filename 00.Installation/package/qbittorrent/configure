@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.05
-script_version=r11022
+script_version=r11023
 
 ################################################################################################ Debug
 
@@ -100,7 +100,7 @@ Type=forking
 User=%I
 LimitNOFILE=infinity
 ExecStart=/usr/bin/qbittorrent-nox -d
-#ExecStop=/usr/bin/killall -s 9 /usr/bin/qbittorrent-nox
+ExecStop=/usr/bin/killall -s 9 /usr/bin/qbittorrent-nox
 Restart=on-failure
 TimeoutSec=300
 
@@ -111,13 +111,11 @@ EOF
 
     if [[ -d $iHome/.config/qBittorrent ]]; then
         mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")
-        rm -rf mv $iHome/.config/qBittorrent
+        rm -rf $iHome/.config/qBittorrent
     fi
 
-    mkdir -p $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent
-
     ln -s  $local_package/package/qbittorrent/qqbb  $local_script/qqbb
-
+    mkdir -p $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent
     chmod -R 755  $iHome/.config/qBittorrent   $iHome/qbittorrent
     chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
 
