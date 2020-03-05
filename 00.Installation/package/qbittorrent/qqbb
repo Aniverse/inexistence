@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.04
-script_version=r10003
+script_update=2020.03.05
+script_version=r10004
 ################################################################################################
 action=$1
 iUser=$2
@@ -40,7 +40,7 @@ s            Edit    ${app}'s configuration file
 x            Enable  ${app}'s auto-start after reboot
 y            Disable ${app}'s auto-start after reboot
 
-$app_script  $script_version ($script_update)
+$app_script         $script_version ($script_update)
 User         $iUser
 Version      $app $app_version
 Config       $app_config
