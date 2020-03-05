@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.7
+INEXISTENCEVER=1.1.6.0
 INEXISTENCEDATE=2020.03.05
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2509,23 +2509,8 @@ echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
 
-# Upgrade vnstat, compile from source
-# https://humdi.net/wiki/vnstat/install/in_debian
-cd $SourceLocation
-apt-get install -y make gcc libc6-dev libsqlite3-0 libsqlite3-dev
-wget -nv -N https://github.com/vergoh/vnstat/releases/download/v2.6/vnstat-2.6.tar.gz
-tar zxf vnstat-2.6.tar.gz
-rm -f vnstat-2.6.tar.gz
-cd vnstat-2.6
-./configure --prefix=/usr --sysconfdir=/etc
-make -j$MAXCPUS
-make install
-#cp -v examples/systemd/vnstat.service /etc/systemd/system/
-sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service # 我都忘了为什么要这么一行了
-#systemctl enable vnstat
-#systemctl start vnstat
-systemctl restart vnstatd
-cd
+# Upgrade vnstat, compile from source. And Install vnstat-dashboard
+bash $local_package/package/vnstat/install --logbase $LogTimes
 
 # Set timezone to UTC+8
 rm -rf /etc/localtime
