@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.5.6
-INEXISTENCEDATE=2020.03.04
+INEXISTENCEVER=1.1.5.7
+INEXISTENCEDATE=2020.03.05
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1830,7 +1830,8 @@ if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
 fi
 
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
-cp -f $local_package/script/* $local_script
+mkdir -p $local_script
+ln -s $local_package/script/* $local_script
 
 # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
@@ -1993,7 +1994,7 @@ else
         fi
     fi
 
-    ln -s  $local_package/package/qbittorrent/qqbb  $local_script
+    ln -s  $local_package/package/qbittorrent/qqbb  $local_script/qqbb
 
     cd
     echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
