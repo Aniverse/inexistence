@@ -1994,7 +1994,7 @@ else
         fi
     fi
 
-    ln -s  $local_package/package/qbittorrent/qqbb  $local_script/qqbb
+    
 
     cd
     echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
@@ -2287,6 +2287,8 @@ else
 
 fi
 
+echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+
 cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
 
 
@@ -2296,8 +2298,6 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; 
 # --------------------- 配置 Transmission --------------------- #
 
 function config_transmission() {
-
-echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
