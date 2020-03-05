@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.05
-script_version=r11023
+script_version=r11025
 
 ################################################################################################ Debug
 
@@ -32,7 +32,7 @@ Usage:
       -p        Password for qBittorrent WebUI
       -h        Specifiy user's home path
       -w        WebUI port for qBittorrent
-      -i        Transmission port for qBittorrent
+      -i        Incoming port for qBittorrent
       -l        language for qBittorrent WebUI
       -d        Enable debug mode
       --log     Show logfile's content"
@@ -114,10 +114,8 @@ EOF
         rm -rf $iHome/.config/qBittorrent
     fi
 
-    ln -s  $local_package/package/qbittorrent/qqbb  $local_script/qqbb
-    mkdir -p $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent
-    chmod -R 755  $iHome/.config/qBittorrent   $iHome/qbittorrent
-    chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
+    mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script
+    ln    -s  $local_package/package/qbittorrent/qqbb       $local_script/qqbb
 
     cat << EOF > $iHome/.config/qBittorrent/qBittorrent.conf
 [Application]
@@ -172,6 +170,9 @@ EOF
 WebUI\Password_ha1=@ByteArray($qbPass)
 EOF
     fi
+
+    chmod -R 755             $iHome/qbittorrent   $iHome/.config/qBittorrent
+    chown -R $iUser.$iUser   $iHome/qbittorrent   $iHome/.config/qBittorrent
 
     systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
     systemctl start  qbittorrent@$iUser >> $OutputLOG 2>&1
