@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.05
-script_version=r10001
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -99,6 +99,7 @@ function install_vnstat() {
         rm -rf vnstat-dashboard                                                    >> "$OutputLOG" 2>&1
         cd $web_root/vnstat/                                                       >> "$OutputLOG" 2>&1
         composer install                                                           >> "$OutputLOG" 2>&1
+        chown -R www-data:www-data $web_root/vnstat                                >> "$OutputLOG" 2>&1
     fi
 
     vnstat_ver=$(vnstat --version | grep -oE "[0-9.]+")
