@@ -9,9 +9,71 @@
 
 
 
+## 2020.03.05
+
+`inexistence 1.1.6.2`  
+1. **Bump version to 1.1.6**  
+最近版本号会升得比较快……  
+2. BugFix：修复 abox PATH 问题  
+3.  **New Feature：启用 `vnstat/install`，带来了 vnstat 网页前端**  
+4. Codes：Transmission 加强版 WebUI 的步骤移到 install 部分  
+5. **New Feature：可以用 `--separate` 启用 `transmission/configure`，带来了 tr 用户态**  
+
+`function r10047`  
+- 增加新的全局变量 web_root，web_rutorrent  
+
+`mingling 0.9.3.6`  
+- 修复 flexget systemd 检测 (root → user)  
+也是服了，写 ChangeLog 的时候才发现下午更新的时候又手滑了，感觉改了下  
+
+`wine/install r10006`
+- 修复 Ubuntu 18.04/Debian 10 缺少依赖的问题  
+
+`vnstat/install r10002`
+1. 初始化  
+2. 编译安装最新版 vnstat  
+3. 在装了 ruTorrent 的情况下（即有 nginx），再安装 vnstat dashboard (脚本内 Debian 8 不支持)  
+Debian 8 可以考虑用 docker run  
+
+`qbittorrent/configure r11026`
+1. 全部操作的输出都会转存到日志文件  
+2. 其他各种小问题修复和细节调整  
+
+`transmission/configure r10001`
+1. 初始化  
+2. 全部操作的输出都会转存到日志文件  
 
 
 
+
+
+## 2020.03.03-04
+
+`inexistence 1.1.5.6`  
+1. New Feature：写入 IP 地址到 `$LogBase/serverip`  
+2. **New Feature：使用软链的方式导入 mingling 等脚本到 /usr/local/bin/abox 这个新 PATH 内**  
+很遗憾地搞出了 bug，第二天修了  
+
+`alias r11003`  
+- 修复 flexget alias (root → user)  
+
+`function r10045`  
+- 增加新的全局变量 LogBase，LOCKLocation，local_package，local_script  
+
+`mingling 0.9.3.4`  
+- 修复 flexget 相关功能 (root → user)  
+
+`qqbb r10003`  
+1. 重命名为 qqbb  
+2. show_usage 里增加了配置文件路径、网址、端口等信息  
+3.  show_usage 里增加了本脚本的版本信息和 App 的版本信息  
+
+`ffgg r10001`  
+- 初始化，与 qqbb 同步更新  
+
+`flexget/install r20009`  
+1. 为 Ubuntu 16.04 加上 python3.6-gdbm（修复 command not found 时 py3 的报错）  
+2. 创建 ffgg 的软链  
 
 
 
