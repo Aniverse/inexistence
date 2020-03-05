@@ -184,7 +184,7 @@ function set_variables_log_location() {
     fi
 
     mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
-    { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName" ; lines ; } >> $OutputLOG
+    { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName $pm_action" ; lines ; } >> $OutputLOG
 
     if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
         cd $SCLocation
@@ -366,6 +366,12 @@ sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf
 sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf
 sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf
 sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf
-grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+"
+port_fg=$(grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+")
+
+qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
+tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
+
+rtorrent_ver=$(rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
+`deluged --version | grep libtorrent | awk '{print $2}'`
 }
 
