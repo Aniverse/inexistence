@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.02
-script_version=r10005
+script_update=2020.03.05
+script_version=r10006
 
 ################################################################################################ Debug
 
@@ -65,6 +65,7 @@ cat_outputlog
 
 
 # https://wiki.winehq.org/Debian
+# https://wiki.winehq.org/Ubuntu
 
 function install_wine() {
 
@@ -83,6 +84,30 @@ function install_wine() {
     [[ $CODENAME != focal ]] &&
         echo "deb https://dl.winehq.org/wine-builds/$DISTROL/ $CODENAME main" > /etc/apt/sources.list.d/wine.list
   # fi
+
+    # https://forum.winehq.org/viewtopic.php?f=8&t=32192
+    # Fix missing FAudio on Debian 10 and Ubuntu 18.04
+    if [[ $CODENAME == buster ]]; then
+        #mkdir -p /tmp/wine && cd /tmp/wine
+        #wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/amd64/libfaudio0-dbgsym_19.07-0~bionic_amd64.ddeb >> $OutputLOG 2>&1
+        #wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/amd64/libfaudio0_19.07-0~bionic_amd64.deb >> $OutputLOG 2>&1
+        #apt-get install -y ./libfaudio0-dbgsym_19.07-0~bionic_amd64.ddeb ./libfaudio0_19.07-0~bionic_amd64.deb >> $OutputLOG 2>&1
+        #cd && rm -rf /tmp/wine
+        wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/Debian_10/Release.key -O /tmp/opensuse.key >> $OutputLOG 2>&1
+        apt-key add /tmp/opensuse.key >> $OutputLOG 2>&1
+        rm -f /tmp/opensuse.key
+        echo "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/Debian_10 ./" > /etc/apt/sources.list.d/opensuse.wine.list
+    elif [[ $CODENAME == bionic ]]; then
+        #mkdir -p /tmp/wine && cd /tmp/wine
+        #wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/Debian_10/amd64/libfaudio0-dbgsym_20.01-0~buster_amd64.deb >> $OutputLOG 2>&1
+        #wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/amd64/libfaudio0_19.07-0~bionic_amd64.deb >> $OutputLOG 2>&1
+        #apt-get install -y ./*.deb >> $OutputLOG 2>&1
+        #cd && rm -rf /tmp/wine
+        wget -nv https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key -O /tmp/opensuse.key >> $OutputLOG 2>&1
+        apt-key add /tmp/opensuse.key >> $OutputLOG 2>&1
+        rm -f /tmp/opensuse.key
+        echo "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/opensuse.wine.list
+    fi
 
     APT_UPGRADE
     apt_install_check winehq-stable
