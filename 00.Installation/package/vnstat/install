@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.07
-script_version=r10000
+script_update=2020.03.05
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -81,14 +81,14 @@ function install_vnstat() {
     ./configure --prefix=/usr --sysconfdir=/etc                 >> "$OutputLOG" 2>&1
     make -j$MAXCPUS                                             >> "$OutputLOG" 2>&1
     make install                                                >> "$OutputLOG" 2>&1
-    sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service
 
     if systemctl status vnstatz 2>&1 | grep -q "not.*found" ; then
         cp -f examples/systemd/simple/vnstat.service /etc/systemd/system/
-        systemctl daemon-reload  >> "$OutputLOG" 2>&1
-        systemctl enable vnstat  >> "$OutputLOG" 2>&1
     fi
 
+    [[ -f /etc/systemd/system/vnstat.service ]] && sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service
+    systemctl daemon-reload                                     >> "$OutputLOG" 2>&1
+    systemctl enable vnstat                                     >> "$OutputLOG" 2>&1
     systemctl restart vnstatd                                   >> "$OutputLOG" 2>&1
     cd ..
     rm -rf vnstat-*
