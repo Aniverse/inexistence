@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.02
-script_version=r11021
+script_update=2020.03.05
+script_version=r11022
 
 ################################################################################################ Debug
 
@@ -100,7 +100,7 @@ Type=forking
 User=%I
 LimitNOFILE=infinity
 ExecStart=/usr/bin/qbittorrent-nox -d
-#ExecStop=/usr/bin/killall -w -s 9 /usr/bin/qbittorrent-nox
+#ExecStop=/usr/bin/killall -s 9 /usr/bin/qbittorrent-nox
 Restart=on-failure
 TimeoutSec=300
 
@@ -110,14 +110,13 @@ EOF
     systemctl daemon-reload
 
     if [[ -d $iHome/.config/qBittorrent ]]; then
-        mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.$times
+        mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")
         rm -rf mv $iHome/.config/qBittorrent
     fi
 
     mkdir -p $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent
 
-    cp -f $local_packages/package/qbittorrent/qb /usr/local/bin/qb >> $OutputLOG 2>&1
-    chmod 755 /usr/local/bin/qb >> $OutputLOG 2>&1
+    ln -s  $local_package/package/qbittorrent/qqbb  $local_script/qqbb
 
     chmod -R 755  $iHome/.config/qBittorrent   $iHome/qbittorrent
     chown -R $iUser.$iUser $iHome/qbittorrent $iHome/.config/qBittorrent
