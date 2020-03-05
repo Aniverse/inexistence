@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.04
-script_version=r10045
+script_update=2020.03.05
+script_version=r10046
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -49,6 +49,8 @@ LogBase=/log/inexistence
 LOCKLocation=$LogBase/lock
 local_package=/etc/inexistence/00.Installation
 local_script=/usr/local/bin/abox
+web_root=/var/www
+web_rutorrent=/var/www/rutorrent
 
 self_location="$0"
 arch=$(uname -m)
