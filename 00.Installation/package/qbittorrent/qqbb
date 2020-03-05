@@ -9,7 +9,6 @@ script_version=r10004
 action=$1
 iUser=$2
 DefaultUser=$(cat /log/inexistence/iUser.txt 2>/dev/null | head -1)
-[[ -z $DefaultUser ]] && DefaultUserDisplay="Error: No default user found" || DefaultUserDisplay="Default user: $DefaultUser"
 [[ -z $iUser  ]] && iUser=$DefaultUser
 id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
 [[ $iUser == root ]] && iHome=/root ; [[ $iUser != root ]] && iHome=/home/$iUser
@@ -28,9 +27,9 @@ app_version=$($app_command --version | awk '{print $2}' | sed "s/v//")
 
 show_usage() {
 
-echo -e "Usage: qb [action] [username]
+echo -e "Usage: $app_script [action] [username]
 
-Action:
+Actions:
 a            Start   ${app}
 b            Stop    ${app}
 c            Check   ${app} status
