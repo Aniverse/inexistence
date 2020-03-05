@@ -3,16 +3,17 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.05
-script_version=r10000
+script_update=2020.03.06
+script_version=r10001
 
 ################################################################################################ Debug
 
 usage_for_debug() {
     export local_packages=/etc/inexistence/00.Installation
-    export s=$local_packages/package/qbittorrent/configure
+    export s=$local_packages/package/transmission/configure
     rm -f $s ; nano $s
-    bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+    bash /etc/inexistence/00.Installation/package/transmission/configure -u $iUser -p $iPass -w 9099
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/transmission/configure)
 }
 
 ################################################################################################ Get options
@@ -83,7 +84,7 @@ tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
 ################################################################################################
 
-function configure_qbittorrent() {
+function configure_transmission() {
 
     echo >> $OutputLOG
     cat << EOF > /etc/systemd/system/transmission@.service
@@ -95,14 +96,15 @@ After=network.target
 User=%I
 Type=simple
 LimitNOFILE=infinity
-ExecStart=/usr/bin/transmission-daemon -f --log-error -e /home/%i/.config/transmission-daemon/tr.log # -g /home/%i/.config/transmission-daemon
+ExecStart=/usr/bin/transmission-daemon -f --log-error -e /home/%i/.config/transmission-daemon/tr.log
+# -g /home/%i/.config/transmission-daemon
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -9 $MAINPID
 
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reload
+    systemctl daemon-reload >> $OutputLOG 2>&1
 
     if [[ -d $iHome/.config/transmission-daemon ]]; then
         mv $iHome/.config/transmission-daemon $iHome/.config/transmission-daemon.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")
@@ -110,7 +112,7 @@ EOF
     fi
 
     mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script
-    ln    -s  $local_package/package/transmission/ttrr       $local_script/ttrr
+    ln    -s  $local_package/package/transmission/ttrr       $local_script/ttrr              >> $OutputLOG 2>&1
 
     cat << EOF > $iHome/.config/transmission-daemon/settings.json
 {
@@ -192,17 +194,18 @@ EOF
 
 EOF
 
-    chmod -R 755             $iHome/transmission   $iHome/.config/transmission-daemon   
-    chown -R $iUser.$iUser   $iHome/transmission   $iHome/.config/transmission-daemon
+    chmod -R 755             $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
+    chown -R $iUser.$iUser   $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
 
     systemctl enable transmission@$iUser >> $OutputLOG 2>&1
     systemctl start  transmission@$iUser >> $OutputLOG 2>&1
-    [[ -d /var/www/h5ai ]] && ln -s   $iHome/transmission/download   /var/www/h5ai/$iUser/transmission
+    [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/transmission/download   /var/www/h5ai/$iUser/transmission >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
-    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    ps --user $iUser | grep transmission-daemon -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    # full program name will not be displayed, so just transmiss not transmission-daemon
+    ps --user $iUser | grep transmiss -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
     echo >> $OutputLOG
 }
 
