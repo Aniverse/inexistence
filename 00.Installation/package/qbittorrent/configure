@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r11027
+script_version=r12028
 
 ################################################################################################ Debug
 
@@ -13,6 +13,7 @@ usage_for_debug() {
     export s=$local_packages/package/qbittorrent/configure
     rm -f $s ; nano $s
     bash /etc/inexistence/00.Installation/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/qbittorrent/configure)
 }
 
 ################################################################################################ Get options
@@ -83,6 +84,7 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $qbt_language ]] && qbt_language=zh
 
 qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
+qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
 
 ################################################################################################
 
@@ -114,10 +116,10 @@ EOF
         rm -rf $iHome/.config/qBittorrent
     fi
 
-    mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script
+    mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
     ln    -s  $local_package/package/qbittorrent/qqbb       $local_script/qqbb      >> $OutputLOG 2>&1
 
-    cat << EOF > $iHome/.config/qBittorrent/qBittorrent.conf
+    cat << EOF > $qbconf
 [Application]
 FileLogger\Enabled=true
 FileLogger\Age=6
@@ -164,6 +166,7 @@ Bittorrent\uTP=false
 Bittorrent\uTP_rate_limited=true
 Connection\GlobalDLLimitAlt=0
 Connection\GlobalUPLimitAlt=0
+#Connection\InetAddress=1.1.1.1
 #Connection\Interface=eth0
 #Connection\InterfaceAddress=0.0.0.0
 #Connection\InterfaceName=eth0
@@ -173,13 +176,18 @@ Downloads\DiskWriteCacheSize=64
 Downloads\DiskWriteCacheTTL=60
 Downloads\SavePath=$iHome/qbittorrent/download
 Downloads\SaveResumeDataInterval=3
+Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
+Downloads\StartInPause=false
 Downloads\TorrentExportDir=$iHome/qbittorrent/torrent
 General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
 #Disable CSRF Protection For PT Plugin Plus
 WebUI\CSRFProtection=false
+WebUI\HostHeaderValidation=true
+WebUI\LocalHostAuth=false
 WebUI\Port=$wPort
 WebUI\Username=$iUser
+
 EOF
 
     if version_ge $qb_installed_ver 4.2.0 ; then
@@ -190,12 +198,12 @@ EOF
         cd .. && rm -rf libqbpasswd
         [[ ! -x /usr/local/bin/qb_password_gen ]] && echo_error "Failed to build libqbpasswd" && exit 1
         qbPass=$(/usr/local/bin/qb_password_gen $iPass)
-        cat << EOF >> $iHome/.config/qBittorrent/qBittorrent.conf
+        cat << EOF >> $qbconf
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
 EOF
     else
         qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
-        cat << EOF >> $iHome/.config/qBittorrent/qBittorrent.conf
+        cat << EOF >> $qbconf
 WebUI\Password_ha1=@ByteArray($qbPass)
 EOF
     fi
@@ -206,6 +214,17 @@ EOF
     systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
     systemctl start  qbittorrent@$iUser >> $OutputLOG 2>&1
     [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/qbittorrent/download   /var/www/h5ai/$iUser/qbittorrent >> $OutputLOG 2>&1
+
+    if version_ge $qb_installed_ver 4.2.0 ; then
+        curl -i --data 'json={"scan_dirs":{"'"${iHome}/qbittorrent/watch"'":1}}'   http://localhost:${wPort}/api/v2/app/setPreferences >> $OutputLOG 2>&1
+    else
+        curl -i --data 'json={"scan_dirs":{"'"${iHome}/qbittorrent/watch"'":1}}'   http://localhost:${wPort}/command/setPreferences    >> $OutputLOG 2>&1
+    fi
+
+    sed -i "s|WebUI\\\LocalHostAuth.*|WebUI\\\LocalHostAuth=true|" $qbconf >> $OutputLOG 2>&1
+    grep ScanDirsV2 $qbconf -q || echo_error "Failed to set monitored folder"
+    echo  $wPort >  $PortLocation/$iUser.$AppNameLower
+    systemctl restart qbittorrent@$iUser >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
