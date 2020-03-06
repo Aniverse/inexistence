@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r11026
+script_version=r11027
 
 ################################################################################################ Debug
 
@@ -127,10 +127,31 @@ FileLogger\AgeType=1
 FileLogger\Path=$iHome/.config/qBittorrent
 FileLogger\MaxSize=20
 
+[BitTorrent]
+Session\AnnounceToAllTiers=true
+Session\AsyncIOThreadsCount=4
+Session\CheckingMemUsageSize=16
+Session\ChokingAlgorithm=FixedSlots
+Session\CoalesceReadWrite=false
+Session\FilePoolSize=40
+Session\GuidedReadCache=false
+Session\MultiConnectionsPerIp=false
+Session\SeedChokingAlgorithm=FastestUpload
+Session\SendBufferLowWatermark=10
+Session\SendBufferWatermark=500
+Session\SendBufferWatermarkFactor=50
+Session\SocketBacklogSize=30
+Session\SuggestMode=false
+Session\uTPMixedMode=TCP
+
 [LegalNotice]
 Accepted=true
 
 [Preferences]
+Advanced\AnnounceToAllTrackers=false
+Advanced\RecheckOnCompletion=false
+Advanced\osCache=true
+Advanced\trackerPort=9000
 Bittorrent\AddTrackers=false
 Bittorrent\DHT=false
 Bittorrent\Encryption=1
@@ -143,11 +164,19 @@ Bittorrent\uTP=false
 Bittorrent\uTP_rate_limited=true
 Connection\GlobalDLLimitAlt=0
 Connection\GlobalUPLimitAlt=0
+#Connection\Interface=eth0
+#Connection\InterfaceAddress=0.0.0.0
+#Connection\InterfaceName=eth0
+Connection\ResolvePeerCountries=true
 Connection\PortRangeMin=$iPort
+Downloads\DiskWriteCacheSize=64
+Downloads\DiskWriteCacheTTL=60
 Downloads\SavePath=$iHome/qbittorrent/download
+Downloads\SaveResumeDataInterval=3
 Downloads\TorrentExportDir=$iHome/qbittorrent/torrent
 General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
+#Disable CSRF Protection For PT Plugin Plus
 WebUI\CSRFProtection=false
 WebUI\Port=$wPort
 WebUI\Username=$iUser
