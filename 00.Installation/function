@@ -301,7 +301,7 @@ function PortCheck() {
     ports=("$@")
     for port in "${ports[@]}" ; do
         if ss -ln | grep ':'$port'' | grep -q LISTEN ; then
-            echo_error "Port $port is already in use"
+            echo_warning "Port $port is already in use"
             port_used=1
         fi
     done

@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r12029
+script_version=r12030
 
 ################################################################################################ Debug
 
@@ -84,7 +84,7 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $qbt_language ]] && qbt_language=zh
 
 PortCheck $wPort $iPort
-[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
+[[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
 
 qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
 qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
@@ -217,6 +217,7 @@ EOF
     systemctl enable qbittorrent@$iUser >> $OutputLOG 2>&1
     systemctl start  qbittorrent@$iUser >> $OutputLOG 2>&1
     [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/qbittorrent/download   /var/www/h5ai/$iUser/qbittorrent >> $OutputLOG 2>&1
+    sleep 2
 
     if version_ge $qb_installed_ver 4.2.0 ; then
         curl -i --data 'json={"scan_dirs":{"'"${iHome}/qbittorrent/watch"'":1}}'   http://localhost:${wPort}/api/v2/app/setPreferences >> $OutputLOG 2>&1
