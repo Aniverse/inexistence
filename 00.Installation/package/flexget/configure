@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.03.02
-script_version=r10006
+script_update=2020.03.06
+script_version=r10007
 
 ################################################################################################ Debug
 
@@ -78,6 +78,9 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=6566
+
+PortCheck $wPort
+[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
 
 ################################################################################################ Sub Functions
 
@@ -224,7 +227,8 @@ function configure_flexget() {
         rm -rf $iHome/.config/flexget
     fi
 
-    mkdir -p /$iHome/.config/flexget    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
+    mkdir -p /$iHome/.config/flexget       $PortLocation    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
+    echo  $wPort >  $PortLocation/$iUser.$AppNameLower
     flexget_config_file
     flexget_cmd=/usr/local/bin/flexget
     flexget_systemd

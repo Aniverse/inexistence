@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r10001
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -80,6 +80,9 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $wPort ]] && wPort=9099
 [[ -z $iPort ]] && iPort=52333  # Default: 51413 ?
 
+PortCheck $wPort $iPort
+[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
+
 tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
 ################################################################################################
@@ -111,7 +114,7 @@ EOF
         rm -rf $iHome/.config/transmission-daemon
     fi
 
-    mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script
+    mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script   $PortLocation
     ln    -s  $local_package/package/transmission/ttrr       $local_script/ttrr              >> $OutputLOG 2>&1
 
     cat << EOF > $iHome/.config/transmission-daemon/settings.json
@@ -197,6 +200,7 @@ EOF
     chmod -R 755             $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
     chown -R $iUser.$iUser   $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
 
+    echo   $wPort   >    $PortLocation/$iUser.$AppNameLower
     systemctl enable transmission@$iUser >> $OutputLOG 2>&1
     systemctl start  transmission@$iUser >> $OutputLOG 2>&1
     [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/transmission/download   /var/www/h5ai/$iUser/transmission >> $OutputLOG 2>&1

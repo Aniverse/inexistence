@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r12028
+script_version=r12029
 
 ################################################################################################ Debug
 
@@ -82,6 +82,9 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $iPort ]] && iPort=9002
 [[ $lang == eng ]] && qbt_language=en
 [[ -z $qbt_language ]] && qbt_language=zh
+
+PortCheck $wPort $iPort
+[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
 
 qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
 qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
