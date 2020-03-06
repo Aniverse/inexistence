@@ -4,6 +4,22 @@
 
 
 
+## 2020.03.06
+
+`the inexistence project`  
+- configure 子脚本全都写入端口到文件，以及启用端口可用性检查  
+
+`function r11049`  
+1. NewFunction：PortCheck  
+2. New Global Variable：PortLocation  
+3. 去掉了三种 echo 提示的下划线  
+
+`qbittorrent/configure r12030`
+1. **写入默认的高级参数到 qBittorrent.conf**  
+2. **设置监控目录**  
+
+`ttrr r10000`  
+- 初始化  
 
 
 
