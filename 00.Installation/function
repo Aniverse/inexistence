@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.06
-script_version=r11048
+script_version=r11049
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -306,7 +306,7 @@ function PortCheck() {
         fi
     done
 }
-PortGenerator1() { portGen1=$(shuf -i 10001-32001 -n1) ; } portGenerator2() { portGen2=$(shuf -i 10001-32001 -n1) ; }
+PortGenerator1() { portGen1=$(shuf -i 10001-32001 -n1) ; } ; portGenerator2() { portGen2=$(shuf -i 10001-32001 -n1) ; }
 PortCheck1()     { while ss -ln | grep ':'$portGen1'' | grep -q LISTEN ; do PortGenerator1 ; done ; }
 PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do PortGenerator2 ; done ; }
 
