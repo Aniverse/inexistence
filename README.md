@@ -16,20 +16,20 @@
 
 ## Usage
 
-```
-bash <(wget -qO- https://git.io/abcde)
-```
-
-```
-bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
-```
-
-如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码改一下）：  
+如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码部分替换一下）：  
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
 --apt-yes --tweaks-yes --bbr-yes --tools-no --wine-no --rclone-yes --rdp-no --skip-system-upgrade \
 --flexget-yes --flood-no --lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
--u 这十个字换成你的用户名 -p 这九个字换成你的密码
+-u 这十二个字换成你的用户名 -p 这九个字换成你的密码
+```
+如果你需要自定义安装选项：  
+```
+bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
+```
+短命令（就是命令短一些，其他方面和上边那个没任何区别）  
+```
+bash <(wget -qO- https://git.io/abcde)
 ```
 
 ## Installation Guide
