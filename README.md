@@ -24,6 +24,14 @@ bash <(wget -qO- https://git.io/abcde)
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
 
+如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码改一下）：  
+```
+bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
+--apt-yes --tweaks-yes --bbr-yes --tools-no --wine-no --rclone-yes --rdp-no --skip-system-upgrade \
+--flexget-yes --flood-no --lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
+-u 这十个字换成你的用户名 -p 这九个字换成你的密码
+```
+
 ## Installation Guide
 
 ![脚本参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.09.png)
@@ -410,9 +418,10 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 * [x] 增加 flexget/configure  
 * [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
 * [ ] 增加 deluge/configure  
-* [ ] 增加 transmission/configure  
+* [x] 增加 transmission/configure  
 * [ ] 增加 flood/install  
 * [ ] 增加 novnc（届时可能会暂时移除 x2go）  
+* [ ] 增加 filebrowser  
 * [ ] 更新 README 的图片  
 
 中期  
