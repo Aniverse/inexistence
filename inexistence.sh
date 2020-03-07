@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.6.2
-INEXISTENCEDATE=2020.03.06
+INEXISTENCEVER=1.1.7.0
+INEXISTENCEDATE=2020.03.08
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1948,7 +1948,7 @@ else
             apt-get -yqq install ./*deb
             rm -rf /tmp/qb
         else
-            apt-get -yqq install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
+            apt-get -y install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
         fi
     fi
 
@@ -2090,7 +2090,8 @@ fi
 
     fi
 
-cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
+cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+}
 
 
 
@@ -2149,22 +2150,21 @@ touch $LockLocation/deluge.lock ; }
 # --------------------- 使用修改版 rtinst 安装 rTorrent, ruTorrent，h5ai, vsftpd --------------------- #
 
 function install_rtorrent() {
+    bash -c "$(wget -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
+    sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
 
-bash -c "$(wget -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
+    if [[ $rt_installed == Yes ]]; then
+        rtupdate $IPv6Opt $rt_versionIns
+    else
+        rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $iUser -p $iPass -w $iPass
+    fi
 
-sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
-
-if [[ $rt_installed == Yes ]]; then
-    rtupdate $IPv6Opt $rt_versionIns
-else
-    rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $iUser -p $iPass -w $iPass
-fi
-
-mv /root/rtinst.log $LogLocation/07.rtinst.script.log
-mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
-ln -s /home/${iUser} $WebROOT/h5ai/$iUser/user.root
-touch $LockLocation/rtorrent.lock
-cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
+    mv /root/rtinst.log $LogLocation/07.rtinst.script.log
+    mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
+    ln -s /home/${iUser} $WebROOT/h5ai/$iUser/user.root
+    touch $LockLocation/rtorrent.lock
+    echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+}
 
 
 
@@ -2173,29 +2173,29 @@ cd ; echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n" 
 # --------------------- 安装 Node.js 与 flood --------------------- #
 
 function install_flood() {
+    # https://github.com/nodesource/distributions/blob/master/README.md
+    # curl -sL https://deb.nodesource.com/setup_11.x | bash -
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    apt-get install -y nodejs
+    npm install -g node-gyp
+    git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
+    cd /srv/flood
+    cp config.template.js config.js
+    npm install
+    sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
-# https://github.com/nodesource/distributions/blob/master/README.md
-# curl -sL https://deb.nodesource.com/setup_11.x | bash -
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
-apt-get install -y nodejs
-npm install -g node-gyp
-git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
-cd /srv/flood
-cp config.template.js config.js
-npm install
-sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
+    npm run build 2>&1 | tee /tmp/flood.log
+    rm -rf $LockLocation/flood.fail.lock
+    # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LockLocation/flood.fail.lock
 
-npm run build 2>&1 | tee /tmp/flood.log
-rm -rf $LockLocation/flood.fail.lock
-# [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LockLocation/flood.fail.lock
+    cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
+    systemctl start  flood
+    systemctl enable flood
 
-cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
-systemctl start flood
-systemctl enable flood
+    touch $LockLocation/flood.lock
 
-touch $LockLocation/flood.lock
-
-cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
+    cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+}
 
 
 
@@ -2290,7 +2290,8 @@ fi
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 touch $LockLocation/transmission.lock
 
-cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n" ; }
+cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+}
 
 
 
@@ -2303,6 +2304,8 @@ function config_transmission() {
     if [[ $separate == 1 ]] ; then
         bash $local_package/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
     else
+
+
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
 mkdir -p /home/$iUser/transmission/{download,torrent,watch} /root/.config/transmission-daemon
@@ -2320,6 +2323,8 @@ chmod -R 755 /root/.config/transmission-daemon
 systemctl daemon-reload
 systemctl enable transmission
 systemctl start transmission
+
+
     fi
 
 }
@@ -2341,6 +2346,8 @@ else
     enable_bbr
 fi
 echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n" ; }
+
+
 
 # 安装 4.11.12 的内核
 function bbr_kernel_4_11_12() {
@@ -2365,6 +2372,7 @@ rm -rf [123].deb
 update-grub ; }
 
 
+
 # 开启 BBR
 function enable_bbr() {
 bbrname=bbr
@@ -2374,6 +2382,7 @@ echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
 sysctl -p
 touch $LockLocation/bbr.lock ; }
+
 
 
 # Install firmware for BCM NIC
@@ -2469,43 +2478,44 @@ function install_tools() {
 
 ########## Blu-ray script ##########
 
-wget -nv -N -O /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
-chmod +x /usr/local/bin/bluray
+    wget -nv -N -O /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
+    chmod +x /usr/local/bin/bluray
 
 ########## Install ffmpeg ##########
 # https://johnvansickle.com/ffmpeg/
 
-mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
-wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-tar xf ffmpeg-release-amd64-static.tar.xz
-cd ffmpeg*
-cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
-cd && rm -rf /log/inexistence/ffmpeg
+    mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
+    wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+    tar xf ffmpeg-release-amd64-static.tar.xz
+    cd ffmpeg*
+    cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
+    cd && rm -rf /log/inexistence/ffmpeg
 
 ########## Install mkvtoolnix ##########
 
-wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
-echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
-echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
+    wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
+    echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
+    echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
-apt-get -y update
-apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
+    apt-get -y update
+    apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
 
 ######################  eac3to  ######################
 
-cd /etc/inexistence/02.Tools/eac3to
-wget -nv -N http://madshi.net/eac3to.zip
-unzip -qq eac3to.zip
-rm -rf eac3to.zip ; cd
+    cd /etc/inexistence/02.Tools/eac3to
+    wget -nv -N http://madshi.net/eac3to.zip
+    unzip -qq eac3to.zip
+    rm -rf eac3to.zip ; cd
 
-touch $LockLocation/tools.lock
+    touch $LockLocation/tools.lock
 
-echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
-mktorrent -h | head -n1
-mkvmerge --version
-echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
-echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
-echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+    echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
+    mktorrent -h | head -n1
+    mkvmerge --version
+    echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
+    echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
+    echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n"
+}
 
 
 
@@ -2513,26 +2523,25 @@ echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
 
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
+    # Upgrade vnstat, compile from source. And Install vnstat-dashboard
+    bash $local_package/package/vnstat/install --logbase $LogTimes
 
-# Upgrade vnstat, compile from source. And Install vnstat-dashboard
-bash $local_package/package/vnstat/install --logbase $LogTimes
+    # Set timezone to UTC+8
+    rm -rf /etc/localtime
+    ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+    dpkg-reconfigure -f noninteractive tzdata
 
-# Set timezone to UTC+8
-rm -rf /etc/localtime
-ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
-dpkg-reconfigure -f noninteractive tzdata
+    ntpdate time.windows.com
+    hwclock -w
 
-ntpdate time.windows.com
-hwclock -w
+    # Change default system language to English
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+    dpkg-reconfigure --frontend=noninteractive locales
+    update-locale LANG=en_US.UTF-8
 
-# Change default system language to English
-sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-echo 'LANG="en_US.UTF-8"' > /etc/default/locale
-dpkg-reconfigure --frontend=noninteractive locales
-update-locale LANG=en_US.UTF-8
-
-# screen config
-cat << EOF >> /etc/screenrc
+    # screen config
+    cat << EOF >> /etc/screenrc
 shell -$SHELL
 
 startup_message off
@@ -2542,16 +2551,15 @@ encoding utf8 utf8
 defscrollback 23333
 EOF
 
-# 将最大的分区的保留空间设置为 0%
-tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+    # 将最大的分区的保留空间设置为 0%
+    tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 
-locale-gen en_US.UTF-8
-locale
-sysctl -p
-
-apt-get -y autoremove
-
-touch $LockLocation/tweaks.lock ; }
+    locale-gen en_US.UTF-8
+    locale
+    sysctl -p
+    apt-get -y autoremove
+    touch $LockLocation/tweaks.lock
+}
 
 
 
@@ -2560,24 +2568,26 @@ touch $LockLocation/tweaks.lock ; }
 # --------------------- 结尾 --------------------- #
 
 function end_pre() {
+    [[ $USESWAP == Yes ]] && swap_off
+    _check_install_2
+    unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
+    #if [[ $rt_version != No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
+    RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
+    FXWEB=":6566" ; FDWEB=":3000"
 
-[[ $USESWAP == Yes ]] && swap_off
-_check_install_2
-unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
-#if [[ $rt_version != No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
-RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
-FXWEB=":6566" ; FDWEB=":3000"
+    if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then
+        destatus="${green}Running ${normal}"
+    else
+        destatus="${red}Inactive${normal}" 
+    fi
 
-if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then
-    destatus="${green}Running ${normal}"
-else
-    destatus="${red}Inactive${normal}" 
-fi
+    ps --user $iUser | grep flexget -q  && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
+    Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
 
-ps --user $iUser | grep flexget -q  && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
-Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
+    clear
+}
 
-clear ; }
+
 
 function script_end() {
 echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
@@ -2748,7 +2758,7 @@ fi
 [[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n"  ; install_vnc  2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
-[[ $UseTweaks == Yes ]]  && { echo -ne "Configuring system settings ... \n\n\n" ; system_tweaks ; }
+[[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
 
 end_pre
 script_end 2>&1 | tee $LogTimes/end.log
