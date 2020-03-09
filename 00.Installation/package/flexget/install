@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.09
-script_version=r20010
+script_version=r20011
 
 ################################################################################################ Debug
 
@@ -189,7 +189,7 @@ if [[ ! -f $LOCKLocation/python3.lock ]]; then
     install_python3 & spinner $!
     check_status $status_lock
     echo -e "\n\n\n\n\n" >> "$OutputLOG"
-    lines
+    lines                >> "$OutputLOG"
     echo -e "\n\n\n\n\n" >> "$OutputLOG"
 fi
 
