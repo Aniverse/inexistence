@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/aBox
 # Author: Aniverse
 #
-script_update=2020.02.25
-script_version=r30203
+script_update=2020.03.09
+script_version=r31208
 ################################################################################################
 
 usage_guide() {
@@ -17,20 +17,21 @@ bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6)    -m
 reboot=no
 ip_check=y
 
-OPTS=$(getopt -o m:d:s:6:i:rhtc --long "mode:,ipv6:,duid:,subnet:,interface:,help,reboot,test,clean" -- "$@")
+OPTS=$(getopt -o m:d:s:6:i:g:rhtc --long "mode:,ipv6:,duid:,subnet:,interface:,gateway:,help,reboot,test,clean" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -m | --mode   ) mode="$2"   ; shift 2 ;;
-    -6 | --ipv6   ) IPv6="$2"   ; shift 2 ;;
-    -d | --duid   ) DUID="$2"   ; shift 2 ;;
-    -s | --subnet ) subnet="$2" ; shift 2 ;;
+    -m | --mode      ) mode="$2"      ; shift 2 ;;
+    -6 | --ipv6      ) IPv6="$2"      ; shift 2 ;;
+    -d | --duid      ) DUID="$2"      ; shift 2 ;;
+    -s | --subnet    ) subnet="$2"    ; shift 2 ;;
+    -g | --gateway   ) v6gw="$2"      ; shift 2 ;;
     -i | --interface ) interface="$2" ; shift 2 ;;
-    -r | --reboot ) reboot=yes  ; shift   ;;
-    -h | --help   ) mode=h      ; shift   ;;
-    -t | --test   ) mode=t      ; shift   ;;
+    -r | --reboot    ) reboot=yes     ; shift   ;;
+    -h | --help      ) mode=h         ; shift   ;;
+    -t | --test      ) mode=t         ; shift   ;;
     -c | --clean  ) mode=c      ; shift   ;;
      * ) break ;;
   esac
@@ -149,14 +150,18 @@ function _ipip() {
         server=OVH
         script_support="不需要支持"
         script_support_add="，因为 OVH 装完自带 IPv6"
+    elif [[ $ASN == AS60781 ]];then
+        server=Online
+        script_support="支持"
+        script_support_add="，请填写 1/4 参数"
     elif [[ $ASN == AS12876 ]];then
         server=Online
         script_support="支持"
-        script_support_add="，请填写相关参数"
+        script_support_add="，请填写 1/2/3 参数"
     elif [[ $ASN == AS21409 ]];then
         server=Ikoula
         script_support="支持"
-        script_support_add=""
+        script_support_add="，不用写参数"
     else
         server=Unknown
         script_support="不支持"
@@ -170,10 +175,15 @@ function _ipip() {
 
 
 
-function check_var() {
+function check_var_123() {
     [[ -z $IPv6   ]] && echo "${red}ERROR: No IPv6 input!${normal}"   && ask_ipv6
     [[ -z $DUID   ]] && echo "${red}ERROR: No DUID input!${normal}"   && ask_DUID
     [[ -z $subnet ]] && echo "${red}ERROR: No subnet input!${normal}" && ask_subnet
+}
+
+function check_var_14() {
+    [[ -z $IPv6   ]] && echo "${red}ERROR: No IPv6 input!${normal}"         && ask_ipv6
+    [[ -z $v6gw   ]] && echo "${red}ERROR: No IPv6 Gateway input!${normal}" && ask_v6gw
 }
 
 # Ikoula 独服（/etc/network/interfaces）
@@ -329,7 +339,7 @@ EOF
 
 # Online／OneProvider Paris 独服，Ubuntu 16.04，Debian 8/9/10
 function online_dhclient() {
-    check_var
+    check_var_123
     file_backup
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]]; then
         interfaces_file_clean
@@ -344,7 +354,7 @@ function online_dhclient() {
 
 # Online／OneProvider Paris 独服，Ubuntu 18.04 系统（netplan）
 function online_netplan() {
-    check_var
+    check_var_123
     file_backup
 
     write_dhclient6_conf
@@ -414,7 +424,7 @@ EOF
 
 
 function online_dibbler() {
-    check_var
+    check_var_123
     dibbler_install
     online_dibbler_action
 }
@@ -462,11 +472,54 @@ EOF
 
 
 function online_odhcp6c() {
-    check_var
+    check_var_123
     odhcp6c_install
     write_odhcp6c_systemd
     systemctl start odhcp6c
 }
+
+
+########################################################################### LeaseWeb
+
+
+function leaseweb_prepare() {
+    subnet=64
+    check_var_14
+    file_backup
+    grep -q "2001:1af8:3100:1::10" /etc/resolv.conf || echo "nameserver 2001:1af8:3100:1::10" >> /etc/resolv.conf
+}
+
+function leaseweb_ifupdown() {
+    leaseweb_prepare
+    interfaces_file_clean
+    cat << EOF >> /etc/network/interfaces
+### Added by IPv6_Script ###
+iface $interface inet6 static
+      address $IPv6
+      netmask $subnet
+      pre-up modprobe ipv6
+      gateway $v6gw
+### IPv6_Script END ###
+EOF
+    echo -e "DONE"
+}
+
+function leaseweb_netplan() {
+    leaseweb_prepare
+    netplan_netcfg_file_clean
+    cat << EOF >> /etc/netplan/01-netcfg.yaml
+### Added by IPv6_Script ###
+      dhcp6: no
+      gateway6: $v6gw
+      addresses:
+      - $IPv6/$subnet
+### IPv6_Script END ###
+EOF
+    netplan apply
+    echo -e "DONE"
+}
+
+
 
 
 ###########################################################################
@@ -501,7 +554,7 @@ function systemctl_restart() {
 function ipv6_test() {
     echo -ne "${bold}检测 IPv6 连接性 ... ${normal}"
     IPv6_test=$(ping6 -c 5 ipv6.google.com | grep 'received' | awk -F',' '{ print $2 }' | awk '{ print $1 }')
-    if [[ $IPv6_test > 0 ]]; then
+    if [[ $IPv6_test -gt 0 ]]; then
         echo "${bold}${green}成功！${normal}"
         exit 0
     else
@@ -601,8 +654,13 @@ function ask_DUID() {
 }
 
 function ask_subnet() {
-    read -ep "${bold}输入待配置的 subnet：${blue}"    subnet ; echo -n "${normal}"
+    read -ep "${bold}输入待配置的 Subnet：${blue}"    subnet ; echo -n "${normal}"
 }
+
+function ask_v6gw() {
+    read -ep "${bold}输入待配置的 Gateway：${blue}"   v6gw   ; echo -n "${normal}"
+}
+
 
 function ask_interface() {
     read -ep "${bold}输入网卡名称：${blue}" interface ; echo -n "${normal}"
@@ -626,6 +684,10 @@ ${bold}${green}Usage: ${normal}
              Typically, This is for Ubuntu 16.04/18.04, Debian 8/9/10
        ol4   Online odhcp6c, only for Online/OneProvider servers
              Typically, This is for Ubuntu 16.04/18.04, Debian 8/9/10
+       lw    LeaseWeb ifupdown, only for LeaseWeb servers using ifupdown
+             Typically, This is for Ubuntu 14.04/16.04, Debian 7/8/9/10
+       lw2   LeaseWeb netplan, only for LeaseWeb servers using netplan
+             Typically, This is ONLY for Ubuntu 18.04
 -6     Inupt IPv6
 -d     Input DUID
 -s     Input subnet
@@ -678,13 +740,14 @@ ${on_blue}-------------------- 下列为可修改的参数 --------------------$
 
 ${green}<1>${cyan} 待配置的 IPv6 地址        ${blue}$IPv6${jiacu}
 ${green}<2>${cyan} 待配置的 DUID             ${blue}$DUID${jiacu}
-${green}<3>${cyan} 待配置的 subnet           ${blue}$subnet${jiacu}
+${green}<3>${cyan} 待配置的 Subnet           ${blue}$subnet${jiacu}
+${green}<4>${cyan} 待配置的 IPv6 Gateway     ${blue}$v6gw${jiacu}
 
-这三个参数就 Online 的独服必须设置，Ikoula 不用设置
+以上 4 个参数是否需要修改，在脚本可用性一栏有提示
 
-${green}<4>${cyan} 所使用的网卡名称          ${blue}$interface${jiacu}
+${green}<5>${cyan} 所使用的网卡名称          ${blue}$interface${jiacu}
 
-这个参数脚本会自动检测，一般来说默认的就是正确的不用改
+脚本会自动检测网卡，一般来说默认的就是正确的不用改
 
 ${on_blue}------------------- 下列为可用的配置模式 -------------------${jiacu}
 
@@ -694,6 +757,8 @@ ${green}<13>${cyan} Online dibbler    （Debian 8/9/10，Ubuntu 16.04/18.04）
 ${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10，Ubuntu 16.04/18.04）
 ${green}<21>${cyan} Ikoula ifupdown   （Debian 8/9/10，Ubuntu 16.04）
 ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
+${green}<31>${cyan} LeaseWeb ifupdown （Debian 8/9/10，Ubuntu 16.04）
+${green}<32>${cyan} LeaseWeb netplan  （Ubuntu 18.04）
 
 ${red}<90>${jiacu} 重启
 ${red}<95>${jiacu} 移除本脚本的 IPv6 配置
@@ -707,13 +772,16 @@ ${red}<99>${jiacu} 退出脚本（直接回车也是退出）
          1) ask_ipv6      ; ipv6_menu ;;
          2) ask_DUID      ; ipv6_menu ;;
          3) ask_subnet    ; ipv6_menu ;;
-         4) ask_interface ; ipv6_menu ;;
+         4) ask_v6gw      ; ipv6_menu ;;
+         5) ask_interface ; ipv6_menu ;;
         11) mode=ol  ; ask_pause ; mode_action ;;
         12) mode=ol2 ; ask_pause ; mode_action ;;
         13) mode=ol3 ; ask_pause ; mode_action ;;
         14) mode=ol4 ; ask_pause ; mode_action ;;
         21) mode=ik  ; ask_pause ; mode_action ;;
         22) mode=ik2 ; ask_pause ; mode_action ;;
+        31) mode=lw  ; ask_pause ; mode_action ;;
+        32) mode=lw2 ; ask_pause ; mode_action ;;
         90) ask_reboot ;;
         95) mode=c   ; ask_pause ; mode_action  ; ipv6_menu ;;
         96) ask_ipv4 ; ipv6_menu ;;
@@ -735,6 +803,8 @@ case $mode in
     ol2 ) online_netplan      ; ipv6_test  ;;
     ol3 ) online_dibbler      ; ask_reboot ;;
     ol4 ) online_odhcp6c      ; ipv6_test  ;;
+    lw  ) leaseweb_ifupdown   ; ask_reboot ;;
+    lw2 ) leaseweb_netplan    ; ipv6_test  ;;
     t   ) info ; ipv6_test    ;;
     h   ) show_help           ;;
     c   ) cleanup             ;;
@@ -760,5 +830,6 @@ function references() {
 # https://www.timelate.com/archives/add-ipv6-address-for-ikoula-ubuntu-18-04-dedicated-server.html
 # https://documentation.online.net/en/dedicated-server/network/ipv6/prefix
 # https://en-wiki.ikoula.com/en/How_to_calculate_my_IPV6
+# https://kb.leaseweb.com/support/support-procedures/adding-an-ipv6-address-to-your-server#AddinganIPv6addresstoyourserver-ConfigureIPv6onDebian/Ubuntu
 sleep 0
 }
