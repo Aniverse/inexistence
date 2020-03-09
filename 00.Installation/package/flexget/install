@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.09
-script_version=r20011
+script_version=r20012
 
 ################################################################################################ Debug
 
@@ -164,7 +164,7 @@ function install_flexget3() {
     pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
     patch_flexget
-    ln -s  $local_package/package/flexget/ffgg  $local_script
+    ln -s  $local_package/package/flexget/ffgg  $local_script >> "$OutputLOG"
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
