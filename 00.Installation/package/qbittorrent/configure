@@ -107,7 +107,7 @@ LimitNOFILE=infinity
 ExecStart=/usr/bin/qbittorrent-nox -d
 ExecStop=/usr/bin/killall -s 9 /usr/bin/qbittorrent-nox
 Restart=on-failure
-TimeoutSec=300
+#TimeoutSec=300
 
 [Install]
 WantedBy=multi-user.target
