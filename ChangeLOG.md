@@ -4,6 +4,42 @@
 
 
 
+
+
+
+## 2020.03.09
+
+`the inexistence project`  
+- 去除 qbittorrent systemd 里的 `TimeoutSec=300`  
+
+`inexistence 1.1.7.1`  
+- BugFix：修复 Flexget 安装报错时的输出，使用了 `sprunge.us`  
+
+`flexget/install r20012`  
+1. BugFix：锁定 setuptools 版本到 45.0.0，以解决装不上 flexget 的问题  
+2. UI：Python 和 FlexGet 之间增加一段空白，方便找日志……  
+
+
+
+
+
+## 2020.03.07
+
+`inexistence 1.1.7.0`  
+1. **Bump version to 1.1.7**  
+主脚本是没什么改的，别的东西有些改动也可以升下版本号是吧……  
+2. Simple：安装 qt5 依赖的时候显示输出  
+3. codes style update  
+就是加了些缩进  
+
+`README 1.2.6`
+1. 加了个个简化版的真·一键命令  
+2. 更新 to do list 进度  
+
+
+
+
+
 ## 2020.03.06
 
 `the inexistence project`  
