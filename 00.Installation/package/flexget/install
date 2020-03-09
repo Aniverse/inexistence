@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.04
-script_version=r20009
+script_update=2020.03.09
+script_version=r20010
 
 ################################################################################################ Debug
 
@@ -155,7 +155,8 @@ function install_flexget3() {
     wget -nv -O get-pip.py https://bootstrap.pypa.io/get-pip.py >> "$OutputLOG" 2>&1
     python3 get-pip.py --force-reinstall              >> "$OutputLOG" 2>&1
     pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
-    pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
+  # pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
+    pip3 install setuptools==45.0.0                   >> "$OutputLOG" 2>&1
 
     pip3 install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
     pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
@@ -187,6 +188,9 @@ if [[ ! -f $LOCKLocation/python3.lock ]]; then
     echo_task "Installing Python3 ..."
     install_python3 & spinner $!
     check_status $status_lock
+    echo -e "\n\n\n\n\n" >> "$OutputLOG"
+    lines
+    echo -e "\n\n\n\n\n" >> "$OutputLOG"
 fi
 
 echo_task "Installing $AppName ..."
