@@ -313,7 +313,7 @@ alias bdinfo4k="bluray -t no -y -s no -i auto -p"
 
 ## IPv6
 
-IPv6 配置脚本，支持 Scaleway(Online) 和 Ikoula 的独服，支持 Debian 8/9/10，Ubuntu 16.04/18.04  
+IPv6 配置脚本，支持 Scaleway (AKA Online.net)、SeedHost (LeaseWeb) 和 Ikoula 的独服  
 注意：Hetzner 和 OVH 的独服，在控制面板装完系统后自带 IPv6，不需要自己配置  
 
 ``` 

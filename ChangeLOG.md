@@ -19,6 +19,9 @@
 1. BugFix：锁定 setuptools 版本到 45.0.0，以解决装不上 flexget 的问题  
 2. UI：Python 和 FlexGet 之间增加一段空白，方便找日志……  
 
+`ipv6 r31208`
+- **增加 LeaseWeb 支持**  
+
 
 
 
