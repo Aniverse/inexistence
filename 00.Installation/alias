@@ -3,26 +3,23 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.03
-script_version=r11003
+script_update=2020.03.10
+script_version=r11004
 ################################################################################################
+this_is_for_copy() {
+    source /etc/bash.bashrc
+    . s-alias 1
 
-# Usage:      . s-alias
-# source /etc/bash.bashrc
-# nano +999 /etc/bash.bashrc             nano +999 /usr/local/bin/s-alias
+    wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/alias -O /etc/inexistence/00.Installation/alias
+    wangka=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+    iUser=black
+    LogBase=/log/inexistence/1
+    IntoBashrc=IntoBashrc
+    bash /etc/inexistence/00.Installation/alias $iUser $wangka $LogTimes $IntoBashrc
 
-usage_guide() {
-source /etc/bash.bashrc
-. s-alias 1
-
-iUser=
-wangka=
-LogBase=/log/inexistence/1
-IntoBashrc=IntoBashrc
-while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
-    sed -i '$d' /etc/bash.bashrc
-done
+    while grep -q "Inexistence Mod" /etc/bash.bashrc ; do sed -i '$d' /etc/bash.bashrc ; done
 }
+################################################################################################
 
 iUser=$1
 wangka=$2
@@ -50,10 +47,44 @@ function gggclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+
+function jieya() {
+    if [ -f \$1 ] ; then
+        case \$1 in
+            *.tar.bz2)   tar xvjf \$1     ;;
+            *.tar.gz)    tar xvzf \$1     ;;
+            *.bz2)       bunzip2 \$1      ;;
+            *.rar)       unrar x \$1      ;;
+            *.gz)        gunzip \$1       ;;
+            *.tar)       tar xvf \$1      ;;
+            *.tbz2)      tar xvjf \$1     ;;
+            *.tgz)       tar xvzf \$1     ;;
+            *.zip)       unzip \$1        ;;
+            *.Z)         uncompress \$1   ;;
+            *.7z)        7z x \$1         ;;
+            *)           echo "'\$1' cannot be extracted via >jieya<" ;;
+        esac
+    else
+        echo "'\$1' is not a valid file!"
+    fi
+}
+
+# Creates an archive (*.tar.gz) from given directory.
+function make-tar() { tar cvzf "\${1%%/}.tar.gz"  "\${1%%/}/"; }
+
+# Create a ZIP archive of a file or folder.
+function make-zip() { zip -r "\${1%%/}.zip" "\$1" ; }
+
+if (! export | grep -q sbin); then
+     export PATH=\$PATH:/usr/local/sbin:/usr/sbin:/sbin
+fi
+
 newpass() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 sprunge.us() { curl -F 'sprunge=<-' http://sprunge.us ; }
 
 #ulimit -SHn 999999
+
+################## Personal Alias Start ##################
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -143,6 +174,7 @@ function scrb(){ screen -S \$1 -X quit  ;}
 alias dddd='rm -rf'
 alias ..='cd ..'
 alias path='echo -e \${PATH//:/\\\\n}'
+alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias dh='df -kTh'
 alias aatop="TERM=st atop 1"
 alias px="ps aux | grep -v grep | grep"
@@ -173,11 +205,18 @@ alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*Passwo
 alias s-opt="echo && cat $LogBase/installed.log && echo"
 alias s-end="echo && cat $LogBase/end.log"
 
+################## Personal Alias END ##################
+
 setcolor
 
+# Custom History Format
 HISTFILESIZE=4000
 HISTSIZE=4000
-export HISTTIMEFORMAT="${yellow}[%F]${cyan}[%T]${normal} "
+export HISTTIMEFORMAT="\${yellow}[%F]${cyan}[%T]\${normal} "
+
+# Disable mail check/warning
+shopt -u mailwarn
+unset MAILCHECK
 
 if [[ \$1 == 1 ]];then
     echo -e "\\n${green}Customed alias is enabled${normal}\\n"
@@ -191,6 +230,7 @@ EOF
 chmod 644 /usr/local/bin/s-alias
 
 if [[ $IntoBashrc == IntoBashrc ]]; then
+
     # This may delete user's configuration
     # while grep -q "Inexistence Mod" /etc/bash.bashrc ; do
     #     sed -i '$d' /etc/bash.bashrc
@@ -201,4 +241,5 @@ if [[ $IntoBashrc == IntoBashrc ]]; then
 
     sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc
     echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc
+
 fi
