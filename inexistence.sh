@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.1
-INEXISTENCEDATE=2020.03.09
+INEXISTENCEVER=1.1.7.2
+INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1623,10 +1623,10 @@ if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
     wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
     sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-elif [[ $aptsources == Yes ]] && [[ $CODENAME == jessie ]]; then
-    cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
+elif [[ $CODENAME == jessie ]]; then
+    # cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
     echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
-    cat > /etc/apt/sources.list << EOF
+    cat > /etc/apt/sources.list.d/snapshot.jessie.list << EOF
 deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
 deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
 deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
@@ -1642,7 +1642,7 @@ EOF
 fi
 
 # From swizzin
-if [[ $DISTROL == debian ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]]; then
+if [[ $DISTROL == debian ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]]&& [[ $CODENAME != jessie ]]; then
     echo "deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
     echo "deb-src http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
 fi
