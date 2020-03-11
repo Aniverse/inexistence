@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.05
-script_version=r10002
+script_update=2020.03.12
+script_version=r10003
 
 ################################################################################################ Debug
 
@@ -28,17 +28,19 @@ function show_usage() { echo "
 $AppName $pm_action $script_version ($script_update)
 Usage:
       -l        Specifiy LogBase (Not log file)
+      -i        Specifiy Default interface monitored by vnstat
       -d        Enable debug mode
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log -- "$@")
+OPTS=$(getopt -o v:l:i:d -al version:,debug,logbase:,interface:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
     -v | --version      ) version="$2"  ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -i | --interface    ) wangka="$2"   ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
@@ -56,6 +58,21 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+wangka2=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+
+if [[ -n $wangka2 ]]; then
+    if [[ $wangka1 == $wangka2 ]];then
+        interface=$wangka1
+    else
+        interface=$wangka2
+    fi
+else
+    interface=$wangka1
+fi
+
+[[ -n $wangka ]] && interface=$wangka
 
 ################################################################################################
 
@@ -87,8 +104,10 @@ function install_vnstat() {
     fi
 
     [[ -f /etc/systemd/system/vnstat.service ]] && sed -i -e '/^ProtectSystem=/d' /etc/systemd/system/vnstat.service
+    [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
+
     systemctl daemon-reload                                     >> "$OutputLOG" 2>&1
-    systemctl enable vnstat                                     >> "$OutputLOG" 2>&1
+    systemctl enable  vnstatd                                   >> "$OutputLOG" 2>&1
     systemctl restart vnstatd                                   >> "$OutputLOG" 2>&1
     cd ..
     rm -rf vnstat-*

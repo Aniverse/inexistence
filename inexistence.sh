@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.3
+INEXISTENCEVER=1.1.7.4
 INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -332,9 +332,20 @@ echo "${bold}Checking your server's public IPv6 address ...${normal}"
 
 serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
 # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
+# serverlocalipv6=$( ip addr show dev $interface | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
 
-[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka=eth0 || wangka=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
-# serverlocalipv6=$( ip addr show dev $wangka | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+wangka2=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+
+if [[ -n $wangka2 ]]; then
+    if [[ $wangka1 == $wangka2 ]];then
+        interface=$wangka1
+    else
+        interface=$wangka2
+    fi
+else
+    interface=$wangka1
+fi
 
 echo -e "${bold}Checking your server's specification ...${normal}"
 
@@ -1693,7 +1704,7 @@ pip install --upgrade speedtest-cli
 which fpm 2>1 >/dev/null || gem install --no-ri --no-rdoc fpm
 
 # Fix interface in vnstat.conf
-[[ -n $wangka ]] && [[ $wangka != eth0 ]] && sed -i "s/Interface.*/Interface $wangka/" /etc/vnstat.conf
+[[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
 
 # Install NConvert
 cd $SourceLocation
@@ -1799,7 +1810,7 @@ echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
 # alias and locales
 [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
-bash $local_package/alias $iUser $wangka $LogTimes $IntoBashrc
+bash $local_package/alias $iUser $interface $LogTimes $IntoBashrc
 
 # PATH
 echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
