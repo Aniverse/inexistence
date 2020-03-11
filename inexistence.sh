@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.5
+INEXISTENCEVER=1.1.7.6
 INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2657,7 +2657,7 @@ elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
 fi
 
 if   [[ $vnstat_webui == 1 ]]; then
-    echo -e " ${cyan}Vnstat WebUI${normal}               https://${serveripv4}/vnstat"
+     echo -e " ${cyan}Vnstat Dashboard${normal}     $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
 fi
 
 echo
