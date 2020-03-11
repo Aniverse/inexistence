@@ -7,6 +7,38 @@
 
 
 
+
+
+
+
+
+
+
+## 2020.03.10-11
+
+`inexistence 1.1.7.7`  
+1. Feature：Debian 8 强制添加 snapshot 源，无论选项  
+2. BugFix：去掉 qb 安装失败时 sprunge.us 网址前显示的 cat  
+3. BugFix：更新网卡判断方式  
+4. **UI：安装 vnstat dashboard 后，网址输出在最后的结果中**  
+
+`flexget/install r20013`
+- 在 Debian 8 下检查 libssl 1.0.2 是否成功安装  
+
+`vnstat/install r10003`
+1. 加入 -i，指定网卡  
+2. 修改 vnstat 默认监控的网卡  
+
+`alias r11004`
+1. 加入不少新的 function，从 QuickBox 那抄来的  
+2. Disable mail check/warning  
+3. 修复 history 格式缺少颜色的问题  
+4. 更新 this_is_for_copy  
+
+
+
+
+
 ## 2020.03.09
 
 `the inexistence project`  
