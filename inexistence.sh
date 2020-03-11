@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.6
+INEXISTENCEVER=1.1.7.7
 INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2657,7 +2657,7 @@ elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
 fi
 
 if   [[ $vnstat_webui == 1 ]]; then
-     echo -e " ${cyan}Vnstat Dashboard${normal}     $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
+     echo -e " ${cyan}Vnstat Dashboard${normal}    $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
 fi
 
 echo
@@ -2667,10 +2667,6 @@ echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
 echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
 [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
 echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
-[[ -e $LockLocation/flexget.pass.lock ]] &&
-echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to set Flexget WebUI password by typing \n          ${bold}flexget web passwd <new password>${normal}"
-[[ -e $LockLocation/flexget.conf.lock ]] &&
-echo -e "\n ${bold}${bailanse} Naive! ${normal} You need to check your Flexget config file\n          maybe your password is too young too simple?${normal}"
 
 echo '---------------------------------------------------------------------------------'
 echo
@@ -2764,7 +2760,7 @@ if [[ $InsRclone == Yes ]]; then
     bash $local_package/package/rclone/install --logbase $LogTimes
     echo -ne "Installing gclone ... "
     bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
-    echo -e " ${green}${bold}DONE${normal}"
+    echo -e "${green}${bold}DONE${normal}"
 fi
 if [[ $InsWine == Yes ]]; then
     bash $local_package/package/mono/install --logbase $LogTimes
