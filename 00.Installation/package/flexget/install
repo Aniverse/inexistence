@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.09
-script_version=r20012
+script_update=2020.03.12
+script_version=r20013
 
 ################################################################################################ Debug
 
@@ -75,14 +75,20 @@ function install_python3() {
         apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F23C5A6CF475977595C89F51BA6932366A755776 >> "$OutputLOG" 2>&1
         LC_ALL=en_US.UTF-8 add-apt-repository ppa:deadsnakes/ppa -y >> "$OutputLOG" 2>&1
         APT_UPGRADE
-        apt_install_check    python3.6 python3.6-gdbm
+        apt_install_check     python3.6  python3.6-gdbm
         apt_install_separate
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
         update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2 >> "$OutputLOG" 2>&1
     elif [[ "$CODENAME" =~ (jessie|stretch) ]]; then
         apt_install_check    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev
         apt_install_separate
-        [[ "$CODENAME" == jessie ]] && apt-get -t jessie-backports -y install libssl1.0 >> "$OutputLOG" 2>&1
+        if [[ "$CODENAME" == jessie ]]; then
+            apt-get -t jessie-backports -y install libssl1.0 >> "$OutputLOG" 2>&1
+            if ! version_ge $(dpkg-query -W -f='${Version}' libssl-dev 2>1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1) 1.0.2 ; then
+                echo_error "Failed to install libssl 1.0.2l"
+                exit 1
+            fi
+        fi
         wget -nv -O Python-3.7.6.tar.xz https://www.python.org/ftp/python/3.7.6/Python-3.7.6.tar.xz >> "$OutputLOG" 2>&1
         tar -xf Python-3.7.6.tar.xz    >> "$OutputLOG" 2>&1
         cd Python-3.7.6                >> "$OutputLOG" 2>&1
