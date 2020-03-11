@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.2
+INEXISTENCEVER=1.1.7.3
 INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2666,7 +2666,7 @@ _time
 echo -e "\n ${bold}Unfortunately something went wrong during installation.
  You can check logs by typing these commands or visit websites below:
  ${yellow}cat $LogTimes/installed.log"
-[[ -n $QBFAILED ]] && echo -e " cat $(cat $LogLocation/05.qb1.log | curl -s -F 'sprunge=<-' http://sprunge.us)"
+[[ -n $QBFAILED ]] && echo -e " $(cat $LogLocation/05.qb1.log | curl -s -F 'sprunge=<-' http://sprunge.us)"
 [[ -n $DEFAILED ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
 [[ -n $TRFAILED ]] && echo -e " cat $LogLocation/08.tr1.log"
 [[ -n $RTFAILED ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
