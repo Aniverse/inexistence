@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.4
+INEXISTENCEVER=1.1.7.5
 INEXISTENCEDATE=2020.03.12
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2536,6 +2536,9 @@ function install_tools() {
 function system_tweaks() {
     # Upgrade vnstat, compile from source. And Install vnstat-dashboard
     bash $local_package/package/vnstat/install --logbase $LogTimes
+    if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
+        vnstat_webui=1
+    fi
 
     # Set timezone to UTC+8
     rm -rf /etc/localtime
@@ -2653,7 +2656,9 @@ elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
      FXFAILED=1 ; INSFAILED=1
 fi
 
-#    echo -e " ${cyan}Vnstat WebUI${normal}               https://$iUser:$iPass@$serveripv4/traffic"
+if   [[ $vnstat_webui == 1 ]]; then
+    echo -e " ${cyan}Vnstat WebUI${normal}               https://${serveripv4}/vnstat"
+fi
 
 echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
