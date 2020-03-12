@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.03.12
-script_version=r10000
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -84,16 +84,30 @@ function install_novnc() {
     unzip master.zip                                                           >> "$OutputLOG" 2>&1
     rm -rf master.zip                                                          >> "$OutputLOG" 2>&1
     mv noVNC-master ${web_root}/novnc/                                         >> "$OutputLOG" 2>&1
+
+    cat << EOF > /tmp/openssl.cnf
+[ req ]
+prompt = no
+distinguished_name = req_distinguished_name
+[ req_distinguished_name ]
+C = US
+ST = Some State
+L = LOCALLY
+O = SELF
+OU = SELF
+CN = SELF
+emailAddress = private@example.com
+EOF
   # echo_info "Generating self-signed certificate for noVNC security..."
-    openssl req -config /etc/ssl/ruweb.cnf -newkey rsa:1024 -x509 -days 1095 -nodes \
-                -out ${web_root}/novnc/utils/self.pem -keyout ${web_root}/novnc/utils/self.pem
+    openssl req -config /tmp/openssl.cnf -newkey rsa:1024 -x509 -days 1095 -nodes \
+                -out ${web_root}/novnc/utils/self.pem -keyout ${web_root}/novnc/utils/self.pem  >> "$OutputLOG" 2>&1
     chown www-data:www-data -R ${web_root}/novnc/                              >> "$OutputLOG" 2>&1
     chmod +rx ${web_root}/novnc/utils/launch.sh                                >> "$OutputLOG" 2>&1
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    which mono > /dev/null && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -n $(which vncserver) ]] && [[ -f ${web_root}/novnc/utils/self.pem ]] && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
     [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
 
     echo >> $OutputLOG
