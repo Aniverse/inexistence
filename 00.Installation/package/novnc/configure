@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.13
-script_version=r10001
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -117,7 +117,9 @@ Group=${iUser}
 Type=forking
 PAMName=login
 PIDFile=${iHome}/.vnc/%H:%i.pid
-ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
+ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill :%i > /dev/null 2>&1 || :"
+# ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1 || :
+# ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
 ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :%i
 ExecStop=/usr/bin/vncserver -kill :%i
 KillMode=mixed
@@ -170,7 +172,7 @@ location /vnc {
   auth_basic_user_file /etc/nginx/.htpasswd;
 }
 EOF
-        cat << EOF >/etc/nginx/conf.d/novnc.conf
+        cat << EOF > /etc/nginx/conf.d/novnc.conf
 upstream novnc {
     server 127.0.0.1:${wPort};
 }
@@ -188,9 +190,9 @@ EOF
     sleep 3
     systemctl status novnc   >> $OutputLOG 2>&1
     systemctl status vnc@1   >> $OutputLOG 2>&1
-    iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT
-    iptables -A INPUT -p tcp --dport $iPort -j DROP
-    service iptables-persistent save
+    iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
+    iptables -A INPUT -p tcp --dport $iPort -j DROP                 >> $OutputLOG 2>&1
+    netfilter-persistent save                                       >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
