@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.13
-script_version=r10000
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -81,7 +81,7 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $iPort ]] && iPort=5901
 
 PortCheck $wPort $iPort
-[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
+[[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
 
 ################################################################################################
 
@@ -89,7 +89,7 @@ function configure_novnc() {
 
     echo >> $OutputLOG
 
-    cat << EOF >/etc/systemd/system/novnc.service
+    cat << EOF > /etc/systemd/system/novnc.service
 [Unit]
 Description=novnc websockify
 After=network.target
@@ -112,11 +112,11 @@ Description=Remote desktop service (TightVNC)
 After=syslog.target network.target
 
 [Service]
-User=${username}
-Group=${username}
+User=${iUser}
+Group=${iUser}
 Type=forking
 PAMName=login
-PIDFile=/home/${username}/.vnc/%H:%i.pid
+PIDFile=${iHome}/.vnc/%H:%i.pid
 ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
 ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :%i
 ExecStop=/usr/bin/vncserver -kill :%i
@@ -129,8 +129,9 @@ EOF
 
     systemctl daemon-reload >> $OutputLOG 2>&1
 
+    mkdir -p /home/${username}/.vnc                   >> $OutputLOG 2>&1
     prog=/usr/bin/vncpasswd
-    runuser -l $username -c /usr/bin/expect << EOF
+    runuser -l $iUser -c /usr/bin/expect >> $OutputLOG 2>&1 << EOF
 spawn "$prog"
 expect "Password:"
 send "$iPass\r"
@@ -142,7 +143,6 @@ expect dof
 exit
 EOF
 
-    mkdir -p /home/${username}/.vnc                   >> $OutputLOG 2>&1
     cat << EOF > ${iHome}/.vnc/xstartup
 #!/bin/bash
 xrdb $iHome/.Xresources
@@ -170,6 +170,12 @@ location /vnc {
   auth_basic_user_file /etc/nginx/.htpasswd;
 }
 EOF
+        cat << EOF >/etc/nginx/conf.d/novnc.conf
+upstream novnc {
+    server 127.0.0.1:${wPort};
+}
+EOF
+        nginx -s reload      >> $OutputLOG 2>&1
     fi
 
     echo -e   "$wPort\n$iPort"    >  $PortLocation/$iUser.$AppNameLower
@@ -179,6 +185,9 @@ EOF
     systemctl start  vnc@1   >> $OutputLOG 2>&1
     systemctl enable novnc   >> $OutputLOG 2>&1
     systemctl start  novnc   >> $OutputLOG 2>&1
+    sleep 3
+    systemctl status novnc   >> $OutputLOG 2>&1
+    systemctl status vnc@1   >> $OutputLOG 2>&1
     iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT
     iptables -A INPUT -p tcp --dport $iPort -j DROP
     service iptables-persistent save
