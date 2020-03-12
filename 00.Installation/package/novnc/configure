@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.13
-script_version=r10002
+script_version=r10003
 
 ################################################################################################ Debug
 
@@ -106,7 +106,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-    cat << EOF > /etc/systemd/system/vnc@.service
+    cat << EOF > /etc/systemd/system/tightvnc.service
 [Unit]
 Description=Remote desktop service (TightVNC)
 After=syslog.target network.target
@@ -116,12 +116,10 @@ User=${iUser}
 Group=${iUser}
 Type=forking
 PAMName=login
-PIDFile=${iHome}/.vnc/%H:%i.pid
-ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill :%i > /dev/null 2>&1 || :"
-# ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1 || :
-# ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :%i
-ExecStop=/usr/bin/vncserver -kill :%i
+PIDFile=${iHome}/.vnc/%H:1.pid
+ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill :1 > /dev/null 2>&1 || :"
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :1
+ExecStop=/usr/bin/vncserver -kill :1
 KillMode=mixed
 Restart=on-failure
 
@@ -183,13 +181,13 @@ EOF
     echo -e   "$wPort\n$iPort"    >  $PortLocation/$iUser.$AppNameLower
 
     DEBIAN_FRONTEND=noninteractive
-    systemctl enable vnc@1   >> $OutputLOG 2>&1
-    systemctl start  vnc@1   >> $OutputLOG 2>&1
-    systemctl enable novnc   >> $OutputLOG 2>&1
-    systemctl start  novnc   >> $OutputLOG 2>&1
+    systemctl enable tightvnc     >> $OutputLOG 2>&1
+    systemctl start  tightvnc     >> $OutputLOG 2>&1
+    systemctl enable novnc        >> $OutputLOG 2>&1
+    systemctl start  novnc        >> $OutputLOG 2>&1
     sleep 3
-    systemctl status novnc   >> $OutputLOG 2>&1
-    systemctl status vnc@1   >> $OutputLOG 2>&1
+    systemctl status novnc        >> $OutputLOG 2>&1
+    systemctl status tightvnc     >> $OutputLOG 2>&1
     iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
     iptables -A INPUT -p tcp --dport $iPort -j DROP                 >> $OutputLOG 2>&1
     netfilter-persistent save                                       >> $OutputLOG 2>&1
@@ -197,7 +195,11 @@ EOF
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
-    ps aux | grep -v grep | grep vnc -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    if [[ $(systemctl is-active tightvnc) == active ]] && [[ $(systemctl is-active novnc) == active ]]; then
+        touch /tmp/$status_lock.1.lock
+    else
+        touch /tmp/$status_lock.2.lock
+    fi
     echo >> $OutputLOG
 }
 
