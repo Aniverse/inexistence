@@ -1,0 +1,198 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2020.03.13
+script_version=r10000
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/novnc/configure
+    rm -f $s ; nano $s
+    bash /etc/inexistence/00.Installation/package/novnc/configure -u $iUser -p $iPass
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/novnc/configure)
+}
+
+################################################################################################ Get options
+
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      iUser iPass iHome wPort iPort lang
+
+AppName=noVNC
+AppNameLower=novnc
+Need_SourceCode=no
+pm_action=configure
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -u        Username for $AppName
+      -p        Password for $AppName
+      -h        Specifiy user's home path
+      -w        WebUI port for $AppName
+      -i        Daemon port for $AppName
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+while true; do
+  case "$1" in
+    -u | --username ) iUser="$2"    ; shift 2 ;;
+    -p | --password ) iPass="$2"    ; shift 2 ;;
+    -h | --home     ) iHome="$2"    ; shift 2 ;;
+    -w | --wport    ) wPort="$2"    ; shift 2 ;;
+    -i | --iport    ) iPort="$2"    ; shift 2 ;;
+    -l | --lang     ) lang="$2"     ; shift 2 ;;
+    -d | --debug    ) debug=1       ; shift   ;;
+    -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
+         --log      ) show_log=1    ; shift   ;;
+         --logbase  ) LogTimes="$2" ; shift 2 ;;
+    -- ) shift 2 ; break ;;
+     * ) break ;;
+  esac
+done
+
+################################################################################################ Set Variables 1
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+
+set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
+
+################################################################################################ Set Variables 2
+
+[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
+id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
+[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
+[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
+[[ -z $wPort ]] && wPort=6080
+[[ -z $iPort ]] && iPort=5901
+
+PortCheck $wPort $iPort
+[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
+
+################################################################################################
+
+function configure_novnc() {
+
+    echo >> $OutputLOG
+
+    cat << EOF >/etc/systemd/system/novnc.service
+[Unit]
+Description=novnc websockify
+After=network.target
+
+[Service]
+Type=simple
+User=root
+PIDFile=${web_root}/novnc/utils/%H:%i.pid
+ExecStart=${web_root}/novnc/utils/launch.sh --vnc 127.0.0.1:${iPort} &
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    cat << EOF > /etc/systemd/system/vnc@.service
+[Unit]
+Description=Remote desktop service (TightVNC)
+After=syslog.target network.target
+
+[Service]
+User=${username}
+Group=${username}
+Type=forking
+PAMName=login
+PIDFile=/home/${username}/.vnc/%H:%i.pid
+ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :%i
+ExecStop=/usr/bin/vncserver -kill :%i
+KillMode=mixed
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    systemctl daemon-reload >> $OutputLOG 2>&1
+
+    prog=/usr/bin/vncpasswd
+    runuser -l $username -c /usr/bin/expect << EOF
+spawn "$prog"
+expect "Password:"
+send "$iPass\r"
+expect "Verify:"
+send "$iPass\r"
+expect "(y/n)?\r"
+send "n\r"
+expect dof
+exit
+EOF
+
+    mkdir -p /home/${username}/.vnc                   >> $OutputLOG 2>&1
+    cat << EOF > ${iHome}/.vnc/xstartup
+#!/bin/bash
+xrdb $iHome/.Xresources
+startxfce4 &
+EOF
+    chmod +x ${iHome}/.vnc/xstartup                   >> $OutputLOG 2>&1
+    chown ${iUser}:${iUser} -R /home/${iUser}/.vnc    >> $OutputLOG 2>&1
+
+    if [[ -d /etc/nginx/snippets ]];then
+        cat << EOF > /etc/nginx/snippets/vnc.conf
+location /websockify {
+  proxy_http_version 1.1;
+  proxy_pass http://127.0.0.1:$wPort/;
+  proxy_set_header Upgrade \$http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_read_timeout 61s;
+  proxy_buffering off;
+}
+
+location /vnc {
+  index vnc.html;
+  alias ${web_root}/novnc/;
+  try_files \$uri \$uri/ /index.php?q=\$uri&\$args;
+  auth_basic "Password Required";
+  auth_basic_user_file /etc/nginx/.htpasswd;
+}
+EOF
+    fi
+
+    echo -e   "$wPort\n$iPort"    >  $PortLocation/$iUser.$AppNameLower
+
+    DEBIAN_FRONTEND=noninteractive
+    systemctl enable vnc@1   >> $OutputLOG 2>&1
+    systemctl start  vnc@1   >> $OutputLOG 2>&1
+    systemctl enable novnc   >> $OutputLOG 2>&1
+    systemctl start  novnc   >> $OutputLOG 2>&1
+    iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT
+    iptables -A INPUT -p tcp --dport $iPort -j DROP
+    service iptables-persistent save
+
+    status_lock=$AppName-c
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    ps aux | grep -v grep | grep vnc -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
+}
+
+
+
+
+echo_task "Configuring $AppName ..."
+configure_novnc & spinner $!
+check_status $status_lock
