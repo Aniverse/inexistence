@@ -3,64 +3,92 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-S_update=2019.02.15
-S_version=1.0.1
+script_update=2020.03.13
+script_version=r10002
 
-OutputLOG=/etc/inexistence/01.Log/config_deluge.txt    # /dev/null
-SCLocation=/etc/inexistence/01.Log/SourceCodes
-LOCKLocation=/etc/inexistence/01.Log/Lock
+################################################################################################ Debug
 
-# Colors
-black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7);
-on_red=$(tput setab 1); on_green=$(tput setab 2); on_yellow=$(tput setab 3); on_blue=$(tput setab 4); on_magenta=$(tput setab 5); on_cyan=$(tput setab 6); on_white=$(tput setab 7); bold=$(tput bold);
-dim=$(tput dim); underline=$(tput smul); reset_underline=$(tput rmul); standout=$(tput smso); reset_standout=$(tput rmso); normal=$(tput sgr0); alert=${white}${on_red}; title=${standout};
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue}; bailvse=${white}${on_green}; baiqingse=${white}${on_cyan}; baihongse=${white}${on_red}; baizise=${white}${on_magenta};
-heibaise=${black}${on_white}; heihuangse=${on_yellow}${black}; jiacu=${normal}${bold}; shanshuo=$(tput blink); wuguangbiao=$(tput civis); guangbiao=$(tput cnorm)
-CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/deluge/configure
+    rm -f $s ; nano $s
+    bash /etc/inexistence/00.Installation/package/deluge/configure -u $iUser -p $iPass -w 8112 -i 58846
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/deluge/configure)
+}
 
-# Sustem check
-DISTRO=$( awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release )
-CODENAME=$( cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' )
+################################################################################################ Get options
 
-function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      iUser iPass iHome wPort iPort lang
 
-function _check_status() {
-local LockName=$1
-[[   -f /tmp/$LockName.1.lock ]] && echo -e " ${green}${bold}DONE${normal}"
-[[   -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}FAILED${normal}"
-[[ ! -f /tmp/$LockName.1.lock ]] && [[ ! -f /tmp/$LockName.2.lock ]] && echo -e " ${red}${bold}Unknown State${normal}" ; }
+AppName=Deluge
+AppNameLower=deluge
+Need_SourceCode=no
+pm_action=configure
 
-# Don't know why [ && Success=Yes || Success=No ] doesn't work，so use lock file instead
-rm -f /tmp/de.1.lock /tmp/de.2.lock
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -u        Username for $AppName
+      -p        Password for $AppName
+      -h        Specifiy user's home path
+      -w        WebUI port for deluge-web
+      -i        Daemon port for deluged
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
 
-
-
-
-
-OPTS=$(getopt -n "$0" -o m:v:b: --long "user:,version:,branch:" -- "$@")
-
+OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+[ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
-
 while true; do
   case "$1" in
-    -u | --user         ) user="$2"       ; shift ; shift ;;
-    -p | --password     ) password="$2"   ; shift ; shift ;;
-    -d | --dport        ) dport="$2"      ; shift ; shift ;;
-    -w | --wport        ) wport="$2"      ; shift ; shift ;;
-    -h | --home         ) userhome="$2"   ; shift ; shift ;;
+    -u | --username ) iUser="$2"    ; shift 2 ;;
+    -p | --password ) iPass="$2"    ; shift 2 ;;
+    -h | --home     ) iHome="$2"    ; shift 2 ;;
+    -w | --wport    ) wPort="$2"    ; shift 2 ;;
+    -i | --iport    ) iPort="$2"    ; shift 2 ;;
+    -l | --lang     ) lang="$2"     ; shift 2 ;;
+    -d | --debug    ) debug=1       ; shift   ;;
+    -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
+         --log      ) show_log=1    ; shift   ;;
+         --logbase  ) LogTimes="$2" ; shift 2 ;;
+    -- ) shift 2 ; break ;;
      * ) break ;;
   esac
 done
 
+################################################################################################ Set Variables 1
 
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
 
-User_PATH=/root
-User_PATH=/home/$ANUSER
+set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
 
+################################################################################################ Set Variables 2
 
+[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
+id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
+[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
+[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
+[[ -z $wPort ]] && wPort=8112
+[[ -z $iPort ]] && iPort=58846
+
+PortCheck $wPort $iPort
+[[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
+
+de_installed_ver=
+
+################################################################################################
 
 # Deluge Password Calculatation
-cat >/tmp/deluge.userpass.py<<EOF
+cat <<EOF > /tmp/deluge.userpass.py
 #!/usr/bin/env python
 import hashlib
 import sys
@@ -73,7 +101,7 @@ print s.hexdigest()
 EOF
 
 # Deluge Hostlist ID Generator
-cat >/tmp/deluge.addhost.py<<EOF
+cat << EOF > /tmp/deluge.addhost.py
 #!/usr/bin/env python
 import hashlib
 import sys
@@ -82,10 +110,10 @@ print hashlib.sha1(str(time.time())).hexdigest()
 EOF
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
-DWP=$(python /tmp/deluge.userpass.py ${ANPASS} ${DWSALT})
+DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
 DUDID=$(python /tmp/deluge.addhost.py)
 
-
+################################################################################################
 
 
 
@@ -144,83 +172,6 @@ touch /etc/inexistence/01.Log/lock/deluge.lock ; }
 
 
 
-
-
-
-
-
-
-
-
-case $mode in
-    apt     ) sleep 0  ;;
-    ppa     ) sleep 0  ;;
-    source  ) sleep 0  ;;
-    alt     ) sleep 0  ;;
-    ""   | *) echo -e "\n${CW} Installation mode must be specified as apt, ppa, source or alt${normal}\n"   ;;
-esac
-
-
-
-
-
-
-
-
-
-
-
-function () {
- ; }
-
-
-
-function () {
- ; }
-
-
-
-function () {
- ; }
-
-
-
-
-function () {
- ; }
-
-
-
-
-mkdir -p $SCLocation $LOCKLocation
-cd       $SCLocation
-echo "\n\n\n$(date "+%Y.%m.%d.%H.%M.%S")   $RN\n\n\n" >> $OutputLOG
-
-case $mode in
-    apt     ) echo -ne "Installing deluge ${bold}${cyan}$version${normal} from repository ..."       | tee -a $OutputLOG ; _install_de_apt & spinner $!
-              ;;
-
-    ppa     ) echo -ne "Installing deluge ${bold}${cyan}$latest_stable${normal} from stable ppa ..." | tee -a $OutputLOG ; _install_de_ppa & spinner $!
-              ;;
-
-    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
-              echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
-              _install_de_dependencies & spinner $!
-              _check_status ded ; }
-
-              echo -ne "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."     | tee -a $OutputLOG
-              _install_de_source & spinner $!
-              ;;
-
-    alt     ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
-              echo -ne "Installing deluge build dependencies ..." | tee -a $OutputLOG
-              _install_de_dependencies & spinner $!
-              _check_status ded ; }
-
-              echo -ne "Installing another deluge ${bold}${cyan}$version${normal} from source codes ..." | tee -a $OutputLOG 
-              _install_de_alt & spinner $!
-              ;;
-esac
-
-cd
-_check_status de
+echo_task "Configuring $AppName ..."
+configure_deluge & spinner $!
+check_status $status_lock
