@@ -78,7 +78,7 @@ function install_novnc() {
 	fi
 
     apt_install_check    expect   xfce4 xfce4-goodies tightvncserver fonts-noto firefox-esr \
-                         dbus-x11 xfonts-base xinit  iptables-persistent 
+                         dbus-x11 xfonts-base xinit  iptables-persistent  unzip
     apt_install_separate
 
     wget -nv -O master.zip 'https://github.com/novnc/noVNC/archive/master.zip' >> "$OutputLOG" 2>&1
