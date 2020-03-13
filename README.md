@@ -21,7 +21,7 @@
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
 --apt-yes --tweaks-yes --bbr-yes --tools-no --wine-no --rclone-yes --rdp-no --skip-system-upgrade \
 --flexget-yes --flood-no --lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
--u 这十二个字换成你的用户名 -p 这九个字换成你的密码
+-u 这十二个字换成你的用户名 -p 这十个字换成你的密码
 ```
 如果你需要自定义安装选项：  
 ```
@@ -414,27 +414,31 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 近期  
 
+* [x] IPv6 脚本更新  
 * [x] 增加 flexget/install  
 * [x] 增加 flexget/configure  
-* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
+* [x] 增加 vnstat/install  
 * [ ] 增加 deluge/configure  
 * [x] 增加 transmission/configure  
 * [ ] 增加 flood/install  
-* [ ] 增加 novnc（届时可能会暂时移除 x2go）  
-* [ ] 增加 filebrowser  
+* [ ] 加入 novnc  
+* [ ] 加入 filebrowser  
+* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
 * [ ] 更新 README 的图片  
 
 中期  
 
-* [ ] 新增分支 debian8，作为最后一个支持 debian8 的版本  
+* [ ] 新增分支 debian8，作为最后一个支持 Debian 8 的版本  
 * [ ] 在新的 master 分支上抛弃 Debian 8 支持  
-* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr 问题  
+* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr、wine 问题  
 * [ ] 在新的 master 分支上去除脚本里的 install from ppa. repo  
 * [ ] 在新的 master 分支上去除 libtorrent 1.0 选项  
 * [ ] 在新的 master 分支上去除 rTorrent 0.9.6 及以下的选项  
 * [ ] 增加 deluge/install  
 * [ ] 增加 qbittorrent/install  
 * [ ] 增加 transmission/install  
+* [ ] 增加 `hezi` 脚本，类似 quickbox 的 `box`（可能替代 `mingling`）  
+* [ ] 增加 `mima` 脚本  
 
 远期  
 
