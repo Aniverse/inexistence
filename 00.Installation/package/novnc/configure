@@ -129,7 +129,7 @@ EOF
 
     systemctl daemon-reload >> $OutputLOG 2>&1
 
-    mkdir -p /home/${username}/.vnc                   >> $OutputLOG 2>&1
+    mkdir -p /home/${username}/.vnc                    >> $OutputLOG 2>&1
     prog=/usr/bin/vncpasswd
     runuser -l $iUser -c /usr/bin/expect >> $OutputLOG 2>&1 << EOF
 spawn "$prog"
@@ -145,11 +145,12 @@ EOF
 
     cat << EOF > ${iHome}/.vnc/xstartup
 #!/bin/bash
-xrdb $iHome/.Xresources
+xrdb /root/.Xresources
 startxfce4 &
 EOF
-    chmod +x ${iHome}/.vnc/xstartup                   >> $OutputLOG 2>&1
-    chown ${iUser}:${iUser} -R /home/${iUser}/.vnc    >> $OutputLOG 2>&1
+    chmod +x ${iHome}/.vnc/xstartup                    >> $OutputLOG 2>&1
+    chown ${iUser}:${iUser} -R /home/${iUser}/.vnc     >> $OutputLOG 2>&1
+    chown ${iUser}:${iUser} -R /home/${iUser}/.config  >> $OutputLOG 2>&1
 
     if [[ -d /etc/nginx/snippets ]];then
         cat << EOF > /etc/nginx/snippets/vnc.conf
@@ -189,7 +190,7 @@ EOF
     systemctl status novnc        >> $OutputLOG 2>&1
     systemctl status tightvnc     >> $OutputLOG 2>&1
     iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
-    iptables -A INPUT -p tcp --dport $iPort -j DROP                 >> $OutputLOG 2>&1
+    iptables -A INPUT -p tcp              --dport $iPort -j DROP    >> $OutputLOG 2>&1
     netfilter-persistent save                                       >> $OutputLOG 2>&1
 
     status_lock=$AppName-c

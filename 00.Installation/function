@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.13
-script_version=r11050
+script_update=2020.03.14
+script_version=r11051
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -185,7 +185,7 @@ function set_variables_log_location() {
         DebLocation=$LogRootPath/deb
     fi
 
-    mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation
+    mkdir -p $LogRootPath $LogTimes $DebLocation $SCLocation $LOCKLocation $LogLocation $PortLocation
     { lines ; echo -e "$(date "+%Y.%m.%d %H:%M:%S") $AppName $pm_action" ; lines ; } >> $OutputLOG
 
     if [[ -n $SCLocation ]] && [[ $pm_action != uninstall ]]; then
@@ -385,6 +385,8 @@ tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
 rtorrent_ver=$(rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
 `deluged --version | grep libtorrent | awk '{print $2}'`
+
+deluged --version | grep deluge | grep -oE ""
 
 dpkg-query -W -f='${Version}' libssl-dev 2>1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1
 }
