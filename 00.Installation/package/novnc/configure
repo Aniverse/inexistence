@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.13
-script_version=r10003
+script_update=2020.03.14
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -186,17 +186,21 @@ EOF
     systemctl start  tightvnc     >> $OutputLOG 2>&1
     systemctl enable novnc        >> $OutputLOG 2>&1
     systemctl start  novnc        >> $OutputLOG 2>&1
-    sleep 3
-    systemctl status novnc        >> $OutputLOG 2>&1
-    systemctl status tightvnc     >> $OutputLOG 2>&1
-    iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
-    iptables -A INPUT -p tcp              --dport $iPort -j DROP    >> $OutputLOG 2>&1
-    netfilter-persistent save                                       >> $OutputLOG 2>&1
+    sleep 5
+    _excute "systemctl status novnc"
+    _excute "systemctl status tightvnc"
+
+  # Uncomment it to increase securitym, use SSH Tunnel to connet it
+  # iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
+  # iptables -A INPUT -p tcp              --dport $iPort -j DROP    >> $OutputLOG 2>&1
+  # netfilter-persistent save                                       >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
-    if [[ $(systemctl is-active tightvnc) == active ]] && [[ $(systemctl is-active novnc) == active ]]; then
+    psaux=$(ps aux)
+    # if [[ $(systemctl is-active tightvnc) == active ]] && [[ $(systemctl is-active novnc) == active ]]; then
+    if echo $psaux | egrep -q "Xtightvnc|xfce4-session|novnc" ; then
         touch /tmp/$status_lock.1.lock
     else
         touch /tmp/$status_lock.2.lock
