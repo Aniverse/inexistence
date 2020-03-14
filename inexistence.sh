@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.0
+INEXISTENCEVER=1.1.8.1
 INEXISTENCEDATE=2020.03.14
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2546,6 +2546,20 @@ function system_tweaks() {
     bash $local_package/package/vnstat/install --logbase $LogTimes
     if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
         vnstat_webui=1
+    fi
+
+    # Upgrade wget to avoid generate wget-logs when wget-qO-
+    if [[ $CODENAME == bionic ]] ; then
+        apt-get install -y build-essential autopoint flex gperf texinfo gnutls-dev
+        wget https://ftp.gnu.org/gnu/wget/wget-1.20.3.tar.gz
+        tar zxf wget-1.20.3.tar.gz
+        cd wget-1.20.3
+        ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --localedir=/usr/share/locale --docdir=/usr/share/doc/wget
+        make -j$MAXCPUS
+        make install
+        cd ..
+        rm -rf wget-1.20.3.tar.gz wget-1.20.3
+        wget --version
     fi
 
     # Set timezone to UTC+8
