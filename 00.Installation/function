@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.14
-script_version=r11051
+script_version=r11052
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -83,6 +83,7 @@ local_packages=$local_repo/00.Installation
 
 # ⚠ ✗ ✓
 function _excute() {
+    echo -e "$1\n" >> "$OutputLOG" 2>&1
 	($1 >> "$OutputLOG" 2>&1)
 }
 function echo_task() {
@@ -365,30 +366,21 @@ function cat_outputlog() {
 
 function get_clients_port() {
 [[ -z $iHome ]] && { echo -e "ERROR: Please specify user" ; exit 1 ; }
-de_port
-de_port_w
-de_port_c
-qb_port
-qb_port_c
-tr_port
 
-sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf
-sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf
-sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf
-sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf
-port_fg=$(grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+")
+de_port=$(sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf)
+de_port_w=$(sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf)
+qb_port_w=$(sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf)
+qb_port_i=$(sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf)
+tr_port=$(grep rpc-port $iHome/.config/transmission-daemon/settings.json | grep -oE "[0-9]+")
+fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config/ym; | grep -i port | grep -oE "[0-9]+")
 
-grep rpc-port $iHome/.config/transmission-daemon/settings.json
-
+de_installed_ver=$(deluged --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
 qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
 tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
+rt_installed_ver=$(rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
+lt_installed_ver=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+)
 
-rtorrent_ver=$(rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
-`deluged --version | grep libtorrent | awk '{print $2}'`
-
-deluged --version | grep deluge | grep -oE ""
-
-dpkg-query -W -f='${Version}' libssl-dev 2>1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1
+libssl_ver=$(dpkg-query -W -f='${Version}' libssl-dev 2>1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1)
 }
 
 
