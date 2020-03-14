@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.10
-script_version=r11004
+script_update=2020.03.14
+script_version=r11005
 ################################################################################################
 this_is_for_copy() {
     source /etc/bash.bashrc
@@ -47,6 +47,38 @@ function gggclone(){ git clone --depth=1 \$1 && cd \$(echo \${1##*/}) ;}
 io_test() { (LANG=C dd if=/dev/zero of=test_\$\$ bs=64k count=16k conv=fdatasync && rm -f test_\$\$ ) 2>&1 | awk -F, '{io=\$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*\$//' ; }
 iotest() { io1=\$( io_test ) ; echo -e "\n\${bold}硬盘 I/O (第一次测试) : \${yellow}\$io1\${normal}"
 io2=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第二次测试) : \${yellow}\$io2\${normal}" ; io3=\$( io_test ) ; echo -e "\${bold}硬盘 I/O (第三次测试) : \${yellow}\$io3\${normal}\n" ; }
+
+# Find a file with a pattern in name:
+function ff() { find . -type f -iname '*'"\$*"'*' -ls ; }
+
+# Find a file with pattern \$1 in name and Execute \$2 on it:
+function fe() { find . -type f -iname '*'"\${1:-}"'*' \
+-exec \${2:-file} {} \;  ; }
+
+#  Find a pattern in a set of files and highlight them:
+#+ (needs a recent version of egrep).
+function fstr()
+{
+    OPTIND=1
+    local mycase=""
+    local usage="fstr: find string in files.
+Usage: fstr [-i] \"pattern\" [\"filename pattern\"] "
+    while getopts :it opt
+    do
+        case "\$opt" in
+           i) mycase="-i " ;;
+           *) echo "\$usage"; return ;;
+        esac
+    done
+    shift \$(( \$OPTIND - 1 ))
+    if [ "\$#" -lt 1 ]; then
+        echo "\$usage"
+        return;
+    fi
+    find . -type f -name "\${2:-*}" -print0 | \
+xargs -0 egrep --color=always -sn \${case} "\$1" 2>&- | more
+
+}
 
 function jieya() {
     if [ -f \$1 ] ; then
@@ -212,7 +244,7 @@ setcolor
 # Custom History Format
 HISTFILESIZE=4000
 HISTSIZE=4000
-export HISTTIMEFORMAT="\${yellow}[%F]${cyan}[%T]\${normal} "
+export HISTTIMEFORMAT="\${yellow}[%F]\${cyan}[%T]\${normal} "
 
 # Disable mail check/warning
 shopt -u mailwarn
