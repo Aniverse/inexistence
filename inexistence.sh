@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.8
+INEXISTENCEVER=1.1.8.0
 INEXISTENCEDATE=2020.03.14
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2421,13 +2421,15 @@ function bnx2_firmware() {
 # --------------------- 安装 VNC --------------------- #
 
 function install_vnc() {
-
+    if [[ $separate == 1 ]] ; then
+        bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
+        bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
+    else
 apt-get install -y vnc4server
 apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy #fcitx
 apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
-
 vncpasswd=$(date +%s | sha256sum | base64 | head -c8)
-vncpasswd <<EOF
+vncpasswd << EOF
 $iPass
 $iPass
 EOF
@@ -2436,15 +2438,14 @@ mkdir -p /root/.vnc
 cp -f /etc/inexistence/00.Installation/template/xstartup.1.xfce4 /root/.vnc/xstartup
 chmod +x /root/.vnc/xstartup
 cp -f /etc/inexistence/00.Installation/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
-
 systemctl daemon-reload
 systemctl enable vncserver
 systemctl start vncserver
 systemctl status vncserver
-
 touch $LockLocation/vnc.lock
-
-echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n"
+    fi
+}
 
 
 
