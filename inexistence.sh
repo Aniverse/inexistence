@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.7.7
-INEXISTENCEDATE=2020.03.12
+INEXISTENCEVER=1.1.7.8
+INEXISTENCEDATE=2020.03.14
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1982,10 +1982,15 @@ else
         git checkout release-$qb_version
     fi
 
-    # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
-    [[ $sihuo == yes ]] && {
-    wget -nv  --trust-server-name https://sourceforge.net/projects/inexistence/files/personal/qbt.4.1.6.webui.table.patch/download
-    patch -p1 < qbt.4.1.6.webui.table.patch ; }
+    # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
+    if [[ $sihuo == yes ]]; then
+        if version_ge $qb_version 4.2.0; then
+            wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.2.1.webui.table.patch -O qb.patch
+        else
+            wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch -O qb.patch
+        fi
+        patch -p1 < qb.patch
+    fi
 
     [[ $CODENAME =~ (stretch|xenial) ]] && source /opt/qt512/bin/qt512-env.sh
 
@@ -2046,7 +2051,7 @@ else
 #       cd deluge-$de_version
     if [[ $de_version == 2.0.3 ]]; then
         while true ; do
-            wget https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
+            wget -nv -N https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
             sleep 1
         done
         tar xf deluge-$de_version.tar.xz
@@ -2055,7 +2060,7 @@ else
     else
         [[ $Deluge_1_3_15_skip_hash_check_patch == Yes  ]] && de_version=1.3.15
         while true ; do
-            wget https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
+            wget -nv -N https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
             sleep 1
         done
         tar xf deluge-$de_version.tar.gz
@@ -2078,12 +2083,6 @@ else
         tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
     fi
 
-    # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯
-    # 不然每次换浏览器以及手机登录都要重新修改排序什么的，烦死了
-    if [[ $sihuo == yes ]]; then
-        wget -nv https://sourceforge.net/projects/inexistence/files/personal/deluge.1.3.15.deluge-all.js/download -O deluge/ui/web/js/deluge-all.json
-    fi
-
     python setup.py build  > /dev/null
     python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
     python setup.py install_data # For Desktop users
@@ -2093,6 +2092,14 @@ else
         -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
         cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
         patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+    fi
+
+    # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
+    if [[ $sihuo == yes ]]; then
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/deluge.status.bar.patch \
+        -O /tmp/deluge.status.bar.patch
+        cd /usr/lib/python2.7/dist-packages/deluge-${de_version}-py2.7.egg/deluge
+        patch -p1 < /tmp/deluge.status.bar.patch
     fi
 
     [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
