@@ -12,6 +12,7 @@ usage_for_debug() {
     export local_packages=/etc/inexistence/00.Installation
     export s=$local_packages/package/novnc/install
     rm -f $s ; nano $s ; bash $s
+    bash /etc/inexistence/00.Installation/package/novnc/install
     bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/novnc/install)
 }
 
@@ -78,7 +79,7 @@ function install_novnc() {
 	fi
 
     apt_install_check   xfce4 xfce4-goodies tightvncserver fonts-noto firefox-esr   expect unzip \
-                        dbus-x11 xfonts-base xinit xserver-xorg-legacy x11-xserver-utils iptables-persistent  
+                        dbus-x11 xfonts-base xinit xserver-xorg xserver-xorg-legacy x11-xserver-utils iptables-persistent  
     apt_install_separate
 
     wget -nv -O master.zip 'https://github.com/novnc/noVNC/archive/master.zip' >> "$OutputLOG" 2>&1
