@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.14
-script_version=r10003
+script_update=2020.03.15
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -77,8 +77,8 @@ function install_novnc() {
         apt_install_separate
 	fi
 
-    apt_install_check    expect   xfce4 xfce4-goodies tightvncserver fonts-noto firefox-esr \
-                         dbus-x11 xfonts-base xinit  iptables-persistent  unzip
+    apt_install_check   xfce4 xfce4-goodies tightvncserver fonts-noto firefox-esr   expect unzip \
+                        dbus-x11 xfonts-base xinit xserver-xorg-legacy x11-xserver-utils iptables-persistent  
     apt_install_separate
 
     wget -nv -O master.zip 'https://github.com/novnc/noVNC/archive/master.zip' >> "$OutputLOG" 2>&1
