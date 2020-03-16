@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.1
-INEXISTENCEDATE=2020.03.14
+INEXISTENCEVER=1.1.8.2
+INEXISTENCEDATE=2020.03.16
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1357,7 +1357,7 @@ fi ; }
 function ask_rdp() {
 
 while [[ -z $InsRDP ]]; do
-    echo -e "${green}01)${normal} VNC  with xfce4"
+    echo -e "${green}01)${normal} noVNC with xfce4"
     echo -e "${green}02)${normal} X2Go with xfce4"
     echo -e   "${red}99)${normal} $lang_do_not_install remote desktop"
     read -ep "${bold}${yellow}$lang_would_you_like_to_install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
@@ -2418,39 +2418,6 @@ function bnx2_firmware() {
 
 
 
-# --------------------- 安装 VNC --------------------- #
-
-function install_vnc() {
-    if [[ $separate == 1 ]] ; then
-        bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
-        bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
-    else
-apt-get install -y vnc4server
-apt-get install -y --install-recommends xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy #fcitx
-apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-scalable x11-xfs-utils x11proto-xf86bigfont-dev x11proto-fonts-dev
-vncpasswd=$(date +%s | sha256sum | base64 | head -c8)
-vncpasswd << EOF
-$iPass
-$iPass
-EOF
-vncserver && vncserver -kill :1
-mkdir -p /root/.vnc
-cp -f /etc/inexistence/00.Installation/template/xstartup.1.xfce4 /root/.vnc/xstartup
-chmod +x /root/.vnc/xstartup
-cp -f /etc/inexistence/00.Installation/template/systemd/vncserver.service /etc/systemd/system/vncserver.service
-systemctl daemon-reload
-systemctl enable vncserver
-systemctl start vncserver
-systemctl status vncserver
-touch $LockLocation/vnc.lock
-echo -e "\n\n\n${bailvse}  VNC-INSTALLATION-COMPLETED  ${normal}\n\n"
-    fi
-}
-
-
-
-
-
 
 # --------------------- 安装 X2Go --------------------- #
 
@@ -2682,13 +2649,21 @@ if   [[ $vnstat_webui == 1 ]]; then
      echo -e " ${cyan}Vnstat Dashboard${normal}    $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
 fi
 
+if [[ $InsRDP == VNC ]]; then
+    if [[ -f $LOCKLocation/novnc ]]; then
+        echo -e " ${cyan}noVNC${normal}               $(_if_running xfce               )   http://${serveripv4}:6082/vnc.html"
+    else
+        echo -e " ${red}noVNC${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
+    fi
+fi
+
 echo
 echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
 echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
 [[ $InsFlex != No ]] && [[ $flex_installed == Yes ]] &&
 echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
-[[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
-echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
+# [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
+# echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
 
 echo '---------------------------------------------------------------------------------'
 echo
@@ -2788,9 +2763,12 @@ if [[ $InsWine == Yes ]]; then
     bash $local_package/package/mono/install --logbase $LogTimes
     bash $local_package/package/wine/install --logbase $LogTimes
 fi
+if [[ $InsRDP == VNC ]]; then
+    bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
+    bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
+fi
 
-[[ $InsRDP    == VNC ]]  && { echo -ne "Installing VNC ... \n\n\n"  ; install_vnc  2>&1 | tee $LogLocation/12.rdp.log ; }
-[[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.rdp.log ; }
+[[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
 [[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
 
