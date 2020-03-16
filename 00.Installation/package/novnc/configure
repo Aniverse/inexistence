@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.16
-script_version=r12006
+script_version=r12008
 
 ################################################################################################ Debug
 
@@ -81,7 +81,7 @@ id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; e
 [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 wPortBase=608
 iPortBase=590
-exist_vnc=$(ls /etc/systemd/system | grep tightvnc@: | wc -l)
+exist_vnc=$(ls /etc/systemd/system | grep tightvnc | wc -l)
 [[ $exist_vnc == 0 ]] && exist_vnc=1        # 1 is for root
 vnc_num=$(expr $exist_vnc + 1)
 [[ -z $wPort ]] && wPort=$wPortBase$vnc_num # Default 6800
@@ -97,7 +97,7 @@ function configure_novnc() {
     echo >> $OutputLOG
 
 
-    if [[ ! -f "/etc/systemd/system/tightvnc@:1.service" ]]; then
+    if [[ ! -f "/etc/systemd/system/tightvnc1.service" ]]; then
         cat << EOF > /etc/systemd/system/tightvnc1.service
 [Unit]
 Description=Remote desktop service (TightVNC)
@@ -107,7 +107,7 @@ After=syslog.target network.target
 User=root
 Type=forking
 PIDFile=/root/.vnc/%H:1.pid
-ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill:1 > /dev/null 2>&1 || :"
+ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill :1 > /dev/null 2>&1 || :"
 ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :1
 ExecStop=/usr/bin/vncserver -kill :1 || :
 
@@ -267,8 +267,8 @@ EOF
     systemctl start  tightvnc${vnc_num}@$iUser   >> $OutputLOG 2>&1
     systemctl start  novnc${vnc_num}             >> $OutputLOG 2>&1
     sleep 5
-    _excute "systemctl status novnc@${vnc_num}"
-    _excute "systemctl status tightvnc@:${vnc_num}"
+    _excute "systemctl status novnc2"
+    _excute "systemctl status tightvnc${vnc_num}@$iUser"
 
   # Uncomment it to increase security, use SSH Tunnel to connet it
   # iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
