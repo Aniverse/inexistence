@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.15
-script_version=r11005
+script_update=2020.03.16
+script_version=r12006
 
 ################################################################################################ Debug
 
@@ -35,10 +35,11 @@ Usage:
       -w        WebUI port (noVNC)
       -i        VNC port
       -d        Enable debug mode
-      --log     Show logfile's content"
+      --log     Show logfile's content
+      --root    Enable root user's VNC"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,root,help" -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
@@ -51,6 +52,7 @@ while true; do
     -l | --lang     ) lang="$2"     ; shift 2 ;;
     -d | --debug    ) debug=1       ; shift   ;;
     -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
+         --root     ) enable_root=1 ; shift   ;;
          --log      ) show_log=1    ; shift   ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
     -- ) shift 2 ; break ;;
@@ -95,8 +97,8 @@ function configure_novnc() {
     echo >> $OutputLOG
 
 
-    if [[ ! -f "/etc/systemd/system/tightvnc@:1.service" ]];then
-        cat << EOF > /etc/systemd/system/tightvnc@:1.service
+    if [[ ! -f "/etc/systemd/system/tightvnc@:1.service" ]]; then
+        cat << EOF > /etc/systemd/system/tightvnc1.service
 [Unit]
 Description=Remote desktop service (TightVNC)
 After=syslog.target network.target
@@ -104,10 +106,10 @@ After=syslog.target network.target
 [Service]
 User=root
 Type=forking
-PIDFile=/root/.vnc/%H%i.pid
-ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :"
-ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 %i
-ExecStop=/usr/bin/vncserver -kill %i || :
+PIDFile=/root/.vnc/%H:1.pid
+ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill:1 > /dev/null 2>&1 || :"
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :1
+ExecStop=/usr/bin/vncserver -kill :1 || :
 
 KillMode=mixed
 Restart=on-failure
@@ -115,7 +117,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-        cat << EOF > /etc/systemd/system/novnc@.service
+        cat << EOF > /etc/systemd/system/novnc1.service
 [Unit]
 Description=novnc websockify
 After=network.target
@@ -123,38 +125,78 @@ After=network.target
 [Service]
 Type=simple
 User=root
-PIDFile=${web_root}/novnc/utils/%H:%i.pid
-ExecStart=${web_root}/novnc/utils/launch.sh --vnc 127.0.0.1:$wPortBase%i --listen $iPortBase%i &
+PIDFile=${web_root}/novnc/utils/%H:1.pid
+ExecStart=${web_root}/novnc/utils/launch.sh --vnc 127.0.0.1:${iPortBase}1 --listen ${wPortBase}1 &
 KillMode=process
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reload
-    # Do not enable root currently
-    # systemctl start  tightvnc@:1
-    # systemctl enable tightvnc@:1
-    # systemctl start  novnc@1
-    # systemctl enable novnc@1
+        systemctl daemon-reload
+
+        mkdir -p /root/.vnc  >> $OutputLOG 2>&1
+        cat << EOF > /root/.vnc/xstartup
+#!/bin/bash
+xrdb $iHome/.Xresources
+startxfce4 &
+EOF
+        chmod +x /root/.vnc/xstartup
+        prog=/usr/bin/vncpasswd
+        runuser -l root -c /usr/bin/expect >> $OutputLOG 2>&1 << EOF
+spawn "$prog"
+expect "Password:"
+send "$iPass\r"
+expect "Verify:"
+send "$iPass\r"
+expect "(y/n)?\r"
+send "n\r"
+expect dof
+exit
+EOF
+        if [[ $enable_root == 1 ]]; then
+            systemctl start  tightvnc1  >> $OutputLOG 2>&1
+            systemctl enable tightvnc1  >> $OutputLOG 2>&1
+            systemctl start  novnc1     >> $OutputLOG 2>&1
+            systemctl enable novnc1     >> $OutputLOG 2>&1
+        fi
     fi
 
     # Write separate systemd service
-    cat << EOF > /etc/systemd/system/tightvnc@:${vnc_num}.service
+    cat << EOF > /etc/systemd/system/tightvnc${vnc_num}@.service
 [Unit]
 Description=Remote desktop service (TightVNC)
 After=syslog.target network.target
 
 [Service]
-User=${iUser}
-Group=${iUser}
-Type=forking
-PAMName=login
-PIDFile=${iHome}/.vnc/%H%i.pid
-ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :"
-ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 %i
-ExecStop=/usr/bin/vncserver -kill %i || :
+# VncNum ${vnc_num}
+User=%I
+#Group=${iUser}
+#PAMName=login
+#Type=forking
+
+PIDFile=/home/$iUser/.vnc/%H:${vnc_num}.pid
+ExecStartPre=/bin/sh -c "/usr/bin/vncserver -kill :${vnc_num} > /dev/null 2>&1 || :"
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1440x900 :${vnc_num}
+ExecStop=/usr/bin/vncserver -kill :${vnc_num} || :
+
 KillMode=mixed
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    cat << EOF > /etc/systemd/system/novnc${vnc_num}.service
+[Unit]
+Description=novnc websockify
+After=network.target
+
+[Service]
+Type=simple
+User=root
+PIDFile=${web_root}/novnc/utils/%H:${vnc_num}.pid
+ExecStart=${web_root}/novnc/utils/launch.sh --vnc 127.0.0.1:${iPort} --listen ${wPort} &
+KillMode=process
 Restart=on-failure
 
 [Install]
@@ -190,7 +232,7 @@ EOF
 
     # Nginx Reverse
     # Currently this is only for the first non-root user
-    if [[ -d /etc/nginx/snippets ]];then
+    if [[ -d /etc/nginx/snippets ]]; then
         cat << EOF > /etc/nginx/snippets/vnc.conf
 location /websockify {
   proxy_http_version 1.1;
@@ -220,13 +262,13 @@ EOF
     # echo -e   "$wPort\n$iPort"    >  $PortLocation/$iUser.$AppNameLower
 
     DEBIAN_FRONTEND=noninteractive
-    systemctl enable tightvnc@:${vnc_num}   >> $OutputLOG 2>&1
-    systemctl start  tightvnc@:${vnc_num}   >> $OutputLOG 2>&1
-    systemctl enable novnc@${vnc_num}       >> $OutputLOG 2>&1
-    systemctl start  novnc@${vnc_num}       >> $OutputLOG 2>&1
+    systemctl enable tightvnc${vnc_num}@$iUser   >> $OutputLOG 2>&1
+    systemctl enable novnc${vnc_num}             >> $OutputLOG 2>&1
+    systemctl start  tightvnc${vnc_num}@$iUser   >> $OutputLOG 2>&1
+    systemctl start  novnc${vnc_num}             >> $OutputLOG 2>&1
     sleep 5
-    _excute "systemctl status novnc@:${vnc_num}"
-    _excute "systemctl status tightvnc@${vnc_num}"
+    _excute "systemctl status novnc@${vnc_num}"
+    _excute "systemctl status tightvnc@:${vnc_num}"
 
   # Uncomment it to increase security, use SSH Tunnel to connet it
   # iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
