@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.16
-script_version=r12008
+script_version=r12009
 
 ################################################################################################ Debug
 
@@ -278,9 +278,10 @@ EOF
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
-    # psaux=$(ps aux)
-    # if echo $psaux | egrep -q "Xtightvnc|xfce4-session|novnc" ; then
-    if [[ $(systemctl is-active tightvnc@:${vnc_num}) == active ]] && [[ $(systemctl is-active novnc@${vnc_num}) == active ]]; then
+    psaux=$(ps aux)
+    if [[ $(systemctl is-active tightvnc${vnc_num}@$iUser) == active ]] && [[ $(systemctl is-active novnc2) == active ]]; then
+        touch /tmp/$status_lock.1.lock
+    elif echo $psaux | egrep -q "Xtightvnc|xfce4-session|novnc" ; then
         touch /tmp/$status_lock.1.lock
     else
         touch /tmp/$status_lock.2.lock
