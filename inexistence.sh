@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.2
+INEXISTENCEVER=1.1.8.3
 INEXISTENCEDATE=2020.03.16
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2650,7 +2650,7 @@ if   [[ $vnstat_webui == 1 ]]; then
 fi
 
 if [[ $InsRDP == VNC ]]; then
-    if [[ -f $LOCKLocation/novnc ]]; then
+    if [[ -f $LOCKLocation/novnc.lock ]]; then
         echo -e " ${cyan}noVNC${normal}               $(_if_running xfce               )   http://${serveripv4}:6082/vnc.html"
     else
         echo -e " ${red}noVNC${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"

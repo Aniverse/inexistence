@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.16
-script_version=r12009
+script_version=r12010
 
 ################################################################################################ Debug
 
@@ -232,8 +232,8 @@ EOF
 
     # Nginx Reverse
     # Currently this is only for the first non-root user
-    if [[ -d /etc/nginx/snippets ]]; then
-        cat << EOF > /etc/nginx/snippets/vnc.conf
+    if [[ -d /etc/nginx/apps ]]; then
+        cat << EOF > /etc/nginx/apps/vnc.conf
 location /websockify {
   proxy_http_version 1.1;
   proxy_pass http://127.0.0.1:$wPort/;
