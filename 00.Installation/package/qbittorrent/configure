@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.06
-script_version=r12030
+script_update=2020.03.16
+script_version=r12031
 
 ################################################################################################ Debug
 
@@ -23,7 +23,7 @@ unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
 
 AppName=qBittorrent
 AppNameLower=qbittorrent
-Need_SourceCode=yes  # we need to build libqbpasswd
+Need_SourceCode=no  # we no longer need to build qb_password_gen
 pm_action=configure
 
 function show_usage() { echo "
@@ -189,24 +189,35 @@ WebUI\CSRFProtection=false
 WebUI\HostHeaderValidation=true
 WebUI\LocalHostAuth=false
 WebUI\Port=$wPort
-WebUI\Username=$iUser
 
 EOF
 
     if version_ge $qb_installed_ver 4.2.0 ; then
-        git clone --depth=1 https://github.com/KozakaiAya/libqbpasswd.git libqbpasswd >> $OutputLOG 2>&1
-        cd libqbpasswd
-        make >> $OutputLOG 2>&1
-        cp -f qb_password_gen /usr/local/bin/qb_password_gen
-        cd .. && rm -rf libqbpasswd
-        [[ ! -x /usr/local/bin/qb_password_gen ]] && echo_error "Failed to build libqbpasswd" && exit 1
-        qbPass=$(/usr/local/bin/qb_password_gen $iPass)
+        if [[ -z $(which qbpass) ]]; then
+            if [[ "$CODENAME" == xxxxxx ]]; then # comment out
+                apt_install_check libssl-dev
+                apt_install_separate
+                git clone --depth=1 https://github.com/KozakaiAya/libqbpasswd.git libqbpasswd >> $OutputLOG 2>&1
+                cd libqbpasswd >> $OutputLOG 2>&1
+                make >> $OutputLOG 2>&1
+                cp -f qb_password_gen /usr/local/bin/qbpass >> $OutputLOG 2>&1
+                cd .. && rm -rf libqbpasswd >> $OutputLOG 2>&1
+            else
+                wget -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
+                chmod +x /usr/local/bin/qbpass >> $OutputLOG 2>&1
+            fi
+        fi
+        [[ ! -x /usr/local/bin/qbpass ]] && echo_error "Failed to get qb_password_gen" && exit 1
+        qbPass=$(/usr/local/bin/qbpass $iPass)
         cat << EOF >> $qbconf
+WebUI\Username=$iUser
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
 EOF
+        fi
     else
         qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
         cat << EOF >> $qbconf
+WebUI\Username=$iUser
 WebUI\Password_ha1=@ByteArray($qbPass)
 EOF
     fi
