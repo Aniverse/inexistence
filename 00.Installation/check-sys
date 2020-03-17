@@ -1,0 +1,388 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2020.03.17
+script_version=r10000
+################################################################################################ Usage Guide
+
+usage_guide() {
+s=/etc/inexistence/00.Installation/check-sys;rm -f $s ; nano $s
+
+wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys -O /etc/inexistence/00.Installation/check-sys
+
+if [[ -f /etc/inexistence/00.Installation/check-sys ]]; then
+    source /etc/inexistence/00.Installation/check-sys
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
+fi
+}
+
+################################################################################################ OS Check
+
+get_opsy() {
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
+}
+
+lbit=$(getconf LONG_BIT)
+running_kernel=$(uname -r 2>1)
+arch=$(uname -m 2>1)
+[ -z $arch ] && arch=$(echo "x$(getconf LONG_BIT)")
+
+DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
+DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
+[[ $DISTRO =~ (Ubuntu|Debian) ]] && CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}' | head -1)
+[[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
+[[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
+[[ ! $DISTRO =~ (Ubuntu|Debian) ]] && DISTRO=$(get_opsy)
+
+# detectOs
+
+check_pm() {
+    if type dnf       >/dev/null 2>&1; then  # Fedora
+        pm=dnf
+    elif type yum     >/dev/null 2>&1; then  # CentOS
+        pm=yum
+    elif type apt-get >/dev/null 2>&1; then  # Debian/Ubuntu
+        pm=apt-get
+    elif type pacman  >/dev/null 2>&1; then  # ArchLinux
+        pm=pacman
+    elif type zypper  >/dev/null 2>&1; then  # SUSE
+        pm=zypper
+    elif type emerge  >/dev/null 2>&1; then  # Gentoo
+        pm=emerge
+    fi
+}
+
+if [[ $DISTRO =~ (Debian|Ubuntu) ]]; then
+    displayOS="$DISTRO $osversion ($CODENAME)"
+else
+    displayOS=$DISTRO
+fi
+
+
+################################################################################################
+################################################################################################ Notes
+################################################################################################
+
+check_release() {
+    if [ -f /etc/redhat-release ]; then
+        release="centos"
+    elif cat /etc/issue | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    elif cat /proc/version | grep -Eqi "debian"; then
+           release="debian"
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    fi
+}
+
+detectOs() {
+    local DISTRIB_ID=
+    local DISTRIB_DESCRIPTION=
+    if [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+    fi
+
+    if [ -f /etc/fedora-release ]; then
+        os=fedora
+        os_long="$(cat /etc/fedora-release)"
+    # Must be before PCLinuxOS, Mandriva, and a whole bunch of other OS tests
+    elif [ -f /etc/unity-release ]; then
+        os=unity
+        os_long="$(cat /etc/unity-release)"
+    elif [ -f /etc/pclinuxos-release ]; then
+        os=pclinuxos
+        os_long="$(cat /etc/pclinuxos-release)"
+    elif [ "$DISTRIB_ID" = "Ubuntu" ]; then
+        os=debian
+        os_long="$DISTRIB_DESCRIPTION"
+    elif [ "$DISTRIB_ID" = "LinuxMint" ]; then
+        os=debian
+        os_long="$DISTRIB_DESCRIPTION"
+    # Must be before Debian
+    elif [ "$DISTRIB_ID" = "Peppermint" ]; then
+        os=debian
+        os_long="$DISTRIB_DESCRIPTION"
+    elif [ "$DISTRIB_ID" = "MEPIS" ]; then
+        os=debian
+        os_long="$DISTRIB_DESCRIPTION"
+    elif [ -f /etc/clearos-release ]; then
+        os=fedora
+        os_long="$(cat /etc/clearos-release)"
+    elif [ -f /etc/pardus-release ]; then
+        os=pardus
+        os_long="$(cat /etc/pardus-release)"
+    elif [ -f /etc/chakra-release ]; then
+        os=arch
+        os_long="Chakra $(cat /etc/chakra-release)"
+    elif [ -f /etc/frugalware-release ]; then
+        os=frugalware
+        os_long="$(cat /etc/frugalware-release)"
+    # Must test this before Gentoo
+    elif [ -f /etc/sabayon-release ]; then
+        os=sabayon
+        os_long="$(cat /etc/sabayon-release)"
+    elif [ -f /etc/arch-release ]; then
+        os=arch
+        os_long="Arch Linux"
+    elif [ -f /etc/gentoo-release ]; then
+        os=gentoo
+        os_long="$(cat /etc/gentoo-release)"
+    elif [ -f /etc/SuSE-release ]; then
+        os=opensuse
+        os_long="$(grep SUSE /etc/SuSE-release | head -n1)"
+    elif [ -f /etc/debian_version ]; then
+        os=debian
+        local prefix=
+        if ! uname -s | grep -q GNU; then
+            prefix="GNU/"
+        fi
+        os_long="Debian $prefix$(uname -s) $(cat /etc/debian_version)"
+    # Must test for mandriva before centos since it also has /etc/redhad-release
+    elif [ -f /etc/mandriva-release ]; then
+        os=mandriva
+        os_long="$(cat /etc/mandriva-release)"
+    elif [ -f /etc/redhat-release ]; then
+        os=fedora
+        os_long="$(cat /etc/redhat-release)"
+    elif [ -f /etc/vector-version ]; then
+        os=slaptget
+        os_long="VectorLinux $(cat /etc/vector-version)"
+    elif [ -f /etc/slackware-version ]; then
+        if isProgramInstalled slapt-get; then
+            os=slaptget
+            os_long="$(cat /etc/slackware-version)"
+        else
+            os=other
+            os_long="$(cat /etc/slackware-version)"
+        fi
+    elif [ "$(uname -s)" = "FreeBSD" ]; then
+        os=freebsd
+        os_long=FreeBSD
+    elif [ "$(uname -s)" = "DragonFly" ]; then
+        os=dragonfly
+        os_long="DragonFly BSD"
+    elif [ "$(uname -s)" = "OpenBSD" ]; then
+        os=openbsd
+        os_long=OpenBSD
+    elif [ "$(uname -s)" = "NetBSD" ]; then
+        os=netbsd
+        os_long=NetBSD
+    else
+        os=other
+        os_long="$(uname -s)"
+    fi
+
+    os_long="${os_long:-$(uname -s)}"
+}
+
+
+
+# https://github.com/Tarcaxoxide/i
+# pm_action update-source ; pm_action install wget
+function pm_action(){
+    args=$(echo "$*" |grep -v "$1")
+######################################################
+    if [ "$1" == "install" ];then
+        if type "emerge" &> /dev/null; then 
+            sudo emerge "$args"
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -S "$args"
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get install "$args"
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper install "$args"
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf install "$args"
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum install "&args"
+        fi
+    fi
+######################################################
+    if [ "$1" == "uninstall" ];then
+        if type "emerge" &> /dev/null; then
+            sudo emerge --unmerge "$args"
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -Rsc "$args"
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get remove "$args"
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper remove "$args"
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf remove "$args"
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum remove "&args"
+        fi
+    fi
+######################################################
+    if [ "$1" == "update" ];then
+        if type "emerge" &> /dev/null; then
+            sudo emerge --update --deep "$args"
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -Syu "$args"
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get install --only-upgrade "$args"
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper update "$args"
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf update "$args"
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum update "&args"
+        fi
+    fi
+
+    if [ "$1" == "update-source" ];then
+        if type "emerge" &> /dev/null; then
+            sudo emerge --sync
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -Syy
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get update
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper refresh
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf check-update
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum check-update
+        fi
+    fi
+
+    if [ "$1" == "all-update" ];then
+        if type "emerge" &> /dev/null; then
+            sudo emerge --update --deep @world
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -Syyu
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get dist-upgrade
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper update
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf update
+            sudo dnf upgrade
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum update
+        fi
+    fi
+
+######################################################
+    if [ "$1" == "list" ];then
+        if type "emerge" &> /dev/null; then
+            echo command undefined
+        fi
+        if type "pacman" &> /dev/null; then
+            pacman -Q | more
+        fi
+        if type "apt-get" &> /dev/null; then
+            echo command undefined
+        fi
+        if type "zypper" &> /dev/null; then
+            zypper packages
+        fi
+        if type "dnf" &> /dev/null; then
+            dnf list installed
+        fi
+        if type "yum" &> /dev/null; then
+            yum list
+        fi
+    fi
+######################################################
+    if [ "$1" == "search" ];then
+        if type "emerge" &> /dev/null; then
+            emerge --search "$args"
+        fi
+        if type "pacman" &> /dev/null; then
+            pacman -Ss "$args"
+        fi
+        if type "apt-get" &> /dev/null; then
+            apt-cache search "$args"
+        fi
+        if type "zypper" &> /dev/null; then
+            zypper search "$args"
+        fi
+        if type "dnf" &> /dev/null; then
+            dnf search "$args"
+        fi
+        if type "yum" &> /dev/null; then
+            yum search "$args"
+        fi
+    fi
+######################################################
+    if [ "$1" == "info" ];then
+        if type "emerge" &> /dev/null; then
+            emerge --info "$args"
+        fi
+        if type "pacman" &> /dev/null; then
+            pacman -Si "$args"
+        fi
+        if type "apt-get" &> /dev/null; then
+            apt-cache show "$args"
+        fi
+        if type "zypper" &> /dev/null; then
+            zypper info"$args"
+        fi
+        if type "dnf" &> /dev/null; then
+            dnf info "$args"
+        fi
+        if type "yum" &> /dev/null; then
+            yum info "$args"
+        fi
+    fi
+######################################################
+    if [ "$1" == "cleanup" ];then
+        if type "emerge" &> /dev/null; then
+            sudo emerge --ask --clean --deep
+            sudo emerge --ask --depclean
+        fi
+        if type "pacman" &> /dev/null; then
+            sudo pacman -Sc
+        fi
+        if type "apt-get" &> /dev/null; then
+            sudo apt-get autoclean
+        fi
+        if type "zypper" &> /dev/null; then
+            sudo zypper clean --all
+        fi
+        if type "dnf" &> /dev/null; then
+            sudo dnf clean all
+        fi
+        if type "yum" &> /dev/null; then
+            sudo yum clean all
+        fi
+    fi
+}
+
