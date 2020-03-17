@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.17
-script_version=r12034
+script_version=r12035
 
 ################################################################################################ Debug
 
@@ -195,7 +195,7 @@ WebUI\Port=$wPort
 EOF
 
     if version_ge $qb_installed_ver 4.2.0 ; then
-        if [[ -z $(which qbpass) ]]; then
+        if [[ -z $(command -v qbpass) ]]; then
             if [[ "$CODENAME" == xxxxxx ]]; then # comment out
                 apt_install_check libssl-dev
                 apt_install_separate
