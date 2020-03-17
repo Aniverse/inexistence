@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.3
-INEXISTENCEDATE=2020.03.16
+INEXISTENCEVER=1.1.8.4
+INEXISTENCEDATE=2020.03.17
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -2650,10 +2650,11 @@ if   [[ $vnstat_webui == 1 ]]; then
 fi
 
 if [[ $InsRDP == VNC ]]; then
-    if [[ -f $LOCKLocation/novnc.lock ]]; then
+    if [[ -e $LockLocation/novnc.lock ]]; then
         echo -e " ${cyan}noVNC${normal}               $(_if_running xfce               )   http://${serveripv4}:6082/vnc.html"
     else
         echo -e " ${red}noVNC${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
+        VNCFAILED=1 ; INSFAILED=1
     fi
 fi
 
@@ -2681,6 +2682,7 @@ echo -e "\n ${bold}Unfortunately something went wrong during installation.
 [[ -n $RTFAILED ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
 [[ -n $FDFAILED ]] && echo -e " cat $LogLocation/07.flood.log"
 [[ -n $FXFAILED ]] && echo -e " $(cat $LogTimes/log/install.flexget.txt | curl -s -F 'sprunge=<-' http://sprunge.us)"
+[[ -n $VNCFAILED ]] && echo -e " $(cat $LogTimes/log/install.novnc.txt | curl -s -F 'sprunge=<-' http://sprunge.us)"
 echo -ne "${normal}" ; }
 
 echo ; }
