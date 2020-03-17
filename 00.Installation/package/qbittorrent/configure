@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.16
-script_version=r12032
+script_update=2020.03.17
+script_version=r12034
 
 ################################################################################################ Debug
 
@@ -36,10 +36,11 @@ Usage:
       -i        Incoming port for qBittorrent
       -l        language for qBittorrent WebUI
       -d        Enable debug mode
+      --shared  run this script without root privilege, this is for shared seedbox
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,shared,log,help" -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
@@ -54,6 +55,7 @@ while true; do
     -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
          --log      ) show_log=1    ; shift   ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
+         --shared   ) shared=1      ; shift   ;;
     -- ) shift 2 ; break ;;
      * ) break ;;
   esac
@@ -112,7 +114,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reload >> $OutputLOG 2>&1
+    systemctl $systemctl_user_flag daemon-reload >> $OutputLOG 2>&1
 
     if [[ -d $iHome/.config/qBittorrent ]]; then
         mv $iHome/.config/qBittorrent $iHome/.config/qBittorrent.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")
@@ -120,7 +122,7 @@ EOF
     fi
 
     mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
-    ln    -s  $local_package/package/qbittorrent/qqbb       $local_script/qqbb      >> $OutputLOG 2>&1
+    ln    -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb           >> $OutputLOG 2>&1
 
     cat << EOF > $qbconf
 [Application]
