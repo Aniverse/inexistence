@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.17
-script_version=r10000
+script_version=r10001
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -57,10 +57,12 @@ check_pm() {
     fi
 }
 
+check_pm
+
 if [[ $DISTRO =~ (Debian|Ubuntu) ]]; then
-    displayOS="$DISTRO $osversion ($CODENAME)"
+    displayOS="$DISTRO $osversion $CODENAME ($arch)"
 else
-    displayOS=$DISTRO
+    displayOS="$DISTRO ($arch)"
 fi
 
 
@@ -85,6 +87,8 @@ check_release() {
         release="centos"
     fi
 }
+
+check_release
 
 detectOs() {
     local DISTRIB_ID=
