@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.06
-script_version=r10002
+script_update=2020.03.17
+script_version=r10003
 
 ################################################################################################ Debug
 
@@ -115,7 +115,7 @@ EOF
     fi
 
     mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script   $PortLocation
-    ln    -s  $local_package/package/transmission/ttrr       $local_script/ttrr              >> $OutputLOG 2>&1
+    ln    -s  $local_packages/package/transmission/ttrr      $local_script/ttrr                   >> $OutputLOG 2>&1
 
     cat << EOF > $iHome/.config/transmission-daemon/settings.json
 {
