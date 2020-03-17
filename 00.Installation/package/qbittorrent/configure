@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.17
-script_version=r12035
+script_update=2020.03.18
+script_version=r12036
 
 ################################################################################################ Debug
 
@@ -66,7 +66,7 @@ done
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
     source /etc/inexistence/00.Installation/function
 else
-    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+    source <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 
 set_variables_log_location
@@ -205,7 +205,7 @@ EOF
                 cp -f qb_password_gen /usr/local/bin/qbpass >> $OutputLOG 2>&1
                 cd .. && rm -rf libqbpasswd >> $OutputLOG 2>&1
             else
-                wget -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
+                wget --no-check-certificate -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
                 chmod +x /usr/local/bin/qbpass >> $OutputLOG 2>&1
             fi
         fi
