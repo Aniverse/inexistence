@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.12
-script_version=r20013
+script_update=2020.03.17
+script_version=r20014
 
 ################################################################################################ Debug
 
@@ -170,7 +170,7 @@ function install_flexget3() {
     pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
     patch_flexget
-    ln -s  $local_package/package/flexget/ffgg  $local_script >> "$OutputLOG"
+    ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG"
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables

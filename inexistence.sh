@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.4
+INEXISTENCEVER=1.1.8.5
 INEXISTENCEDATE=2020.03.17
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/ga
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
-export local_package=/etc/inexistence/00.Installation
+export local_packages=/etc/inexistence/00.Installation
 export local_script=/usr/local/bin/abox
 
 export LogBase=/log/inexistence
@@ -1810,7 +1810,7 @@ echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
 # alias and locales
 [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
-bash $local_package/alias $iUser $interface $LogTimes $IntoBashrc
+bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
 
 # PATH
 echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
@@ -1842,7 +1842,7 @@ fi
 
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 mkdir -p $local_script
-ln -s $local_package/script/* $local_script
+ln -s $local_packages/script/* $local_script
 
 # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
@@ -2025,7 +2025,7 @@ fi ; }
 function install_deluge() {
 
     if [[ $separate == 10086 ]] ; then
-        bash $local_package/package/deluge/install -v $de_version
+        bash $local_packages/package/deluge/install -v $de_version
     else
 
 if [[ $de_version == "Install from repo" ]]; then
@@ -2320,7 +2320,7 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 function config_transmission() {
 
     if [[ $separate == 1 ]] ; then
-        bash $local_package/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
+        bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
     else
 
 
@@ -2510,7 +2510,7 @@ function install_tools() {
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
     # Upgrade vnstat, compile from source. And Install vnstat-dashboard
-    bash $local_package/package/vnstat/install --logbase $LogTimes
+    bash $local_packages/package/vnstat/install --logbase $LogTimes
     if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
         vnstat_webui=1
     fi
@@ -2724,19 +2724,19 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
     if   [[ $lt_version == RC_1_0 ]]; then
-        bash $local_package/package/libtorrent-rasterbar/install -m deb
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb
     elif [[ $lt_version == RC_1_1 ]]; then
-        bash $local_package/package/libtorrent-rasterbar/install -m deb3
+        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
     elif [[ $lt_version == RC_1_2 ]]; then
-        bash $local_package/package/libtorrent-rasterbar/install -b RC_1_2
+        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
     else
-        bash $local_package/package/libtorrent-rasterbar/install -v $lt_version
+        bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
     fi
 fi
 
 if [[ $qb_version != No ]]; then
     echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
-    bash $local_package/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+    bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
 fi
 
 [[ $de_version != No ]] && {
@@ -2752,18 +2752,18 @@ echo -ne "Installing Transmission ... "  ; install_transmission 2>&1 | tee $LogL
 echo -ne "Configuring Transmission ... " ; config_transmission  2>&1 | tee $LogLocation/09.tr2.log ; }
 
 if [[ $InsFlex == Yes ]]; then
-    bash $local_package/package/flexget/install   --logbase $LogTimes
-    bash $local_package/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
+    bash $local_packages/package/flexget/install   --logbase $LogTimes
+    bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
 fi
 if [[ $InsRclone == Yes ]]; then
-    bash $local_package/package/rclone/install --logbase $LogTimes
+    bash $local_packages/package/rclone/install --logbase $LogTimes
     echo -ne "Installing gclone ... "
     bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
     echo -e "${green}${bold}DONE${normal}"
 fi
 if [[ $InsWine == Yes ]]; then
-    bash $local_package/package/mono/install --logbase $LogTimes
-    bash $local_package/package/wine/install --logbase $LogTimes
+    bash $local_packages/package/mono/install --logbase $LogTimes
+    bash $local_packages/package/wine/install --logbase $LogTimes
 fi
 if [[ $InsRDP == VNC ]]; then
     bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes

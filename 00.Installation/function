@@ -49,7 +49,10 @@ LogBase=/log/inexistence
 LogRootPath=/log/inexistence
 LOCKLocation=$LogBase/lock
 PortLocation=$LogBase/port
-local_package=/etc/inexistence/00.Installation
+inexistence_url="https://github.com/Aniverse/inexistence"
+inexistence_branch=master
+local_repo=/etc/inexistence
+local_packages=$local_repo/00.Installation
 local_script=/usr/local/bin/abox
 web_root=/var/www
 web_rutorrent=/var/www/rutorrent
@@ -71,11 +74,6 @@ if [[ $MAXCPUS == 1 ]]; then
 else
     compile_flag_threads=-j$MAXCPUS
 fi
-
-inexistence_url="https://github.com/Aniverse/inexistence"
-inexistence_branch=master
-local_repo=/etc/inexistence
-local_packages=$local_repo/00.Installation
 
 ################################################################################################
 ################################################################################################ Basic functions
