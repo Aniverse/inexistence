@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.17
-script_version=r10003
+script_update=2020.03.18
+script_version=r10004
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -70,29 +70,6 @@ fi
 ################################################################################################ Notes
 ################################################################################################
 
-check_release() {
-    if [ -f /etc/redhat-release ]; then
-        release="centos"
-    elif cat /etc/issue | grep -Eqi "debian"; then
-        release="debian"
-    elif cat /etc/issue | grep -Eqi "ubuntu"; then
-        release="ubuntu"
-    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
-        release="centos"
-    elif cat /proc/version | grep -Eqi "debian"; then
-        release="debian"
-    elif cat /proc/version | grep -Eqi "ubuntu"; then
-        release="ubuntu"
-    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
-        release="centos"
-    elif awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release | grep -Eqi "arch.linux" ; then
-        release="archlinux"
-    fi
-}
-
-
-
-check_release
 
 detectOs() {
     local DISTRIB_ID=
@@ -167,13 +144,13 @@ detectOs() {
         os=slaptget
         os_long="VectorLinux $(cat /etc/vector-version)"
     elif [ -f /etc/slackware-version ]; then
-        if isProgramInstalled slapt-get; then
-            os=slaptget
-            os_long="$(cat /etc/slackware-version)"
-        else
-            os=other
-            os_long="$(cat /etc/slackware-version)"
-        fi
+        os=slackware
+        os_long="$(cat /etc/slackware-version)"
+        #if isProgramInstalled slapt-get; then
+        #    os=slaptget
+        #else
+        #    os=other
+        #fi
     elif [ "$(uname -s)" = "FreeBSD" ]; then
         os=freebsd
         os_long=FreeBSD
@@ -194,7 +171,7 @@ detectOs() {
     os_long="${os_long:-$(uname -s)}"
 }
 
-
+detectOs
 
 # https://github.com/Tarcaxoxide/i
 # pm_action update-source ; pm_action install wget
@@ -350,3 +327,25 @@ function pm_action(){
     fi
 }
 
+# Unused
+check_release() {
+    if [ -f /etc/redhat-release ]; then
+        release="centos"
+    elif cat /etc/issue | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    elif cat /proc/version | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    elif cat /etc/os-release | grep -Eqi "arch.linux" ; then
+        release="archlinux"
+    elif cat /etc/os-release | grep -Eqi "arch.linux" ; then
+        release="slackware"
+    fi
+}
