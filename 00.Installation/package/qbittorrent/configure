@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.16
-script_version=r12031
+script_version=r12032
 
 ################################################################################################ Debug
 
@@ -213,7 +213,6 @@ EOF
 WebUI\Username=$iUser
 WebUI\Password_PBKDF2="@ByteArray($qbPass)"
 EOF
-        fi
     else
         qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
         cat << EOF >> $qbconf
