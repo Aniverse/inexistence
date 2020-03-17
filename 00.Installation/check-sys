@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.17
-script_version=r10002
+script_version=r10003
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -80,13 +80,17 @@ check_release() {
     elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
     elif cat /proc/version | grep -Eqi "debian"; then
-           release="debian"
+        release="debian"
     elif cat /proc/version | grep -Eqi "ubuntu"; then
         release="ubuntu"
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
+    elif awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release | grep -Eqi "arch.linux" ; then
+        release="archlinux"
     fi
 }
+
+
 
 check_release
 
@@ -200,82 +204,82 @@ function pm_action(){
 ######################################################
     if [ "$1" == "install" ];then
         if type "emerge" &> /dev/null; then 
-            sudo emerge "$args"
+            emerge "$args"
         elif type "pacman" &> /dev/null; then
-            sudo pacman -S "$args"
+            pacman -S --noconfirm "$args"
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get install -y "$args"
+            apt-get install -y "$args"
         elif type "zypper" &> /dev/null; then
-            sudo zypper install "$args"
+            zypper install "$args"
         elif type "dnf" &> /dev/null; then
-            sudo dnf install -y "$args"
+            dnf install -y "$args"
         elif type "yum" &> /dev/null; then
-            sudo yum install -y "$args"
+            yum install -y "$args"
         fi
     fi
 ######################################################
     if [ "$1" == "uninstall" ];then
         if type "emerge" &> /dev/null; then
-            sudo emerge --unmerge "$args"
+            emerge --unmerge "$args"
         elif type "pacman" &> /dev/null; then
-            sudo pacman -Rsc "$args"
+            pacman -Rsc "$args"
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get remove "$args"
+            apt-get remove "$args"
         elif type "zypper" &> /dev/null; then
-            sudo zypper remove "$args"
+            zypper remove "$args"
         elif type "dnf" &> /dev/null; then
-            sudo dnf remove "$args"
+            dnf remove "$args"
         elif type "yum" &> /dev/null; then
-            sudo yum remove "$args"
+            yum remove "$args"
         fi
     fi
 ######################################################
     if [ "$1" == "update" ];then
         if type "emerge" &> /dev/null; then
-            sudo emerge --update --deep "$args"
+            emerge --update --deep "$args"
         elif type "pacman" &> /dev/null; then
-            sudo pacman -Syu "$args"
+            pacman -Syu "$args"
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get install --only-upgrade "$args"
+            apt-get install --only-upgrade "$args"
         elif type "zypper" &> /dev/null; then
-            sudo zypper update "$args"
+            zypper update "$args"
         elif type "dnf" &> /dev/null; then
-            sudo dnf update "$args"
+            dnf update "$args"
         elif type "yum" &> /dev/null; then
-            sudo yum update "$args"
+            yum update "$args"
         fi
     fi
 
     if [ "$1" == "update-source" ];then
         if type "emerge" &> /dev/null; then
-            sudo emerge --sync
+            emerge --sync
         elif type "pacman" &> /dev/null; then
-            sudo pacman -Syy
+            pacman -Syy
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get update
+            apt-get update
         elif type "zypper" &> /dev/null; then
-            sudo zypper refresh
+            zypper refresh
         elif type "dnf" &> /dev/null; then
-            sudo dnf check-update
+            dnf check-update
         elif type "yum" &> /dev/null; then
-            sudo yum check-update
+            yum check-update
         fi
     fi
 
     if [ "$1" == "all-update" ];then
         if type "emerge" &> /dev/null; then
-            sudo emerge --update --deep @world
+            emerge --update --deep @world
         elif type "pacman" &> /dev/null; then
-            sudo pacman -Syyu
+            pacman -Syyu
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get dist-upgrade
+            apt-get dist-upgrade
         elif type "zypper" &> /dev/null; then
-            sudo zypper update
+            zypper update
         elif type "dnf" &> /dev/null; then
-            sudo dnf update
-            sudo dnf upgrade
+            dnf update
+            dnf upgrade
         elif type "yum" &> /dev/null; then
-            sudo yum update
+            yum update
         fi
     fi
 
@@ -330,18 +334,18 @@ function pm_action(){
 ######################################################
     if [ "$1" == "cleanup" ];then
         if type "emerge" &> /dev/null; then
-            sudo emerge --ask --clean --deep
-            sudo emerge --ask --depclean
+            emerge --ask --clean --deep
+            emerge --ask --depclean
         elif type "pacman" &> /dev/null; then
-            sudo pacman -Sc
+            pacman -Sc
         elif type "apt-get" &> /dev/null; then
-            sudo apt-get autoclean
+            apt-get autoclean
         elif type "zypper" &> /dev/null; then
-            sudo zypper clean --all
+            zypper clean --all
         elif type "dnf" &> /dev/null; then
-            sudo dnf clean all
+            dnf clean all
         elif type "yum" &> /dev/null; then
-            sudo yum clean all
+            yum clean all
         fi
     fi
 }
