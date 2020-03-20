@@ -3,13 +3,12 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.18
-script_version=r10004
+script_update=2020.03.20
+script_version=r10005
 ################################################################################################ Usage Guide
 
 usage_guide() {
 s=/etc/inexistence/00.Installation/check-sys;rm -f $s ; nano $s
-
 wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys -O /etc/inexistence/00.Installation/check-sys
 
 if [[ -f /etc/inexistence/00.Installation/check-sys ]]; then
@@ -22,12 +21,15 @@ fi
 ################################################################################################ OS Check
 
 get_opsy() {
+    # Fedora, CentOS
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    # Gentoo/Linux, Slackware, Archlinux, Alpine Linux, Ubuntu, Debina
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    # Ubuntu
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
-lbit=$(getconf LONG_BIT)
+lbit=$(getconf LONG_BIT 2>1)
 running_kernel=$(uname -r 2>1)
 arch=$(uname -m 2>1)
 [ -z $arch ] && arch=$(echo "x$(getconf LONG_BIT)")
@@ -39,10 +41,8 @@ DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
 [[ ! $DISTRO =~ (Ubuntu|Debian) ]] && DISTRO=$(get_opsy)
 
-# detectOs
-
 check_pm() {
-    if type dnf       >/dev/null 2>&1; then  # Fedora
+    if type dnf       >/dev/null 2>&1; then  # Fedora, CentOS 8
         pm=dnf
     elif type yum     >/dev/null 2>&1; then  # CentOS
         pm=yum
@@ -54,6 +54,8 @@ check_pm() {
         pm=zypper
     elif type emerge  >/dev/null 2>&1; then  # Gentoo
         pm=emerge
+    elif type apk     >/dev/null 2>&1; then  # Alpine
+        pm=apk
     fi
 }
 
@@ -67,7 +69,7 @@ fi
 
 
 ################################################################################################
-################################################################################################ Notes
+################################################################################################ Long
 ################################################################################################
 
 
@@ -78,7 +80,11 @@ detectOs() {
         . /etc/lsb-release
     fi
 
-    if [ -f /etc/fedora-release ]; then
+    # Add Alpine Linux detection
+    if   cat /etc/os-release | grep -i Alpine ; then
+        os=alpine
+        os_long="$(awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release)"
+    elif [ -f /etc/fedora-release ]; then
         os=fedora
         os_long="$(cat /etc/fedora-release)"
     # Must be before PCLinuxOS, Mandriva, and a whole bunch of other OS tests
@@ -171,9 +177,11 @@ detectOs() {
     os_long="${os_long:-$(uname -s)}"
 }
 
+
 detectOs
 
-# https://github.com/Tarcaxoxide/i
+
+# Modified, Origin see here: https://github.com/Tarcaxoxide/i
 # pm_action update-source ; pm_action install wget
 function pm_action(){
     # args=$(echo "$*" |grep -v "$1")
@@ -187,11 +195,13 @@ function pm_action(){
         elif type "apt-get" &> /dev/null; then
             apt-get install -y "$args"
         elif type "zypper" &> /dev/null; then
-            zypper install "$args"
+            zypper install -y "$args"
         elif type "dnf" &> /dev/null; then
             dnf install -y "$args"
         elif type "yum" &> /dev/null; then
             yum install -y "$args"
+        elif type "apk" &> /dev/null; then
+            apk add "$args"
         fi
     fi
 ######################################################
@@ -208,10 +218,12 @@ function pm_action(){
             dnf remove "$args"
         elif type "yum" &> /dev/null; then
             yum remove "$args"
+        elif type "apk" &> /dev/null; then
+            apk del "$args"
         fi
     fi
 ######################################################
-    if [ "$1" == "update" ];then
+    if [ "$1" == "upgrade" ];then
         if type "emerge" &> /dev/null; then
             emerge --update --deep "$args"
         elif type "pacman" &> /dev/null; then
@@ -224,10 +236,12 @@ function pm_action(){
             dnf update "$args"
         elif type "yum" &> /dev/null; then
             yum update "$args"
+        elif type "apk" &> /dev/null; then
+            apk add --upgrade "$args"
         fi
     fi
 
-    if [ "$1" == "update-source" ];then
+    if [ "$1" == "update" ];then
         if type "emerge" &> /dev/null; then
             emerge --sync
         elif type "pacman" &> /dev/null; then
@@ -238,8 +252,12 @@ function pm_action(){
             zypper refresh
         elif type "dnf" &> /dev/null; then
             dnf check-update
+            # dnf makecache
         elif type "yum" &> /dev/null; then
             yum check-update
+            # yum makecache
+        elif type "apk" &> /dev/null; then
+            apk update
         fi
     fi
 
@@ -257,6 +275,8 @@ function pm_action(){
             dnf upgrade
         elif type "yum" &> /dev/null; then
             yum update
+        elif type "apk" &> /dev/null; then
+            apk upgrade
         fi
     fi
 
@@ -274,6 +294,8 @@ function pm_action(){
             dnf list installed
         elif type "yum" &> /dev/null; then
             yum list
+        elif type "apk" &> /dev/null; then
+            apk list
         fi
     fi
 ######################################################
@@ -290,6 +312,8 @@ function pm_action(){
             dnf search "$args"
         elif type "yum" &> /dev/null; then
             yum search "$args"
+        elif type "apk" &> /dev/null; then
+            apk search "$args"
         fi
     fi
 ######################################################
@@ -306,6 +330,8 @@ function pm_action(){
             dnf info "$args"
         elif type "yum" &> /dev/null; then
             yum info "$args"
+        elif type "apk" &> /dev/null; then
+            apk info -a "$args"
         fi
     fi
 ######################################################
@@ -323,6 +349,27 @@ function pm_action(){
             dnf clean all
         elif type "yum" &> /dev/null; then
             yum clean all
+        elif type "apk" &> /dev/null; then
+            apk cache clean
+        fi
+    fi
+###################################################### To be fixed
+    if [ "$1" == "show-source" ];then
+        if type "emerge" &> /dev/null; then
+            sleep 0
+        elif type "pacman" &> /dev/null; then
+            cat /etc/pacman.d/mirrorlist
+        elif type "apt-get" &> /dev/null; then
+            cat /etc/apt/sources.list
+        elif type "zypper" &> /dev/null; then
+            cat /etc/zypp/repos.d/OSS.repo
+        elif type "dnf" &> /dev/null; then
+            cat /etc/yum.repos.d/fedora.repo
+            cat /etc/yum.repos.d/fedora-updates.repo
+        elif type "yum" &> /dev/null; then
+            cat /etc/yum.repos.d/CentOS-Base.repo
+        elif type "apk" &> /dev/null; then
+            cat /etc/apk/repositories
         fi
     fi
 }
@@ -345,7 +392,7 @@ check_release() {
         release="centos"
     elif cat /etc/os-release | grep -Eqi "arch.linux" ; then
         release="archlinux"
-    elif cat /etc/os-release | grep -Eqi "arch.linux" ; then
+    elif cat /etc/os-release | grep -Eqi "slackware" ; then
         release="slackware"
     fi
 }
