@@ -13,14 +13,14 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.6
-INEXISTENCEDATE=2020.03.18
+INEXISTENCEVER=1.1.8.7
+INEXISTENCEDATE=2020.03.22
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,tr-skip,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -43,7 +43,6 @@ while [ -n "$1" ] ; do case "$1" in
     --sihuo         ) sihuo=yes         ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
-    --tr-skip       ) TRdefault="No"    ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
     --apt-yes       ) aptsources="Yes"  ; shift ;;
     --apt-no        ) aptsources="No"   ; shift ;;
@@ -1261,8 +1260,6 @@ while [[ -z $tr_version ]]; do
             01 | 1) tr_version=2.84 ;;
             02 | 2) tr_version=2.92 ;;
             03 | 3) tr_version=2.94 ;;
-            11) tr_version=2.92 && TRdefault=No ;;
-            12) tr_version=2.93 && TRdefault=No ;;
             21) tr_version=2.94 && TRdefault=deb ;;
             30) _input_version && tr_version="${input_version_num}" ;;
             31) _input_version && tr_version="${input_version_num}" && TRdefault=No ;;
@@ -2273,11 +2270,6 @@ else
     ldconfig                                                                  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     cd ..
 
-    if [[ $TRdefault == No ]]; then
-        wget -nv -N "https://github.com/Aniverse/BitTorrentClientCollection/raw/master/TransmissionMod/transmission-${tr_version}.tar.gz"
-        tar xf transmission-$tr_version.tar.gz ; rm -f transmission-$tr_version.tar.gz
-        cd transmission-$tr_version
-    else
         git clone https://github.com/transmission/transmission transmission-$tr_version
         cd transmission-$tr_version
         git checkout $tr_version
@@ -2285,7 +2277,6 @@ else
         [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
         # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
         grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-    fi
 
     ./autogen.sh
     ./configure --prefix=/usr
