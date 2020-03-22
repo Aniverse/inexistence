@@ -156,19 +156,17 @@ Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，�
 
 
 12. ***Transmission***  
-**`--tr repo`**、**`--tr ppa`**、**`--tr 2.93 --tr-skip`**、**`--tr No`**  
+**`--tr repo`**、**`--tr ppa`**、**`--tr No`**  
 Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决了文件打开数问题）  
 此外还会安装 [加强版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
-隐藏选项 11 和 12，分别对应可以跳过校验、无文件打开数限制的 2.92、2.93 版本（无 2.94 修改版）  
-跳校验版本是选择【获取更多 peers】来实现跳校验（也就是替换了菜单里对应的功能）  
-**使用修改版客户端、跳过校验 存在风险，后果自负**  
+***隐藏选项已移除***  
 
 
 13. ***Remote Desktop***  
 **`--rdp-vnc`**、**`--rdp-x2go`**、**`--rdp-no`**  
 远程桌面选项，默认不安装  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
-VNC 目前可能会存在问题，作者一时半会儿懒得修复了……  
+推荐使用 noVNC，网页上即可操作  
 
 
 14. ***wine & mono***  
@@ -192,14 +190,16 @@ VNC 目前可能会存在问题，作者一时半会儿懒得修复了……
 
 16. ***Flexget***  
 **`--flexget-yes`**、**`--flexget-no`**  
-Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运行（不支持 Deluge 2.0 和 qBittorrent 4.2）  
+Flexget 是一个十分强大的自动化工具，功能非常多。在这里我们用它来 RSS（它能做的事情远不止 RSS）  
+目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
-因为配置文件里的 passkey 需要用户自己修改，所以我也没有启用 schedules 或 crontab，需要的话自己设置  
+注意：脚本里没有启用 schedules 或 crontab，需要的话自己设置  
 
 
 17. ***rclone***  
 **`--rclone-yes`**、**`--rclone-no`**  
-默认不安装。安装好后自己输入 rclone config 进行配置  
+rclone 是一个强大的网盘同步工具。默认不安装。安装好后自己输入 rclone config 进行配置  
+此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
 
 
 18. ***BBR***  
@@ -209,10 +209,11 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 注意：更换内核有风险，可能会导致无法正常启动系统  
 
 
-
 19. ***系统设置***  
 **`--tweaks-yes`**、**`--tweaks-no`**  
 默认启用，具体操作如下：  
+- 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)  
+- 在 Ubuntu 18.04 上编译安装更高版本的 wget（自带的有点 bug）  
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
@@ -225,7 +226,6 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 使用 ***`-y`*** 可以跳过开头的信息确认和此处的信息确认，配合其他参数可以做到无交互安装  
 
 ![使用参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.10.png)
-
 
 
 
@@ -273,15 +273,15 @@ Flexget 是一个 RSS 工具，默认不安装；目前采用 Python 2.7 来运�
 关于 bluray 脚本的详细介绍与使用，请移步到 [这里](https://github.com/Aniverse/bluray)  
 inexistence 自带 bluray，不过不包括它的软件库（然而你可以直接用 inexistence 安装 ffmpeg、bdinfocli、mono）  
 更新 bluray 脚本的命令是：  
-```
+```shell
 bash <(wget -qO- https://git.io/bluray) -u
 ```
 此外，如果你只用 bluray 扫描 bdinfo，可以使用以下参数运行：  
-```
+```shell
 bluray -t no -y -s no -i auto -p "路径"
 ```
 你也可以写成 alias，加到 `~/.profile` 或 `~/.bashrc` 之类的文件里  
-```
+```shell
 alias bdinfo4k="bluray -t no -y -s no -i auto -p"
 ```
 
@@ -304,7 +304,7 @@ alias bdinfo4k="bluray -t no -y -s no -i auto -p"
 可以选择需要扫描的 mpls  
 
 ![bdinfo输出结果](https://github.com/Aniverse/pics/raw/master/aBox/bdinfo.03.png)
- 
+
 
 
 
@@ -316,13 +316,13 @@ alias bdinfo4k="bluray -t no -y -s no -i auto -p"
 IPv6 配置脚本，支持 Scaleway (AKA Online.net)、SeedHost (LeaseWeb) 和 Ikoula 的独服  
 注意：Hetzner 和 OVH 的独服，在控制面板装完系统后自带 IPv6，不需要自己配置  
 
-``` 
+``` shell
 bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6)
-``` 
+```
 可以使用参数来简化操作，更详细的参数请用 `-h` 查看  
-``` 
+``` shell
 bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/script/ipv6.sh) -6 [address] -d [DUID] -s [subnet]
-``` 
+```
 
 
 
@@ -338,7 +338,7 @@ bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installat
 更改限速速率时无需事先解除限速，脚本执行新的限速前会自动解除该网卡已经存在的限速  
 直接输入 `xiansu eth0 300` 的话会直接限速，不会有任何提示，适合用于需要开机自启的情况  
 
-``` 
+``` shell
 xiansu  
 xiansu [interface] [uploadspeed,Mbps]
 xiansu eth0 300
@@ -360,7 +360,7 @@ xiansu eth0 300
 你可以指定分辨率进行截图，也可以不写分辨率让脚本自动计算 DAR 后的分辨率  
 比如有一张 DVD 的原始分辨率是 720x576，DAR 是 16:9，那么脚本就会采用 1024x576 来截图  
 
-``` 
+``` shell
 jietu [path/to/file] [resloution]  
 jietu "/home/aniverse/[VCB-Studio][Saenai Heroine no Sodatekata Flat][01][Ma10p_1080p][x265_flac_aac]" 1920x1080  
 jietu [path/to/folder]  
@@ -421,7 +421,7 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 * [ ] 增加 deluge/configure  
 * [x] 增加 transmission/configure  
 * [ ] 增加 flood/install  
-* [ ] 加入 novnc  
+* [x] 加入 novnc  
 * [ ] 加入 filebrowser  
 * [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
 * [ ] 更新 README 的图片  
@@ -443,9 +443,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 远期  
 
 * [ ] 在新的 master 分支上增加 Ubuntu 20.04 LTS 支持  
-
-不知何时  
-
 * [ ] Deluge 2 w/ Python3  
 
 
