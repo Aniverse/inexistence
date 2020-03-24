@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.03.06
-script_version=r10007
+script_update=2020.03.25
+script_version=r10008
 
 ################################################################################################ Debug
 
@@ -210,6 +210,21 @@ EOF
 }
 
 
+function add_flexget_plugins() {
+    cd $iHome/.config/flexget
+
+    # https://github.com/IvonWei/flexget_qbittorrent_mod
+    wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
+    unzip dist.zip -d tmp                 >> "$OutputLOG" 2>&1
+    cp -f  tmp/*.py .                     >> "$OutputLOG" 2>&1
+    cp -f  tmp/auto_sign_in.yml .         >> "$OutputLOG" 2>&1
+    rm -rf tmp dist.zip                   >> "$OutputLOG" 2>&1
+
+    # https://github.com/Juszoe/flexget-nexusphp
+    wget https://github.com/Juszoe/flexget-nexusphp/releases/latest/download/nexusphp.py -O nexusphp.py   >> "$OutputLOG" 2>&1
+}
+
+
 ################################################################################################ Main Function
 
 
@@ -232,6 +247,7 @@ function configure_flexget() {
     flexget_config_file
     flexget_cmd=/usr/local/bin/flexget
     flexget_systemd
+    add_flexget_plugins
 
     chown $iUser.$iUser -R $iHome/.config/flexget/  >> "$OutputLOG" 2>&1
     # $flexget_cmd -c $iHome/.config/flexget/config.yml web passwd $iPass >> "$OutputLOG" 2>&1
