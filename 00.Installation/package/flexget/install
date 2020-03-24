@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.17
-script_version=r20014
+script_update=2020.03.25
+script_version=r20015
 
 ################################################################################################ Debug
 
@@ -162,7 +162,8 @@ function install_flexget3() {
     python3 get-pip.py --force-reinstall              >> "$OutputLOG" 2>&1
     pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
   # pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
-    pip3 install setuptools==45.0.0                   >> "$OutputLOG" 2>&1
+  # See here: https://github.com/pypa/setuptools/issues/2017
+    pip3 install setuptools==45.3.0                   >> "$OutputLOG" 2>&1
 
     pip3 install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
     pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
@@ -171,6 +172,14 @@ function install_flexget3() {
 
     patch_flexget
     ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG"
+
+    if [[ "$CODENAME" =~ (jessie|stretch) ]]; then
+        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget
+        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget-headless
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4        2  >> "$OutputLOG" 2>&1        # Debian 8 jessie
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5        2  >> "$OutputLOG" 2>&1        # Debian 9 stretch
+        update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7  1  >> "$OutputLOG" 2>&1
+    fi
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
