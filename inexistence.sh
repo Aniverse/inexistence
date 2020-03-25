@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.9
+INEXISTENCEVER=1.1.8.10
 INEXISTENCEDATE=2020.03.25
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -971,7 +971,7 @@ while [[ $lt_version = "" ]]; do
     [[ $lt8_support == Yes ]] &&
     echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
     echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.14${normal} (${blue}RC_1_1${normal} branch)"
-#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.4 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
+#   echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.5 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
 #   echo -e  "${blue}30)${normal} $language_select_another_version"
     [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
     echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
@@ -1091,7 +1091,7 @@ done
 
 [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
 [[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.14
-[[ $lt_version == RC_1_2  ]] && lt_display_ver=1.2.4
+[[ $lt_version == RC_1_2  ]] && lt_display_ver=$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eo "libtorrent-1\.2\.[0-9]+" | head -1 | grep -Eo "[0-9.]+")
 
 if [[ $lt_version == system ]]; then
     echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}"
@@ -1983,17 +1983,23 @@ else
 
     # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
     if [[ $sihuo == yes ]]; then
-        if version_ge $qb_version 4.2.0; then
-            wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.2.1.webui.table.patch -O qb.patch
+        if   [[ $qb_version == 4.2.2 ]]; then
+            wget -nv -O qb.patch https://raw.githubusercontent.com/Aniverse/inexistence-files/master/miscellaneous/qbt.4.2.2.webui.table.patch
+        elif [[ $qb_version == 4.2.1 ]]; then
+            wget -nv -O qb.patch https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.2.1.webui.table.patch
         else
-            wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch -O qb.patch
+            wget -nv -O qb.patch https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch
         fi
         patch -p1 < qb.patch
     fi
 
     [[ $CODENAME =~ (stretch|xenial) ]] && source /opt/qt512/bin/qt512-env.sh
 
-    ./configure --prefix=/usr --disable-gui
+    if version_ge $lt_version 1.2 || version_ge $lt_display_ver 1.2 ; then
+        ./configure --prefix=/usr --disable-gui CXXFLAGS="-std=c++14"
+    else
+        ./configure --prefix=/usr --disable-gui
+    fi
     make -j$MAXCPUS
     mkdir -p doc-pak
     echo "qBittorrent BitTorrent client headless (qbittorrent-nox)" > description-pak

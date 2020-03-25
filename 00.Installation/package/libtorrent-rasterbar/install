@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.02
-script_version=r11059
+script_update=2020.03.25
+script_version=r11060
 
 ################################################################################################ Debug
 
@@ -92,6 +92,12 @@ echo $version | grep -qEo "[012]\.[0-9]+\.[0-9]+" && branch=$( echo libtorrent-$
 [[ -n $branch ]] && [[ -z $version ]] && version=$( wget -qO- $git_repo/raw/$branch/include/libtorrent/version.hpp | grep LIBTORRENT_VERSION | tail -n1 | grep -oE "[0-9.]+\"" | sed "s/.0\"//" )
 [[ -n $branch ]] && [[ -z $version ]] && version=6.6.6
 
+if version_ge $version 1.2 ; then
+    CXXFLAGS="-std=c++14"
+else
+    CXXFLAGS="-std=c++11"
+fi
+
 ################################################################################################
 
 
@@ -163,7 +169,7 @@ function install_lt_source() {
 
     ./configure --enable-python-binding --with-libiconv \
                 --disable-debug --enable-encryption --with-libgeoip=system \
-                  CXXFLAGS=-std=c++11  >> $OutputLOG 2>&1 
+                  CXXFLAGS=$CXXFLAGS  >> $OutputLOG 2>&1 
                 # For both Deluge and qBittorrent
 
     if [[ $version == 1.1* ]]; then
