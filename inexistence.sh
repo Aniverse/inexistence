@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.8
+INEXISTENCEVER=1.1.8.9
 INEXISTENCEDATE=2020.03.25
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -814,7 +814,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 	[[ $qbittorrent_dev == 1 ]] &&
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.2.1${normal}" &&
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.2.2${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.2.2${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
