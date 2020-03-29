@@ -1,41 +1,44 @@
 #!/bin/bash
-#
-# https://github.com/Aniverse/inexistence
 # Author: Aniverse
-# 2019.01.22
+#
+#################################################################################
+script_update=2020.03.29
+script_version=r11000
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
-[[ $EUID != 0 ]] && { echo -e "${jiacu}${red}大哥，这脚本需要 root 权限 ……${normal}" ; exit 1 ; }
+[[ $EUID != 0 ]] && { echo -e "${bold}${red}这脚本需要 root 权限才能运行 ……${normal}" ; exit 1 ; }
 
 # 名称转换、挂载
 function _file() {
-bdisopathlower=$(echo "$bdisopath" | sed 's/[Ii][Ss][Oo]/iso/g')
-file_title=$(basename "$bdisopathlower" .iso)
-file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
-file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
-file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
-file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
-mkdir -p "/etc/inexistence/06.BluRay/$file_title_clean"
-bdpath="/etc/inexistence/06.BluRay/$file_title_clean"
-mount -o loop "$bdisopath" "$bdpath" >/dev/null 2>&1
-echo -e "${normal}已将 ${cyan}$disk${normal} 以只读模式挂载到 ${cyan}$bdpath${normal}" ; }
+    bdisopathlower=$(echo "$bdisopath" | sed 's/[Ii][Ss][Oo]/iso/g')
+    file_title=$(basename "$bdisopathlower" .iso)
+    file_title_clean="$(echo "$file_title" | tr '[:space:]' '.')"
+    file_title_clean="$(echo "$file_title_clean" | sed s'/[.]$//')"
+    file_title_clean="$(echo "$file_title_clean" | tr -d '(')"
+    file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
+    mkdir -p "/bluray/mount/$file_title_clean"
+    bdpath="/bluray/mount/$file_title_clean"
+    mount -o loop "$bdisopath" "$bdpath" >/dev/null 2>&1
+    echo -e "${normal}已将 ${cyan}$disk${normal} 以只读模式挂载到 ${cyan}$bdpath${normal}"
+}
 
 
 # 多文件的操作
 function _multi() {
-ALLISO=` ls | tr " " "\n" | grep -Eo ".*\.[Ii][Ss][Oo]\>" `
-ISONum=` ls | tr " " "\n" | grep -c ".*\.[Ii][Ss][Oo]\>" `
-if [[ $ISONum == 0 ]]; then
-    echo -e "${bold}${red}错误${jiacu} ${words}路径下不存在 ISO 文件，退出脚本 ...${normal}\n"
-    exit 1
-else
-echo -e "${bold}${words}路径下有 ${green}${ISONum}${normal}${bold} 个 ISO 文件，开始挂载 ...${normal}\n"
-    for disk in $ALLISO ; do
-        bdisopath=`echo "$disk"` && _file
-    done
-    echo -e "\n${bold}完成，${green}${ISONum}${normal}${bold} 个 ISO 文件已全部挂载${normal}\n"
-fi ; }
+    ALLISO=` ls | tr " " "\n" | grep -Eo ".*\.[Ii][Ss][Oo]\>" `
+    ISONum=` ls | tr " " "\n" | grep -c ".*\.[Ii][Ss][Oo]\>" `
+    if [[ $ISONum == 0 ]]; then
+        echo -e "${bold}${red}错误${jiacu} ${words}路径下不存在 ISO 文件，退出脚本 ...${normal}\n"
+        exit 1
+    else
+    echo -e "${bold}${words}路径下有 ${green}${ISONum}${normal}${bold} 个 ISO 文件，开始挂载 ...${normal}\n"
+        for disk in $ALLISO ; do
+            bdisopath=`echo "$disk"` && _file
+        done
+        echo -e "\n${bold}完成，${green}${ISONum}${normal}${bold} 个 ISO 文件已全部挂载${normal}\n"
+    fi
+}
 
 
 # 判断输入的类型

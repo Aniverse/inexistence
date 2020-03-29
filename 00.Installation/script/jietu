@@ -11,8 +11,8 @@ OUTPUT="/replace/here/with/your/output/path"
 # --------------------------------------------------------------------------------
 pics=10
 # --------------------------------------------------------------------------------
-Script_UpDate=2019.08.31
-Script_Version=r20047
+script_update=2020.03.29
+script_version=r21048
 # --------------------------------------------------------------------------------
 
 # Cleanup when cancel
@@ -113,7 +113,7 @@ fi
 
 # ${cyan}${bold}FileName               ${yellow}$mediapath
 echo -e "
-${cyan}${bold}jietu version          ${yellow}$Script_Version
+${cyan}${bold}jietu version          ${yellow}$script_version ($script_update)
 ${cyan}${bold}Source Type            ${yellow}$Source
 ${cyan}${bold}File Location          ${yellow}$FileLoc
 ${cyan}${bold}File Name              ${yellow}$omediapath"
@@ -189,7 +189,7 @@ elif [[ "${duration2}" -lt 600 ]]; then
     timestampsetting=21
 fi
 
-[[   $CustomedOutput == 0 ]] && mkdir -p "/etc/inexistence/07.Screenshots" && outputpath="/etc/inexistence/07.Screenshots"
+[[   $CustomedOutput == 0 ]] && mkdir -p "/log/screenshots" && outputpath="/log/screenshots"
 [[ ! $CustomedOutput == 0 ]] && mkdir -p "$OUTPUT" && outputpath="$OUTPUT"
 
 echo
@@ -214,6 +214,7 @@ for c in $(seq -w 1 $pics) ; do
 done
 
 ###################################################### mediainfo #######################################################
+
 echo -ne "\nWriting ${blue}${file_title_clean}.mediainfo.txt${normal} ...  "
 mediainfo "$mediapath" > "${outputpath}/${file_title_clean}.mediainfo.txt"
 [[ $? -eq 0 ]] && success_info=y || success_info=n
