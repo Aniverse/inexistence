@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.18
-script_version=r12036
+script_update=2020.03.30
+script_version=r12037
 
 ################################################################################################ Debug
 
@@ -93,6 +93,30 @@ qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
 
 ################################################################################################
 
+
+
+function dl_qbittorrent_alt_webui() {
+    cd $iHome/.config/qBittorrent
+
+    # https://github.com/miniers/qb-web
+    curl -sL https://api.github.com/repos/miniers/qb-web/releases/latest | sed "s|,|\n|g" | grep browser_download_url  | grep -oP "https.*zip" | xargs wget -O miniers.qb-web.zip >> $OutputLOG 2>&1
+    unzip -o miniers.qb-web.zip -d WebUI/miniers.qb-web >> $OutputLOG 2>&1
+    chown $iUser: WebUI/miniers.qb-web                  >> $OutputLOG 2>&1
+    rm -rf miniers.qb-web.zip                           >> $OutputLOG 2>&1
+
+    # https://github.com/CzBiX/qb-web
+    tmp=$(curl -Ls https://github.com/CzBiX/qb-web/releases | grep -oE "CzBiX/qb-web/releases/download.*zip" | head -1)
+    wget "https://github.com/$tmp"                      >> $OutputLOG 2>&1
+    unzip -o $(basename $tmp)                           >> $OutputLOG 2>&1
+    mv -f dist WebUI/CzBiX.qb-web                       >> $OutputLOG 2>&1
+    chown $iUser: WebUI/CzBiX.qb-web                    >> $OutputLOG 2>&1
+    rm -f $(basename $tmp)                              >> $OutputLOG 2>&1
+
+    cd
+}
+
+
+
 function configure_qbittorrent() {
 
     echo >> $OutputLOG
@@ -123,6 +147,7 @@ EOF
 
     mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
     ln    -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb           >> $OutputLOG 2>&1
+    dl_qbittorrent_alt_webui
 
     cat << EOF > $qbconf
 [Application]
@@ -141,7 +166,7 @@ Session\CheckingMemUsageSize=16
 Session\ChokingAlgorithm=FixedSlots
 Session\CoalesceReadWrite=false
 Session\FilePoolSize=40
-Session\GuidedReadCache=false
+Session\GuidedReadCache=true
 Session\MultiConnectionsPerIp=false
 Session\SeedChokingAlgorithm=FastestUpload
 Session\SendBufferLowWatermark=10
@@ -187,10 +212,12 @@ Downloads\TorrentExportDir=$iHome/qbittorrent/torrent
 General\Locale=$qbt_language
 Queueing\QueueingEnabled=false
 #Disable CSRF Protection For PT Plugin Plus
+WebUI\AlternativeUIEnabled=false
 WebUI\CSRFProtection=false
 WebUI\HostHeaderValidation=true
 WebUI\LocalHostAuth=false
 WebUI\Port=$wPort
+WebUI\RootFolder=$iHome/.config/qBittorrent/WebUI/miniers.qb-web
 
 EOF
 
