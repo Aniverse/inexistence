@@ -14,7 +14,156 @@
 
 
 
-## 2020.03.10-11
+## 2020.03.25/26/29
+
+`inexistence 1.1.8.10`  
+1. Feature：加入 qBittorrent 4.2.2 的选项  
+2. Feature：自动检测 RC_1_2 分支的版本号  
+3. Feature：编译 qbt 4.2 w/ lt 1.2 时，启用 `CXXFLAGS="-std=c++14"`  
+4. sihuo：更新 qBittorrent 4.2.2 的 tables patch  
+
+`libtorrent-rasterbar/install r11060`
+1. 编译 lt 1.2 时，启用 `CXXFLAGS="-std=c++14"`  
+
+`flexget/install r20015`
+1. Debian 8/9 装完 FlexGet 后，Python3 版本切换回系统自带的版本  
+
+`flexget/configure r10008`
+1. 加入 [flexget_qbittorrent_mod](https://github.com/IvonWei/flexget_qbittorrent_mod) 和 [flexget-nexusphp](https://github.com/Juszoe/flexget-nexusphp)  
+
+`novnc/configure r12011`
+1. 启用 iptables 规则，增强安全性  
+
+`xiansu r20001`
+1. 更新代码风格  
+2. 更新网卡判断方式  
+
+
+
+
+
+## 2020.03.20/22
+
+`inexistence 1.1.8.7`  
+1. Feature：移除 transmission 的隐藏选项，包括 --tr-skip  
+
+`check-sys r10004`
+1. **加入 Alpine Linux 的初步支持**  
+
+`README 1.3.0`
+1. 更新 novnc 部分描述 
+2. 提示 transmission 修改版已被移除  
+3. 更新 FlexGet 的描述  
+4. 更新 gclone 的描述  
+5. 系统设置出增加 vnstat 和 wget 的编译说明  
+6. 部分代码块加入 shell 语言的标注  
+
+
+
+
+
+## 2020.03.15-18
+
+`the inexistence project`  
+1. 重命名 $local_package 为 $local_packages  
+2. 清空了 [BittorrentClientCollection](https://github.com/Aniverse/BitTorrentClientCollection) 的 commits 历史，并重新整理文件上传  
+
+`Aniverse/rtinst`
+
+`inexistence 1.1.8.6`  
+1. **Feature：启用 novnc，删除旧的 vnc 代码**  
+2. **UI：输出 novnc web 地址**  
+3. UI：增加 novnc 安装出错时的日志提示  
+4. Simple：更新部分下载链接  
+
+`function r12057`
+1. **Bump version to r12000**  
+2. Add `read pause` to `cat_outputlog`  
+3. 增加变量 $tmp_dir  
+4. **增加无 root 模式（共享盒子用）**  
+5. 更新系统判断方式  
+
+`check-sys r10004`
+1. **初始化**  
+2. 启用 `check_pm` 与 `check_release`  
+3. 更新、修复 `pm_action`  
+4. 使用 `detectOs` 代替 `check_release`  
+
+`qbittorrent/configure r12035`
+1. 加入 --shared（功能未完成）  
+2. 加入 `$systemctl_user_flag`  
+3. 使用 `command -v` 代替 `which`  
+因为 which 在某些系统下有输出  
+4. 使用 `--no-check-certificate`  
+主要是为了适配 qbnox-static 的脚本，可能最小化安装完就直接跑脚本了  
+
+`novnc/install r10006`
+1. 增加安装 expect xserver-xorg-legacy x11-xserver-utils 包  
+2. 增加安装 xserver-xorg 包  
+3. 增加安装 python 包  
+4. 增加安装 git 包  
+
+`novnc/configure r12010`
+1. `--root` 可以启用 root 用户的 novnc  
+2. 顺应 rtinst 的修改，修改反代配置文件的路径  
+3. **支持多用户**，端口号自动往下 +1  
+4. 修改检测成功与否的方式回 systemctl is-active  
+
+
+
+
+
+## 2020.03.13-14
+
+`inexistence 1.1.8.1`  
+1. **Bump version to 1.1.8**  
+最大的更新是终于弄完了 novnc，这个测试了太久了  
+2. BugFix：修复 sihuo，增加了 qb 4.2.1 的 sihuo 版本  
+3. Simple：deluge wget 参数加上 -nv -N  
+4. **NewFeature：novnc 的安装会在 `--separate` 时启用**  
+5. **NewFeature：Ubuntu 18.04 在 tweaks 这一步编译 wget 1.20.3**  
+因为系统自带的 wget 有 bug，wget -qO- 仍然会有输出，干脆自己编译更新的 wget 解决  
+
+`function r11052`
+1. 加入变量 LogRootPath  
+2. some_info  
+3. mkdir -p $PortLocation  
+4. `_excute` function 现在会输出命令内容  
+5. `get_clients_port` 写成指定变量的形式  
+
+`alias r11005`
+1. 加入几个新的 function，从 QuickBox 那抄来的  
+2. 修复 HISTTIMEFORMAT  
+
+`novnc/install r10002`
+1. 增加安装 dbus-x11 xfonts-base xinit 包  
+2. 增加安装 unzip 包  
+
+`novnc/configure r10004`
+1. **初始化**  
+2. 修复 `netfilter-persistent save`  
+3. 反复测试 systemd 的写法……  
+4. 修复判断是否成功的方式  
+5. 不再使用 iptables 阻止外部直接连接  
+
+`deluge/configure r10002`
+1. 同步代码风格……  
+
+`ddee r10000`
+1. **初始化**  
+
+`ddww r10000`
+1. **初始化**  
+
+`README 1.2.7`
+1. 手滑修复  
+2. 更新 to do list   
+
+
+
+
+
+## 2020.03.10-12
 
 `inexistence 1.1.7.7`  
 1. Feature：Debian 8 强制添加 snapshot 源，无论选项  
@@ -34,6 +183,10 @@
 2. Disable mail check/warning  
 3. 修复 history 格式缺少颜色的问题  
 4. 更新 this_is_for_copy  
+
+`novnc/install r10001`
+1. **初始化**  
+2. 隐藏生成证书的输出  
 
 
 
@@ -68,7 +221,7 @@
 就是加了些缩进  
 
 `README 1.2.6`
-1. 加了个个简化版的真·一键命令  
+1. 加了个简化版的真·一键命令  
 2. 更新 to do list 进度  
 
 
@@ -90,7 +243,7 @@
 2. **设置监控目录**  
 
 `ttrr r10000`  
-- 初始化  
+- **初始化**  
 
 
 
