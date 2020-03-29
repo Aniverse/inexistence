@@ -7,14 +7,50 @@
 
 
 
+## 2020.03.29
+
+`the inexistence project`  
+1. bdinfo、guazai、jietu、zuozhong 四个子脚本更新，避免使用 /etc/inexistence 路径  
+现在路径全在 /log 下，具体是 screenshots、torrents、bdinfo  
+
+`Aniverse/bluray`
+1. 避免使用 /etc/inexistence 路径  
+现在挂载和提取的路径全在 /bluray 下，具体有 mount、extract、tmp  
+输出文件保存在 /log/bluray  
+
+`Aniverse/rtinst`
+1. 修复 ffmpeg 的下载链接  
+2. 修复 rarlinux 的下载链接  
+3. 修复 GeoIP2 缺少 php 模块 bcmath 的问题（可能有些系统还是有问题，懒得管了）  
+4. 修复 autodl-irssi 下载链接失效的问题  
+5. 更新 README  
+
+`inexistence 1.1.9.0`  
+1. **Bump version to 1.1.9**  
+终于干掉了 /etc/inexistence 下的一堆文件夹……  
+2. Feature：/etc/inexistence 的 02-09 文件夹全删了，部分移动到 /log 下  
+为以后更新脚本做准备  
+3. Feature：创建 /log 到 h5ai 的软链接  
+4. Feature：下载 qBt 源码时 --depth=1，也因此放弃了 3.3.17 和 4.1.2 的 cherry-pick  
+5. Feature：uptools 检测到 ffmpeg 后不再做重复的安装  
+
+`novnc/configure r12011`
+1. 启用 iptables 规则，增强安全性  
+
+`ipv6 r31215`
+1. Sync from upstream  
+2. **修复 Online dibbler 在 bionic 下的问题**  
+3. netplan apply 后 sleep 5，防止 DNS 解析还没更上  
+4. dibbler 和 odhcp6c 在检测到没安装的情况下才编译安装  
+5. cleanup 里无论 type 都清除 netplan 的配置，并加上 dibbler 的配置清除  
+6. info 上加入更多的输出信息，以及分隔符  
+7. **修复 ikoula Ubuntu 18.04 配置文件手滑写错了的问题**  
 
 
 
 
 
-
-
-## 2020.03.25/26/29
+## 2020.03.25/26
 
 `inexistence 1.1.8.10`  
 1. Feature：加入 qBittorrent 4.2.2 的选项  
@@ -30,9 +66,6 @@
 
 `flexget/configure r10008`
 1. 加入 [flexget_qbittorrent_mod](https://github.com/IvonWei/flexget_qbittorrent_mod) 和 [flexget-nexusphp](https://github.com/Juszoe/flexget-nexusphp)  
-
-`novnc/configure r12011`
-1. 启用 iptables 规则，增强安全性  
 
 `xiansu r20001`
 1. 更新代码风格  
@@ -69,6 +102,8 @@
 2. 清空了 [BittorrentClientCollection](https://github.com/Aniverse/BitTorrentClientCollection) 的 commits 历史，并重新整理文件上传  
 
 `Aniverse/rtinst`
+1. 反代文件的配置路径从 /etc/nginx/snippets 移动到了  /etc/nginx/apps  
+2. nginx 的配置文件中 include apps/*;  
 
 `inexistence 1.1.8.6`  
 1. **Feature：启用 novnc，删除旧的 vnc 代码**  
