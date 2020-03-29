@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.16
-script_version=r12010
+script_update=2020.03.29
+script_version=r12011
 
 ################################################################################################ Debug
 
@@ -270,10 +270,10 @@ EOF
     _excute "systemctl status novnc2"
     _excute "systemctl status tightvnc${vnc_num}@$iUser"
 
-  # Uncomment it to increase security, use SSH Tunnel to connet it
-  # iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
-  # iptables -A INPUT -p tcp              --dport $iPort -j DROP    >> $OutputLOG 2>&1
-  # netfilter-persistent save                                       >> $OutputLOG 2>&1
+  # To increase security, use SSH Tunnel to connet it
+    iptables -A INPUT -p tcp -s localhost --dport $iPort -j ACCEPT  >> $OutputLOG 2>&1
+    iptables -A INPUT -p tcp              --dport $iPort -j DROP    >> $OutputLOG 2>&1
+    netfilter-persistent save                                       >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
