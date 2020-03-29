@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.8.10
-INEXISTENCEDATE=2020.03.25
+INEXISTENCEVER=1.1.9.0
+INEXISTENCEDATE=2020.03.29
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -1811,20 +1811,12 @@ echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
 bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
 
-# PATH
-echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
-
 # 脚本设置
-mkdir -p /etc/inexistence/00.Installation
-mkdir -p /etc/inexistence/01.Log
-mkdir -p /etc/inexistence/02.Tools/eac3to
+echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
+ln -s /etc/inexistence $WebROOT/h5ai/inexistence
+ln -s /log $WebROOT/h5ai/log
 mkdir -p /etc/inexistence/03.Files
-mkdir -p /etc/inexistence/04.Upload
-mkdir -p /etc/inexistence/05.Output
 mkdir -p /etc/inexistence/06.BluRay
-mkdir -p /etc/inexistence/07.Screenshots
-mkdir -p /etc/inexistence/08.BDinfo
-mkdir -p /etc/inexistence/09.Torrents
 
 # Bluray Tools
 if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
@@ -1832,14 +1824,13 @@ if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
     cd /etc/inexistence/02.Tools
     svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
     mv -f BDinfoCli.0.7.3 BDinfoCli
-  # wget -q https://github.com/Aniverse/BitTorrentClientCollection/raw/master/BDTools/BDinfoCli.0.7.5.tar.gz && tar zxf BDinfoCli.0.7.5.tar.gz && rm -f BDinfoCli.0.7.5.tar.gz
 fi
 
 if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
     wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/inexistence/02.Tools/bdinfocli.exe
 fi
 
-ln -s /etc/inexistence $WebROOT/h5ai/inexistence
+
 mkdir -p $local_script
 ln -s $local_packages/script/* $local_script
 
@@ -1963,23 +1954,8 @@ else
     fi
 
     cd $SourceLocation
-    git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
+    git clone --depth=1 -b release-$qb_version https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
     cd qBittorrent-$qb_version
-
-    if [[ $qb_version == 3.3.17 ]]; then
-        git checkout release-3.3.11
-        git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
-        git cherry-pick db3158c
-        git cherry-pick b271fa9
-    elif [[ $qb_version == 4.1.2 ]]; then
-        git checkout release-$qb_version
-        git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
-        git cherry-pick 262c3a7
-    else
-        git checkout release-$qb_version
-    fi
 
     # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
     if [[ $sihuo == yes ]]; then
@@ -2469,12 +2445,14 @@ function install_tools() {
 ########## Install ffmpeg ##########
 # https://johnvansickle.com/ffmpeg/
 
+if [[ -z $(command -v ffmpeg) ]]; then
     mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
     wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
     tar xf ffmpeg-release-amd64-static.tar.xz
     cd ffmpeg*
     cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
     cd && rm -rf /log/inexistence/ffmpeg
+fi
 
 ########## Install mkvtoolnix ##########
 
