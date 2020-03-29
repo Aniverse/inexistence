@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/aBox
 # Author: Aniverse
 #
-script_update=2020.03.09
-script_version=r31208
+script_update=2020.03.28
+script_version=r31215
 ################################################################################################
 
 usage_guide() {
@@ -70,6 +70,8 @@ type=ifdown
 
 [[ -z $(which ifconfig) ]] && { echo -e "${green}Installing ifconfig ...${normal}" ; apt-get install net-tools -y  ; }
 [[ -z $(which ifconfig) ]] && { echo -e "${red}Error: No ifconfig!${normal}"  ; exit 1 ; }
+
+function lines()  { printf "%-70s\n" "-" | sed 's/\s/-/g' ; }
 
 ################################################################################################ 检测 IP 地址
 
@@ -254,13 +256,14 @@ network:
     $interface:
       dhcp4: no
       dhcp6: no
-      addresses: [$AAA.$BBB.$CCC.$DDD/24, '2400:c70:1:$AAA:$BBB:$CCC:$DDD:1/96']
+      addresses: [$AAA.$BBB.$CCC.$DDD/24, '2a00:c70:1:$AAA:$BBB:$CCC:$DDD:1/96']
       gateway4: $AAA.$BBB.$CCC.1
       gateway6: 2a00:c70:1:$AAA:$BBB:$CCC::1
       nameservers:
         addresses: [213.246.36.14,213.246.33.144,80.93.83.11]
 EOF
     netplan apply
+    sleep 5
 }
 
 
@@ -269,7 +272,7 @@ EOF
 
 function write_dhclient6_conf() {
     cat << EOF > /etc/dhcp/dhclient6.conf
-interface \"$interface\" {
+interface "$interface" {
 send dhcp6.client-id $DUID;
 request;
 }
@@ -326,15 +329,22 @@ function online_interfaces_file_mod() {
 iface $interface inet6 static
       address $IPv6
       netmask $subnet
-#     accept_ra 1
-#     pre-up modprobe ipv6
-#     pre-up dhclient -cf /etc/dhcp/dhclient6.conf -pf /run/dhclient6.$interface.pid -6 -P $interface
-#     pre-down dhclient -x -pf /run/dhclient6.$interface.pid
+EOF
+
+}
+
+
+
+function online_interfaces_file_mod_dhclient() {
+    cat << EOF >> /etc/network/interfaces
+      accept_ra 1
+      pre-up modprobe ipv6
+      pre-up dhclient -cf /etc/dhcp/dhclient6.conf -pf /run/dhclient6.$interface.pid -6 -P $interface
+      pre-down dhclient -x -pf /run/dhclient6.$interface.pid
 ### IPv6_Script END ###
 EOF
 # pre-up /sbin/dhclient -1 -v -pf /run/dhclient6.$interface.pid -lf /var/lib/dhcp/dhclient6.$interface.leases -cf /etc/dhcp/dhclient6.conf -6 -P $interface
 }
-
 
 
 # Online／OneProvider Paris 独服，Ubuntu 16.04，Debian 8/9/10
@@ -344,6 +354,11 @@ function online_dhclient() {
     if [[ ! $(grep -q "iface $interface inet6 static" /etc/network/interfaces) ]]; then
         interfaces_file_clean
         online_interfaces_file_mod
+            if [[ $CODENAME == bionic ]];then
+                apt-get install -y ifupdown
+                echo "auto $interface" >> /etc/network/interfaces
+            fi
+        online_interfaces_file_mod_dhclient
     fi
     write_dhclient6_conf
     write_dhclient6_systemd
@@ -372,6 +387,7 @@ EOF
     systemctl start dhclient.service
     systemctl start dhclient-netplan.service
     netplan apply
+    sleep 5
 }
 
 
@@ -380,14 +396,16 @@ EOF
 
 function dibbler_install() {
     dpkg-query -W -f='${Status}' build-essential 2>/dev/null | grep -q "ok installed" || apt-get install -y build-essential
-    wget https://netix.dl.sourceforge.net/project/dibbler/dibbler/1.0.1/dibbler-1.0.1.tar.gz
-    tar zxf dibbler-1.0.1.tar.gz
-    cd dibbler-1.0.1
-    ./configure
-    make -j$(nproc)
-    make install
-    cd ..
-    rm -rf dibble*
+    if [[ ! -f /usr/local/sbin/dibbler-client ]]; then
+        wget -4 https://netix.dl.sourceforge.net/project/dibbler/dibbler/1.0.1/dibbler-1.0.1.tar.gz -O dibbler-1.0.1.tar.gz
+        tar zxf dibbler-1.0.1.tar.gz
+        cd dibbler-1.0.1
+        ./configure
+        make -j$(nproc)
+        make install
+        cd ..
+        rm -rf dibble*
+    fi
     [[ ! -f /usr/local/sbin/dibbler-client ]] && echo -e "\nError: No dibbler-client found!\n" && exit 1
 }
 
@@ -407,6 +425,12 @@ EOF
     file_backup
     interfaces_file_clean
     online_interfaces_file_mod
+    if [[ $CODENAME == bionic ]];then
+        apt-get install -y ifupdown
+        echo "auto $interface" >> /etc/network/interfaces
+    fi
+    echo "### IPv6_Script END ###" >> /etc/network/interfaces
+
     cat << EOF > /etc/systemd/system/dibbler-client.service
 [Unit]
 Description=Dibbler Client
@@ -419,7 +443,10 @@ ExecStart=/usr/local/sbin/dibbler-client start
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl enable dibbler-client.service
+    systemctl enable dibbler-client
+    systemctl start  dibbler-client
+    sleep 5
+    systemctl status dibbler-client
 }
 
 
@@ -442,13 +469,15 @@ function odhcp6c_install() {
         dpkg-query -W -f='${Status}' $app 2>/dev/null | grep -q "ok installed" || apt-get install -y $app
     done
 
-    git clone --depth=1 https://github.com/openwrt/odhcp6c
-    cd odhcp6c
-    cmake .
-    make
-    make install
-    cd ..
-    rm -rf odhcp6c
+    if [[ -z $(which odhcp6c) ]]; then
+        git clone --depth=1 https://github.com/openwrt/odhcp6c
+        cd odhcp6c
+        cmake .
+        make
+        make install
+        cd ..
+        rm -rf odhcp6c
+    fi
 }
 
 
@@ -476,6 +505,8 @@ function online_odhcp6c() {
     odhcp6c_install
     write_odhcp6c_systemd
     systemctl start odhcp6c
+    sleep 5
+    systemctl status odhcp6c
 }
 
 
@@ -516,6 +547,7 @@ function leaseweb_netplan() {
 ### IPv6_Script END ###
 EOF
     netplan apply
+    sleep 5
     echo -e "DONE"
 }
 
@@ -581,11 +613,11 @@ function ask_reboot() {
 
 function cleanup() {
     echo -n "Cleanup ... "
-    if [[ $type == ifdown ]]; then
-        interfaces_file_clean
-    else
-        netplan_netcfg_file_clean
-    fi
+
+    interfaces_file_clean
+    netplan_netcfg_file_clean
+    rm -f /etc/dhcp/dhclient6.conf    /etc/dibbler/client.conf   /var/lib/dibbler/client-duid
+
     systemctl stop    dhclient-netplan.service  2>/dev/null
     systemctl stop    dhclient.service          2>/dev/null
     systemctl stop    dibbler-client.service    2>/dev/null
@@ -594,40 +626,60 @@ function cleanup() {
     systemctl disable dhclient.service          2>/dev/null
     systemctl disable dibbler-client.service    2>/dev/null
     systemctl disable odhcp6c.service           2>/dev/null
-    systemctl daemon-reload
+    
     rm -f /etc/systemd/system/dhclient.service
     rm -f /etc/systemd/system/dhclient-netplan.service
     rm -f /etc/systemd/system/dibbler-client.service
     rm -f /etc/systemd/system/odhcp6c.service
-    rm -f /etc/dhcp/dhclient6.conf    /etc/dibbler/client.conf   /var/lib/dibbler/client-duid
+    systemctl daemon-reload
+
     echo "DONE"
 }
 
 function info() {
+    echo
+    lines
     echo -e "
 script_update=$script_update
 script_version=$script_version
 
-DISTRO=$DISTRO
-CODENAME=$CODENAME
+OS=$DISTRO $CODENAME
 IPv4=$serveripv4
 interface=$interface
-mode=$mode   type=$type
-reboot=$reboot
-
-IPv6=$IPv6
-DUID=$DUID
-subnet=$subnet
+type=$type
 "
-    echo -e "${yellow}cat /etc/network/interfaces${normal}\n"
-    cat /etc/network/interfaces     2>/dev/null
-    echo -e "\n${yellow}cat /etc/netplan/01-netcfg.yaml${normal}\n"
-    cat /etc/netplan/01-netcfg.yaml 2>/dev/null
+    lines
+    echo -e "\n${yellow}cat /etc/network/interfaces${normal}\n"
+    cat /etc/network/interfaces           2>/dev/null
+    lines
+    if [[ -f /etc/netplan/01-netcfg.yaml ]]; then
+        echo -e "\n${yellow}cat /etc/netplan/01-netcfg.yaml${normal}\n"
+        cat /etc/netplan/01-netcfg.yaml   2>/dev/null
+        lines
+    fi
+    if [[ -f /etc/dibbler/client.conf ]]; then
+        echo -e "\n${yellow}cat /etc/dibbler/client.conf${normal}\n"
+        cat /etc/dibbler/client.conf      2>/dev/null
+        lines
+    fi
+    if [[ -f /var/lib/dibbler/client-duid ]]; then
+        echo -e "\n${yellow}cat /var/lib/dibbler/client-duid${normal}\n"
+        cat /var/lib/dibbler/client-duid  2>/dev/null
+        lines
+    fi
+    if [[ -f /etc/systemd/system/odhcp6c.service ]]; then
+        echo -e "\n${yellow}cat /etc/systemd/system/odhcp6c.service${normal}\n"
+        cat /etc/systemd/system/odhcp6c.service   2>/dev/null
+        lines
+    fi
     echo -e "
+cat 
 cd /log/script && ls
 netplan apply
 systemctl restart networking.service
-ping6 -c 5 ipv6.google.com"
+ping6 -c 5 ipv6.google.com
+"
+    lines;echo
 }
 
 function ask_pause() {
@@ -751,13 +803,13 @@ ${green}<5>${cyan} 所使用的网卡名称          ${blue}$interface${jiacu}
 
 ${on_blue}------------------- 下列为可用的配置模式 -------------------${jiacu}
 
-${green}<11>${cyan} Online dhclient6  （Debian 8/9/10，Ubuntu 16.04）（调试中，先别用这个）
+${green}<11>${cyan} Online dhclient6  （Debian 8/9/10, Ubuntu 16.04）（调试中，先别用这个）
 ${green}<12>${cyan} Online netplan    （Ubuntu 18.04）
-${green}<13>${cyan} Online dibbler    （Debian 8/9/10，Ubuntu 16.04/18.04）
-${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10，Ubuntu 16.04/18.04）
-${green}<21>${cyan} Ikoula ifupdown   （Debian 8/9/10，Ubuntu 16.04）
+${green}<13>${cyan} Online dibbler    （Debian 8/9/10, Ubuntu 16.04/18.04）
+${green}<14>${cyan} Online odhcp6c    （Debian 8/9/10, Ubuntu 16.04/18.04）（推荐）
+${green}<21>${cyan} Ikoula ifupdown   （Debian 8/9/10, Ubuntu 16.04）
 ${green}<22>${cyan} Ikoula netplan    （Ubuntu 18.04）
-${green}<31>${cyan} LeaseWeb ifupdown （Debian 8/9/10，Ubuntu 16.04）
+${green}<31>${cyan} LeaseWeb ifupdown （Debian 8/9/10, Ubuntu 16.04）
 ${green}<32>${cyan} LeaseWeb netplan  （Ubuntu 18.04）
 
 ${red}<90>${jiacu} 重启
@@ -829,7 +881,7 @@ function references() {
 # https://ymgblog.com/2018/03/12/345/
 # https://www.timelate.com/archives/add-ipv6-address-for-ikoula-ubuntu-18-04-dedicated-server.html
 # https://documentation.online.net/en/dedicated-server/network/ipv6/prefix
-# https://en-wiki.ikoula.com/en/How_to_calculate_my_IPV6
+# https://fr-wiki.ikoula.com/fr/Comment_calculer_mon_IPV6
 # https://kb.leaseweb.com/support/support-procedures/adding-an-ipv6-address-to-your-server#AddinganIPv6addresstoyourserver-ConfigureIPv6onDebian/Ubuntu
 sleep 0
 }
