@@ -3,9 +3,9 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 ################################################################################################
-script_update=2019.04.25
-script_version=1.1.0
-outputpath="/etc/inexistence/09.Torrents"
+script_update=2020.03.29
+script_version=r11002
+outputpath="/log/torrents"
 ################################################################################################
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4)
 magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); jiacu=${normal}${bold}
