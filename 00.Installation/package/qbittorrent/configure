@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.03.30
-script_version=r12037
+script_version=r12038
 
 ################################################################################################ Debug
 
@@ -97,6 +97,7 @@ qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
 
 function dl_qbittorrent_alt_webui() {
     cd $iHome/.config/qBittorrent
+    mkdir -p WebUI
 
     # https://github.com/miniers/qb-web
     curl -sL https://api.github.com/repos/miniers/qb-web/releases/latest | sed "s|,|\n|g" | grep browser_download_url  | grep -oP "https.*zip" | xargs wget -O miniers.qb-web.zip >> $OutputLOG 2>&1
