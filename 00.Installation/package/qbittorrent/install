@@ -1,0 +1,400 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2019.09.09
+script_version=r11021
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/qbittorrent/install
+    rm -f $s ; nano $s
+    bash $s -v 4.1.7        --logbase $LogTimes
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/qbittorrent/install) -v 4.1.6
+}
+
+################################################################################################ Get options
+
+unset AppName AppNameLower Need_SourceCode pm_action \
+      LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
+      lt_version version mode debug
+
+function show_usage() { echo " Invalid option $1
+Usage:
+      -m        Install mode, can only be specified as apt, ppa or source
+      -t        Install type, can only be specified as desktop or headless
+      -v        Specifiy which version of qBittorrent to be installed
+      -b        Specifiy which branch of qBittorrent to be installed
+      --debug   Enable debug mode
+                Note that installing specific version may cause the installation failure
+"
+exit 1 ; }
+
+OPTS=$(getopt -o m:v:b:l:t:d --long debug,mode:,type:,version:,branch:,logbase: -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -m | --mode         ) mode="$2"     ; shift 2 ;;
+    -t | --type         ) type="$2"     ; shift 2 ;;
+    -v | --version      ) version="$2"  ; shift 2 ;;
+    -b | --branch       ) branch="$2"   ; shift 2 ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
+         --             ) shift         ; break   ;;
+esac ; done
+
+################################################################################################ Set Variables 1
+
+AppName=qBittorrent
+AppNameLower=qbittorrent
+DebName=qbittorrent-nox
+Need_SourceCode=yes
+pm_action=install
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    wget -qO /tmp/function https://github.com/Aniverse/inexistence/raw/master/00.Installation/function
+    source /tmp/function
+fi
+
+set_variables_log_location
+check_var_OutputLOG
+[[ $debug == 1 ]] && debug_log_location
+
+################################################################################################ Set Variables 2
+
+git_repo="https://github.com/qbittorrent/qBittorrent"
+lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
+
+[[ -z $mode ]] && [[ -n $version ]] && mode=source
+[[ -z $mode ]] && [[ -n $branch  ]] && mode=source
+[[ -n $version ]] && check_remote_git_repo_branch  $git_repo  "release-$version"
+[[ -n $branch ]] && check_remote_git_repo_branch  $git_repo  "$branch"
+[[ ! $mode =~ (apt|ppa|source) ]] && echo -e "${CW} Mode can only be specified as apt, ppa or source${normal}" && exit 1
+[[ $mode == ppa ]] && [[ $DISTRO != Ubuntu ]] && echo -e "${normal}PPA is not support for $DISTRO, change installation mode from ppa to apt" && mode=apt
+# [[ $mode == apt ]] && grep qbittorrent -q /etc/apt/sources.list && echo -e "${normal}qBittorrent PPA detected, change installation mode from apt to ppa" && mode=ppa
+
+[[ -z $type ]] && type=headless
+[[ ! $type =~ (headless|desktop) ]] && echo -e "${CW} Type can only be specified as headless or desktop${normal}" && exit 1
+if [[ $type == desktop ]]; then
+    package_name=qbittorrent
+    compile_flag=''
+else
+    package_name=qbittorrent-nox
+    compile_flag='--disable-gui'
+fi
+
+ppa_version=4.1.7
+
+if   [[ $CODENAME == jessie  ]]; then repo_version=3.1.10 ; ppa_version=3.3.16
+elif [[ $CODENAME == stretch ]]; then repo_version=3.3.7
+elif [[ $CODENAME == buster  ]]; then repo_version=4.1.5
+elif [[ $CODENAME == xenial  ]]; then repo_version=3.3.1
+elif [[ $CODENAME == bionic  ]]; then repo_version=4.0.3
+fi
+
+[[ -n $version ]] && version_s=$version
+[[ -n $branch  ]] && version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
+
+################################################################################################ Sub functions
+
+function install_qbittorrent_apt() {
+    lines2 >> $OutputLOG
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    apt-get install -y $package_name >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/${AppNameLower}{,.apt}.lock
+    echo >> $OutputLOG
+}
+
+
+function install_qbittorrent_ppa() {
+    lines2 >> $OutputLOG
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable >> $OutputLOG 2>&1
+    apt-get update >> $OutputLOG 2>&1
+    apt-get install -y $package_name >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/${AppNameLower}{,.apt,.ppa}.lock
+    echo >> $OutputLOG
+}
+
+
+function install_qt_ppa_trusty() {
+    cat << EOF > /etc/apt/sources.list.d/qt.5.9.list
+deb http://ppa.launchpad.net/beineri/opt-qt597-trusty/ubuntu trusty main
+deb-src http://ppa.launchpad.net/beineri/opt-qt597-trusty/ubuntu trusty main
+EOF
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 10C56D0DE9977759 >> $OutputLOG 2>&1
+    apt-get update >> $OutputLOG 2>&1
+    apt-get install -y qt59base qt59svg qt59tools >> $OutputLOG 2>&1
+}
+
+
+function install_qt_ppa_xenial() {
+    cat << EOF > /etc/apt/sources.list.d/qt.5.9.list
+deb http://ppa.launchpad.net/beineri/opt-qt597-xenial/ubuntu xenial main
+deb-src http://ppa.launchpad.net/beineri/opt-qt597-xenial/ubuntu xenial main
+EOF
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 10C56D0DE9977759 >> $OutputLOG 2>&1
+    apt-get update >> $OutputLOG 2>&1
+    apt-get install -y qt59base qt59svg qt59tools >> $OutputLOG 2>&1
+}
+
+
+function install_qt_repo() {
+    apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
+}
+
+
+function uninstall_qt_repo() {
+    apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
+    dpkg -r qt-common >> $OutputLOG 2>&1
+    apt-get autoremove -y >> $OutputLOG 2>&1
+}
+
+
+function install_gcc_ppa_trusty() {
+    cat << EOF > /etc/apt/sources.list.d/toolchain.list
+deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu trusty main
+deb-src http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu trusty main
+EOF
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F >> $OutputLOG 2>&1
+    apt-get update >> $OutputLOG 2>&1
+    apt-get install -y gcc-9 g++-9 >> $OutputLOG 2>&1
+    cd /usr/bin
+    which gcc-9 > /dev/null && 
+    for gcc in gcc g++ gcc-ranlib gcc-ar gcc-nm gcov ; do
+       rm -f $gcc
+       ln -s x86_64-linux-gnu-${gcc}-9 $gcc
+    done
+    cd $SCLocation
+}
+
+
+function qt_set_env() {
+    if dpkg -l | grep -q qt59base; then
+        export PATH=/opt/qt59/bin:$PATH
+        export PKG_CONFIG_PATH=/opt/qt59/lib/pkgconfig:$PKG_CONFIG_PATH
+    elif dpkg -l | grep -q qt-common; then
+        export PKG_CONFIG_PATH=/usr/local/Qt-5.9.8/lib/pkgconfig:$PKG_CONFIG_PATH
+        export PATH=/usr/local/Qt-5.9.8/bin:$PATH
+    fi
+
+    { lines ; qmake -v ; lines ; } >> $OutputLOG 2>&1
+}
+
+
+# DEPRECATED
+function add_jessie_list() {
+    cat << EOF > /etc/apt/sources.list.d/jessie.list
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb-src http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+EOF
+    echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
+}
+
+
+function install_qt_deb() {
+    apt-get install -y build-essential libgl1-mesa-dev python3-dev python >> $OutputLOG 2>&1
+    wget -nv https://sourceforge.net/projects/inexistence/files/deb/$CODENAME/qt-common.5.9.8.$CODENAME.amd64.deb/download -O qt.5.9.8.deb >> $OutputLOG 2>&1 ||
+    { echo -e "${CW} Failed to wget qt deb${normal}" ; exit 1 ; }
+    dpkg -i qt.5.9.8.deb >> $OutputLOG 2>&1 && ldconfig
+}
+
+
+function install_qbittorrent_dependencies() {
+    lines2 >> $OutputLOG
+
+    # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+    # https://launchpad.net/~beineri/+archive/ubuntu/opt-qt597-trusty
+    if version_ge $version_s 4.2.0 ; then
+        qt_required_version=5.9.0
+            if [[ $CODENAME == stretch ]]; then
+                uninstall_qt_repo
+                install_qt_deb
+            elif [[ $CODENAME == xenial ]]; then
+                uninstall_qt_repo
+                install_qt_ppa_xenial
+            fi
+    else
+        qt_required_version=5.5.1
+        if [[ $CODENAME =~ (stretch|xenial) ]]; then
+            install_qt_repo
+        fi
+    fi
+
+    if [[ $CODENAME =~ (bionic|buster) ]]; then
+        install_qt_repo
+    elif [[ $CODENAME == jessie ]]; then
+        install_qt_deb
+        install_gcc_ppa_trusty
+    fi
+
+    status_lock=$AppNameLower-d
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+
+    qt_set_env
+    qt_version=$(pkg-config --exists --print-errors "Qt5Core >= 10086" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
+    version_ge  $qt_version  $qt_required_version && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.dependencies.lock
+    lines2 >> $OutputLOG
+}
+
+
+function compile_qbittorrent() {
+    lines2 >> $OutputLOG
+    rm -rf qBittorren*
+
+    if [[ -n $branch ]]; then
+        git clone --depth=1 -b $branch https://github.com/qbittorrent/qBittorrent qBittorrent-$branch >> $OutputLOG 2>&1
+        cd qBittorrent-$branch
+    elif [[ $version == 4.2.0 ]]; then
+        git clone --depth=1 -b master https://github.com/qbittorrent/qBittorrent qBittorrent-master >> $OutputLOG 2>&1
+        cd qBittorrent-master
+    elif [[ $version == 3.3.11.1 ]]; then
+        # Add skip hash check function for 3.3.11
+        git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$version >> $OutputLOG 2>&1
+        cd qBittorrent-$version
+        git checkout release-3.3.11 >> $OutputLOG 2>&1
+        git config --global user.email "you@example.com" >> $OutputLOG 2>&1
+        git config --global user.name "Your Name" >> $OutputLOG 2>&1
+        git cherry-pick db3158c >> $OutputLOG 2>&1
+        git cherry-pick b271fa9 >> $OutputLOG 2>&1
+    elif [[ $version == 4.1.2 ]]; then
+        # Fix Webui cannot be reached
+        git clone https://github.com/qbittorrent/qBittorrent qBittorrent-$version >> $OutputLOG 2>&1
+        cd qBittorrent-$version
+        git checkout release-$version >> $OutputLOG 2>&1
+        git config --global user.email "you@example.com" >> $OutputLOG 2>&1
+        git config --global user.name "Your Name" >> $OutputLOG 2>&1
+        git cherry-pick 262c3a7 >> $OutputLOG 2>&1
+    else
+        git clone --depth=1 -b release-$version https://github.com/qbittorrent/qBittorrent qBittorrent-$version >> $OutputLOG 2>&1
+        cd qBittorrent-$version
+    fi
+
+    qt_set_env
+  # For debug
+    pkg-config --exists --print-errors "Qt5Core >= 10086" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+ >> $OutputLOG 2>&1
+
+    ./configure $compile_flag --prefix=/usr >> $OutputLOG 2>&1
+    make $compile_flag_threads >> $OutputLOG 2>&1
+    rm -rf $SCLocation/tmp-$AppNameLower
+    make install INSTALL_ROOT=$SCLocation/tmp-$AppNameLower >> $OutputLOG 2>&1
+    make install >> $OutputLOG 2>&1 # Ensure it is installed if fpm failed to create package
+    # && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+
+    if [[ -n $(which fpm) ]]; then
+        fpm -C $SCLocation/tmp-$AppNameLower -n $DebName -v $version_s \
+            -p $DebLocation/$DebName-$version_s-$CODENAME-$arch.deb \
+            -s dir -t deb -a native -m aniverse -f --description \
+            "qBittorrent client (without X support), installed by inexistence" \
+            >> $OutputLOG 2>&1
+        dpkg -i $DebLocation/$DebName-$version_s-$CODENAME-$arch.deb >> $OutputLOG 2>&1 # && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    fi
+
+    # [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+    echo >> $OutputLOG
+}
+
+
+function check_status_qbt() {
+    qb_installed_ver=$(eval $package_name --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
+    if [[ -z $qb_installed_ver ]]; then
+        echo -e " ${red}${bold}FAILED${normal}"
+    elif [[ $qb_installed_ver == $version_s ]]; then
+        echo -e " ${green}${bold}DONE${normal}"
+        touch $LOCKLocation/$AppNameLower{,.source}.lock
+    else
+        echo -e " ${red}${bold}FAILED: $qb_installed_ver is installed rather than $version_s${normal}"
+    fi
+}
+
+
+################################################################################################ Main
+
+
+if dpkg -l | grep $AppNameLower -q ; then
+    echo -ne "Uninstalling old qBittorrent ... " | tee -a $OutputLOG
+    apt-get purge -y qbittorrent-nox >> $OutputLOG 2>&1
+    dpkg -r qbittorrent-nox >> $OutputLOG 2>&1
+    apt-get autoremove -y >> $OutputLOG 2>&1
+    echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
+fi
+
+
+case $mode in
+    apt     ) echo -ne "Installing $AppName ${bold}${cyan}$repo_version${normal} from $CODENAME repo ..." | tee -a $OutputLOG
+              install_qbittorrent_apt & spinner $!
+              check_status | tee -a $OutputLOG
+              ;;
+
+    ppa    )  echo -ne "Installing $AppName ${bold}${cyan}$ppa_version${normal}from stable ppa ..." | tee -a $OutputLOG
+              install_qbittorrent_ppa & spinner $!
+              check_status | tee -a $OutputLOG
+              ;;
+
+    source  ) [[ -z $lt_version ]] && echo -e "${CW} No libtorrnt-rasterbar found${normal}" && exit 1
+            # if [[ ! -f $LOCKLocation/$AppNameLower.dependencies.lock ]]; then
+                  echo -ne "Installing $AppName build dependencies ..." | tee -a $OutputLOG
+                  install_qbittorrent_dependencies & spinner $!
+                  check_status $status_lock
+            # fi
+
+              echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from source codes ..." | tee -a $OutputLOG
+              compile_qbittorrent & spinner $!
+              check_status_qbt | tee -a $OutputLOG
+              ;;
+esac
+
+
+
+
+
+###################### deprecated ######################
+
+function deprecated_codes() {
+
+    if [[ -n $(which checkinstalll) ]]; then
+        apt-cache show libtorrent-rasterbar | grep inexistence -q && dpkg -r libtorrent-rasterbar
+        mkdir -p doc-pak && echo "qBittorrent BitTorrent client headless (qbittorrent-nox)" > description-pak
+        checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$version --pkggroup qbittorrent >> $OutputLOG 2>&1
+    fi
+
+    if [[ $CODENAME == jessie ]]; then
+        apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
+        apt-get autoremove -y >> $OutputLOG 2>&1
+        apt-get install -y libgl1-mesa-dev >> $OutputLOG 2>&1
+        wget -nv https://github.com/Aniverse/inexistence/raw/files/debian.package/qt.5.5.1.jessie.amd64.deb -O qt.5.5.1.jessie.amd64.deb >> $OutputLOG 2>&1
+        dpkg -i qt.5.5.1.jessie.amd64.deb >> $OutputLOG 2>&1
+        rm -f qt.5.5.1.jessie.amd64.deb
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        qmake --version >> $OutputLOG 2>&1
+    else
+        apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
+    fi
+
+}
+
+########################################################
