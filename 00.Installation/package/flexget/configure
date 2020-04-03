@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.03.25
-script_version=r10008
+script_update=2020.04.03
+script_version=r10009
 
 ################################################################################################ Debug
 
@@ -211,7 +211,8 @@ EOF
 
 
 function add_flexget_plugins() {
-    cd $iHome/.config/flexget
+    mkdir -p $iHome/.config/flexget/plugins
+    cd $iHome/.config/flexget/plugins
 
     # https://github.com/IvonWei/flexget_qbittorrent_mod
     wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
