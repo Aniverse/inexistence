@@ -6,6 +6,24 @@
 
 
 
+## 2020.04.03
+
+`inexistence 1.1.9.1`  
+1. Feature：qBittorrent 4.2.2 的选项换为 4.2.3  
+
+
+
+
+
+## 2020.03.30
+
+`qbittorrent/configure r12037`
+1. 加入两个第三方 WebUI，默认不启用  
+可以实现 RSS、批量替换 tracker（虽然我用起来有 bug……）  
+
+
+
+
 
 ## 2020.03.29
 
@@ -39,7 +57,7 @@
 
 `ipv6 r31215`
 1. Sync from upstream  
-2. **修复 Online dibbler 在 bionic 下的问题**  
+2. **修复 Online dibbler 在 Ubuntu 18.04 下的问题**  
 3. netplan apply 后 sleep 5，防止 DNS 解析还没更上  
 4. dibbler 和 odhcp6c 在检测到没安装的情况下才编译安装  
 5. cleanup 里无论 type 都清除 netplan 的配置，并加上 dibbler 的配置清除  
@@ -299,7 +317,7 @@
 
 `mingling 0.9.3.6`  
 - 修复 flexget systemd 检测 (root → user)  
-也是服了，写 ChangeLog 的时候才发现下午更新的时候又手滑了，感觉改了下  
+也是服了，写 ChangeLog 的时候才发现下午更新的时候又手滑了，赶快改了下  
 
 `wine/install r10006`
 - 修复 Ubuntu 18.04/Debian 10 缺少依赖的问题  
@@ -467,7 +485,7 @@ ruisua → sssa / lssa，swap-on → swapon
 `flexget/install r20002`  
 1. 合并 separate-script 分支的修改  
 2. 放弃单用户安装，改为安装到系统  
-3. **抛弃 flexget 2，全面使用 flexget3**  
+3. **抛弃 FlexGet 2，全面使用 FlexGet 3**  
 4. 加入 `install_python3`  
 5. 不针对 WebUI 用户名打补丁，不过**移除了密码复杂性验证**  
 

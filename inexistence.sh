@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.0
-INEXISTENCEDATE=2020.03.29
+INEXISTENCEVER=1.1.9.1
+INEXISTENCEDATE=2020.04.03
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -420,7 +420,7 @@ QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]
 [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
 
 QB_latest_ver=$(wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -1)
-[[ -z $QB_latest_ver ]] && QB_latest_ver=4.2.2
+[[ -z $QB_latest_ver ]] && QB_latest_ver=4.2.3
 
 DE_repo_ver=$(apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -1)
 [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
@@ -814,7 +814,7 @@ while [[ -z $qb_version ]]; do
     echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
 	[[ $qbittorrent_dev == 1 ]] &&
     echo -e "${green}05)${normal} qBittorrent ${cyan}4.2.1${normal}" &&
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.2.2${normal}"
+    echo -e "${green}06)${normal} qBittorrent ${cyan}4.2.3${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
     [[ $DISTRO == Ubuntu ]] &&
@@ -833,7 +833,7 @@ while [[ -z $qb_version ]]; do
         03 | 3) qb_version=4.1.9 ;;
         04 | 4) qb_version=4.1.9.1 ;;
         05 | 5) qb_version=4.2.1 ;;
-        06 | 6) qb_version=4.2.2 ;;
+        06 | 6) qb_version=4.2.3 ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         40) qb_version='Install from repo' ;;
         50) qb_version='Install from PPA' ;;
@@ -1959,7 +1959,7 @@ else
 
     # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
     if [[ $sihuo == yes ]]; then
-        if   [[ $qb_version == 4.2.2 ]]; then
+        if   [[ $qb_version == 4.2.3 ]]; then
             wget -nv -O qb.patch https://raw.githubusercontent.com/Aniverse/inexistence-files/master/miscellaneous/qbt.4.2.2.webui.table.patch
         elif [[ $qb_version == 4.2.1 ]]; then
             wget -nv -O qb.patch https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.2.1.webui.table.patch
