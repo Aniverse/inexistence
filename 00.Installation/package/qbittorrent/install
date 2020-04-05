@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.03
-script_version=r12022
+script_version=r12023
 
 ################################################################################################ Debug
 
@@ -89,20 +89,14 @@ else
     compile_flag='--disable-gui'
 fi
 
-ppa_version=4.2.3
-
-if   [[ $CODENAME == jessie  ]]; then repo_version=3.1.10 ; ppa_version=3.3.16
-elif [[ $CODENAME == stretch ]]; then repo_version=3.3.7
-elif [[ $CODENAME == buster  ]]; then repo_version=4.1.5
-elif [[ $CODENAME == xenial  ]]; then repo_version=3.3.1
-elif [[ $CODENAME == bionic  ]]; then repo_version=4.0.3
-fi
-
 [[ -n $version ]] && version_s=$version
 [[ -n $branch  ]] && version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
 
 ################################################################################################ Sub functions
 
+
+# apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
+#   libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
 
 function install_qt_repo() {
     apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
@@ -115,11 +109,19 @@ function uninstall_qt_repo() {
     apt-get autoremove -y >> $OutputLOG 2>&1
 }
 
+function install_qt_deb_jessie() {
+    uninstall_qt_repo
+    apt-get install -y libgl1-mesa-dev >> $OutputLOG 2>&1
+    wget -nv https://sourceforge.net/projects/inexistence/files/OLD/qt.5.5.1.jessie.amd64.deb/download -O qt.5.5.1.jessie.amd64.deb >> $OutputLOG 2>&1
+    dpkg -i qt.5.5.1.jessie.amd64.deb >> $OutputLOG 2>&1
+    rm -  f qt.5.5.1.jessie.amd64.deb >> $OutputLOG 2>&1
+}
+
 function install_qt_deb_efs() {
     echo "To be added"
 }
 
-function install_qt_static() {
+function install_qb_static() {
     echo "To be added"
 }
 
@@ -129,9 +131,9 @@ function qt_set_env() {
     if dpkg -l | grep -q qt59base; then
         export PATH=/opt/qt59/bin:$PATH
         export PKG_CONFIG_PATH=/opt/qt59/lib/pkgconfig:$PKG_CONFIG_PATH
-    elif dpkg -l | grep -q qt-common; then
-        export PKG_CONFIG_PATH=/usr/local/Qt-5.9.8/lib/pkgconfig:$PKG_CONFIG_PATH
-        export PATH=/usr/local/Qt-5.9.8/bin:$PATH
+    elif dpkg -l | grep inexistence | grep -q 5.5.1 ; then
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
+        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     fi
 
     { lines ; qmake -v ; lines ; } >> $OutputLOG 2>&1
@@ -342,6 +344,15 @@ function deprecated_codes() {
         install_qt_deb
         install_gcc_ppa_trusty
     fi
+
+ppa_version=4.2.3
+
+if   [[ $CODENAME == jessie  ]]; then repo_version=3.1.10 ; ppa_version=3.3.16
+elif [[ $CODENAME == stretch ]]; then repo_version=3.3.7
+elif [[ $CODENAME == buster  ]]; then repo_version=4.1.5
+elif [[ $CODENAME == xenial  ]]; then repo_version=3.3.1
+elif [[ $CODENAME == bionic  ]]; then repo_version=4.0.3
+fi
 
 }
 
