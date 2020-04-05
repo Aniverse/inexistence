@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.17
-script_version=r12057
+script_update=2020.04.05
+script_version=r12058
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -227,6 +227,13 @@ function set_variables_log_location() {
         cd $SCLocation
     else
         cd /tmp
+    fi
+}
+
+
+function add_local_script_to_PATH() {
+    if ! grep $local_script /etc/bash.bashrc ; then
+        echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
     fi
 }
 

@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.05
-script_version=r12039
+script_version=r12040
 
 ################################################################################################ Debug
 
@@ -73,6 +73,7 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+add_local_script_to_PATH
 
 ################################################################################################ Set Variables 2
 
@@ -151,6 +152,7 @@ EOF
         ln -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb       >> $OutputLOG 2>&1
     else
         wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/qbittorrent/qqbb -O $local_script/qqbb >> $OutputLOG 2>&1
+        chmod +x $local_script/qqbb
     fi
     [[ $(command -v unzip) ]] && dl_qbittorrent_alt_webui
 
