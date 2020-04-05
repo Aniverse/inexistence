@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.30
-script_version=r12038
+script_update=2020.04.05
+script_version=r12039
 
 ################################################################################################ Debug
 
@@ -107,7 +107,7 @@ function dl_qbittorrent_alt_webui() {
 
     # https://github.com/CzBiX/qb-web
     tmp=$(curl -Ls https://github.com/CzBiX/qb-web/releases | grep -oE "CzBiX/qb-web/releases/download.*zip" | head -1)
-    wget "https://github.com/$tmp"                      >> $OutputLOG 2>&1
+    wget -nv "https://github.com/$tmp"                  >> $OutputLOG 2>&1
     unzip -o $(basename $tmp)                           >> $OutputLOG 2>&1
     mv -f dist WebUI/CzBiX.qb-web                       >> $OutputLOG 2>&1
     chown $iUser: WebUI/CzBiX.qb-web                    >> $OutputLOG 2>&1
@@ -147,9 +147,15 @@ EOF
     fi
 
     mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
-    ln    -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb           >> $OutputLOG 2>&1
-    dl_qbittorrent_alt_webui
+    if [[ -f $local_packages/package/qbittorrent/qqbb ]]; then
+        ln -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb       >> $OutputLOG 2>&1
+    else
+        wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/qbittorrent/qqbb -O $local_script/qqbb >> $OutputLOG 2>&1
+    fi
+    [[ $(command -v unzip) ]] && dl_qbittorrent_alt_webui
 
+    # This is for users who still using qBittorrent older than 4.2.0
+    # Therefore some qBittorrent-4.2-and-above-only settings are not added here
     cat << EOF > $qbconf
 [Application]
 FileLogger\Enabled=true
