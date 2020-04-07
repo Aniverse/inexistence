@@ -6,10 +6,81 @@
 
 
 
-## 2020.04.03
+
+
+
+
+
+
+
+
+
+## 2020.04.06/07
+
+`inexistence 1.1.9.8`  
+1. NewFeature：使用独立脚本安装 qbittorrent  
+2. Feature：移除 qbittorrent 的 ppa 和 repo 安装模式  
+3. Feature：加入 `--qb-static` 选项  
+4. Feature：加入 `--quick` 选项  
+目前区别就是不编绎 wget 和 vnstat，以后再改  
+5. Feature：更换 tr 的下载链接到 GitHub  
+6. Feature：s-opt 信息中不显示用户名，改为显示 Home 目录下的目录数量  
+7. Codes：调整部分缩进  
+8. **Codes：使用脚本 check-sys 简化代码**  
+
+`Aniverse/rtinst`
+1. 修复 rarlinux 的下载链接  
+
+`function r12061`
+1. Add stop_app and restart_app  
+装软件前停止现有进程，装完后重启  
+2. Fix Unnecessary output when add_local_script_to_PATH  
+
+`check-sys r11008`
+1. 加入 check-virt  
+2. 加入 IP、硬件检查等大量 function  
+从 aBench 和 inexistence 引入的，减少重复代码和维护量  
+
+`libtorrent-rasterbar/install r11061`
+1. 更换 lt 1.1.14 的下载链接到 GitHub  
+
+`qbittorrent/install r12027`
+1. 加入 install_qb_deb  
+2. 加入 install_qb_static  
+3. 加入 install_qt_deb_efs  
+4. 装之前 stop app，装完后 restart app  
+
+`qbittorrent/configure r12041`
+1. 同时往配置文件里添加 4.2 和 4.1 的密码配置，提高兼容性  
+经测试同时写两个没啥负面影响，好处是升级或者降级的时候不用重新配置密码了  
+
+
+
+
+
+## 2020.04.03/05
 
 `inexistence 1.1.9.1`  
 1. Feature：qBittorrent 4.2.2 的选项换为 4.2.3  
+
+`function r12058`
+1. add_local_script_to_PATH  
+
+`flexget/configure r10009`
+1. FlexGet 第三方插件之前忘记扔到 plugins 目录里了  
+
+`qbittorrent/configure r12040`
+1. wget qqbb when local doesn't exist
+2. wget -nv  
+3. [[ $(command -v unzip) ]] && dl_qbittorrent_alt_webui  
+4. add_local_script_to_PATH  
+
+`qbittorrent/install r12023`
+1. 从 separate-script 分支加进来  
+2. 同步最近 master 分支的整体风格改动  
+3. 抛弃 apt 与 ppa 模式，代码仍保留  
+4. 更新 set_qt_dev  
+5. Debian 8 下用回 qt 5.5.1  
 
 
 
