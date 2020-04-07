@@ -103,30 +103,33 @@ bash <(wget -qO- https://git.io/abcde) --apt-no --tweaks-yes --bbr-no --tools-no
 
 
 7. ***qBittorrent***  
-**`--qb 4.2.1`**、**`--qb ppa`**、**`--qb No`**  
-注意：目前脚本安装的 flexget 2.X 和 qBittorrent 4.2.1 不兼容  
+**`--qb 4.2.3 --qb-static`**、**`--qb 3.3.11`**、**`--qb No`**  
+static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来安装。这两种安装方法的最大特点是安装速度非常快  
+因为 static 和 deb 安装已经很快了，因此去除了 repo 和 ppa 的安装选项  
+默认选项仍为 `4.1.9 (compile)` 是为了保证对 Debian 8 的兼容性，我个人推荐用 deb 或 static 模式  
 
 
 8. ***Deluge***  
 **`--de 1.3.15_skip_hash_check`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
 默认选项为从源码安装 1.3.15  
-2.0.3 目前运行在 Python 2.7 下，且仍然有较多 PT 站不支持 2.0.3  
+2.0.3 目前运行在 Python 2.7 下，且仍然有一些 PT 站不支持 2.0.3，因此不推荐使用  
 此外还会安装一些实用的 Deluge 第三方插件：  
 - `AutoRemovePlus` 是自动删种插件，支持 WebUI 与 GtkUI  
 - `ltconfig` 是一个调整 `libtorrent-rasterbar` 参数的插件，在安装完后就启用了 `High Performance Seed` 模式  
 - `Stats`、`TotalTraffic`、`Pieces`、`LabelPlus`、`YaRSS2`、`NoFolder` 都只能在 GUI 下设置，WebUI 下无法显示  
 - `Stats` 和 `TotalTraffic`、`Pieces` 分别可以实现速度曲线和流量统计、区块统计  
-- `LabelPlus` 是加强版的标签管理，支持自动根据 Tracker 对种子限速，刷 Frds 可用；也只有 GUI 可用    
+- `LabelPlus` 是加强版的标签管理，支持自动根据 Tracker 对种子限速，刷 Frds 可用  
 - `YaRSS2` 是用于 RSS 的插件  
 隐藏选项 21，是可以跳过校验、全磁盘预分配的 1.3.15 版本  
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
 9. ***libtorrent-rasterbar***  
-**`--lt RC_1_0`**、**`--lt RC_1_1`**、**`--lt system`**、**`--lt 1.1.12`**  
+**`--lt RC_1_1`**、**`--lt system`**、**`--lt 1.1.12`**  
 要安装 Deluge 或者 qBittorrent 中的任意一个，就必须安装 libtorrent-rasterbar，因为 libtorrent-rasterbar 是这两个软件所使用的后端  
-如果你对这个选项不甚了解，请使用脚本给出的默认选项，避免潜在的麻烦  
+如果你对这个选项不怎么了解，请使用脚本给出的默认选项，避免潜在的麻烦  
 从 Deluge 2.0 或 qBittorrent 4.1.4 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
+
 需要注意的是，这个 libtorrent-rasterbar 和 rTorrent 所使用的 libtorrent 是不一样的，切勿混淆  
 Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/arvidn/libtorrent)，rTorrent 使用的则是 [libtorrent-rakshasa](https://github.com/rakshasa/libtorrent)  
 
