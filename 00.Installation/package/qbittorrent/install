@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.03
-script_version=r12023
+script_update=2020.04.07
+script_version=r12024
 
 ################################################################################################ Debug
 
@@ -24,6 +24,7 @@ unset AppName AppNameLower Need_SourceCode pm_action \
 
 AppName=qBittorrent
 AppNameLower=qbittorrent
+AppExec=/usr/bin/qbittorrent-nox
 DebName=qbittorrent-nox
 Need_SourceCode=yes
 pm_action=install
@@ -68,16 +69,18 @@ cat_outputlog
 
 ################################################################################################ Set Variables 2
 
+qb_deb_available=['4.1.9','4.2.3']
+
 git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
+[[ -z $mode ]] && [[ ${qb_deb_available[*]} =~ ${version} ]] && mode=deb
+[[ $mode ==deb ]] && [[ ! ${qb_deb_available[*]} =~ ${version} ]] && echo_error "$version is not available in deb mode" && exit 1
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
 [[ -n $version ]] && check_remote_git_repo_branch  $git_repo  "release-$version"
 [[ -n $branch  ]] && check_remote_git_repo_branch  $git_repo  "$branch"
-[[ ! $mode =~ (apt|ppa|source) ]] && echo -e "${CW} Mode can only be specified as apt, ppa or source${normal}" && exit 1
-[[ $mode == ppa ]] && [[ $DISTRO != Ubuntu ]] && echo -e "${normal}PPA is not support for $DISTRO, change installation mode from ppa to apt" && mode=apt
-# [[ $mode == apt ]] && grep qbittorrent -q /etc/apt/sources.list && echo -e "${normal}qBittorrent PPA detected, change installation mode from apt to ppa" && mode=ppa
+[[ ! $mode =~ (source|deb|static) ]] && echo_error "${CW} Mode can only be specified as deb, static or source${normal}" && exit 1
 
 [[ -z $type ]] && type=headless
 [[ ! $type =~ (headless|desktop) ]] && echo -e "${CW} Type can only be specified as headless or desktop${normal}" && exit 1
@@ -92,20 +95,19 @@ fi
 [[ -n $version ]] && version_s=$version
 [[ -n $branch  ]] && version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
 
-################################################################################################ Sub functions
 
 
-# apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
-#   libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
+################################################################################################ dependencies
+
+
 
 function install_qt_repo() {
     apt-get install -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
 }
 
-
 function uninstall_qt_repo() {
     apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev >> $OutputLOG 2>&1
-    dpkg -r qt-common >> $OutputLOG 2>&1
+    dpkg -r qt >> $OutputLOG 2>&1
     apt-get autoremove -y >> $OutputLOG 2>&1
 }
 
@@ -118,12 +120,69 @@ function install_qt_deb_jessie() {
 }
 
 function install_qt_deb_efs() {
-    echo "To be added"
+    list="qt512base_5.12.6-1basyskom1_amd64.deb
+qt512xmlpatterns_5.12.6-1basyskom1_amd64.deb
+qt512declarative_5.12.6-1basyskom1_amd64.deb
+qt512svg_5.12.6-1basyskom1_amd64.deb
+qt512tools_5.12.6-1basyskom1_amd64.deb"
+    mkdir -p /tmp/qt_deb >> $OutputLOG 2>&1
+    cd /tmp/qt_deb        >> $OutputLOG 2>&1
+    for deb in $list ; do
+        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/qt5/$deb  >> $OutputLOG 2>&1  # --trust-server-name
+        apt-get -y install /tmp/qt_deb/$deb  >> $OutputLOG 2>&1
+    done
+    if [[ ! -f /usr/bin/lrelease-qt5 ]]; then
+        ln -s /usr/lib/x86_64-linux-gnu/qt5/bin/lrelease /usr/bin/lrelease-qt5
+    fi
+    rm -rf /tmp/qt_deb
 }
 
-function install_qb_static() {
-    echo "To be added"
+
+
+################################################################################################ Install qBittorrent static or via deb
+
+
+
+function install_qtbase_deb() {
+    if [[ "$CODENAME" =~ ("xenial"|"stretch") ]]; then
+        mkdir -p /tmp/qb && cd /tmp/qb
+        local deb=qt512base_5.12.6-1basyskom1_amd64.deb
+        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/qt5/$deb  >> $OutputLOG 2>&1
+        apt-get -y install /tmp/qb/$deb >> $OutputLOG 2>&1
+        rm -f /tmp/qb >> $OutputLOG 2>&1
+    fi
 }
+
+function install_qbittorrent_deb() {
+    install_qtbase_deb
+    mkdir -p /tmp/qb && cd /tmp/qb
+    if [[ $version == 4.1.9 ]];then
+        qb_deb=4.1.9.2-libt1.1-1build1_amd64
+    else
+        qb_deb="${version}-libt1.1-1build1_amd64"
+    fi
+    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
+    apt-get install -y /tmp/qb/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
+    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/qbittorrent/qbittorrent-nox_${qb_deb_version}.deb
+    apt-get install -y /tmp/qb/qbittorrent-nox_${qb_deb_version}.deb           >> $OutputLOG 2>&1
+    rm -rf /tmp/qb
+}
+
+function install_qbittorrent_static() {
+    if   [[ $version == 4.2.3 ]];then
+        qb_static=4.2.3.lt.1.1.14
+    elif [[ $version == 4.2.3.1 ]];then
+        qb_static=4.2.3.lt.1.2.5
+    else
+        qb_static=4.1.9.lt.1.1.14
+    fi
+    wget -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download -O $AppExec >> $OutputLOG 2>&1
+    chmod +x $AppExec >> $OutputLOG 2>&1
+}
+
+
+
+################################################################################################ Build qBittorrent
 
 
 
@@ -134,29 +193,28 @@ function qt_set_env() {
     elif dpkg -l | grep inexistence | grep -q 5.5.1 ; then
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    elif dpkg -l | grep qt512base ; then
+        source /opt/qt512/bin/qt512-env.sh >> $OutputLOG 2>&1
     fi
-
     { lines ; qmake -v ; lines ; } >> $OutputLOG 2>&1
-}
-
-
-function install_qt_deb() {
-    apt-get install -y build-essential libgl1-mesa-dev python3-dev python >> $OutputLOG 2>&1
-    wget -nv https://sourceforge.net/projects/inexistence/files/deb/$CODENAME/qt-common.5.9.8.$CODENAME.amd64.deb/download -O qt.5.9.8.deb >> $OutputLOG 2>&1 ||
-    { echo -e "${CW} Failed to wget qt deb${normal}" ; exit 1 ; }
-    dpkg -i qt.5.9.8.deb >> $OutputLOG 2>&1 && ldconfig
 }
 
 
 function install_qbittorrent_dependencies() {
     lines2 >> $OutputLOG
 
+# apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
+#   libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
+# build-essential libgl1-mesa-dev libssl-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libboost-python-dev python python-dev python3 python3-dev pkg-config automake libtool git screen libgeoip-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev zlib1g-dev
+
     if version_ge $version_s 4.2.0 ; then
+        # https://github.com/qbittorrent/qBittorrent/commit/5c63ad3b957f7d65c063cca82c6ba9a8512aeef2
         qt_required_version=5.9.0
     elif version_ge $version_s 4.0 ; then
+        # https://github.com/qbittorrent/qBittorrent/commit/008d7dbedce7020d206b4a0c4d7f059b4f2b9570
         qt_required_version=5.5.1
     else
-        qt_required_version=5.0 # I don't remember which version
+        qt_required_version=5.2.0
     fi
 
     if [[ $CODENAME =~ (bionic|buster) ]]; then
@@ -253,8 +311,9 @@ function check_status_qbt() {
     elif [[ $qb_installed_ver == $version_s ]]; then
         echo -e " ${green}${bold}DONE${normal}"
         touch $LOCKLocation/$AppNameLower{,.source}.lock
+      # touch $LOCKLocation/$AppNameLower{,.source}.lock
     else
-        echo -e " ${red}${bold}FAILED: $qb_installed_ver is installed rather than $version_s${normal}"
+        echo -e " ${red}${bold}ERROR: $qb_installed_ver is installed rather than $version_s${normal}"
     fi
 }
 
@@ -274,7 +333,12 @@ fi
 case $mode in
     deb     ) echo -ne "Installing $AppName ${bold}${cyan}$repo_version${normal} from pre-built deb ..." | tee -a $OutputLOG
               install_qbittorrent_deb & spinner $!
-              check_status | tee -a $OutputLOG
+              check_status_qbt | tee -a $OutputLOG
+              ;;
+
+    static  ) echo -ne "Installing $AppName ${bold}${cyan}$repo_version${normal} from static build ..." | tee -a $OutputLOG
+              install_qbittorrent_static & spinner $!
+              check_status_qbt | tee -a $OutputLOG
               ;;
 
     source  ) [[ -z $lt_version ]] && echo -e "${CW} No libtorrnt-rasterbar found${normal}" && exit 1
@@ -294,7 +358,32 @@ esac
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###################### deprecated ######################
+
+
+
+# [[ $mode == ppa ]] && [[ $DISTRO != Ubuntu ]] && echo -e "${normal}PPA is not support for $DISTRO, change installation mode from ppa to apt" && mode=apt
+# [[ $mode == apt ]] && grep qbittorrent -q /etc/apt/sources.list && echo -e "${normal}qBittorrent PPA detected, change installation mode from apt to ppa" && mode=ppa
 
 function deprecated_codes() {
 
@@ -427,6 +516,13 @@ EOF
        ln -s x86_64-linux-gnu-${gcc}-9 $gcc
     done
     cd $SCLocation
+}
+
+function install_qt_deb() {
+    apt-get install -y build-essential libgl1-mesa-dev python3-dev python >> $OutputLOG 2>&1
+    wget -nv https://sourceforge.net/projects/inexistence/files/deb/$CODENAME/qt-common.5.9.8.$CODENAME.amd64.deb/download -O qt.5.9.8.deb >> $OutputLOG 2>&1 ||
+    { echo -e "${CW} Failed to wget qt deb${normal}" ; exit 1 ; }
+    dpkg -i qt.5.9.8.deb >> $OutputLOG 2>&1 && ldconfig
 }
 
 ########################################################
