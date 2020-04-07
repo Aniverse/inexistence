@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.07
-script_version=r10006
+script_version=r11007
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -66,6 +66,54 @@ if [[ $DISTRO =~ (Debian|Ubuntu) ]]; then
 else
     displayOS="$DISTRO ($arch)"
 fi
+
+################################################################################################
+################################################################################################ System spec check
+################################################################################################
+
+# Check interface
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+wangka2=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+if [[ -n $wangka2 ]]; then
+    if [[ $wangka1 == $wangka2 ]];then
+        interface=$wangka1
+    else
+        interface=$wangka2
+    fi
+else
+    interface=$wangka1
+fi
+
+
+calc_disk() {
+    local total_size=0 ; local array=$@
+    for size in ${array[@]} ; do
+        [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
+        [ "`echo ${size:(-1)}`" == "K" ] && size=0
+        [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
+        [ "`echo ${size:(-1)}`" == "T" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' * 1024}' )
+        [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
+        total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
+    done
+    echo ${total_size}
+}
+
+
+hardware_check_1() {
+    cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
+    cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
+    cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
+    cpucores=$( expr $cpucores_single \* $cpunumbers )
+    [[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
+
+    disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
+    disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
+    disk_total_size=$( calc_disk ${disk_size1[@]} )
+    disk_used_size=$( calc_disk ${disk_size2[@]} )
+    freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
+    tram=$( free -m | awk '/Mem/ {print $2}' )
+    uram=$( free -m | awk '/Mem/ {print $3}' )
+}
 
 
 ################################################################################################
@@ -380,6 +428,7 @@ check_virt() {
     local virtualx=$(dmesg 2>1)
     local arch=$(uname -p)
     local dmi=$(LANG=C dmidecode 2>&1)
+    cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 
     if  [ $(which dmidecode) ]; then
         sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
@@ -399,10 +448,8 @@ check_virt() {
         virtual="Lxc"
     elif [[ -f /proc/user_beancounters ]]; then
         virtual="OpenVZ"
-    elif [[ "$virtualx" == *kvm-clock* ]]; then
+    elif [[ "$virtualx" == *kvm-clock* ]] || [[ "$cname" == *KVM* ]]; then
         virtual="KVM"
-#   elif [[ "$cname" == *KVM* ]]; then
-#       virtual="KVM"
     elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
         virtual="VMware"
     elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
@@ -446,7 +493,7 @@ check_virt() {
             fi
         fi
     else
-        virtual="Dedicated"
+        virtual="No Virtualization Detected"
     fi
 
     if [ "$arch" = "ia64" ]; then
@@ -454,17 +501,69 @@ check_virt() {
            virtual="Xen-HVM"
         fi
     fi
+
+    [[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
 }
 
 check_virt
 
 
+################################################################################################
+################################################################################################ IP-Related
+################################################################################################
 
 
 
+function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 
+function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
 
+# From nench.sh
+function redact_ip() {
+    case "$1" in
+        *.*)
+            printf '%s.xxx\n' "$(printf '%s\n' "$1" | cut -d . -f 1-3)"
+            ;;
+        *:*)
+            printf '%s:xxxx\n' "$(printf '%s\n' "$1" | cut -d : -f 1-3)"
+            ;;
+    esac
+}
 
+ipv4_check() {
+    echo -e "${bold}Checking your server's public IPv4 address ...${normal}"
+    # serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
+    # serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
+    # serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
+    # isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+    serveripv4=$( ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' )
+    isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
+    isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
+    serveripv4_show=$(redact_ip "$serveripv4") ; [[ $full_ip == 1 ]] && serveripv4_show=$serveripv4
+}
+
+ipv6_check() {
+    serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
+    # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
+    # serverlocalipv6=$( ip addr show dev $interface | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
+    serveripv6_show=$(redact_ip "$serveripv6") ; [[ $full_ip == 1 ]] && serveripv6_show=$serveripv6
+}
+
+ip_ipapi() {
+     wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > $HOME/ipapi 2>&1
+     ccoodde=$( cat $HOME/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+     country=$( cat $HOME/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+     regionn=$( cat $HOME/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+     cityyyy=$( cat $HOME/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+     isppppp=$( cat $HOME/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+     asnnnnn=$( cat $HOME/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+     [[ $cityyyy == Singapore ]] && unset cityyyy
+     [[ -z $isppppp ]] && isp="No ISP detected"
+     [[ -z $asnnnnn ]] && isp="No ASN detected"
+     rm -f $HOME/ipapi 2>&1
+}
 
 
 
@@ -492,4 +591,42 @@ check_release() {
     elif cat /etc/os-release | grep -Eqi "slackware" ; then
         release="slackware"
     fi
+}
+
+ip_ipip() {
+    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
+
+    ipip_result=$HOME/ipip_result
+    wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
+
+    # ipip_Loc=$( cat $ipip_result | grep -A3 地理位置   | grep -v 地理位置 | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+    # ipip_ISP=$( cat $ipip_result | grep -A3 -E "运营商|所有者" | grep -Ev "运营商|所有者" | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+
+      ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
+     ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
+    #ipip_CIDR=$( cat $ipip_result | grep -C7 ASN    | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    # 2019.04.02 原先的已失效
+    # ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" | head -1 )
+    ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
+    ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
+     ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+     ipip_ISP=$( cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+
+    #[[ $ipip_result == $HOME/ipip_result ]] && 
+    rm -f $ipip_result
+}
+
+ip_mix() {
+    echo -e "${bold}正在检查服务器的地理位置（可能不准） ...${normal}"
+    result=$( wget -t1 -T10 -qO- http://freeapi.ipip.net/$serveripv4 )
+    country=$( echo $result | awk -F '"' '{print $2}' )
+    region=$( echo $result | awk -F '"' '{print $4}' )
+    city=$( echo $result | awk -F '"' '{print $6}' )
+    citydisplay=$( echo "$city, ")
+    #isp=$( echo $result | awk -F '"' '{print $10}' )
+    echo -e "${bold}正在检查服务器的 ISP ...${normal}"
+    isp=$( wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/json | grep \"org\" | awk -F '"' '{print $4}' )
+    echo -e "${bold}正在检查服务器的 ASN ...${normal}"
+    asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
 }
