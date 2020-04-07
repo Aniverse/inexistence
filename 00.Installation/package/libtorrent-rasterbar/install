@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.25
-script_version=r11060
+script_update=2020.04.07
+script_version=r11061
 
 ################################################################################################ Debug
 
@@ -264,7 +264,7 @@ python-libtorrent_1.1.14-1build1_amd64.deb"
     mkdir -p /tmp/lt_deb
     cd /tmp/lt_deb
     for deb in $list ; do
-        wget -nv --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/libtorrent-rasterbar/$deb/download >> $OutputLOG 2>&1
+        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/libtorrent-rasterbar/$deb >> $OutputLOG 2>&1
     done
     if [[ $CODENAME != jessie ]]; then
         apt-get -fuy install ./*deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
