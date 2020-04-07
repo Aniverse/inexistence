@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.07
-script_version=r12026
+script_version=r12027
 
 ################################################################################################ Debug
 
@@ -317,7 +317,6 @@ function check_status_qbt() {
         echo -e " ${green}${bold}DONE${normal}"
         touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
         restart_app
-fi
     else
         echo -e " ${red}${bold}ERROR: $qb_installed_ver is installed rather than $version_s${normal}"
     fi
