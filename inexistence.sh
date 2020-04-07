@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.3
+INEXISTENCEVER=1.1.9.4
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2216,7 +2216,7 @@ transmission_2.94-1mod1_all.deb"
     mkdir -p /tmp/tr_deb
     cd /tmp/tr_deb
     for deb in $list ; do
-        wget --trust-server-name https://sourceforge.net/projects/seedbox-software-for-linux/files/${CODENAME}/binary-amd64/transmission/$deb/download
+        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb
       # apt-get -y install /tmp/tr_deb/$deb
     done
     if [[ $CODENAME != jessie ]]; then
