@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.07
-script_version=r12025
+script_version=r12026
 
 ################################################################################################ Debug
 
@@ -315,26 +315,30 @@ function check_status_qbt() {
         echo -e " ${red}${bold}FAILED${normal}"
     elif [[ $qb_installed_ver == $version_s ]]; then
         echo -e " ${green}${bold}DONE${normal}"
-        touch $LOCKLocation/$AppNameLower{,.source}.lock
-      # touch $LOCKLocation/$AppNameLower{,.source}.lock
+        touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
+        restart_app
+fi
     else
         echo -e " ${red}${bold}ERROR: $qb_installed_ver is installed rather than $version_s${normal}"
     fi
 }
 
 
+function uninstall_old_qbittorrent() {
+    if [[ -x $AppExec ]] ; then
+        echo -ne "Uninstalling old qBittorrent ... " | tee -a $OutputLOG
+        apt-get purge -y qbittorrent-nox >> $OutputLOG 2>&1
+        dpkg -r qbittorrent-nox >> $OutputLOG 2>&1
+        apt-get autoremove -y >> $OutputLOG 2>&1
+        rm -rf $AppExec >> $OutputLOG 2>&1
+        echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
+    fi
+}
+
 ################################################################################################ Main
 
-
-if dpkg -l | grep $AppNameLower -q ; then
-    echo -ne "Uninstalling old qBittorrent ... " | tee -a $OutputLOG
-    apt-get purge -y qbittorrent-nox >> $OutputLOG 2>&1
-    dpkg -r qbittorrent-nox >> $OutputLOG 2>&1
-    apt-get autoremove -y >> $OutputLOG 2>&1
-    rm -rf $AppExec >> $OutputLOG 2>&1
-    echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
-fi
-
+stop_app
+uninstall_old_qbittorrent
 
 case $mode in
     deb     ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from pre-built deb ..." | tee -a $OutputLOG
