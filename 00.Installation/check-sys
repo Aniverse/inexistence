@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.20
-script_version=r10005
+script_update=2020.04.07
+script_version=r10006
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -23,7 +23,7 @@ fi
 get_opsy() {
     # Fedora, CentOS
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
-    # Gentoo/Linux, Slackware, Archlinux, Alpine Linux, Ubuntu, Debina
+    # Gentoo, Slackware, Arch Linux, Alpine Linux, Ubuntu, Debian, OpenSUSE
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
     # Ubuntu
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
@@ -374,7 +374,104 @@ function pm_action(){
     fi
 }
 
-# Unused
+# Virt-what
+check_virt() {
+    local virtual
+    local virtualx=$(dmesg 2>1)
+    local arch=$(uname -p)
+    local dmi=$(LANG=C dmidecode 2>&1)
+
+    if  [ $(which dmidecode) ]; then
+        sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
+        sys_product=$(dmidecode -s system-product-name) 2>/dev/null
+        sys_ver=$(dmidecode -s system-version) 2>/dev/null
+    else
+        sys_manu=""
+        sys_product=""
+        sys_ver=""
+    fi
+    
+    if grep docker /proc/1/cgroup -qa 2>/dev/null ; then
+        virtual="Docker"
+    elif grep lxc /proc/1/cgroup -qa 2>/dev/null; then
+        virtual="Lxc"
+    elif grep -qa container=lxc /proc/1/environ 2>/dev/null; then
+        virtual="Lxc"
+    elif [[ -f /proc/user_beancounters ]]; then
+        virtual="OpenVZ"
+    elif [[ "$virtualx" == *kvm-clock* ]]; then
+        virtual="KVM"
+#   elif [[ "$cname" == *KVM* ]]; then
+#       virtual="KVM"
+    elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
+        virtual="VMware"
+    elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
+        virtual="Parallels"
+    elif [[ "$virtualx" == *VirtualBox* ]]; then
+        virtual="VirtualBox"
+    elif grep -q 'UML' "/proc/cpuinfo"; then
+        virtual="UML (User Mode Linux)"
+    elif grep -q '^vendor_id.*PowerVM Lx86' "${root}/proc/cpuinfo"; then
+        virtual="PowerVM Lx86"
+    elif cat "/proc/self/status" | grep -q "VxID: [0-9]*" ; then
+        if grep -q "VxID: 0$" "/proc/self/status"; then
+            virtual="Linux VServer Host"
+        else
+            virtual="Linux VServer Guest"
+        fi
+    elif grep -q '^vendor_id.*IBM/S390' "/proc/cpuinfo" ; then
+        if grep -q 'VM.*Control Program.*z/VM' "/proc/sysinfo"; then
+            virtual="IBM SystemZ ZVM"
+        elif grep -q '^LPAR' "${root}/proc/sysinfo"; then
+            virtual="IBM SystemZ LPAR"
+        else
+            virtual="IBM SystemZ"
+        fi
+    elif echo "$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "$dmi" | grep -q 'Product.* LPAR'; then
+        virtual="Virtage"
+    elif [[ -d /proc/xen ]]; then
+        if grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null; then
+            virtual="Xen-Dom0"
+        else
+            virtual="Xen-DomU"
+        fi
+    elif [ -f "/sys/hypervisor/type" ] && grep -q "xen" "/sys/hypervisor/type"; then
+        virtual="Xen"
+    elif [[ "$sys_manu" == *"Microsoft Corporation"* ]]; then
+        if [[ "$sys_product" == *"Virtual Machine"* ]]; then
+            if [[ "$sys_ver" == *"7.0"* || "$sys_ver" == *"Hyper-V" ]]; then
+                virtual="Hyper-V"
+            else
+                virtual="Microsoft Virtual Machine"
+            fi
+        fi
+    else
+        virtual="Dedicated"
+    fi
+
+    if [ "$arch" = "ia64" ]; then
+        if [ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]; then
+           virtual="Xen-HVM"
+        fi
+    fi
+}
+
+check_virt
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################
+################################################################################################ deprecated
+################################################################################################
+
 check_release() {
     if [ -f /etc/redhat-release ]; then
         release="centos"
