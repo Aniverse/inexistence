@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.1
-INEXISTENCEDATE=2020.04.03
+INEXISTENCEVER=1.1.9.2
+INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -804,39 +804,32 @@ fi ; }
 
 function ask_qbittorrent() {
 
-
-
 while [[ -z $qb_version ]]; do
 
-    echo -e "${green}01)${normal} qBittorrent ${cyan}3.3.11${normal}"
-    echo -e "${green}02)${normal} qBittorrent ${cyan}4.1.3${normal}"
-    echo -e "${green}03)${normal} qBittorrent ${cyan}4.1.9${normal}"
-    echo -e "${green}04)${normal} qBittorrent ${cyan}4.1.9.1${normal}"
-	[[ $qbittorrent_dev == 1 ]] &&
-    echo -e "${green}05)${normal} qBittorrent ${cyan}4.2.1${normal}" &&
-    echo -e "${green}06)${normal} qBittorrent ${cyan}4.2.3${normal}"
+    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (build from source)${normal}"
+    [[ $CODENAME != jessie ]] &&
+    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (build from source)${normal}"
+    #echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
+    #echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
+    #echo -e "${green}21)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
+    #echo -e "${green}22)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
-    echo -e "${green}40)${normal} qBittorrent ${cyan}$QB_repo_ver${normal} from ${cyan}repo${normal}"
-    [[ $DISTRO == Ubuntu ]] &&
-    echo -e "${green}50)${normal} qBittorrent ${cyan}$QB_latest_ver${normal} from ${cyan}Stable PPA${normal}"
     echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
 
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}03${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}03${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
 
     case $version in
-        01 | 1) qb_version=3.3.11 ;;
-        02 | 2) qb_version=4.1.3 ;;
-        03 | 3) qb_version=4.1.9 ;;
-        04 | 4) qb_version=4.1.9.1 ;;
-        05 | 5) qb_version=4.2.1 ;;
-        06 | 6) qb_version=4.2.3 ;;
+        01 | 1) qb_version=4.1.9 ;;
+        02 | 2) qb_version=4.2.3 ;;
+        11) qb_version=4.1.9 ; qb_mode=deb ;;
+        12) qb_version=4.2.3 ; qb_mode=deb ;;
+        21) qb_version=4.1.9 ; qb_mode=static ;;
+        22) qb_version=4.2.3 ; qb_mode=static ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
-        40) qb_version='Install from repo' ;;
-        50) qb_version='Install from PPA' ;;
         99) qb_version=No ;;
         * | "") qb_version=4.1.9 ;;
     esac
@@ -2712,7 +2705,15 @@ if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
 fi
 
 if [[ $qb_version != No ]]; then
-    echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
+    if [[ $separate == 1 ]]; then
+        bash $local_packages/package/qbittorrent/install -v $qb_version --logbase $LogTimes
+    elif [[ $qb_mode == deb ]]; then
+        bash $local_packages/package/qbittorrent/install -v $qb_version -m deb --logbase $LogTimes
+    elif [[ $qb_mode == static ]]; then
+        bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
+    else
+        echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
+    fi
     bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
 fi
 
