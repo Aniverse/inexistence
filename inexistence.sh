@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.5
+INEXISTENCEVER=1.1.9.6
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2288,12 +2288,9 @@ cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 # --------------------- 配置 Transmission --------------------- #
 
 function config_transmission() {
-
     if [[ $separate == 1 ]] ; then
         bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
     else
-
-
 [[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
 
 mkdir -p /home/$iUser/transmission/{download,torrent,watch} /root/.config/transmission-daemon
@@ -2311,10 +2308,7 @@ chmod -R 755 /root/.config/transmission-daemon
 systemctl daemon-reload
 systemctl enable transmission
 systemctl start transmission
-
-
     fi
-
 }
 
 
@@ -2324,54 +2318,50 @@ systemctl start transmission
 # --------------------- 安装 BBR --------------------- #
 
 function install_bbr() {
-if [[ $bbrinuse == Yes ]]; then
-    sleep 0
-elif [[ $bbrkernel == Yes && $bbrinuse == No ]]; then
-    enable_bbr
-else
-    bnx2_firmware
-    bbr_kernel_4_11_12
-    enable_bbr
-fi
-echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n" ; }
-
-
+    if [[ $bbrinuse == Yes ]]; then
+        sleep 0
+    elif [[ $bbrkernel == Yes && $bbrinuse == No ]]; then
+        enable_bbr
+    else
+        bnx2_firmware
+        bbr_kernel_4_11_12
+        enable_bbr
+    fi
+    echo -e "\n\n${bailvse}  BBR-INSTALLATION-COMPLETED  ${normal}\n"
+}
 
 # 安装 4.11.12 的内核
 function bbr_kernel_4_11_12() {
+    if [[ $CODENAME == stretch ]]; then
+        [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  {bold}Installing libssl1.0.0 ...${normal} "
+        # 2019.04.09 为毛要用 hk 的？估摸着我当时问毛球要的？
+        echo -e "\ndeb http://ftp.hk.debian.org/debian jessie main\c" >> /etc/apt/sources.list
+        apt-get update
+        apt-get install -y libssl1.0.0
+        sed  -i '/deb http:\/\/ftp\.hk\.debian\.org\/debian jessie main/d' /etc/apt/sources.list
+        apt-get update ; }
+    else
+        [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  ${bold}Installing libssl1.0.0 ...${normal} "  ; apt-get install -y libssl1.0.0 ; }
+    fi
 
-if [[ $CODENAME == stretch ]]; then
-    [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  {bold}Installing libssl1.0.0 ...${normal} "
-    # 2019.04.09 为毛要用 hk 的？估摸着我当时问毛球要的？
-    echo -e "\ndeb http://ftp.hk.debian.org/debian jessie main\c" >> /etc/apt/sources.list
-    apt-get update
-    apt-get install -y libssl1.0.0
-    sed  -i '/deb http:\/\/ftp\.hk\.debian\.org\/debian jessie main/d' /etc/apt/sources.list
-    apt-get update ; }
-else
-    [[ ! `dpkg -l | grep libssl1.0.0` ]] && { echo -ne "\n  ${bold}Installing libssl1.0.0 ...${normal} "  ; apt-get install -y libssl1.0.0 ; }
-fi
-
-wget -nv -N O 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-headers-4.11.12-all.deb
-wget -nv -N O 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-headers-4.11.12-amd64.deb
-wget -nv -N O 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
-dpkg -i [123].deb
-rm -rf [123].deb
-update-grub ; }
-
-
+    wget -nv -N O 1.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-headers-4.11.12-all.deb
+    wget -nv -N O 2.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-headers-4.11.12-amd64.deb
+    wget -nv -N O 3.deb https://github.com/Aniverse/BitTorrentClientCollection/raw/master/Linux.Kernel/BBR/linux-image-4.11.12-generic-amd64.deb
+    dpkg -i [123].deb
+    rm -rf [123].deb
+    update-grub
+}
 
 # 开启 BBR
 function enable_bbr() {
-bbrname=bbr
-sed -i '/net.core.default_qdisc.*/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_congestion_control.*/d' /etc/sysctl.conf
-echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
-echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
-sysctl -p
-touch $LockLocation/bbr.lock ; }
-
-
+    bbrname=bbr
+    sed -i '/net.core.default_qdisc.*/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_congestion_control.*/d' /etc/sysctl.conf
+    echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+    echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
+    sysctl -p
+    touch $LockLocation/bbr.lock
+}
 
 # Install firmware for BCM NIC
 function bnx2_firmware() {
@@ -2392,37 +2382,37 @@ function bnx2_firmware() {
 # --------------------- 安装 X2Go --------------------- #
 
 function install_x2go() {
+    apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
+    echo -e "\n\n\n  xfce4  \n\n\n\n"
 
-apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
-echo -e "\n\n\n  xfce4  \n\n\n\n"
-
-if [[ $DISTRO == Ubuntu ]]; then
-    apt-get install -y software-properties-common firefox
-    apt-add-repository -y ppa:x2go/stable
-elif [[ $DISTRO == Debian ]]; then
-    cat >/etc/apt/sources.list.d/x2go.list<<EOF
-# X2Go Repository (release builds)
-deb http://packages.x2go.org/debian ${CODENAME} main
-# X2Go Repository (sources of release builds)
-deb-src http://packages.x2go.org/debian ${CODENAME} main
-# X2Go Repository (nightly builds)
-#deb http://packages.x2go.org/debian ${CODENAME} heuler
-# X2Go Repository (sources of nightly builds)
-#deb-src http://packages.x2go.org/debian ${CODENAME} heuler
+    if [[ $DISTRO == Ubuntu ]]; then
+        apt-get install -y software-properties-common firefox
+        apt-add-repository -y ppa:x2go/stable
+    elif [[ $DISTRO == Debian ]]; then
+        cat << EOF > /etc/apt/sources.list.d/x2go.list
+    # X2Go Repository (release builds)
+    deb http://packages.x2go.org/debian ${CODENAME} main
+    # X2Go Repository (sources of release builds)
+    deb-src http://packages.x2go.org/debian ${CODENAME} main
+    # X2Go Repository (nightly builds)
+    #deb http://packages.x2go.org/debian ${CODENAME} heuler
+    # X2Go Repository (sources of nightly builds)
+    #deb-src http://packages.x2go.org/debian ${CODENAME} heuler
 EOF
-#   gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E
-#   gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1F958385BFE2B6E
+        # gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E
+        # gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1F958385BFE2B6E
+        apt-get -y update
+        apt-get -y install x2go-keyring iceweasel
+    fi
+
     apt-get -y update
-    apt-get -y install x2go-keyring iceweasel
-fi
+    apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
-apt-get -y update
-apt-get -y install x2goserver x2goserver-xsession pulseaudio
+    touch $LockLocation/x2go.lock
 
-touch $LockLocation/x2go.lock
-
-echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n" ; }
+    echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n"
+}
 
 
 
