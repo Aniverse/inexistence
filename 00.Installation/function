@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.07
-script_version=r12060
+script_version=r12061
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -232,7 +232,7 @@ function set_variables_log_location() {
 
 
 function add_local_script_to_PATH() {
-    if ! grep $local_script /etc/bash.bashrc ; then
+    if ! grep $local_script /etc/bash.bashrc -q ; then
         echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
     fi
 }
