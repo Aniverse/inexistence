@@ -13,14 +13,14 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.2
+INEXISTENCEVER=1.1.9.3
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -30,7 +30,7 @@ while [ -n "$1" ] ; do case "$1" in
     -p | --password ) iPass=$2       ; shift 2 ;;
     -b | --branch   ) iBranch=$2     ; shift 2 ;;
 
-    --qb            ) { if [[ $2 == ppa ]]; then qb_version='Install from PPA'   ; elif [[ $2 == repo ]]; then qb_version='Install from repo'   ; else qb_version=$2   ; fi ; } ; shift 2 ;;
+    --qb            ) qb_version=$2 ; shift 2 ;;
     --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift 2 ;;
     --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift 2 ;;
     --rt            ) rt_version=$2 ; shift 2 ;;
@@ -40,6 +40,7 @@ while [ -n "$1" ] ; do case "$1" in
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
+    --qb-static     ) qb_mode=static    ; shift ;;
     --sihuo         ) sihuo=yes         ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
@@ -1733,12 +1734,12 @@ ASN & ISP  : $asnnnnn, $isppppp
 Location   : $cityyyy, $regionn, $country
 Virt       : $virt
 #################################
-Times=$times
+InstalledTimes=$times
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 Setup_date=$(date "+%Y.%m.%d %H:%M")
 MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
-HomeUser=$(ls /home)
+HomeUserNum=$(ls /home | wc -l)
 use_swap=$USESWAP
 #################################
 MaxCPUs=${MAXCPUS}
@@ -1751,7 +1752,7 @@ lt_version=${lt_version}
 Flood=${InsFlood}
 Flexget=${InsFlex}
 rclone=${InsRclone}
-BBR=${InsBBR}
+bbr=${InsBBR}
 Tweaks=${UseTweaks}
 Tools=${InsTools}
 RDP=${InsRDP}
