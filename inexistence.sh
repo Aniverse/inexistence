@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.7
+INEXISTENCEVER=1.1.9.8
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -681,13 +681,13 @@ function ask_qbittorrent() {
 
 while [[ -z $qb_version ]]; do
 
-    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (build from source)${normal}"
+    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (compile)${normal}"
     [[ $CODENAME != jessie ]] &&
-    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (build from source)${normal}"
-    #echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
-    #echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
-    #echo -e "${green}21)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
-    #echo -e "${green}22)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
+    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (compile)${normal}" &&
+    echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
+    echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
+    echo -e "${green}21)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
+    echo -e "${green}22)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
 
