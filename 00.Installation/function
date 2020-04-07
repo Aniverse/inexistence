@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.05
-script_version=r12058
+script_update=2020.04.07
+script_version=r12059
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -234,6 +234,24 @@ function set_variables_log_location() {
 function add_local_script_to_PATH() {
     if ! grep $local_script /etc/bash.bashrc ; then
         echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
+    fi
+}
+
+
+function stop_app() {
+    if [[ -f /log/inexistence/iUser.txt ]] && [[ -f $LOCKLocation/$AppNameLower.lock ]]; then
+        for user in $(cat /log/inexistence/iUser.txt 2>/dev/null) ; do
+           systemctl stop $AppNameLower@$user >> $OutputLOG 2>&1
+        done
+    fi
+}
+
+
+function restart_app() {
+    if [[ -f /log/inexistence/iUser.txt ]] && [[ -f $LOCKLocation/$AppNameLower.lock ]]; then
+        for user in $(cat /log/inexistence/iUser.txt 2>/dev/null) ; do
+           systemctl restart $AppNameLower@$user >> $OutputLOG 2>&1
+        done
     fi
 }
 
