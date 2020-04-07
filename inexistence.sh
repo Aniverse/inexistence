@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.6
+INEXISTENCEVER=1.1.9.7
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -85,6 +85,7 @@ esac ; done
 times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
+source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$PATH
 
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
@@ -132,31 +133,6 @@ trap 'exit 1' TERM
 # 判断是否在运行
 function _if_running () { ps -ef | grep "$1" | grep -v grep > /dev/null && echo "${green}Running ${normal}" || echo "${red}Inactive${normal}" ; }
 
-### 硬盘计算 ###
-calc_disk() {
-local total_size=0 ; local array=$@
-for size in ${array[@]} ; do
-    [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
-    [ "`echo ${size:(-1)}`" == "K" ] && size=0
-    [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
-    [ "`echo ${size:(-1)}`" == "T" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' * 1024}' )
-    [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
-    total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
-done ; echo ${total_size} ; }
-
-
-### 操作系统检测 ###
-get_opsy() { [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
-[ -f /etc/os-release  ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
-[ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return ; }
-
-# --------------------------------------------------------------------------------
-### 是否为 IPv4 地址(其实也不一定是) ###
-function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
-
-### 是否为内网 IPv4 地址 ###
-function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
-
 # --------------------------------------------------------------------------------
 # 检查客户端是否已安装、客户端版本
 function _check_install_1(){
@@ -177,9 +153,10 @@ fi ; }
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
 
 function _check_install_2(){
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
-    client_name=$apps ; _check_install_1
-done ; }
+    for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
+        client_name=$apps ; _check_install_1
+    done
+}
 
 function _client_version_check(){
 [[ $qb_installed == Yes ]] && qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )
@@ -196,23 +173,25 @@ lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_
 ### 输入自己想要的软件版本 ###
 # ${blue}(use it at your own risk)${normal}
 function _input_version() {
-if [[ $script_lang == eng ]]; then
-echo -e "\n${JG} ${bold}Use it at your own risk and make sure to input version correctly${normal}"
-read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}"
-elif [[ $script_lang == chs ]]; then
-echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
-read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
-fi ; }
+    if [[ $script_lang == eng ]]; then
+        echo -e "\n${JG} ${bold}Use it at your own risk and make sure to input version correctly${normal}"
+        read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}"
+    elif [[ $script_lang == chs ]]; then
+        echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
+        read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
+    fi
+}
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-if [[ $SysSupport =~ (1|4|5) ]]; then
-    echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
-else
-    echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
-    ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
-    exit 1
-fi ; }
+    if [[ $SysSupport =~ (1|4|5) ]]; then
+        echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
+    else
+        echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
+        ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
+        exit 1
+    fi
+}
 
 # Ctrl+C 时恢复样式
 cancel() { echo -e "${normal}" ; reset -w ; exit ; }
@@ -263,20 +242,11 @@ clear
 if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
 else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
-arch=$( uname -m ) # 架构，可以识别 ARM
-lbit=$( getconf LONG_BIT ) # 只显示多少位，无法识别 ARM
-
 # 检查是否为 x86_64 架构
 [[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
 
 # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
 SysSupport=0
-DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
-DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
-CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
-grep buster /etc/os-release -q && CODENAME=buster
-[[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
-[[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
 [[ $CODENAME =~        (bionic|buster)         ]] && SysSupport=1
 [[ $CODENAME ==        trusty         ]] && SysSupport=2
 [[ $CODENAME ==        wheezy         ]] && SysSupport=3
@@ -286,12 +256,12 @@ grep buster /etc/os-release -q && CODENAME=buster
 
 # 允许跳过系统升级选项的问题
 [[ $skip_system_upgrade != 1 ]] && {
-# 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
-[[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
-[[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
-# 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
-[[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
-[[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
+    # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
+    [[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
+    [[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
+    # 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
+    [[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
+    [[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
 }
 
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
@@ -308,115 +278,18 @@ which wget | grep -q wget || { echo "${bold}Now the script is installing ${yello
 which wget | grep -q wget || { echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID ; }
 
 echo -e "${bold}Checking your server's public IPv4 address ...${normal}"
-# serveripv4=$( ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' )
-# serveripv4=$( ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:" )
-# serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
-# isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-isValidIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
-isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' ) ; }
-
-wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > /tmp/ipapi 2>&1
-ccoodde=$( cat /tmp/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
-country=$( cat /tmp/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
-regionn=$( cat /tmp/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
-cityyyy=$( cat /tmp/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
-isppppp=$( cat /tmp/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-asnnnnn=$( cat /tmp/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-[[ $cityyyy == Singapore ]] && unset cityyyy
-[[ -z $isppppp ]] && isp="No ISP detected"
-[[ -z $asnnnnn ]] && isp="No ASN detected"
-rm -f /tmp/ipapi 2>&1
-
+ipv4_check
+ip_ipapi
 echo "${bold}Checking your server's public IPv6 address ...${normal}"
-
-serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
-# serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
-# serverlocalipv6=$( ip addr show dev $interface | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
-
-[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
-wangka2=$(ip link show | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
-
-if [[ -n $wangka2 ]]; then
-    if [[ $wangka1 == $wangka2 ]];then
-        interface=$wangka1
-    else
-        interface=$wangka2
-    fi
-else
-    interface=$wangka1
-fi
-
+ipv6_check
 echo -e "${bold}Checking your server's specification ...${normal}"
-
-# Virt
-cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-virtualx=$(dmesg 2>1)
-[[ $(which dmidecode) ]] && {
-sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
-sys_product=$(dmidecode -s system-product-name) 2>/dev/null
-sys_ver=$(dmidecode -s system-version) 2>/dev/null ; }
-
-dmi=$(LANG=C dmidecode 2>&1)
-arch2=$(uname -p)
-
-if grep docker /proc/1/cgroup -qa 2>/dev/null ; then
-    virt="Docker"
-elif grep lxc /proc/1/cgroup -qa 2>/dev/null; then
-    virt="Lxc"
-elif grep -qa container=lxc /proc/1/environ 2>/dev/null; then
-    virt="Lxc"
-elif [[ -f /proc/user_beancounters ]]; then
-    virt="OpenVZ"
-elif [[ "$virtualx" == *kvm-clock* ]] || [[ "$cname" == *KVM* ]]; then
-    virt="KVM"
-elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
-    virt="VMware"
-elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
-    virt="Parallels"
-elif [[ "$virtualx" == *VirtualBox* ]]; then
-    virt="VirtualBox"
-elif [[ "$sys_manu" == *"Microsoft Corporation"* ]] && [[ "$sys_product" == *"Virtual Machine"* ]]; then
-    [[ "$sys_ver" == *"7.0"* || "$sys_ver" == *"Hyper-V" ]] && virt="Hyper-V" || virt="Microsoft Virtual Machine"
-elif grep -q '^vendor_id.*PowerVM Lx86' /proc/cpuinfo; then
-    virt="IBM PowerVM Lx86"
-elif echo "$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "$dmi" | grep -q 'Product.* LPAR'; then
-    virt="Virtage"
-elif grep -q '^vendor_id.*IBM/S390' /proc/cpuinfo; then
-    virt="IBM SystemZ"
-elif [[ -e /proc/xen ]] || [[ $(grep -q xen /sys/hypervisor/type 2>/dev/null) ]]; then
-    virt="Xen"
-    grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null && virt="Xen-Dom0" || virt="Xen-DomU"
-#elif [[ "$arch2" = ia64 ]] && [[ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]]; then
-#   virt="Xen-HVM"
-elif grep -q UML "/proc/cpuinfo"; then
-    virt="UML"
-fi
-
-[[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
-[[ -z "$virtual" ]] && virt="No Virtualization Detected"
-
-kern=$( uname -r )
-cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
-cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
-cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
-cpucores=$( expr $cpucores_single \* $cpunumbers )
-[[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
-
-disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
-disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
-disk_total_size=$( calc_disk ${disk_size1[@]} )
-disk_used_size=$( calc_disk ${disk_size2[@]} )
-freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-tram=$( free -m | awk '/Mem/ {print $2}' )
-uram=$( free -m | awk '/Mem/ {print $3}' )
+hardware_check_1
 
 echo -e "${bold}Checking bittorrent clients' version ...${normal}"
-
 _check_install_2
 _client_version_check
 
+# 2020.04.07 这个检查比较慢，以后干脆写死，提高速度
 # 有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包的情况
 QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -1)
 [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
@@ -452,14 +325,14 @@ echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
 echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
 echo -e  "  Mem       : ${cyan}$tram MB ($uram MB Used)${normal}"
 echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-echo -e  "  OS        : ${cyan}$DISTRO $osversion $CODENAME ($arch) ${normal}"
-echo -e  "  Kernel    : ${cyan}$kern${normal}"
+echo -e  "  OS        : ${cyan}$displayOS${normal}"
+echo -e  "  Kernel    : ${cyan}$running_kernel${normal}"
 echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
-echo -e  "  Virt      : ${cyan}$virt${normal}"
+echo -e  "  Virt      : ${cyan}$virtual${normal}"
 
 [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
 [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
-[[ ${virt} != "No Virtualization Detected" ]] && [[ ${virt} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
+[[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
 
 echo
 echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"

@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.07
-script_version=r11007
+script_version=r11008
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -67,9 +67,15 @@ else
     displayOS="$DISTRO ($arch)"
 fi
 
+
+
 ################################################################################################
 ################################################################################################ System spec check
 ################################################################################################
+
+
+
+cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 
 # Check interface
 [ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
@@ -428,7 +434,6 @@ check_virt() {
     local virtualx=$(dmesg 2>1)
     local arch=$(uname -p)
     local dmi=$(LANG=C dmidecode 2>&1)
-    cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 
     if  [ $(which dmidecode) ]; then
         sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
