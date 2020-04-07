@@ -13,14 +13,14 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.4
+INEXISTENCEVER=1.1.9.5
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "branch,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -40,6 +40,7 @@ while [ -n "$1" ] ; do case "$1" in
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
     -y | --yes      ) ForceYes=1        ; shift ;;
 
+    --quick         ) quick=1           ; shift ;;
     --qb-static     ) qb_mode=static    ; shift ;;
     --sihuo         ) sihuo=yes         ; shift ;;
     --eng           ) script_lang=eng   ; shift ;;
@@ -2480,24 +2481,27 @@ fi
 
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
-    # Upgrade vnstat, compile from source. And Install vnstat-dashboard
-    bash $local_packages/package/vnstat/install --logbase $LogTimes
-    if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
-        vnstat_webui=1
-    fi
 
-    # Upgrade wget to avoid generate wget-logs when wget-qO-
-    if [[ $CODENAME == bionic ]] ; then
-        apt-get install -y build-essential autopoint flex gperf texinfo gnutls-dev
-        wget https://ftp.gnu.org/gnu/wget/wget-1.20.3.tar.gz
-        tar zxf wget-1.20.3.tar.gz
-        cd wget-1.20.3
-        ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --localedir=/usr/share/locale --docdir=/usr/share/doc/wget
-        make -j$MAXCPUS
-        make install
-        cd ..
-        rm -rf wget-1.20.3.tar.gz wget-1.20.3
-        wget --version
+    if [[ quick != 1 ]]; then
+        # Upgrade vnstat, compile from source. And Install vnstat-dashboard
+        bash $local_packages/package/vnstat/install --logbase $LogTimes
+        if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
+            vnstat_webui=1
+        fi
+
+        # Upgrade wget to avoid generate wget-logs when wget-qO-
+        if [[ $CODENAME == bionic ]] ; then
+            apt-get install -y build-essential autopoint flex gperf texinfo gnutls-dev
+            wget https://ftp.gnu.org/gnu/wget/wget-1.20.3.tar.gz
+            tar zxf wget-1.20.3.tar.gz
+            cd wget-1.20.3
+            ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --localedir=/usr/share/locale --docdir=/usr/share/doc/wget
+            make -j$MAXCPUS
+            make install
+            cd ..
+            rm -rf wget-1.20.3.tar.gz wget-1.20.3
+            wget --version
+        fi
     fi
 
     # Set timezone to UTC+8
