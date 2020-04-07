@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.05
-script_version=r12040
+script_update=2020.04.07
+script_version=r12041
 
 ################################################################################################ Debug
 
@@ -230,34 +230,17 @@ WebUI\RootFolder=$iHome/.config/qBittorrent/WebUI/miniers.qb-web
 
 EOF
 
-    if version_ge $qb_installed_ver 4.2.0 ; then
-        if [[ -z $(command -v qbpass) ]]; then
-            if [[ "$CODENAME" == xxxxxx ]]; then # comment out
-                apt_install_check libssl-dev
-                apt_install_separate
-                git clone --depth=1 https://github.com/KozakaiAya/libqbpasswd.git libqbpasswd >> $OutputLOG 2>&1
-                cd libqbpasswd >> $OutputLOG 2>&1
-                make >> $OutputLOG 2>&1
-                cp -f qb_password_gen /usr/local/bin/qbpass >> $OutputLOG 2>&1
-                cd .. && rm -rf libqbpasswd >> $OutputLOG 2>&1
-            else
-                wget --no-check-certificate -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
-                chmod +x /usr/local/bin/qbpass >> $OutputLOG 2>&1
-            fi
-        fi
-        [[ ! -x /usr/local/bin/qbpass ]] && echo_error "Failed to get qb_password_gen" && exit 1
-        qbPass=$(/usr/local/bin/qbpass $iPass)
-        cat << EOF >> $qbconf
-WebUI\Username=$iUser
-WebUI\Password_PBKDF2="@ByteArray($qbPass)"
-EOF
-    else
-        qbPass=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
-        cat << EOF >> $qbconf
-WebUI\Username=$iUser
-WebUI\Password_ha1=@ByteArray($qbPass)
-EOF
+    if [[ -z $(command -v qbpass) ]]; then
+        wget --no-check-certificate -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
+        chmod +x /usr/local/bin/qbpass >> $OutputLOG 2>&1
     fi
+    qbPassOld=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
+    qbPassNew=$(/usr/local/bin/qbpass $iPass)
+    cat << EOF >> $qbconf
+WebUI\Username=$iUser
+WebUI\Password_ha1=@ByteArray($qbPassOld)
+WebUI\Password_PBKDF2="@ByteArray($qbPassNew)"
+EOF
 
     chmod -R 755             $iHome/qbittorrent   $iHome/.config/qBittorrent >> $OutputLOG 2>&1
     chown -R $iUser.$iUser   $iHome/qbittorrent   $iHome/.config/qBittorrent >> $OutputLOG 2>&1
