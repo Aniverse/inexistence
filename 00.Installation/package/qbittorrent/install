@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.07
-script_version=r12024
+script_version=r12025
 
 ################################################################################################ Debug
 
@@ -31,7 +31,7 @@ pm_action=install
 
 function show_usage() { echo " Invalid option $1
 Usage:
-      -m        Install mode, can only be specified as apt, ppa or source
+      -m        Install mode, can only be specified as deb, static or source
       -t        Install type, can only be specified as desktop or headless
       -v        Specifiy which version of qBittorrent to be installed
       -b        Specifiy which branch of qBittorrent to be installed
@@ -40,7 +40,7 @@ Usage:
 "
 exit 1 ; }
 
-OPTS=$(getopt -o m:v:b:l:t:d --long debug,mode:,type:,version:,branch:,logbase: -- "$@")
+OPTS=$(getopt -o m:v:b:l:t:d --long debug,mode:,type:,version:,branch:,logbase:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -51,6 +51,7 @@ while [ -n "$1" ] ; do case "$1" in
     -b | --branch       ) branch="$2"   ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
          --             ) shift         ; break   ;;
 esac ; done
 
@@ -75,10 +76,15 @@ git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
 [[ -z $mode ]] && [[ ${qb_deb_available[*]} =~ ${version} ]] && mode=deb
-[[ $mode ==deb ]] && [[ ! ${qb_deb_available[*]} =~ ${version} ]] && echo_error "$version is not available in deb mode" && exit 1
+[[ $mode == deb ]] && [[ ! ${qb_deb_available[*]} =~ ${version} ]] && echo_error "$version is not available in deb mode" && exit 1
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
-[[ -n $version ]] && check_remote_git_repo_branch  $git_repo  "release-$version"
+if [[ $version == 4.2.3.1 ]]; then
+    mode=static ; version_s=4.2.3
+elif [[ -n $version ]]; then
+    check_remote_git_repo_branch  $git_repo  "release-$version"
+    version_s=$version
+fi
 [[ -n $branch  ]] && check_remote_git_repo_branch  $git_repo  "$branch"
 [[ ! $mode =~ (source|deb|static) ]] && echo_error "${CW} Mode can only be specified as deb, static or source${normal}" && exit 1
 
@@ -92,7 +98,6 @@ else
     compile_flag='--disable-gui'
 fi
 
-[[ -n $version ]] && version_s=$version
 [[ -n $branch  ]] && version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
 
 
@@ -149,23 +154,23 @@ function install_qtbase_deb() {
         local deb=qt512base_5.12.6-1basyskom1_amd64.deb
         wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/qt5/$deb  >> $OutputLOG 2>&1
         apt-get -y install /tmp/qb/$deb >> $OutputLOG 2>&1
-        rm -f /tmp/qb >> $OutputLOG 2>&1
+        rm -rf /tmp/qb >> $OutputLOG 2>&1
     fi
 }
 
 function install_qbittorrent_deb() {
     install_qtbase_deb
     mkdir -p /tmp/qb && cd /tmp/qb
-    if [[ $version == 4.1.9 ]];then
+    if [[ $version == 4.1.9 ]]; then
         qb_deb=4.1.9.2-libt1.1-1build1_amd64
     else
         qb_deb="${version}-libt1.1-1build1_amd64"
     fi
-    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
+    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
     apt-get install -y /tmp/qb/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
-    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/qbittorrent/qbittorrent-nox_${qb_deb_version}.deb
-    apt-get install -y /tmp/qb/qbittorrent-nox_${qb_deb_version}.deb           >> $OutputLOG 2>&1
-    rm -rf /tmp/qb
+    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/qbittorrent/qbittorrent-nox_${qb_deb}.deb  >> $OutputLOG 2>&1
+    apt-get install -y /tmp/qb/qbittorrent-nox_${qb_deb}.deb           >> $OutputLOG 2>&1
+    rm -rf /tmp/qb >> $OutputLOG 2>&1
 }
 
 function install_qbittorrent_static() {
@@ -193,7 +198,7 @@ function qt_set_env() {
     elif dpkg -l | grep inexistence | grep -q 5.5.1 ; then
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
         export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    elif dpkg -l | grep qt512base ; then
+    elif dpkg -l | grep -q qt512base ; then
         source /opt/qt512/bin/qt512-env.sh >> $OutputLOG 2>&1
     fi
     { lines ; qmake -v ; lines ; } >> $OutputLOG 2>&1
@@ -326,17 +331,18 @@ if dpkg -l | grep $AppNameLower -q ; then
     apt-get purge -y qbittorrent-nox >> $OutputLOG 2>&1
     dpkg -r qbittorrent-nox >> $OutputLOG 2>&1
     apt-get autoremove -y >> $OutputLOG 2>&1
+    rm -rf $AppExec >> $OutputLOG 2>&1
     echo -e "${green}${bold}DONE${normal}" | tee -a $OutputLOG
 fi
 
 
 case $mode in
-    deb     ) echo -ne "Installing $AppName ${bold}${cyan}$repo_version${normal} from pre-built deb ..." | tee -a $OutputLOG
+    deb     ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from pre-built deb ..." | tee -a $OutputLOG
               install_qbittorrent_deb & spinner $!
               check_status_qbt | tee -a $OutputLOG
               ;;
 
-    static  ) echo -ne "Installing $AppName ${bold}${cyan}$repo_version${normal} from static build ..." | tee -a $OutputLOG
+    static  ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from static build ..." | tee -a $OutputLOG
               install_qbittorrent_static & spinner $!
               check_status_qbt | tee -a $OutputLOG
               ;;
