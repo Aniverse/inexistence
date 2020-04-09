@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.8
+INEXISTENCEVER=1.1.9.9
 INEXISTENCEDATE=2020.04.07
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -2345,7 +2345,7 @@ fi
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
 
-    if [[ quick != 1 ]]; then
+    if [[ $quick != 1 ]]; then
         # Upgrade vnstat, compile from source. And Install vnstat-dashboard
         bash $local_packages/package/vnstat/install --logbase $LogTimes
         if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
