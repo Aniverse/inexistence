@@ -19,8 +19,8 @@
 如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码部分替换一下）：  
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
---apt-yes --tweaks-yes --bbr-yes --tools-no --wine-no --rclone-yes --rdp-no --skip-system-upgrade \
---flexget-yes --flood-no --lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
+--tweaks-yes --bbr-yes --rclone --skip-system-upgrade --flexget-yes --flood-no \
+--lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
 -u 这十二个字换成你的用户名 -p 这十个字换成你的密码
 ```
 如果你需要自定义安装选项：  
@@ -38,9 +38,9 @@ bash <(wget -qO- https://git.io/abcde)
 
 脚本支持自定义参数运行，比如我个人常用的参数是：
 ```
-bash <(wget -qO- https://git.io/abcde) --apt-no --tweaks-yes --bbr-no --tools-no \
---wine-yes --rclone-yes --flexget-yes --flood-no --rdp-no --skip-system-upgrade  \
---de 1.3.15 --qb 4.1.9 --lt RC_1_1 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
+bash <(wget -qO- https://git.io/abcde) --tweaks-yes --bbr-no --tools-no \
+--wine --rclone --flexget-yes --flood-no --vnc --skip-system-upgrade    \
+--de 1.3.15 --qb 4.2.3 --lt RC_1_1 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
 ```
 具体参数的解释在下文中有说明  
 
@@ -69,13 +69,12 @@ bash <(wget -qO- https://git.io/abcde) --apt-no --tweaks-yes --bbr-no --tools-no
 2. ***账号密码***  
 **`-u <username> -p <password>`**  
 你输入的账号密码会被用于各类软件以及 SSH 的登录验证  
-用户名需要以字母开头，长度 4-16 位；密码最好同时包含字母和数字，长度至少 8 位
-恩，目前我话是这么说，但脚本里还没有检查账号密码是否合乎要求，所以还是自己注意点吧  
+用户名需要以字母开头，长度 4-16 位；密码需要同时包含字母和数字，长度至少 8 位  
 
 
-3. ***系统源***  
-**`--apt-yes`**、**`--apt-no`**  
-**目前默认直接换源不再提问，如果不想换源，请在运行脚本的使用 `--apt-no` 参数**  
+3. ***是否更换软件源***  
+**目前默认直接换源不再提问，如果不想换源，请在运行脚本的使用 `--source-unchange` 参数**  
+这个选项决定是否替换 `/etc/apt/sources.list` 文件。  
 其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
 
 
@@ -95,11 +94,12 @@ bash <(wget -qO- https://git.io/abcde) --apt-no --tweaks-yes --bbr-no --tools-no
 
 
 6. ***客户端安装选项***  
-**`--de ppa --qb 3.3.11 --rt 0.9.4 --tr repo`**  
+**`--de 1.3.15 --qb 4.2.3 --rt 0.9.4 --tr 2.93`**  
 下面四大客户端的安装，指定版本的都是编译安装，安装速度相对较慢但可以任选版本  
 选择 `30` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
 选择 `40` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
 选择 `50` 是从 PPA 安装( Debian 不支持所以不会显示)，同样无法指定版本不过一般软件都是最新版  
+40 和 50 这两个选项目前仅有 deluge 保留，并且不久以后也会被移除  
 
 
 7. ***qBittorrent***  
@@ -159,28 +159,29 @@ Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，�
 
 
 12. ***Transmission***  
-**`--tr repo`**、**`--tr ppa`**、**`--tr No`**  
+**`--tr-deb`**、**`--tr 2.83`**、**`--tr No`**  
 Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决了文件打开数问题）  
 此外还会安装 [加强版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
-***隐藏选项已移除***  
+***隐藏和从 repo/ppa 安装的选项均已移除***  
 
 
 13. ***Remote Desktop***  
-**`--rdp-vnc`**、**`--rdp-x2go`**、**`--rdp-no`**  
-远程桌面选项，默认不安装  
+**`--vnc`**、**`--x2go`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
 推荐使用 noVNC，网页上即可操作  
 
 
 14. ***wine & mono***  
-**`--wine-yes`**、**`--wine-no`**  
-这两个默认也是不安装的  
+**`--wine`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
 `wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
 `mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
 
 
 15. ***Some additional tools***  
-**`--tools-yes`**、**`--tools-no`**  
+**`--tools`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
 安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent  
 - `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
 - `mkvtoolnix` 主要是用于做 BD-Remux  
@@ -191,18 +192,19 @@ Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决
 - `bluray` 其实也自带了，不过这里的版本不是及时更新的，所以还是更新下  
 
 
-16. ***Flexget***  
+16. ***rclone***  
+**`--rclone`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+rclone 是一个强大的网盘同步工具。默认不安装。安装好后需要自己输入 rclone config 进行配置  
+此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
+
+
+17. ***Flexget***  
 **`--flexget-yes`**、**`--flexget-no`**  
 Flexget 是一个十分强大的自动化工具，功能非常多。在这里我们用它来 RSS（它能做的事情远不止 RSS）  
 目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 注意：脚本里没有启用 schedules 或 crontab，需要的话自己设置  
-
-
-17. ***rclone***  
-**`--rclone-yes`**、**`--rclone-no`**  
-rclone 是一个强大的网盘同步工具。默认不安装。安装好后自己输入 rclone config 进行配置  
-此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
 
 
 18. ***BBR***  
