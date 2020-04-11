@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.4
+INEXISTENCEVER=1.2.1.5
 INEXISTENCEDATE=2020.04.12
 default_branch=master
 aptsources=Yes
@@ -1484,7 +1484,7 @@ ask_swap
 ask_qbittorrent
 ask_deluge
 if_ask_lt=0
-[[ $qb_version != No ]] && [[ $qb_mode != static ]] && if_ask_lt=1
+[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_ask_lt=1
 [[ $de_version != No ]] && if_ask_lt=1
 [[ $if_ask_lt == 1 ]] && ask_libtorrent
 ask_rtorrent

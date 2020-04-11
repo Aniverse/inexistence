@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.11
-script_version=r10005
+script_update=2020.04.12
+script_version=r10006
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -179,9 +179,10 @@ function ask_qbittorrent() {
         esac
     done
 
-    qBittorrent_4_2_0_later=No
+    [[ ${qb_deb_available[*]} =~ ${qb_version} ]] && qb_mode=deb
+    qBittorrent_414_later=No
     [[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
-    [[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
+    [[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_414_later=Yes
     if [[ $qb_version == No ]]; then
         echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
     else
@@ -514,7 +515,8 @@ function ask_filebrowser() {
 ################################################################################################ WILL BE DE DEPRECATED
 ################################################################################################
 
-
+# 2020.04.12 没想到都 2020 年了我还能碰到 bug。想了下，我确实有办法在目前的三脚猫功夫下简化这里的逻辑，但是意义不大了，不搞了
+#            下次直接全删了岂不是美滋滋……
 # 2018.04.26 禁用这个问题，统一使用 1.0.11
 # 2018.11.15 随着 RC_1_1 分支的进步，准备重新启用
 # 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
@@ -532,7 +534,7 @@ function ask_libtorrent() {
     [[ $CODENAME == Buster ]] && lt8_support=No
     # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.11；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
     # 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
-    [[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
+    [[ $Deluge_2_later == Yes || $qBittorrent_414_later == Yes ]] && lt8_support=No
 
     while [[ $lt_version = "" ]]; do
 
@@ -545,7 +547,7 @@ function ask_libtorrent() {
         echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
         # echo -e "${bailanse}${bold} ATTENTION ${normal}${blue} both Deluge and qBittorrent use libtorrent-rasterbar \n            as torrent backend"
 
-        # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.1.4+
         if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
                 while [[ $lt_version == "" ]]; do
     					echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
@@ -573,7 +575,7 @@ function ask_libtorrent() {
                               *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                         esac
                 done
-        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，且系统里已经安装的 libtorrent-rasterbar 支持
+        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.1.4+，且系统里已经安装的 libtorrent-rasterbar 支持
         # 2018.12.03 发现这里写的有问题，试着更正下
         elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == Yes ]]; then
                 while [[ $lt_version == "" ]]; do
@@ -588,7 +590,7 @@ function ask_libtorrent() {
                               *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                         esac
                 done
-        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
+        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.1.4+，但系统里已经安装的 libtorrent-rasterbar 不支持
         elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == No ]]; then
                 while [[ $lt_version == "" ]]; do
                         echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
@@ -602,7 +604,7 @@ function ask_libtorrent() {
                               *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                         esac
                 done
-        # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.1.4+
         elif [[ ! $lt_ver ]] && [[ $lt8_support == Yes ]]; then
                 while [[ $lt_version == "" ]]; do
                         echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
@@ -616,7 +618,7 @@ function ask_libtorrent() {
                               *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
                         esac
                 done
-        # 未安装 libtorrent-rasterbar 且要使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        # 未安装 libtorrent-rasterbar 且要使用 Deluge 2.0 或者 qBittorrent 4.1.4+
         elif [[ ! $lt_ver ]] && [[ $lt8_support == No ]]; then
                 while [[ $lt_version == "" ]]; do
                         echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
@@ -633,7 +635,7 @@ function ask_libtorrent() {
         else
                 while [[ $lt_version == "" ]]; do
                         echo -e "\n${bold}${yellow}你发现了一个 Bug！请带着以下信息联系作者……${normal}\n"
-                        echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
+                        echo "Deluge_2_later=$Deluge_2_later   qBittorrent_414_later=$qBittorrent_414_later"
                         echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok"
                         echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
                         case $version in
