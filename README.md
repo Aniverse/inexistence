@@ -178,6 +178,7 @@ File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除
 脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，功能更加强大  
 可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
 更多功能介绍可以看 [这张图](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
+脚本使用 root 运行 fb，挂载的是 / 目录。*** 默认账号和密码都是 admin，安装完后请尽快修改 ***  
 
 
 15. ***BBR***  
@@ -196,6 +197,7 @@ File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
 - 修改 screenrc 设置  
+
 
 17. ***Remote Desktop***  
 **`--vnc`**、**`--x2go`**  
