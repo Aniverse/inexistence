@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.9
+INEXISTENCEVER=1.2.1.0
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -1410,7 +1410,7 @@ fi
 
 # flexget 状态可能是 8 位字符长度的
 if   [[ $InsFlex != No ]] && [[ $flex_installed == Yes ]]; then
-     echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}" #${bold}(username is ${underline}flexget${reset_underline}${normal})
+     echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}"
 elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
      echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
@@ -1418,6 +1418,15 @@ fi
 
 if   [[ $vnstat_webui == 1 ]]; then
      echo -e " ${cyan}Vnstat Dashboard${normal}    $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
+fi
+
+if [[ $InsFB == Yes ]]; then
+    if [[ -e $LockLocation/filebrowser.lock ]]; then
+        echo -e " ${cyan}FileBrowser${normal}         $(_if_running filebrowser        )   http://${serveripv4}:7575"
+    else
+        echo -e " ${red}FileBrowser${normal}         ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
+        FBFAILED=1 ; INSFAILED=1
+    fi
 fi
 
 if [[ $InsVNC == Yes ]]; then
@@ -1481,6 +1490,7 @@ ask_transmission
 # ask_tools
 # ask_rclone
 ask_flexget
+ask_filebrowser
 ask_tweaks
 ask_continue
 
@@ -1544,6 +1554,9 @@ fi
 if [[ $InsVNC == Yes ]]; then
     bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
     bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
+fi
+if [[ $InsFB == Yes ]]; then
+    bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575
 fi
 if [[ $InsX2Go == Yes ]]; then
     echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log
