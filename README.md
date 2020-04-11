@@ -19,9 +19,8 @@
 如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码部分替换一下）：  
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
---tweaks-yes --bbr-yes --rclone --skip-system-upgrade --flexget-yes --flood-no \
---lt RC_1_1 --tr-deb -y --de 1.3.15 --rt 0.9.8 --qb 4.1.9
--u 这十二个字换成你的用户名 -p 这十个字换成你的密码
+-y --tweaks --bbr --rclone --skip-system-upgrade --flexget --no-flood --lt RC_1_1 --tr-deb --filebrowser \
+--de 1.3.15 --rt 0.9.8 --qb 4.1.9 -u 这十二个字换成你的用户名 -p 这十个字换成你的密码
 ```
 如果你需要自定义安装选项：  
 ```
@@ -38,8 +37,8 @@ bash <(wget -qO- https://git.io/abcde)
 
 脚本支持自定义参数运行，比如我个人常用的参数是：
 ```
-bash <(wget -qO- https://git.io/abcde) --tweaks-yes --bbr-no --tools-no \
---wine --rclone --flexget-yes --flood-no --vnc --skip-system-upgrade    \
+bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
+--mono --rclone --flexget --no-flood --vnc --skip-system-upgrade    \
 --de 1.3.15 --qb 4.2.3 --lt RC_1_1 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
 ```
 具体参数的解释在下文中有说明  
@@ -86,7 +85,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks-yes --bbr-no --tools-no \
 
 
 5. ***安装时是否创建 swap***  
-**`--swap-yes`**，**`--swap-no`**  
+**`--swap`**，**`--no-swap`**  
 **目前默认对于内存小于 1926MB 的服务器直接启用 swap 不再询问，如不想使用 swap 请用 `--swap-no` 参数**  
 一些内存不够大的 VPS 在编译安装时可能物理内存不足，使用 swap 可以解决这个问题  
 实测 1C1T 1GB 内存 的 Vultr VPS 安装 Flood 不开启 swap 的话会失败，开启就没问题了  
@@ -152,7 +151,7 @@ Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/ar
 
 
 11. **Flood**  
-**`--flood-yes`**、**`--flood-no`**  
+**`--flood-yes`**、**`--no-flood`**  
 选择不安装 rTorrent 的话这个选项不会出现  
 Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
 第一次登陆时需要填写信息，端口号是 5000，挂载点是 127.0.0.1  
@@ -165,57 +164,31 @@ Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决
 ***隐藏和从 repo/ppa 安装的选项均已移除***  
 
 
-13. ***Remote Desktop***  
-**`--vnc`**、**`--x2go`**  
-**是否安装的问题已被移除，只能使用命令行参数安装**  
-远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
-推荐使用 noVNC，网页上即可操作  
-
-
-14. ***wine & mono***  
-**`--wine`**  
-**是否安装的问题已被移除，只能使用命令行参数安装**  
-`wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
-`mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
-
-
-15. ***Some additional tools***  
-**`--tools`**  
-**是否安装的问题已被移除，只能使用命令行参数安装**  
-安装最新版本的 ffmpeg、mediainfo、mkvtoolnix、eac3to、bluray 脚本、mktorrent  
-- `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
-- `mkvtoolnix` 主要是用于做 BD-Remux  
-- `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，采用 git 的 Static Builds  
-- `eac3to` 需要 wine 来运行，做 remux 时用得上  
-- `mktorrent` 由于 1.1 版的实际表现不是很理想，因此选择从系统源安装 1.0 版本  
-- `BDinfoCLI` 已经自带了，需要 mono 来运行  
-- `bluray` 其实也自带了，不过这里的版本不是及时更新的，所以还是更新下  
-
-
-16. ***rclone***  
-**`--rclone`**  
-**是否安装的问题已被移除，只能使用命令行参数安装**  
-rclone 是一个强大的网盘同步工具。默认不安装。安装好后需要自己输入 rclone config 进行配置  
-此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
-
-
-17. ***Flexget***  
-**`--flexget-yes`**、**`--flexget-no`**  
+13. ***Flexget***  
+**`--flexget-yes`**、**`--no-flexget`**  
 Flexget 是一个十分强大的自动化工具，功能非常多。在这里我们用它来 RSS（它能做的事情远不止 RSS）  
 目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 注意：脚本里没有启用 schedules 或 crontab，需要的话自己设置  
 
 
-18. ***BBR***  
-**`--bbr-yes`**、**`--bbr-no`**  
+14. ***FileBrowser Enhanced***  
+**`--filebrowser`**、**`--no-fb`**  
+File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除，预览, 重命名以及编辑。  
+脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，功能更加强大  
+可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
+更多功能介绍可以看 [这张图](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
+
+
+15. ***BBR***  
+**`--bbr`**、**`--no-bbr`**  
 （如果你想安装魔改版 BBR 或 锐速，请移步到 [TrCtrlProToc0l](https://github.com/Aniverse/TrCtrlProToc0l) 脚本）  
 会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认直接启用BBR（不安装新内核）  
 注意：更换内核有风险，可能会导致无法正常启动系统  
 
 
-19. ***系统设置***  
-**`--tweaks-yes`**、**`--tweaks-no`**  
+16. ***系统设置***  
+**`--tweaks`**、**`--tweaks`**  
 默认启用，具体操作如下：  
 - 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)  
 - 在 Ubuntu 18.04 上编译安装更高版本的 wget（自带的有点 bug）  
@@ -223,6 +196,36 @@ Flexget 是一个十分强大的自动化工具，功能非常多。在这里我
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
 - 修改 screenrc 设置  
+
+17. ***Remote Desktop***  
+**`--vnc`**、**`--x2go`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
+推荐使用 noVNC，网页上即可操作  
+
+
+18. ***wine / mono***  
+**`--wine`、`--mono`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+`wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
+`mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
+
+
+19. ***rclone***  
+**`--rclone`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+rclone 是一个强大的网盘同步工具。默认不安装。安装好后需要自己输入 rclone config 进行配置  
+此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
+
+
+20. ***Some additional tools***  
+**`--tools`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+安装下列软件：  
+- `mediainfo` 用最新版是因为某些站发种填信息时有这方面的要求，比如 HDBits  
+- `mkvtoolnix` 主要是用于做 BD-Remux  
+- `eac3to` 需要 wine 来运行，做 remux 时用得上  
+- `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，安装的是静态编译版本  
 
 
 ![确认信息](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.05.png)
