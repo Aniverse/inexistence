@@ -13,28 +13,35 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.3
+INEXISTENCEVER=1.2.0.4
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,rdp-vnc,rdp-x2go,rdp-no,wine-yes,wine-no,tools-yes,tools-no,flexget-yes,flexget-no,rclone-yes,rclone-no,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
-    -u | --user     ) iUser=$2       ; shift 2 ;;
-    -p | --password ) iPass=$2       ; shift 2 ;;
-    -b | --branch   ) iBranch=$2     ; shift 2 ;;
+    -u | --user     ) iUser=$2          ; shift 2 ;;
+    -p | --password ) iPass=$2          ; shift 2 ;;
+    -b | --branch   ) iBranch=$2        ; shift 2 ;;
 
-    --qb            ) qb_version=$2 ; shift 2 ;;
-    --tr            ) { if [[ $2 == ppa ]]; then tr_version='Install from PPA'   ; elif [[ $2 == repo ]]; then tr_version='Install from repo'   ; else tr_version=$2   ; fi ; } ; shift 2 ;;
-    --de            ) { if [[ $2 == ppa ]]; then de_version='Install from PPA'   ; elif [[ $2 == repo ]]; then de_version='Install from repo'   ; else de_version=$2   ; fi ; } ; shift 2 ;;
-    --rt            ) rt_version=$2 ; shift 2 ;;
-    --lt            ) lt_version=$2 ; shift 2 ;;
+    --de            ) if [[ $2 == ppa ]]; then
+                          de_version='Install from PPA'
+                      elif [[ $2 == repo ]]; then
+                          de_version='Install from repo'
+                      else
+                          de_version=$2
+                      fi
+                      shift 2 ;;
+    --qb            ) qb_version=$2     ; shift 2 ;;
+    --tr            ) tr_version=$2     ; shift 2 ;;
+    --rt            ) rt_version=$2     ; shift 2 ;;
+    --lt            ) lt_version=$2     ; shift 2 ;;
 
     -d | --debug    ) DeBUG=1           ; shift ;;
     -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
@@ -54,24 +61,22 @@ while [ -n "$1" ] ; do case "$1" in
     --bbr-no        ) InsBBR="No"       ; shift ;;
     --flood-yes     ) InsFlood="Yes"    ; shift ;;
     --flood-no      ) InsFlood="No"     ; shift ;;
-    --rdp-vnc       ) InsRDP="VNC"      ; shift ;;
-    --rdp-x2go      ) InsRDP="X2Go"     ; shift ;;
-    --rdp-no        ) InsRDP="No"       ; shift ;;
-    --wine-yes      ) InsWine="Yes"     ; shift ;;
-    --wine-no       ) InsWine="No"      ; shift ;;
-    --tools-yes     ) InsTools="Yes"    ; shift ;;
-    --tools-no      ) InsTools="No"     ; shift ;;
+
+    --vnc           ) InsVNC="Yes"      ; shift ;;
+    --x2go          ) InsX2GO="Yes"     ; shift ;;
+    --wine          ) InsWine="Yes"     ; shift ;;
+    --tools         ) InsTools="Yes"    ; shift ;;
+    --rclone        ) InsRclone="Yes"   ; shift ;;
+
     --flexget-yes   ) InsFlex="Yes"     ; shift ;;
     --flexget-no    ) InsFlex="No"      ; shift ;;
-    --rclone-yes    ) InsRclone="Yes"   ; shift ;;
-    --rclone-no     ) InsRclone="No"    ; shift ;;
     --tweaks-yes    ) UseTweaks="Yes"   ; shift ;;
     --tweaks-no     ) UseTweaks="No"    ; shift ;;
     --mt-single     ) MAXCPUS=1         ; shift ;;
     --mt-double     ) MAXCPUS=2         ; shift ;;
     --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
-    --skip-system-upgrade ) skip_system_upgrade=1 ; shift ;;
     --separate      ) separate=1        ; shift ;;
+    --skip-system-upgrade ) skip_system_upgrade=1 ; shift ;;
     --tr-deb        ) tr_version=2.94   ; TRdefault=deb ; shift ;;
     --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
 
@@ -1464,16 +1469,15 @@ ask_apt_sources
 ask_swap
 ask_qbittorrent
 ask_deluge
-[[ $de_version != No || $qb_version != No ]] && ask_libtorrent_version
+[[ $de_version != No || $qb_version != No ]] && ask_libtorrent
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
-ask_rdp
-ask_wine_mono
-ask_tools
+# ask_rdp
+# ask_wine_mono
+# ask_tools
+# ask_rclone
 ask_flexget
-ask_rclone
-ask_bbr
 ask_tweaks
 ask_continue
 
@@ -1535,9 +1539,10 @@ fi
 if [[ $InsRDP == VNC ]]; then
     bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
     bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
+elif [[ $InsRDP == X2Go ]]; then
+    echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log
 fi
 
-[[ $InsRDP    == X2Go ]] && { echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log ; }
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
 [[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
 
