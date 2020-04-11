@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r10001
+script_version=r10002
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -369,7 +369,6 @@ function ask_transmission() {
                 03 | 3) tr_version=2.94 ;;
                 21) tr_version=2.94 && TRdefault=deb ;;
                 30) _input_version && tr_version="${input_version_num}" ;;
-                31) _input_version && tr_version="${input_version_num}" && TRdefault=No ;;
                 99) tr_version=No ;;
                 "" | *) tr_version=2.94 && TRdefault=deb ;;
         esac
@@ -508,7 +507,7 @@ function ask_tweaks() {
 # --------------------- 询问需要安装的 libtorrent-rasterbar 版本 --------------------- #
 # lt_version=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
 
-function ask_libtorrent_version() {
+function ask_libtorrent() {
 
     [[ $DeBUG == 1 ]] && echo "lt_version=$lt_version  lt_ver=$lt_ver  lt8_support=$lt8_support  qb_version=$qb_version  de_version=$de_version"
 
