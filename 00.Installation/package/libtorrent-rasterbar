@@ -3,18 +3,18 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.07
-script_version=r11061
+script_update=2020.04.11
+script_version=r11062
 
 ################################################################################################ Debug
 
 usage_for_me() {
     export local_packages=/etc/inexistence/00.Installation
-    export s=$local_packages/package/libtorrent-rasterbar/install
+    export s=$local_packages/package/libtorrent-rasterbar
     rm -f $s ; nano $s
     bash $s -m deb2         --logbase $LogTimes
-    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/libtorrent-rasterbar/install) -m deb2
-    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/libtorrent-rasterbar/install) -b RC_1_2
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/libtorrent-rasterbar) -m deb2
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/libtorrent-rasterbar) -b RC_1_2
 }
 
 ################################################################################################ Get options
@@ -181,6 +181,8 @@ function install_lt_source() {
     make -j$MAXCPUS  >> $OutputLOG 2>&1
     rm -rf $SCLocation/tmp-$AppNameLower
     mkdir -p /usr/local/include/libtorrent
+
+    install_base fpm
 
     if [[ -n $(which fpm) ]]; then
         make install     DESTDIR=$SCLocation/tmp-$AppNameLower  >> $OutputLOG 2>&1
