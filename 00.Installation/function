@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.07
-script_version=r12061
+script_update=2020.04.09
+script_version=r12062
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -114,23 +114,27 @@ function _excute() {
 	($1 >> "$OutputLOG" 2>&1)
 }
 function echo_task() {
-	# echo -ne "$1" | tee -a $OutputLOG
-    printf "%s" "$@" | tee -a $OutputLOG
+    printf "%s" "$@" | tee -a "$OutputLOG" # echo -ne "$1" | tee -a "$OutputLOG"
+    echo >> "$OutputLOG"
+}
+function echo_doing() {
+    printf "%s" "$@" | tee -a "$OutputLOG"
+    echo | tee -a "$OutputLOG"
 }
 function status_done() {
-	echo -e " ${green}${bold}DONE${normal}" | tee -a $OutputLOG
+	echo -e " ${green}${bold}DONE${normal}" | tee -a "$OutputLOG"
 }
 function status_failed() {
-	echo -e " ${red}${bold}FAILED${normal}" | tee -a $OutputLOG
+	echo -e " ${red}${bold}FAILED${normal}" | tee -a "$OutputLOG"
 }
 function echo_warning() {
-    printf " ${yellow}${bold}WARNING: %s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${yellow}${bold}WARNING: %s${normal}\n" "$@" | tee -a "$OutputLOG"
 }
 function echo_error() {
-    printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a $OutputLOG       # ; exit 1
+    printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG"       # ; exit 1
 }
 function echo_info() {
-    printf " ${cyan}${bold}Info: %s${normal}\n" "$@" | tee -a $OutputLOG
+    printf " ${cyan}${bold}Info: %s${normal}\n" "$@" | tee -a "$OutputLOG"
 }
 
 # These codes are from teddysun bbr.sh
