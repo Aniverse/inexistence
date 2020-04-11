@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12063
+script_version=r12064
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -259,6 +259,15 @@ function restart_app() {
            systemctl restart $AppNameLower@$user >> $OutputLOG 2>&1
         done
     fi
+}
+
+
+function generate_status_lock () {
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    eval $AppTest > /dev/null 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
 }
 
 
