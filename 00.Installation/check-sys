@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12014
+script_version=r12015
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -581,6 +581,7 @@ ipv4_check() {
 }
 
 ipv6_check() {
+    echo -e "${bold}Checking your server's public IPv6 address ...${normal}"
     serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
     # serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
     # serverlocalipv6=$( ip addr show dev $interface | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | grep -v fe80 | head -n1 )
