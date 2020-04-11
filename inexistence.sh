@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.1.9.9
-INEXISTENCEDATE=2020.04.07
+INEXISTENCEVER=1.2.0.0
+INEXISTENCEDATE=2020.04.11
 default_branch=master
 # --------------------------------------------------------------------------------
 
@@ -681,32 +681,28 @@ function ask_qbittorrent() {
 
 while [[ -z $qb_version ]]; do
 
-    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (compile)${normal}"
+    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
+    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
     [[ $CODENAME != jessie ]] &&
-    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (compile)${normal}" &&
     echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
     echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
-    echo -e "${green}21)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
-    echo -e "${green}22)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
     echo -e  "${blue}30)${normal} $language_select_another_version"
     echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
 
     [[ $qb_installed == Yes ]] &&
     echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
 
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
+    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
+  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
 
     case $version in
-        01 | 1) qb_version=4.1.9 ;;
-        02 | 2) qb_version=4.2.3 ;;
-        11) qb_version=4.1.9 ; qb_mode=deb ;;
-        12) qb_version=4.2.3 ; qb_mode=deb ;;
-        21) qb_version=4.1.9 ; qb_mode=static ;;
-        22) qb_version=4.2.3 ; qb_mode=static ;;
+        01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
+        02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
+        11) qb_version=4.1.9 ;;
+        12) qb_version=4.2.3 ;;
         30) _input_version && qb_version="${input_version_num}"  ;;
         99) qb_version=No ;;
-        * | "") qb_version=4.1.9 ;;
+        * | "") qb_version=4.2.3 ; qb_mode=static ;;
     esac
 
 done
@@ -1568,7 +1564,7 @@ hash -d pip
 pip install --upgrade setuptools
 pip install --upgrade speedtest-cli
 
-which fpm 2>1 >/dev/null || gem install --no-ri --no-rdoc fpm
+which fpm >/dev/null 2>&1 || gem install --no-ri --no-rdoc fpm
 
 # Fix interface in vnstat.conf
 [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
@@ -1778,93 +1774,6 @@ init 6
 sleep 5
 kill -s TERM $TOP_PID
 exit 0 ; }
-
-
-
-
-
-# --------------------- 安装 qBittorrent --------------------- #
-
-function install_qbittorrent() {
-
-if [[ $qb_version == "Install from repo" ]]; then
-    apt-get install -y qbittorrent-nox
-elif [[ $qb_version == "Install from PPA" ]]; then
-    add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable
-    apt-get update
-    apt-get install -y qbittorrent-nox
-else
-    dpkg -l | grep qbittorrent-nox -q && dpkg -r qbittorrent-nox
-    apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
-    libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
-    if [[ $CODENAME == jessie ]]; then
-        apt-get purge -y qtbase5-dev qttools5-dev-tools libqt5svg5-dev
-        apt-get autoremove -y
-        apt-get install -y libgl1-mesa-dev
-        wget -nv https://sourceforge.net/projects/inexistence/files/OLD/qt.5.5.1.jessie.amd64.deb/download -O qt.5.5.1.jessie.amd64.deb
-        dpkg -i qt.5.5.1.jessie.amd64.deb && rm -f qt.5.5.1.jessie.amd64.deb
-        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/Qt-5.5.1/lib/pkgconfig
-        export PATH=/usr/local/Qt-5.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        qmake --version
-    else
-        if [[ $CODENAME =~ (stretch|xenial) ]]; then
-            mkdir -p /tmp/qb ; cd /tmp/qb
-            wget -qO qt512xmlpatterns_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512xmlpatterns_5.12.6-1basyskom1_amd64.deb
-            wget -qO qt512tools_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512tools_5.12.6-1basyskom1_amd64.deb
-            wget -qO qt512svg_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512svg_5.12.6-1basyskom1_amd64.deb
-            wget -qO qt512declarative_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512declarative_5.12.6-1basyskom1_amd64.deb
-            wget -qO qt512base_${CODENAME}_5.12.6-1basyskom1_amd64.deb https://iweb.dl.sourceforge.net/project/seedbox-software-for-linux/${CODENAME}/binary-amd64/qt5/qt512base_5.12.6-1basyskom1_amd64.deb
-            apt-get -yqq install ./*deb
-            rm -rf /tmp/qb
-        else
-            apt-get -y install qtbase5-dev qttools5-dev-tools libqt5svg5-dev
-        fi
-    fi
-
-    cd $SourceLocation
-    git clone --depth=1 -b release-$qb_version https://github.com/qbittorrent/qBittorrent qBittorrent-$qb_version
-    cd qBittorrent-$qb_version
-
-    # 这个私货是修改 qBittorrent WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
-    if [[ $sihuo == yes ]]; then
-        if   [[ $qb_version == 4.2.3 ]]; then
-            wget -nv -O qb.patch https://raw.githubusercontent.com/Aniverse/inexistence-files/master/miscellaneous/qbt.4.2.2.webui.table.patch
-        elif [[ $qb_version == 4.2.1 ]]; then
-            wget -nv -O qb.patch https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.2.1.webui.table.patch
-        else
-            wget -nv -O qb.patch https://github.com/Aniverse/inexistence/raw/files/miscellaneous/qbt.4.1.6.webui.table.patch
-        fi
-        patch -p1 < qb.patch
-    fi
-
-    [[ $CODENAME =~ (stretch|xenial) ]] && source /opt/qt512/bin/qt512-env.sh
-
-    if version_ge $lt_version 1.2 || version_ge $lt_display_ver 1.2 ; then
-        ./configure --prefix=/usr --disable-gui CXXFLAGS="-std=c++14"
-    else
-        ./configure --prefix=/usr --disable-gui
-    fi
-    make -j$MAXCPUS
-    mkdir -p doc-pak
-    echo "qBittorrent BitTorrent client headless (qbittorrent-nox)" > description-pak
-
-    if [[ $qb_installed == Yes ]]; then
-        make install
-    else
-        if [[ $CODENAME =~ (xenial|stretch|buster) ]]; then
-            make install
-        else
-            checkinstall -y --pkgname=qbittorrent-nox --pkgversion=$qb_version --pkggroup qbittorrent
-            mv -f qbittorrent*deb $DebLocation
-        fi
-    fi
-
-    
-
-    cd
-    echo -e "\n\n${bailvse}  QBITTORRENT-INSTALLATION-COMPLETED  ${normal}\n\n"
-
-fi ; }
 
 
 
@@ -2348,7 +2257,7 @@ function system_tweaks() {
     if [[ $quick != 1 ]]; then
         # Upgrade vnstat, compile from source. And Install vnstat-dashboard
         bash $local_packages/package/vnstat/install --logbase $LogTimes
-        if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>1 | grep Traffic -q ; then
+        if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>&1 | grep Traffic -q ; then
             vnstat_webui=1
         fi
 
@@ -2573,14 +2482,10 @@ if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
 fi
 
 if [[ $qb_version != No ]]; then
-    if [[ $separate == 1 ]]; then
-        bash $local_packages/package/qbittorrent/install -v $qb_version --logbase $LogTimes
-    elif [[ $qb_mode == deb ]]; then
-        bash $local_packages/package/qbittorrent/install -v $qb_version -m deb --logbase $LogTimes
-    elif [[ $qb_mode == static ]]; then
+    if [[ $qb_mode == static ]]; then
         bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
     else
-        echo -ne "Installing qBittorrent ... \n\n\n" ; install_qbittorrent 2>&1 | tee $LogLocation/05.qb1.log
+        bash $local_packages/package/qbittorrent/install -v $qb_version           --logbase $LogTimes
     fi
     bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
 fi
