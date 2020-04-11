@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.2
+INEXISTENCEVER=1.2.0.3
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -616,13 +616,6 @@ which fpm >/dev/null 2>&1 || gem install --no-ri --no-rdoc fpm
 # Fix interface in vnstat.conf
 [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
 
-# Install NConvert
-cd $SourceLocation
-wget -t1 -T5 -nv -N http://download.xnview.com/NConvert-linux64.tgz && {
-tar zxf NConvert-linux64.tgz
-mv NConvert/nconvert /usr/local/bin
-rm -rf NConvert* ; }
-
 sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
 
 # Get repository
@@ -636,7 +629,7 @@ if id -u $iUser >/dev/null 2>&1; then
     echo -e "\n$iUser already exists\n"
 else
     adduser --gecos "" $iUser --disabled-password --force-badname
-    echo "$iUser:$iPass" | sudo chpasswd
+    echo "$iUser:$iPass" | chpasswd
 fi
 
 cat << EOF >> $LogTimes/installed.log
@@ -721,33 +714,27 @@ echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 # alias and locales
 [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
 bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
-
-# 脚本设置
+mkdir -p $local_script
+ln -s $local_packages/script/* $local_script
 echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
+
 ln -s /etc/inexistence $WebROOT/h5ai/inexistence
 ln -s /log $WebROOT/h5ai/log
-mkdir -p /etc/inexistence/03.Files
-mkdir -p /etc/inexistence/06.BluRay
 
-# Bluray Tools
-if [[ ! -f /etc/inexistence/02.Tools/BDinfoCli.0.7.3/BDInfo.exe ]]; then
-    mkdir -p /etc/inexistence/02.Tools
-    cd /etc/inexistence/02.Tools
+if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
+    mkdir -p /etc/abox/app
+    cd /etc/abox/app
     svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
     mv -f BDinfoCli.0.7.3 BDinfoCli
 fi
 
 if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
-    wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/inexistence/02.Tools/bdinfocli.exe
+    wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/abox/app/bdinfocli.exe
 fi
 
 
-mkdir -p $local_script
-ln -s $local_packages/script/* $local_script
-
 # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
 
-echo -e "\n\n\n${bailvse}  STEP-ONE-COMPLETED  ${normal}\n\n"
 }
 
 
@@ -1235,35 +1222,32 @@ EOF
 # --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
 function install_tools() {
-
+########## NConvert ##########
+    cd $SourceLocation
+    wget -t1 -T5 -nv -N http://download.xnview.com/NConvert-linux64.tgz && {
+    tar zxf NConvert-linux64.tgz
+    mv NConvert/nconvert /usr/local/bin
+    rm -rf NConvert* ; }
 ########## Blu-ray script ##########
-
     wget -nv -N -O /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
     chmod +x /usr/local/bin/bluray
-
-########## Install ffmpeg ##########
-# https://johnvansickle.com/ffmpeg/
-
-if [[ -z $(command -v ffmpeg) ]]; then
-    mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
-    wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-    tar xf ffmpeg-release-amd64-static.tar.xz
-    cd ffmpeg*
-    cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
-    cd && rm -rf /log/inexistence/ffmpeg
-fi
-
+########## Install ffmpeg ########## https://johnvansickle.com/ffmpeg/
+    if [[ -z $(command -v ffmpeg) ]]; then
+        mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
+        wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+        tar xf ffmpeg-release-amd64-static.tar.xz
+        cd ffmpeg*
+        cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
+        cd && rm -rf /log/inexistence/ffmpeg
+    fi
 ########## Install mkvtoolnix ##########
-
     wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
     echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
     echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
     apt-get -y update
-    apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick
-
+    apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick mktorrent
 ######################  eac3to  ######################
-
     cd /etc/inexistence/02.Tools/eac3to
     wget -nv -N http://madshi.net/eac3to.zip
     unzip -qq eac3to.zip
