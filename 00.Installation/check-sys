@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12013
+script_version=r12014
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -106,11 +106,11 @@ calc_disk() {
 
 
 hardware_check_1() {
+    # CPU
     cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
     cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
     cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )  # physical_cpu_number=$( grep 'physical id' /proc/cpuinfo | cut -c15-17 )
-  # cpu_percent=$( top -b -n 1 | grep Cpu | awk '{print $2}' | cut -f 1 -d "." )
-    cpucores=$( expr $cpucores_single \* $cpunumbers )
+    cpucores=$( expr $cpucores_single \* $cpunumbers ) # cpu_percent=$( top -b -n 1 | grep Cpu | awk '{print $2}' | cut -f 1 -d "." )
     freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
     if [[ $virtual == "No Virtualization Detected" ]] || [[ $virtual == Docker ]]; then
         [[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
@@ -120,6 +120,10 @@ hardware_check_1() {
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
     disk_total_size=$( calc_disk ${disk_size1[@]} )
     disk_used_size=$( calc_disk ${disk_size2[@]} )
+
+    # If SSD
+    cat /sys/block/sd*/queue/rotational 2>/dev/null | grep -q 0 && SSD=yes
+    cat /sys/block/vd*/queue/rotational 2>/dev/null | grep -q 0 && SSD=yes
 
     # memory
     tram=$( free -m | awk '/Mem/ {print $2}' )
@@ -136,6 +140,18 @@ hardware_check_1() {
     uptime2=`uptime | grep -ohe 'up .*' | sed 's/,/\ hours/g' | awk '{ printf $2" "$3 }'`
     load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
 }
+
+
+check_tcp_acc() {
+    tcp_control=$( cat /proc/sys/net/ipv4/tcp_congestion_control 2>&1 )
+    tcp_control_all=$( cat /proc/sys/net/ipv4/tcp_available_congestion_control 2>&1 )
+    tcp_c_name=$tcp_control
+    [[ $tcp_control == bbr_powered ]] && tcp_c_name="bbr_powered (用 Vicer 脚本安装的 Yankee 版魔改 BBR)"
+    [[ $tcp_control == tsunami     ]] && tcp_c_name="tsunami (Yankee 版魔改 BBR)"
+    [[ $tcp_control == nanqinlang  ]] && tcp_c_name="nanqinlang (南琴浪版魔改 BBR)"
+    ps aux | grep -v grep | grep appex -q && tcp_c_name="锐速"
+}
+
 
 
 ################################################################################################
