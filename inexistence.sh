@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.0
+INEXISTENCEVER=1.2.0.1
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 # --------------------------------------------------------------------------------
@@ -86,6 +86,7 @@ times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
 times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
 source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
+source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$PATH
 
 export TZ=/usr/share/zoneinfo/Asia/Shanghai
@@ -136,21 +137,18 @@ function _if_running () { ps -ef | grep "$1" | grep -v grep > /dev/null && echo 
 # --------------------------------------------------------------------------------
 # 检查客户端是否已安装、客户端版本
 function _check_install_1(){
-client_location=$( command -v ${client_name} )
-
-[[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
-[[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
-[[ "${client_name}" == "deluged" ]] && client_name=de
-[[ "${client_name}" == "rtorrent" ]] && client_name=rt
-[[ "${client_name}" == "flexget" ]] && client_name=flex
-
-if [[ -a $client_location ]]; then
-    eval "${client_name}"_installed=Yes
-else
-    eval "${client_name}"_installed=No
-fi ; }
-
-function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1" ; }
+    client_location=$( command -v ${client_name} )
+    [[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
+    [[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
+    [[ "${client_name}" == "deluged" ]] && client_name=de
+    [[ "${client_name}" == "rtorrent" ]] && client_name=rt
+    [[ "${client_name}" == "flexget" ]] && client_name=flex
+    if [[ -a $client_location ]]; then
+        eval "${client_name}"_installed=Yes
+    else
+        eval "${client_name}"_installed=No
+    fi
+}
 
 function _check_install_2(){
     for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
@@ -159,14 +157,15 @@ function _check_install_2(){
 }
 
 function _client_version_check(){
-[[ $qb_installed == Yes ]] && qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )
-[[ $de_installed == Yes ]] && deluged_ver=$( deluged --version 2>&1 | grep deluged | awk '{print $2}' ) && delugelt_ver=$( deluged --version 2>&1 | grep libtorrent | grep -Eo "[01].[0-9]+.[0-9]+" )
-[[ $rt_installed == Yes ]] && rtorrent_ver=$( rtorrent -h 2>&1 | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p' )
-[[ $tr_installed == Yes ]] && trd_ver=$( transmission-daemon --help 2>&1 | head -n1 | awk '{print $2}' )
-find /usr/lib -name libtorrent-rasterbar* 2>/dev/null | grep -q libtorrent-rasterbar && lt_exist=yes
-lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+ )
-lt_ver_qb3_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_ok=Yes
-lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=Yes ; }
+    [[ $qb_installed == Yes ]] && qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )
+    [[ $de_installed == Yes ]] && deluged_ver=$( deluged --version 2>&1 | grep deluged | awk '{print $2}' ) && delugelt_ver=$( deluged --version 2>&1 | grep libtorrent | grep -Eo "[01].[0-9]+.[0-9]+" )
+    [[ $rt_installed == Yes ]] && rtorrent_ver=$( rtorrent -h 2>&1 | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p' )
+    [[ $tr_installed == Yes ]] && trd_ver=$( transmission-daemon --help 2>&1 | head -n1 | awk '{print $2}' )
+    find /usr/lib -name libtorrent-rasterbar* 2>/dev/null | grep -q libtorrent-rasterbar && lt_exist=yes
+    lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+ )
+    lt_ver_qb3_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_ok=Yes
+    lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=yes
+}
 
 # --------------------------------------------------------------------------------
 
@@ -203,25 +202,21 @@ trap cancel SIGINT
 #[[ $script_lang == chs ]] &&
 
 if [[ $script_lang == eng ]]; then
-
-lang_do_not_install="Do not install"
-language_select_another_version="Select another version"
-which_version_do_you_want="Which version do you want?"
-lang_yizhuang="You have already installed"
-lang_will_be_installed="will be installed"
-lang_note_that="Note that"
-lang_would_you_like_to_install="Would you like to install"
-
+    lang_do_not_install="Do not install"
+    language_select_another_version="Select another version"
+    which_version_do_you_want="Which version do you want?"
+    lang_yizhuang="You have already installed"
+    lang_will_be_installed="will be installed"
+    lang_note_that="Note that"
+    lang_would_you_like_to_install="Would you like to install"
 elif [[ $script_lang == chs ]]; then
-
-lang_do_not_install="我不想安装"
-language_select_another_version="以上版本都不要，我要另选一个版本"
-which_version_do_you_want="你想要装什么版本？"
-lang_yizhuang="你已经安装了"
-lang_will_be_installed="将会被安装"
-lang_note_that="注意"
-lang_would_you_like_to_install="是否需要安装"
-
+    lang_do_not_install="我不想安装"
+    language_select_another_version="以上版本都不要，我要另选一个版本"
+    which_version_do_you_want="你想要装什么版本？"
+    lang_yizhuang="你已经安装了"
+    lang_will_be_installed="将会被安装"
+    lang_note_that="注意"
+    lang_would_you_like_to_install="是否需要安装"
 fi
 
 
@@ -267,9 +262,6 @@ SysSupport=0
 # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
 [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
 
-# qBittorrent是否能安装4.2.0
-[[ $CODENAME =~ (xenial|stretch|bionic|buster) ]] && qbittorrent_dev=1
-
 # 检查本脚本是否支持当前系统，可以关闭此功能
 [[ $SYSTEMCHECK == 1 ]] && [[ $distro_up != Yes ]] && _oscheck
 
@@ -277,14 +269,11 @@ SysSupport=0
 which wget | grep -q wget || { echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget ; }
 which wget | grep -q wget || { echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID ; }
 
-echo -e "${bold}Checking your server's public IPv4 address ...${normal}"
 ipv4_check
 ip_ipapi
-echo "${bold}Checking your server's public IPv6 address ...${normal}"
 ipv6_check
 echo -e "${bold}Checking your server's specification ...${normal}"
 hardware_check_1
-
 echo -e "${bold}Checking bittorrent clients' version ...${normal}"
 _check_install_2
 _client_version_check
@@ -457,84 +446,44 @@ echo ; }
 
 # --------------------- 录入账号密码部分 --------------------- #
 
-# 向用户确认信息，Yes or No
-function _confirmation(){
-local answer
-while true ; do
-    read answer
-    case $answer in [yY] | [yY][Ee][Ss] | "" ) return 0 ;;
-                    [nN] | [nN][Oo]          ) return 1 ;;
-                    *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
-    esac
-done ; }
+function ask_username(){
+    clear
+    validate_username $iUser
+    if [[ $username_valid == empty ]]; then
+        echo -e "${bold}${yellow}The script needs a username${jiacu}"
+        echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
+        ask_input_username
+    elif [[ $username_valid == false ]]; then
+      # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
+        ask_input_username
+    elif [[ $username_valid == true ]]; then
+      # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
+        echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
+    fi
+}
 
-
-# 生成随机密码，genln=密码长度
-function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
-
-
-# 检查用户名的有效性，抄自：https://github.com/Azure/azure-devops-utils
-function validate_username() {
-iUser="$1" ; local min=1 ; local max=32
-# This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
-local reserved_names=" adm admin audio backup bin cdrom crontab daemon dialout dip disk fax floppy fuse games gnats irc kmem landscape libuuid list lp mail man messagebus mlocate netdev news nobody nogroup operator plugdev proxy root sasl shadow src ssh sshd staff sudo sync sys syslog tape tty users utmp uucp video voice whoopsie www-data "
-if [ -z "$iUser" ]; then
-    username_valid=empty
-elif [ ${#iUser} -lt $min ] || [ ${#username} -gt $max ]; then
-    echo -e "${CW} The username must be between $min and $max characters${normal}"
-    username_valid=false
-elif ! [[ "$iUser" =~ ^[a-z][-a-z0-9_]*$ ]]; then
-    echo -e "${CW} The username must contain only lowercase letters, digits, underscores and starts with a letter${normal}"
-    username_valid=false
-elif [[ "$reserved_names" =~ " $iUser " ]]; then
-    echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
-    username_valid=false
-else
-    username_valid=true
-fi ; }
-
-
-# 询问用户名
-function ask_username(){ clear
-
-validate_username $iUser
-
-if [[ $username_valid == empty ]]; then
-    echo -e "${bold}${yellow}The script needs a username${jiacu}"
-    echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
-    ask_input_username
-elif [[ $username_valid == false ]]; then
-  # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
-    ask_input_username
-elif [[ $username_valid == true ]]; then
-  # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
-    echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
-fi ; }
-
-
-# 录入用户名
 function ask_input_username(){
+    local answerusername ; local reinput_name
+    confirm_name=false
+    while [[ $confirm_name == false ]]; do
+        while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
+            reinput_name=false
+            read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
+            validate_username $answerusername
+        done
 
-local answerusername ; local reinput_name
-confirm_name=false
+        addname=$answerusername
+        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+        read answer
+        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
+                        [nN] | [nN][Oo]          ) reinput_name=true ;;
+                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+        esac
 
-while [[ $confirm_name == false ]]; do
-    while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
-        reinput_name=false
-        read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
-        validate_username $answerusername
+        iUser=$addname
     done
-
-    addname=$answerusername
-    echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
-    read answer
-    case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
-                    [nN] | [nN][Oo]          ) reinput_name=true ;;
-                    *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
-    esac
-
-    iUser=$addname
-done ; echo ; }
+    echo
+}
 
 
 
@@ -544,44 +493,42 @@ done ; echo ; }
 # 询问密码。目前的复杂度判断还不够 Flexget 的程度，但总比没有强……
 
 function ask_password() {
+    local password1 ; local password2 ; #local exitvalue=0
+    exec 3>&1 >/dev/tty
 
-local password1 ; local password2 ; #local exitvalue=0
-exec 3>&1 >/dev/tty
-
-if [[ $iPass = "" ]]; then
-    echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
-    echo "The password must consist of characters and numbers and at least 8 chars,"
-    echo "or you can leave it blank to generate a random password"
-
-    while [ -z $localpass ]; do
-        read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
-
-        if [ -z $password1 ]; then
-            localpass=$(genpasswd) ; # exitvalue=1
-            echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
-        elif [ ${#password1} -lt 8 ]; then # At least [8] chars long
-            echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
-        elif ! echo "$password1" | grep -q '[0-9]'; then # At least [1] number
-            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
-        elif ! echo "$password1" | grep -q '[a-zA-Z]'; then # At least [1] letter
-            echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
-        else
-            while [[ $password2 = "" ]]; do
-                read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
-            done
-            if [ $password1 != $password2 ]; then
-                echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
+    if [[ $iPass = "" ]]; then
+        echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
+        echo "The password must consist of characters and numbers and at least 8 chars,"
+        echo "or you can leave it blank to generate a random password"
+        while [ -z $localpass ]; do
+            read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
+    
+            if [ -z $password1 ]; then
+                localpass=$(genpasswd) ; # exitvalue=1
+                echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
+            elif [ ${#password1} -lt 8 ]; then # At least [8] chars long
+                echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
+            elif ! echo "$password1" | grep -q '[0-9]'; then # At least [1] number
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
+            elif ! echo "$password1" | grep -q '[a-zA-Z]'; then # At least [1] letter
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
             else
-                localpass=$password1
+                while [[ $password2 = "" ]]; do
+                    read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
+                done
+                if [ $password1 != $password2 ]; then
+                    echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
+                else
+                    localpass=$password1
+                fi
             fi
-        fi
-    done
-
-    iPass=$localpass
-    exec >&3- ; echo ; # return $exitvalue
-else
-    echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
-fi ; }
+        done
+        iPass=$localpass
+        exec >&3- ; echo ; # return $exitvalue
+    else
+        echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
+    fi
+}
 
 
 
@@ -590,84 +537,44 @@ fi ; }
 # --------------------- 询问安装前是否需要更换软件源 --------------------- #
 
 function ask_apt_sources() {
-
-while [[ -z $aptsources ]]; do
-    read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [${cyan}Y${normal}]es or [N]o: " responce
-  # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
-    case $responce in
-        [yY] | [yY][Ee][Ss] | ""   ) aptsources=Yes ;;
-        [nN] | [nN][Oo]            ) aptsources=No ;;
-        *                          ) aptsources=Yes ;;
-    esac
-done
-
-if [[ $aptsources == Yes ]]; then
-    echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
-else
-    echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
-fi
-
-echo ; }
+    while [[ -z $aptsources ]]; do
+        read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [${cyan}Y${normal}]es or [N]o: " responce
+      # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+        case $responce in
+            [yY] | [yY][Ee][Ss] | ""   ) aptsources=Yes ;;
+            [nN] | [nN][Oo]            ) aptsources=No ;;
+            *                          ) aptsources=Yes ;;
+        esac
+    done
+    if [[ $aptsources == Yes ]]; then
+        echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
+    else
+        echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
+    fi
+    echo
+}
 
 
-
-
-
-# --------------------- 询问编译安装时需要使用的线程数量 --------------------- #
-
-function ask_multi_threads() {
-
-while [[ -z $MAXCPUS ]]; do
-    echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
-    echo -e "${green}02)${normal} Use ${cyan}half${normal} of available threads"
-    echo -e "${green}03)${normal} Use ${cyan}one${normal} thread"
-    echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
-    read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
-    case $responce in
-        01 | 1 | "") MAXCPUS=$(nproc) ;;
-        02 | 2     ) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
-        03 | 3     ) MAXCPUS=1 ;;
-        04 | 4     ) MAXCPUS=2 ;;
-        05 | 5     ) MAXCPUS=No ;;
-        *          ) MAXCPUS=$(nproc) ;;
-    esac
-done
-
-if [[ $MAXCPUS == No ]]; then
-    echo -e "${bold}${baiqingse}Deluge/qBittorrent/Transmission $lang_will_be_installed from repo${normal}"
-else
-    echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}"
-fi
-
-echo ; }
-
-
-
-
-
-
-# --------------------- 询问是否使用 swap --------------------- #
 
 function ask_swap() {
-
-[[ -d /proc/vz ]] && [[ $tram -le 1926 ]] && {
-echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script\n"
-USESWAP=OpenVZ ; }
-
-if [[ -z $USESWAP ]] && [[ $tram -le 1926 ]]; then
-    echo -e  "${bold}${red}$lang_note_that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
-    read -ep "${bold}${yellow}Would you like to use swap when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " version
-    case $responce in
-        [yY] | [yY][Ee][Ss] | "") USESWAP=Yes ;;
-        [nN] | [nN][Oo]         ) USESWAP=No  ;;
-        *                       ) USESWAP=Yes ;;
-    esac
-    if [[ $USESWAP == Yes ]]; then
-        echo -e "${bold}${baiqingse} 1GB Swap ${normal} will be used\n"
-    else
-        echo -e "${bold}Swap will not be used${normal}\n"
+    [[ -d /proc/vz ]] && [[ $tram -le 1926 ]] && {
+    echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script\n"
+    USESWAP=OpenVZ ; }
+    if [[ -z $USESWAP ]] && [[ $tram -le 1926 ]]; then
+        echo -e  "${bold}${red}$lang_note_that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
+        read -ep "${bold}${yellow}Would you like to use swap when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " version
+        case $responce in
+            [yY] | [yY][Ee][Ss] | "") USESWAP=Yes ;;
+            [nN] | [nN][Oo]         ) USESWAP=No  ;;
+            *                       ) USESWAP=Yes ;;
+        esac
+        if [[ $USESWAP == Yes ]]; then
+            echo -e "${bold}${baiqingse} 1GB Swap ${normal} will be used\n"
+        else
+            echo -e "${bold}Swap will not be used${normal}\n"
+        fi
     fi
-fi ; }
+}
 
 
 
@@ -675,65 +582,41 @@ fi ; }
 
 
 # --------------------- 询问需要安装的 qBittorrent 的版本 --------------------- #
-# wget -qO- "https://github.com/qbittorrent/qBittorrent" | grep "data-name" | cut -d '"' -f2 | pr -4 -t ; echo
 
 function ask_qbittorrent() {
-
-while [[ -z $qb_version ]]; do
-
-    echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
-    echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
-    [[ $CODENAME != jessie ]] &&
-    echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
-    echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
-    echo -e  "${blue}30)${normal} $language_select_another_version"
-    echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
-
-    [[ $qb_installed == Yes ]] &&
-    echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
-
-    read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
-  # echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
-
-    case $version in
-        01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
-        02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
-        11) qb_version=4.1.9 ;;
-        12) qb_version=4.2.3 ;;
-        30) _input_version && qb_version="${input_version_num}"  ;;
-        99) qb_version=No ;;
-        * | "") qb_version=4.2.3 ; qb_mode=static ;;
-    esac
-
-done
-
-[[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
-
-# 2018.12.11 改来改去，我现在有点懵逼……
-qBittorrent_4_2_0_later=No
-[[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
-
-if [[ $qb_version == No ]]; then
-    echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
-elif [[ $qb_version == "Install from repo" ]]; then
-    sleep 0
-elif [[ $qb_version == "Install from PPA" ]]; then
-    if [[ $DISTRO == Debian ]]; then
-        echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-        echo -ne "Therefore "
-        qb_version='Install from repo'
+    while [[ -z $qb_version ]]; do
+        echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
+        echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
+        [[ $CODENAME != jessie ]] &&
+        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
+        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
+        echo -e  "${blue}30)${normal} $language_select_another_version"
+        echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
+    
+        [[ $qb_installed == Yes ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
+        case $version in
+            01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
+            02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
+            11) qb_version=4.1.9 ;;
+            12) qb_version=4.2.3 ;;
+            30) _input_version && qb_version="${input_version_num}"  ;;
+            99) qb_version=No ;;
+            * | "") qb_version=4.2.3 ; qb_mode=static ;;
+        esac
+    done
+    
+    qBittorrent_4_2_0_later=No
+    [[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
+    [[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
+    if [[ $qb_version == No ]]; then
+        echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
     else
-        echo "${bold}${baiqingse}qBittorrent $QB_latest_ver${normal} ${bold}$lang_will_be_installed from Stable PPA${normal}"
+        echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
     fi
-else
-    echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
-fi
-
-if [[ $qb_version == "Install from repo" ]]; then
-    echo "${bold}${baiqingse}qBittorrent $QB_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
-fi
-
-echo ; }
+    echo
+}
 
 
 
@@ -2444,7 +2327,7 @@ _intro
 ask_username
 ask_password
 ask_apt_sources
-[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc) ; ask_multi_threads
+[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 ask_swap
 ask_qbittorrent
 ask_deluge
