@@ -3,18 +3,18 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.09
-script_version=r10000
+script_update=2020.04.11
+script_version=r10001
 
 ################################################################################################ Debug
 
 usage_for_debug() {
 
-if [[ -f /etc/inexistence/00.Installation/package/fpm ]]; then
-    bash /etc/inexistence/00.Installation/package/fpm
-else
-    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/fpm)
-fi
+    if [[ -f /etc/inexistence/00.Installation/package/fpm ]]; then
+        bash /etc/inexistence/00.Installation/package/fpm
+    else
+        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/fpm)
+    fi
 
 }
 
@@ -25,6 +25,7 @@ unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
 AppName=fpm
 AppNameLower=fpm
 AppExec=fpm
+AppTest="$AppExec -h"
 Need_SourceCode=no
 pm_action=install
 
@@ -67,18 +68,15 @@ cat_outputlog
 function install_fpm () {
     apt-get -y -q install ruby ruby-dev >> "$OutputLOG" 2>&1
     gem install --no-ri --no-rdoc fpm   >> "$OutputLOG" 2>&1
-
-    status_lock=$AppNameLower
-    echo "status_lock=$status_lock" > /tmp/Variables
-    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    which fpm > /dev/null && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+    generate_status_lock
 }
 
-fpm -h > /dev/null 2>&1
+################################################################################################
+
+eval $AppTest > /dev/null 2>&1
 exit=$?
 if [[ $exit != 0 ]]; then
-    echo_task "Installing fpm ..."
+    echo_task "Installing $AppName ..."
     install_fpm & spinner $!
-    check_status fpm
+    check_status $AppNameLower
 fi
