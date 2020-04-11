@@ -13,14 +13,15 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.4
+INEXISTENCEVER=1.2.0.5
 INEXISTENCEDATE=2020.04.11
 default_branch=master
+aptsources=Yes
 # --------------------------------------------------------------------------------
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,apt-yes,apt-no,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,source-unchange,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -53,8 +54,6 @@ while [ -n "$1" ] ; do case "$1" in
     --eng           ) script_lang=eng   ; shift ;;
     --chs           ) script_lang=chs   ; shift ;;
     --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
-    --apt-yes       ) aptsources="Yes"  ; shift ;;
-    --apt-no        ) aptsources="No"   ; shift ;;
     --swap-yes      ) USESWAP="Yes"     ; shift ;;
     --swap-no       ) USESWAP="No"      ; shift ;;
     --bbr-yes       ) InsBBR="Yes"      ; shift ;;
@@ -62,11 +61,12 @@ while [ -n "$1" ] ; do case "$1" in
     --flood-yes     ) InsFlood="Yes"    ; shift ;;
     --flood-no      ) InsFlood="No"     ; shift ;;
 
-    --vnc           ) InsVNC="Yes"      ; shift ;;
-    --x2go          ) InsX2GO="Yes"     ; shift ;;
-    --wine          ) InsWine="Yes"     ; shift ;;
-    --tools         ) InsTools="Yes"    ; shift ;;
-    --rclone        ) InsRclone="Yes"   ; shift ;;
+    --vnc             ) InsVNC="Yes"      ; shift ;;
+    --x2go            ) InsX2GO="Yes"     ; shift ;;
+    --wine            ) InsWine="Yes"     ; shift ;;
+    --tools           ) InsTools="Yes"    ; shift ;;
+    --rclone          ) InsRclone="Yes"   ; shift ;;
+    --source-unchange ) aptsources="No"   ; shift ;;
 
     --flexget-yes   ) InsFlex="Yes"     ; shift ;;
     --flexget-no    ) InsFlex="No"      ; shift ;;
