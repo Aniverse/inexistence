@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r10000
+script_version=r10001
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -254,17 +254,17 @@ function ask_deluge() {
 
 function ask_rtorrent() {
     if [[ $script_lang == eng ]]; then
-        lang_ipv6_1="with IPv6 support"
-        lang_ipv6_2="with UNOFFICAL IPv6 support"
-        lang_3="released on Sep 04, 2015"
-        lang_4="feature-bind branch on Jan 30, 2018"
-        branch=branch
+        local lang_ipv6_1="with IPv6 support"
+        local lang_ipv6_2="with UNOFFICAL IPv6 support"
+        local lang_3="released on Sep 04, 2015"
+        local lang_4="feature-bind branch on Jan 30, 2018"
+        local branch=branch
     elif [[ $script_lang == chs ]]; then
-        lang_ipv6_1="支持 IPv6"
-        lang_ipv6_2="支持 IPv6 的修改版"
-        lang_3="2015 年的正式发布版本"
-        lang_4="2018 年 1 月 的 feature-bind 分支版本"
-        branch="分支"
+        local lang_ipv6_1="支持 IPv6"
+        local lang_ipv6_2="支持 IPv6 的修改版"
+        local lang_3="2015 年的正式发布版本"
+        local lang_4="2018 年 1 月 的 feature-bind 分支版本"
+        local branch="分支"
     fi
 
     while [[ -z $rt_version ]]; do
@@ -354,7 +354,7 @@ function ask_transmission() {
         echo -e "${green}01)${normal} Transmission ${cyan}2.84${normal}"
         echo -e "${green}02)${normal} Transmission ${cyan}2.92${normal}"
         echo -e "${green}03)${normal} Transmission ${cyan}2.94${normal}"
-        echo -e "${green}21)${normal} Transmission ${cyan}2.94${normal} from ${cyan}prebuilt deb${normal}"
+        echo -e "${green}21)${normal} Transmission ${cyan}2.94${normal} (deb)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install Transmission"
 
