@@ -67,7 +67,7 @@ while [ -n "$1" ] ; do case "$1" in
     --flood           ) InsFlood="No"     ; shift ;;
     --filebrowser     ) InsFB="Yes"       ; shift ;;
     --flexget         ) InsFlex="Yes"     ; shift ;;
-    --tweak           ) UseTweaks="Yes"   ; shift ;;
+    --tweaks          ) UseTweaks="Yes"   ; shift ;;
     --bbr             ) InsBBR="Yes"      ; shift ;;
 
     --no-swap         ) USESWAP="No"      ; shift ;;
@@ -1485,7 +1485,7 @@ ask_apt_sources
 ask_swap
 ask_qbittorrent
 ask_deluge
-[[ $if_ask_lt= 1 ]] && ask_libtorrent
+[[ $if_ask_lt == 1 ]] && ask_libtorrent
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
