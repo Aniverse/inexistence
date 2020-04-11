@@ -1,0 +1,702 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+#
+script_update=2020.04.11
+script_version=r10000
+################################################################################################ Usage Guide
+
+usage_guide() {
+    s=/etc/inexistence/00.Installation/ask;rm -f $s ; nano $s
+    wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/ask -O /etc/inexistence/00.Installation/ask
+
+    if [[ -f /etc/inexistence/00.Installation/ask ]]; then
+        source /etc/inexistence/00.Installation/ask
+    else
+        source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/ask)
+    fi
+}
+
+################################################################################################
+
+function ask_username(){
+    clear
+    validate_username $iUser
+    if [[ $username_valid == empty ]]; then
+        echo -e "${bold}${yellow}The script needs a username${jiacu}"
+        echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
+        ask_input_username
+    elif [[ $username_valid == false ]]; then
+      # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
+        ask_input_username
+    elif [[ $username_valid == true ]]; then
+      # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
+        echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
+    fi
+}
+
+function ask_input_username(){
+    local answerusername ; local reinput_name
+    confirm_name=false
+    while [[ $confirm_name == false ]]; do
+        while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
+            reinput_name=false
+            read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
+            validate_username $answerusername
+        done
+
+        addname=$answerusername
+        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+        read answer
+        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
+                        [nN] | [nN][Oo]          ) reinput_name=true ;;
+                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
+        esac
+
+        iUser=$addname
+    done
+    echo
+}
+
+# 一定程度上的密码复杂度检测：https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator
+# 询问密码。目前的复杂度判断还不够 Flexget 的程度，但总比没有强……
+function ask_password() {
+    local password1 ; local password2 ; #local exitvalue=0
+    exec 3>&1 >/dev/tty
+
+    if [[ $iPass = "" ]]; then
+        echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
+        echo "The password must consist of characters and numbers and at least 8 chars,"
+        echo "or you can leave it blank to generate a random password"
+        while [ -z $localpass ]; do
+            read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
+    
+            if [ -z $password1 ]; then
+                localpass=$(genpasswd) ; # exitvalue=1
+                echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
+            elif [ ${#password1} -lt 8 ]; then # At least [8] chars long
+                echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
+            elif ! echo "$password1" | grep -q '[0-9]'; then # At least [1] number
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
+            elif ! echo "$password1" | grep -q '[a-zA-Z]'; then # At least [1] letter
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
+            else
+                while [[ $password2 = "" ]]; do
+                    read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
+                done
+                if [ $password1 != $password2 ]; then
+                    echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
+                else
+                    localpass=$password1
+                fi
+            fi
+        done
+        iPass=$localpass
+        exec >&3- ; echo ; # return $exitvalue
+    else
+        echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
+    fi
+}
+
+function ask_multi_threads() {
+    while [[ -z $MAXCPUS ]]; do
+        echo -e "${green}01)${normal} Use ${cyan}all${normal} available threads (Default)"
+        echo -e "${green}02)${normal} Use ${cyan}half${normal} of available threads"
+        echo -e "${green}03)${normal} Use ${cyan}one${normal} thread"
+        echo -e "${green}04)${normal} Use ${cyan}two${normal} threads"
+        read -ep "${bold}${yellow}How many threads do you want to use when compiling?${normal} (Default ${cyan}01${normal}): " version
+        case $responce in
+            01 | 1 | "") MAXCPUS=$(nproc) ;;
+            02 | 2     ) MAXCPUS=$(echo "$(nproc) / 2"|bc) ;;
+            03 | 3     ) MAXCPUS=1 ;;
+            04 | 4     ) MAXCPUS=2 ;;
+            *          ) MAXCPUS=$(nproc) ;;
+        esac
+    done
+    echo -e "${bold}${baiqingse}[${MAXCPUS}]${normal} ${bold}thread(s) will be used when compiling${normal}\n"
+}
+
+function ask_swap() {
+    [[ -d /proc/vz ]] && [[ $tram -le 1926 ]] && {
+    echo -e "${JG} You're using OpenVZ VPS and your RAM is less than 2GB\nYour memory may got exhausted sometimes when running this script\n"
+    USESWAP=OpenVZ ; }
+    if [[ -z $USESWAP ]] && [[ $tram -le 1926 ]]; then
+        echo -e  "${bold}${red}$lang_note_that${normal} ${bold}Your RAM is below ${red}1926MB${jiacu}, memory may got exhausted when compiling${normal}"
+        read -ep "${bold}${yellow}Would you like to use swap when compiling?${normal} [${cyan}Y${normal}]es or [N]o: " version
+        case $responce in
+            [yY] | [yY][Ee][Ss] | "") USESWAP=Yes ;;
+            [nN] | [nN][Oo]         ) USESWAP=No  ;;
+            *                       ) USESWAP=Yes ;;
+        esac
+        if [[ $USESWAP == Yes ]]; then
+            echo -e "${bold}${baiqingse} 1GB Swap ${normal} will be used\n"
+        else
+            echo -e "${bold}Swap will not be used${normal}\n"
+        fi
+    fi
+}
+
+function ask_apt_sources() {
+    while [[ -z $aptsources ]]; do
+        read -ep "${bold}${yellow}Would you like to change sources list?${normal}  [${cyan}Y${normal}]es or [N]o: " responce
+      # echo -ne "${bold}${yellow}Would you like to change sources list?${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+        case $responce in
+            [yY] | [yY][Ee][Ss] | ""   ) aptsources=Yes ;;
+            [nN] | [nN][Oo]            ) aptsources=No ;;
+            *                          ) aptsources=Yes ;;
+        esac
+    done
+    if [[ $aptsources == Yes ]]; then
+        echo "${bold}${baiqingse}/etc/apt/sources.list${normal} ${bold}will be replaced${normal}"
+    else
+        echo "${baizise}/etc/apt/sources.list will ${baihongse}not${baizise} be replaced${normal}"
+    fi
+    echo
+}
+
+function ask_qbittorrent() {
+    while [[ -z $qb_version ]]; do
+        echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
+        echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
+        [[ $CODENAME != jessie ]] &&
+        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
+        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
+        echo -e  "${blue}30)${normal} $language_select_another_version"
+        echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
+    
+        [[ $qb_installed == Yes ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
+        case $version in
+            01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
+            02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
+            11) qb_version=4.1.9 ;;
+            12) qb_version=4.2.3 ;;
+            30) _input_version && qb_version="${input_version_num}"  ;;
+            99) qb_version=No ;;
+            * | "") qb_version=4.2.3 ; qb_mode=static ;;
+        esac
+    done
+
+    qBittorrent_4_2_0_later=No
+    [[ $(echo $qb_version | grep -oP "[0-9.]+" | awk -F '.' '{print $1}') == 3 ]] && qbt_ver_3=Yes
+    [[ $(echo $qb_version | grep -oP "[0-9.]+") ]] && version_ge $qb_version 4.1.4 && qBittorrent_4_2_0_later=Yes
+    if [[ $qb_version == No ]]; then
+        echo "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
+    else
+        echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}"
+    fi
+    echo
+}
+
+# wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
+function ask_deluge() {
+    while [[ -z $de_version ]]; do
+        echo -e "${green}01)${normal} Deluge ${cyan}1.3.9${normal}"
+        echo -e "${green}02)${normal} Deluge ${cyan}1.3.13${normal}"
+        echo -e "${green}03)${normal} Deluge ${cyan}1.3.14${normal}"
+        echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
+        echo -e  "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (Only for test)"
+        echo -e  "${blue}30)${normal} $language_select_another_version"
+        echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
+        [[ $DISTRO == Ubuntu ]] &&
+        echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
+        echo -e   "${red}99)${normal} $lang_do_not_install Deluge"
+
+        [[ $de_installed == Yes ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
+
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
+        case $version in
+            01 | 1) de_version=1.3.9 ;;
+            02 | 2) de_version=1.3.13 ;;
+            03 | 3) de_version=1.3.14 ;;
+            04 | 4) de_version=1.3.15 ;;
+            11) de_version=2.0.3 ;;
+            21) de_version='1.3.15_skip_hash_check' ;;
+            30) _input_version && de_version="${input_version_num}" ;;
+            31) _input_version && de_version="${input_version_num}" && de_test=yes &&  de_branch=yes ;;
+            32) _input_version && de_version="${input_version_num}" && de_test=yes && de_version=yes ;;
+            40) de_version='Install from repo' ;;
+            50) de_version='Install from PPA' ;;
+            99) de_version=No ;;
+            * | "") de_version=1.3.15 ;;
+        esac
+    done
+
+    [[ $(echo $de_version | grep -oP "[0-9.]+") ]] && { version_ge $de_version 1.3.11 || Deluge_ssl_fix_patch=Yes ; }
+    [[ $(echo $de_version | grep -oP "[0-9.]+") ]] && { version_ge $de_version 2.0 && Deluge_2_later=Yes || Deluge_2_later=No ; }
+    [[ $de_version == '1.3.15_skip_hash_check'  ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
+
+    if [[ $de_version == No ]]; then
+        echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
+    elif [[ $de_version == "Install from repo" ]]; then
+        sleep 0
+    elif [[ $de_version == "Install from PPA" ]]; then
+        if [[ $DISTRO == Debian ]]; then
+            echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
+            echo -ne "Therefore "
+            de_version='Install from repo'
+        else
+            echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}$lang_will_be_installed from PPA${normal}"
+        fi
+    else
+        echo "${bold}${baiqingse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}"
+    fi
+
+    if [[ $de_version == "Install from repo" ]]; then
+        echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
+    fi
+
+    echo
+}
+
+function ask_rtorrent() {
+    if [[ $script_lang == eng ]]; then
+        lang_ipv6_1="with IPv6 support"
+        lang_ipv6_2="with UNOFFICAL IPv6 support"
+        lang_3="released on Sep 04, 2015"
+        lang_4="feature-bind branch on Jan 30, 2018"
+        branch=branch
+    elif [[ $script_lang == chs ]]; then
+        lang_ipv6_1="支持 IPv6"
+        lang_ipv6_2="支持 IPv6 的修改版"
+        lang_3="2015 年的正式发布版本"
+        lang_4="2018 年 1 月 的 feature-bind 分支版本"
+        branch="分支"
+    fi
+
+    while [[ -z $rt_version ]]; do
+            [[ $rtorrent_dev != 1 ]] && {
+            echo -e "${green}01)${normal} rTorrent ${cyan}0.9.2${normal}"
+            echo -e "${green}02)${normal} rTorrent ${cyan}0.9.3${normal}"
+            echo -e "${green}03)${normal} rTorrent ${cyan}0.9.4${normal}"
+            echo -e "${green}04)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_3)"
+            echo -e "${green}11)${normal} rTorrent ${cyan}0.9.2${normal} ($lang_ipv6_1)"
+            echo -e "${green}12)${normal} rTorrent ${cyan}0.9.3${normal} ($lang_ipv6_1)"
+            echo -e "${green}13)${normal} rTorrent ${cyan}0.9.4${normal} ($lang_ipv6_1)" ; }
+            echo -e "${green}14)${normal} rTorrent ${cyan}0.9.6${normal} ($lang_4)"
+            echo -e "${green}15)${normal} rTorrent ${cyan}0.9.7${normal} ($lang_ipv6_1)"
+            echo -e "${green}16)${normal} rTorrent ${cyan}0.9.8${normal} ($lang_ipv6_1)"
+            echo -e "${green}17)${normal} rTorrent ${cyan}feature-bind branch${normal} ($lang_ipv6_1)"
+            echo -e   "${red}99)${normal} $lang_do_not_install rTorrent"
+    
+            [[ $rt_installed == Yes ]] &&
+            echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}rTorrent ${rtorrent_ver}${normal}"
+            [[ $rtorrent_dev == 1 ]] &&
+            echo "${bold}${red}$lang_note_that${normal} ${bold}${green}Debian 9/10${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
+    
+            read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}14${normal}): " version
+            case $version in
+                01 | 1) rt_version=0.9.2 ;;
+                02 | 2) rt_version=0.9.3 ;;
+                03 | 3) rt_version=0.9.4 ;;
+                04 | 4) rt_version=0.9.6 ;;
+                11) rt_version='0.9.2 IPv6 supported' ;;
+                12) rt_version='0.9.3 IPv6 supported' ;;
+                13) rt_version='0.9.4 IPv6 supported' ;;
+                14) rt_version='0.9.6 IPv6 supported' ;;
+                15) rt_version=0.9.7 ;;
+                16) rt_version=0.9.8 ;;
+                17) rt_version=feature ;;
+                99) rt_version=No ;;
+                "" | *) rt_version='0.9.6 IPv6 supported' ;;
+            esac
+    done
+
+    [[ $IPv6Opt == -i ]] && rt_version=`echo $rt_version IPv6 supported`
+    [[ `echo $rt_version | grep IPv6` ]] && IPv6Opt=-i
+    [[ $rt_version =~ (0.9.7|0.9.8|feature) ]] && IPv6Opt=-i
+    rt_versionIns=`echo $rt_version | grep -Eo [0-9].[0-9].[0-9]`
+    [[ $rt_version == feature ]] && rt_versionIns=feature
+
+    if [[ $rt_version == No ]]; then
+        [[ $script_lang == eng ]] && echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
+        [[ $script_lang == chs ]] && echo "${baihongse}跳过${baizise} rTorrent 的安装${normal}"
+        InsFlood='No rTorrent'
+    else
+        if [[ `echo $rt_version | grep IPv6 | grep -Eo 0.9.[234]` ]]; then
+            echo "${bold}${baiqingse}rTorrent $rt_versionIns ($lang_ipv6_2)${normal} ${bold}$lang_will_be_installed${normal}"
+        elif [[ $rt_version == '0.9.6 IPv6 supported' ]]; then
+            echo "${bold}${baiqingse}rTorrent 0.9.6 (feature-bind $branch)${normal} ${bold}$lang_will_be_installed${normal}"
+        else
+            echo "${bold}${baiqingse}rTorrent ${rt_version}${normal} ${bold}$lang_will_be_installed${normal}"
+        fi
+    fi
+
+    echo
+}
+
+function ask_flood() {
+    while [[ -z $InsFlood ]]; do
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install flood? ${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsFlood=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsFlood=No  ;;
+            *) InsFlood=No ;;
+        esac
+    done
+
+    if [[ $InsFlood == Yes ]]; then
+        echo "${bold}${baiqingse}Flood${normal} ${bold}$lang_will_be_installed${normal}"
+    else
+        echo "${baizise}Flood will ${baihongse}not${baizise} be installed${normal}"
+    fi
+
+    echo
+}
+
+function ask_transmission() {
+    while [[ -z $tr_version ]]; do
+
+        [[ ! $CODENAME =~ (bionic|buster) ]] &&
+        echo -e "${green}01)${normal} Transmission ${cyan}2.84${normal}"
+        echo -e "${green}02)${normal} Transmission ${cyan}2.92${normal}"
+        echo -e "${green}03)${normal} Transmission ${cyan}2.94${normal}"
+        echo -e "${green}21)${normal} Transmission ${cyan}2.94${normal} from ${cyan}prebuilt deb${normal}"
+        echo -e  "${blue}30)${normal} $language_select_another_version"
+        echo -e   "${red}99)${normal} $lang_do_not_install Transmission"
+
+        [[ $tr_installed == Yes ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Transmission ${trd_ver}${normal}"
+
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}21${normal}): " version
+
+        case $version in
+                01 | 1) tr_version=2.84 ;;
+                02 | 2) tr_version=2.92 ;;
+                03 | 3) tr_version=2.94 ;;
+                21) tr_version=2.94 && TRdefault=deb ;;
+                30) _input_version && tr_version="${input_version_num}" ;;
+                31) _input_version && tr_version="${input_version_num}" && TRdefault=No ;;
+                99) tr_version=No ;;
+                "" | *) tr_version=2.94 && TRdefault=deb ;;
+        esac
+    
+    done
+
+    if [[ $tr_version == No ]]; then
+        echo -e "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}\n"
+    else
+        echo -e "${bold}${baiqingse}Transmission ${tr_version}${normal} ${bold}$lang_will_be_installed${normal}\n"
+    fi
+}
+
+################################################################################################
+################################################################################################
+################################################################################################
+
+function ask_flexget() {
+    while [[ -z $InsFlex ]]; do
+        [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
+    	version_ge $qb_version 4.2.0 && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}qBittorrent 4.2.X is incompatible with current Flexget${normal}"
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsFlex=No ;;
+            *) InsFlex=No ;;
+        esac
+    done
+    if [ $InsFlex == Yes ]; then
+        echo -e "${bold}${baiqingse}Flexget${normal} ${bold}$lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}Flexget will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_rclone() {
+    while [[ -z $InsRclone ]]; do
+        [[ $rclone_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang rclone${normal}"
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install rclone?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsRclone=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsRclone=No  ;;
+            *) InsRclone=No ;;
+        esac
+    done
+    if [[ $InsRclone == Yes ]]; then
+        echo -e "${bold}${baiqingse}rclone${normal} ${bold}$lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}rclone will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_rdp() {
+    while [[ -z $InsRDP ]]; do
+        echo -e "${green}01)${normal} noVNC with xfce4"
+        echo -e "${green}02)${normal} X2Go with xfce4"
+        echo -e   "${red}99)${normal} $lang_do_not_install remote desktop"
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install remote desktop?${normal} (Default ${cyan}99${normal}): " responce
+        case $responce in
+            01 | 1) InsRDP=VNC  ;;
+            02 | 2) InsRDP=X2Go ;;
+            99    ) InsRDP=No   ;;
+            "" | *) InsRDP=No   ;;
+        esac
+    done
+    if [[ $InsRDP == VNC ]]; then
+        echo -e "${bold}${baiqingse}VNC${jiacu} and ${baiqingse}xfce4${jiacu} $lang_will_be_installed${normal}\n"
+    elif [[ $InsRDP == X2Go ]]; then
+        echo -e "${bold}${baiqingse}X2Go${normal} and ${bold}${baiqingse}xfce4${jiacu} $lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}VNC or X2Go will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_wine_mono() {
+    while [[ -z $InsWine ]]; do
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsWine=No  ;;
+            *) InsWine=No ;;
+        esac
+    done
+    if [[ $InsWine == Yes ]]; then
+        echo -e "${bold}${baiqingse}Wine${jiacu} and ${baiqingse}mono${jiacu} $lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_tools() {
+    while [[ -z $InsTools  ]]; do
+        echo -e "MKVToolnix, mktorrent, eac3to, mediainfo, ffmpeg ..."
+        echo -ne "${bold}${yellow}$lang_would_you_like_to_install the above additional softwares?${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsTools=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsTools=No  ;;
+           *) InsTools=No ;;
+        esac
+    done
+    if [[ $InsTools == Yes ]]; then
+        echo -e "${bold}${baiqingse}Latest version of these softwares${jiacu} $lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}These softwares will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_tweaks() {
+    while [[ $UseTweaks = "" ]]; do
+        echo -ne "${bold}${yellow}Would you like to do some system tweaks? ${normal} [${cyan}Y${normal}]es or [N]o: " ; read -e responce
+        case $responce in
+            [yY] | [yY][Ee][Ss] | "" ) UseTweaks=Yes ;;
+            [nN] | [nN][Oo]          ) UseTweaks=No ;;
+            *                        ) UseTweaks=Yes ;;
+        esac
+    done
+    if [[ $UseTweaks == Yes ]]; then
+        echo -e "${bold}${baiqingse}System tweaks${normal} ${bold}will be configured${normal}\n"
+    else
+        echo -e "${baizise}System tweaks will ${baihongse}not${baizise} be configured${normal}\n"
+    fi
+}
+
+
+################################################################################################
+################################################################################################ WILL BE DE DEPRECATED
+################################################################################################
+
+
+# 2018.04.26 禁用这个问题，统一使用 1.0.11
+# 2018.11.15 随着 RC_1_1 分支的进步，准备重新启用
+# 2018.11.15 不确定 PPA、apt 源里的版本是否会冲突，保险起见自己编译一次，因此移除了 PPA、repo 的选项
+# 2019.XX.XX qb 开发者打算要求使用 C++14 了的样子，不知道这对于同时使用 Deluge 的用户是否有影响？
+# 2019.05.23 自选版本选项删除
+# 2020.01.27 忍住删除这一块判断逻辑的冲动……等下个大版本再统一成 lt 1.1.14
+# --------------------- 询问需要安装的 libtorrent-rasterbar 版本 --------------------- #
+# lt_version=$(  wget -qO- "https://github.com/arvidn/libtorrent" | grep "data-name" | cut -d '"' -f2 | grep "libtorrent-1_1_" | sort -t _ -n -k 3 | tail -n1  )
+
+function ask_libtorrent_version() {
+
+    [[ $DeBUG == 1 ]] && echo "lt_version=$lt_version  lt_ver=$lt_ver  lt8_support=$lt8_support  qb_version=$qb_version  de_version=$de_version"
+
+    lt8_support=Yes
+    [[ $CODENAME == Buster ]] && lt8_support=No
+    # 当要安装 Deluge 2.0 或 qBittorrent 4.2.0(stable release) 时，lt 版本至少要 1.1.11；如果原先装了 1.0，那么这里必须升级到 1.1 或者 1.2
+    # 2019.01.30 这里不去掉 unset lt_version 就容易导致 opt 失效
+    [[ $Deluge_2_later == Yes || $qBittorrent_4_2_0_later == Yes ]] && lt8_support=No
+
+    while [[ $lt_version = "" ]]; do
+
+        [[ $lt8_support == Yes ]] &&
+        echo -e "${green}01)${normal} libtorrent-rasterbar ${cyan}1.0.11${normal} (${blue}RC_1_0${normal} branch)"
+        echo -e "${green}02)${normal} libtorrent-rasterbar ${cyan}1.1.14${normal} (${blue}RC_1_1${normal} branch)"
+        # echo -e  "${blue}03)${normal} libtorrent-rasterbar ${blue}1.2.5 ${normal} (${blue}RC_1_2${normal} branch) (DO NOT USE IT)"
+        # echo -e  "${blue}30)${normal} $language_select_another_version"
+        [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] &&
+        echo -e "${green}99)${normal} libtorrent-rasterbar ${cyan}$lt_ver${normal} which is already installed"
+        # echo -e "${bailanse}${bold} ATTENTION ${normal}${blue} both Deluge and qBittorrent use libtorrent-rasterbar \n            as torrent backend"
+
+        # 已安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        if [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == Yes ]] && [[ $lt8_support == Yes ]]; then
+                while [[ $lt_version == "" ]]; do
+    					echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) lt_version=RC_1_0 ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) lt_version=system ;;
+                              ""    ) lt_version=system ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        # 已安装 libtorrent-rasterbar 的版本低于 1.0.6，无法用于编译 qBittorrent 3.3.x and later（但也不需要 1.1）
+        elif [[ $lt_ver ]] && [[ $lt_ver_qb3_ok == No ]] && [[ $qb_version != No ]]; then
+                while [[ $lt_version == "" ]]; do
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) lt_version=RC_1_0 ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) echo -e "\n${CW} qBittorrent 3.3 and later requires libtorrent-rasterbar 1.0.6 and later${normal}\n" ;;
+                              ""    ) lt_version=RC_1_0 ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，且系统里已经安装的 libtorrent-rasterbar 支持
+        # 2018.12.03 发现这里写的有问题，试着更正下
+        elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == Yes ]]; then
+                while [[ $lt_version == "" ]]; do
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}99${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) lt_version=system ;;
+                              ""    ) lt_version=system ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        # 已安装 libtorrent-rasterbar 且需要使用 Deluge 2.0 或者 qBittorrent 4.2.0，但系统里已经安装的 libtorrent-rasterbar 不支持
+        elif [[ $lt_ver ]] && [[ $lt8_support == No ]] && [[ $lt_ver_de2_ok == No ]]; then
+                while [[ $lt_version == "" ]]; do
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.13 or later${normal}\n" ;;
+                              ""    ) lt_version=RC_1_1 ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        # 未安装 libtorrent-rasterbar 且不使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        elif [[ ! $lt_ver ]] && [[ $lt8_support == Yes ]]; then
+                while [[ $lt_version == "" ]]; do
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) lt_version=RC_1_0 ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
+                              ""    ) lt_version=RC_1_0 ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        # 未安装 libtorrent-rasterbar 且要使用 Deluge 2.0 或者 qBittorrent 4.2.0
+        elif [[ ! $lt_ver ]] && [[ $lt8_support == No ]]; then
+                while [[ $lt_version == "" ]]; do
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) echo -e "\n${CW} Deluge 2.0 or qBittorrent 4.2.0 requires libtorrent-rasterbar 1.1.3 or later${normal}\n" ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) echo -e "\n${CW} libtorrent-rasterbar is a must for Deluge or qBittorrent, so you have to install it${normal}\n" ;;
+                              ""    ) lt_version=RC_1_1 ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        else
+                while [[ $lt_version == "" ]]; do
+                        echo -e "\n${bold}${yellow}你发现了一个 Bug！请带着以下信息联系作者……${normal}\n"
+                        echo "Deluge_2_later=$Deluge_2_later   qBittorrent_4_2_0_later=$qBittorrent_4_2_0_later"
+                        echo "lt_ver=$lt_ver  lt8_support=$lt8_support  lt_ver_qb3_ok=$lt_ver_qb3_ok  lt_ver_de2_ok=$lt_ver_de2_ok"
+                        echo -ne "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " ; read -e version
+                        case $version in
+                              01 | 1) lt_version=RC_1_0 ;;
+                              02 | 2) lt_version=RC_1_1 ;;
+                              03 | 3) lt_version=RC_1_2 ;;
+                              98    ) lt_version=system ;;
+                              99    ) lt_version=system ;;
+                              ""    ) lt_version=system ;;
+                              *     ) echo -e "\n${CW} Please input a valid opinion${normal}\n" ;;
+                        esac
+                done
+        fi
+
+    done
+
+    [[ $lt_version == RC_1_0  ]] && lt_display_ver=1.0.11
+    [[ $lt_version == RC_1_1  ]] && lt_display_ver=1.1.14
+    [[ $lt_version == RC_1_2  ]] && lt_display_ver=$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eo "libtorrent-1\.2\.[0-9]+" | head -1 | grep -Eo "[0-9.]+")=
+    if [[ $lt_version == system ]]; then
+        echo -e "${baiqingse}${bold}libtorrent-rasterbar $lt_ver${jiacu} will be used from system${normal}\n"
+        lt_display_ver=$lt_ver
+    else
+        echo -e "${baiqingse}${bold}libtorrent-rasterbar ${lt_display_ver}${normal} ${bold}$lang_will_be_installed${normal}\n"
+    fi
+}
+
+# 检查是否已经启用BBR、BBR 魔改版
+function check_bbr_status() {
+    tcp_control=$(cat /proc/sys/net/ipv4/tcp_congestion_control)
+    [[ $tcp_control =~ (bbr|bbr_powered|bbrplus|nanqinlang|tsunami) ]] && bbrinuse=Yes || bbrinuse=No
+}
+
+# 检查理论上内核是否支持原版 BBR
+function check_kernel_version() {
+    kernel_vvv=$(uname -r | cut -d- -f1)
+    [[ -n $kernel_vvv ]] && version_ge $kernel_vvv 4.9 && bbrkernel=Yes || bbrkernel=No
+    # ls /lib/modules/\$(uname -r)/kernel/net/ipv4 | grep tcp_bbr.ko -q
+}
+
+# 询问是否安装BBR
+function ask_bbr() {
+    check_bbr_status
+    if [[ $bbrinuse == Yes ]]; then
+        echo -e "${bold}${yellow}TCP BBR has been installed. Skip ...${normal}"
+        InsBBR=Already\ Installed
+    elif [[ -d /proc/vz ]]; then
+        echo -e "${yellow}${bold}Since your seedbox is based on ${red}OpenVZ${normal}${yellow}${bold}, skip BBR installation${normal}\n"
+        InsBBR=Not\ supported\ on\ OpenVZ
+    else
+        check_kernel_version
+        while [[ -z $InsBBR ]]; do
+            if [[ $bbrkernel == Yes ]]; then
+                echo -e "${bold}Your kernel is newer than ${green}4.9${normal}${bold}, but BBR is not enabled${normal}"
+                read -ep "${bold}${yellow}Would you like to use BBR? ${normal} [${cyan}Y${normal}]es or [N]o: " responce
+                case $responce in
+                    [yY] | [yY][Ee][Ss] | "" ) InsBBR=To\ be\ enabled ;;
+                    [nN] | [nN][Oo]          ) InsBBR=No ;;
+                    *                        ) InsBBR=To\ be\ enabled ;;
+                esac
+            else
+                echo -e "A new kernel (4.11.12) $lang_will_be_installed if BBR is to be installed"
+                echo -e "${red}WARNING${normal} ${bold}Installing new kernel may cause reboot failure in some cases${normal}"
+                echo -ne "${bold}${yellow}$lang_would_you_like_to_install BBR? ${normal} [Y]es or [${cyan}N${normal}]o: " ; read -e responce
+                case $responce in
+                    [yY] | [yY][Ee][Ss]  ) InsBBR=Yes ;;
+                    [nN] | [nN][Oo] | "" ) InsBBR=No ;;
+                    *                    ) InsBBR=No ;;
+                esac
+            fi
+        done
+
+       [[ $InsBBR == Yes ]] && [[ $bbrkernel == Yes ]] && InsBBR=To\ be\ enabled
+        if [[ $InsBBR == Yes ]]; then
+            echo -e "${bold}${baiqingse}TCP BBR${normal} ${bold}$lang_will_be_installed${normal}\n"
+        elif [[ $InsBBR == To\ be\ enabled ]]; then
+            echo -e "${bold}${baiqingse}TCP BBR${normal} ${bold}will be enabled${normal}\n"
+        else
+            echo -e "${baizise}TCP BBR will ${baihongse}not${baizise} be installed${normal}\n"
+        fi
+    fi
+}
