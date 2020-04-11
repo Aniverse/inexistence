@@ -4,18 +4,19 @@
 # Author: Aniverse
 
 script_update=2020.04.11
-script_version=r10000
+script_version=r10001
 
 ################################################################################################ Debug
 
 usage_for_debug() {
-
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/filebrowser
+    rm -f $s ; nano $s
     if [[ -f /etc/inexistence/00.Installation/package/filebrowser ]]; then
         bash /etc/inexistence/00.Installation/package/filebrowser
     else
-        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/filebrowser/install)
+        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/filebrowser)
     fi
-
 }
 
 ################################################################################################
@@ -63,13 +64,13 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+[[ -z $wport ]] && wport=7575
+PortCheck $wport
+[[ $port_used == 1 ]] && echo_error_exit "Please change your port"
 
 ################################################################################################
 
 function install_filebrowser () {
-    install_base docker
-    which docker > /dev/null || echo_error "No Docker found"
-
     mkdir -p $HOME/.docker/fb/myfiles
     docker run -itd  \
             -e PUID=$UID \
@@ -81,13 +82,14 @@ function install_filebrowser () {
             -v /:/myfiles \
             --mount type=tmpfs,destination=/tmp \
             --restart always \
-            80x86/filebrowser:amd64
-
+            80x86/filebrowser:amd64 >> "$OutputLOG" 2>&1
     generate_status_lock
 }
 
 ################################################################################################
 
+install_base docker
+which docker > /dev/null || echo_error_exit "No Docker found"
 echo_task "Installing $AppName ..."
 install_filebrowser & spinner $!
 check_status $AppNameLower
