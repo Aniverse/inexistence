@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.7
+INEXISTENCEVER=1.2.0.8
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -507,17 +507,20 @@ function ask_continue() {
     [[ $rt_version != No ]] &&
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
+    echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
+
+    echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
+    echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
+    echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
+    echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+
     echo "                  ${cyan}${bold}noVNC${normal}         ${bold}${yellow}${InsVNC}${normal}"
     echo "                  ${cyan}${bold}X2Go${normal}          ${bold}${yellow}${InsX2Go}${normal}"
     echo "                  ${cyan}${bold}Wine${normal}          ${bold}${yellow}${InsWine}${normal}"
     echo "                  ${cyan}${bold}mono${normal}          ${bold}${yellow}${InsMono}${normal}"
     echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
-    echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
     echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
-    echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
-    echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
-    echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
-    echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+
     [[ $sihuo == yes ]] && echo &&
     echo "                  ${cyan}${bold}私货${normal}          ${bold}${yellow}有${normal}"
     echo
@@ -1490,13 +1493,13 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
     if   [[ $lt_version == RC_1_0 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb
+        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -m deb
     elif [[ $lt_version == RC_1_1 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -m deb3
+        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -m deb3
     elif [[ $lt_version == RC_1_2 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install -b RC_1_2
+        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -b RC_1_2
     else
-        bash $local_packages/package/libtorrent-rasterbar/install -v $lt_version
+        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -v $lt_version
     fi
 fi
 
