@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r11010
+script_version=r12011
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -108,17 +108,33 @@ calc_disk() {
 hardware_check_1() {
     cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
     cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
-    cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
+    cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )  # physical_cpu_number=$( grep 'physical id' /proc/cpuinfo | cut -c15-17 )
+  # cpu_percent=$( top -b -n 1 | grep Cpu | awk '{print $2}' | cut -f 1 -d "." )
     cpucores=$( expr $cpucores_single \* $cpunumbers )
-    [[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
+    freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
+    if [[ $virtual == "No Virtualization Detected" ]] || [[ $virtual == Docker ]]; then
+        [[ $cpunumbers == 2 ]] && CPUNum='Dual ' ; [[ $cpunumbers == 4 ]] && CPUNum='Quad ' ; [[ $cpunumbers == 8 ]] && CPUNum='Octa '
+    fi
 
     disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
     disk_total_size=$( calc_disk ${disk_size1[@]} )
     disk_used_size=$( calc_disk ${disk_size2[@]} )
-    freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
+
+    # memory
     tram=$( free -m | awk '/Mem/ {print $2}' )
     uram=$( free -m | awk '/Mem/ {print $3}' )
+    swap=$( free -m | awk '/Swap/ {print $2}' )
+    uswap=$( free -m | awk '/Swap/ {print $3}' )
+    memory_usage=`free -m |grep -i mem | awk '{printf ("%.2f\n",$3/$2*100)}'`%
+
+    # Sys info
+    users=`users | wc -w`
+    date=$( date +%Y-%m-%d" "%H:%M:%S )
+    processes=`ps aux | wc -l`
+    uptime1=$( awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60} {printf("%d days %d hour %d min\n",a,b,c)}' /proc/uptime )
+    uptime2=`uptime | grep -ohe 'up .*' | sed 's/,/\ hours/g' | awk '{ printf $2" "$3 }'`
+    load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
 }
 
 
@@ -556,17 +572,225 @@ ipv6_check() {
 }
 
 ip_ipapi() {
-     wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > $HOME/ipapi 2>&1
-     ccoodde=$( cat $HOME/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
-     country=$( cat $HOME/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
-     regionn=$( cat $HOME/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
-     cityyyy=$( cat $HOME/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
-     isppppp=$( cat $HOME/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-     asnnnnn=$( cat $HOME/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-     [[ $cityyyy == Singapore ]] && unset cityyyy
-     [[ -z $isppppp ]] && isp="No ISP detected"
-     [[ -z $asnnnnn ]] && isp="No ASN detected"
-     rm -f $HOME/ipapi 2>&1
+    mkdir -p $HOME/.abench
+    wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > $HOME/.abench/ipapi 2>&1
+    ccoodde=$( cat $HOME/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+    country=$( cat $HOME/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+    regionn=$( cat $HOME/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+    cityyyy=$( cat $HOME/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+    isppppp=$( cat $HOME/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    asnnnnn=$( cat $HOME/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    [[ $cityyyy == Singapore ]] && unset cityyyy
+    [[ -z $isppppp ]] && isp="No ISP detected"
+    [[ -z $asnnnnn ]] && isp="No ASN detected"
+    rm -f $HOME/ipapi 2>&1
+}
+
+
+
+
+################################################################################################
+################################################################################################ Shared-Seedbox
+################################################################################################
+
+
+
+
+seedbox_neighbors_check() {
+    echo -e "${bold}正在检查盒子的邻居情况 ...${normal}"
+    cd $HOME
+    current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//")  # 下边我写重复，其实主要目的是为了在注释里写一下各种共享盒子的路径是什么样子的格式
+    [[ $Seedbox == USB    ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /home11     这样子的
+    [[ $Seedbox == PM     ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /home       这样子的
+    [[ $Seedbox == SH     ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /home22     这样子的
+    [[ $Seedbox == FH     ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /media/sdk1 这样子的，或者 /media/98811
+    [[ $Seedbox == DSD    ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /       这样子的
+    [[ $Seedbox == Sbcc   ]] && current_disk=$(echo $(pwd) | sed "s/\/$(whoami)//") # /home/user  这样子的
+    [[ $Seedbox == AppBox ]] && [[ $(whoami) != root  ]] && current_disk=/home/$(whoami)
+    [[ $Seedbox == AppBox ]] && [[ $(whoami) == root  ]] && current_disk=/root
+    # /media/sdr1/home 这样子的，一些老的 FH HDD 会出现这样的
+    [[ $Seedbox == FH  ]] && echo $current_disk | grep -q "/home" && current_disk=$(echo $current_disk | sed "s/\/home//") && FH_HOME=1
+
+    # 所有邻居
+    getent passwd | grep -Ev "$(whoami)|root" | grep -E "/bin/sh|/bin/bash" | grep -E "home|home[0-9]+|media" > $HOME/.abench/neighbors_all
+
+    neighbors_all_num=$(cat $HOME/.abench/neighbors_all | wc -l)
+    neighbors_same_disk_num=$(cat $HOME/.abench/neighbors_all | grep "$current_disk/" | wc -l)
+    # grep "$current_disk/" 是为了防止 current_disk=/home1 时，把 /home11 这些也算进来
+
+    if [[ $FH_SSD == 1 ]];then
+        current_disk_size=($( LANG=C df -hPl | grep $(pwd) | awk '{print $2}' ))
+        current_disk_total_used=($( LANG=C df -hPl | grep $(pwd) | awk '{print $3}' ))
+        current_disk_self_used=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' )
+    else
+        current_disk_size=($( LANG=C df -hPl | grep $current_disk | awk '{print $2}' ))
+        current_disk_total_used=($( LANG=C df -hPl | grep $current_disk | awk '{print $3}' ))
+        current_disk_self_used=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' )
+    fi
+    # current_disk_avai=($( LANG=C df -hPl | grep $current_disk | awk '{print $4}' ))
+    # current_disk_perc=($( LANG=C df -hPl | grep $current_disk | awk '{print $5}' ))
+}
+
+
+seedbox_check() {
+    serverfqdn=$( hostname -f 2>1 )
+    [ -z $serverfqdn ] && serverfqdn=$( hostname 2>1 )
+
+    Seedbox=Unknown
+    echo $serverfqdn | grep -q feral          && Seedbox=FH
+    echo $serverfqdn | grep -q seedhost       && Seedbox=SH
+    echo $serverfqdn | grep -q pulsedmedia    && Seedbox=PM
+    echo $serverfqdn | grep -q ultraseedbox   && Seedbox=USB ; echo $serverfqdn | grep -qi usb && Seedbox=USB
+    echo $serverfqdn | grep -q appbox         && Seedbox=AppBox && Docker=1
+    echo $serverfqdn | grep -q seedboxes.cc   && Seedbox=Sbcc   && Docker=1
+    # 2020.04.11 FH SSD 作特殊处理的原因是，大概 19 年开始 FH SSD 严格限制硬盘占用，每个用户都会在 df -h 下边有独立的空间显示，这就导致脚本计算硬盘大小的时候容量是实际的 2 倍左右
+    # 不过我是很久没买过了，不知道现在是不是还是这样
+    [[ $Seedbox == FH ]] && df -hPl | grep -q "/media/md" && FH_SSD=1
+    [[ $debug == 1 ]] && echo -e "Seedbox=$Seedbox  FH_SSD=$FH_SSD"
+
+    df -hPl | grep -wvP '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem|udev|docker|md[0-9]+/[a-z].*' | sort -u > $HOME/.abench/par_list
+
+    if [[ ! $Seedbox == Unknown ]] && [[ ! $EUID = 0 ]] && [[ $virtual != Docker ]]; then
+        seedbox_neighbors_check
+    fi
+}
+
+
+
+################################################################################################
+################################################################################################ Disk check
+################################################################################################
+
+
+
+# Origin code from https://github.com/dave-pl/hwcheck
+function disk_check_smart () {
+    case "$raidcard" in
+        NoRaid      )   disk=$(fdisk -l 2>/dev/null| grep -i dev |egrep -v "(/dev/[brm])"| awk '/:/ {print $2}'| cut -f 1 -d ":") ; d=0
+                        for i in $disk; do
+                            if [[ $( smartctl -a $i | grep Power_On_Hours | awk '{print $NF}') ) ]]; then
+                                num="disk-$(expr $d + 1)"
+                                power_on_hours=$(smartctl -a $i | grep Power_On_Hours | awk '{print $NF}')
+                                model=$(smartctl -a $i | grep "Device Model"| grep -vi qemu | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                        done
+                        ;;
+        MegaRAID    )   for i in `seq 0 99` ; do
+                            if [[ $( smartctl -a -d megaraid,$i /dev/sg0 | grep Power_On_Hours ) ]]; then
+                                num="disk-$(expr $i + 1)"
+                                power_on_hours=$(smartctl -a -d megaraid,$i /dev/sg0 | grep Power_On_Hours | awk '{print $NF}')
+                                model=$(smartctl -a -d megaraid,$i /dev/sg0 | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                         done
+                        ;;
+        HP-RAID     )   for i in `seq 0 99` ; do
+                            if [[ $( smartctl -a -d cciss,$i /dev/sg0 | grep Power_On_Hours ) ]]; then
+                                num="disk-$(expr $i + 1)"
+                                power_on_hours=$(smartctl -a -d cciss,$i /dev/sg0 | grep Power_On_Hours | awk '{print $NF}')
+                                model=$(smartctl -a -d cciss,$i /dev/sg0 | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                        done
+                        ;;
+        SCSI        )   for i in `seq 0 99` ; do
+                            if [[ $( smartctl -a /dev/sg$i | grep Power_On_Hours ) ]]; then
+                                num="disk-$(expr $i + 1)"
+                                power_on_hours=$(smartctl -a /dev/sg$i | grep Power_On_Hours | awk '{print $NF}')
+                                model=$(smartctl -a /dev/sg$i | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                      done
+                        ;;
+        NVMe        )   for i in `seq 0 99` ; do
+                            if [[ $( nvme smart-log /dev/nvme$i 2>&1 | grep power_on_hours ) ]]; then
+                                num="disk-$(expr $i + 1)"
+                                power_on_hours=$(nvme smart-log /dev/nvme$i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
+                                model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | sed 's/  .*: //' | sed 's/ *$//')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                        done
+                        ;;
+        Adaptec     )   for i in `seq 0 99` ; do
+                            if [[ $( smartctl -a /dev/sg$i | grep Power_On_Hours ) ]]; then
+                                num="disk-$(expr $i + 1)"
+                                power_on_hours=$(smartctl -a /dev/sg$i | grep Power_On_Hours | awk '{print $NF}')
+                                model=$(smartctl -a /dev/sg$i | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                            fi
+                        done
+                        ;;
+    esac
+}
+
+
+function disk_check_raid () {
+    [[ $debug == 1 ]] && lspci | grep -E "RAID|SCSI|SATA"
+    if [[ -n `lspci|grep -i "RAID bus controller"|grep "MegaRAID"` ]]; then
+        raidcard=MegaRAID
+        RC_Model="$(lspci|grep -i "RAID bus controller"|grep "MegaRAID" | awk -F ":" '{print $3}' | sed "s/^ //")"
+    elif [[ -n `lspci|grep -i "RAID bus controller"|grep "Hewlett-Packard"` ]]; then
+        raidcard=HP-RAID
+        RC_Model="$(lspci|grep -i "RAID bus controller"|grep "Hewlett-Packard" | awk -F ":" '{print $3}' | sed "s/^ //")"
+    elif [[ -n `lspci|grep -i "RAID bus controller"|grep "Adaptec"` ]]; then
+        raidcard=Adaptec
+    elif [[ -n `lspci|grep -i "SCSI controller"` ]]; then
+        raidcard=SCSI
+        RC_Model="$(lspci|grep -i "SCSI controller" | awk -F ":" '{print $3}' | sed "s/^ //")"
+    elif [[ -n $(fdisk -l 2>/dev/null|grep /dev/nvme) ]]; then
+        raidcard=NVMe
+    else
+        raidcard=NoRaid # 其实还有很多种情况检测不到的，不管了
+    fi
+    disk_check_smart
+    if [[ $raidcard == NVMe ]]; then
+        raidcard=NoRaid && disk_check_smart
+    fi
+    [[ $debug == 1 ]] && echo -e "raidcard=$raidcard" && cp -f  $HOME/.abench/disk.info  $HOME/disk-info-debug
+}
+
+
+function disk_check_no_root () {
+    Raid=No
+    # ls /dev/disk/by-id 2>/dev/null | grep -q scsi- && Raid=Hard
+    # NVMe 目前不支持
+    ls /dev/disk/by-id 2>/dev/null | grep -q md-   && Raid=Soft
+
+    [[ $debug == 1 ]] && echo -e "Raid=$Raid"
+    [[ $Raid != Hard ]] && ls /dev/disk/by-id 2>/dev/null | grep -oE "ata-.*" | sed "s/ata-//" | sed "s/-part.*//" | grep -oE "[a-zA-Z0-9_-]+" | grep -v 0m | sort -u | grep -vi qemu > $HOME/.abench/disk.info
+
+    if [[ $virtual == Docker ]] || [[ $Seedbox == FH ]]; then
+        lsblk --nodeps --noheadings --output MODEL --exclude 1,2,11 > $HOME/.abench/disk.info
+        cat $HOME/.abench/disk.info | grep -q LSI && rm -f $HOME/.abench/disk.info && touch $HOME/.abench/disk.info
+        cat $HOME/.abench/disk.info | grep -qE "MR[0-9]+-" && rm -f $HOME/.abench/disk.info && touch $HOME/.abench/disk.info
+        cat $HOME/.abench/disk.info | grep -qi RAID && rm -f $HOME/.abench/disk.info && touch $HOME/.abench/disk.info
+        cat $HOME/.abench/disk.info | grep -q "LOGICAL VOLUME" && rm -f $HOME/.abench/disk.info && touch $HOME/.abench/disk.info  # OP 10欧 HP
+        cat $HOME/.abench/disk.info | grep -q "Virtual Disk" && rm -f $HOME/.abench/disk.info && touch $HOME/.abench/disk.info    # OP 10欧 DELL
+        # 这里我也不知道有多少种情况，乱写了
+        # MegaRAID 这个在 seedboes.cc（MR9271-8iCC）、Hz 16TB HWR（MR9260-4i）上测试通过
+    fi
+
+    cat $HOME/.abench/disk.info 2>/dev/null | sed -e 's/\(.*\)_/\1:/' | sed "s/:.*//" | sort -u > $HOME/.abench/disk.info.2
+    # disk_num=$( cat $HOME/.abench/disk.info 2>/dev/null | wc -l )
+    disk_num=$( lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>1 | wc -l )
+    [[ $debug == 1 ]] && echo -e "disk_num=$disk_num"
+    disk_model_num=$( cat $HOME/.abench/disk.info.2 2>/dev/null | wc -l )
+    [[ $debug == 1 ]] && echo -e "\n" && cat $HOME/.abench/disk.info.2 && echo -e "\n"
+    
+    disk_model_1_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '1p')"  2>/dev/null | wc -l )
+    disk_model_2_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '2p')"  2>/dev/null | wc -l )
+    disk_model_3_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '3p')"  2>/dev/null | wc -l )
+    disk_model_4_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '4p')"  2>/dev/null | wc -l )
+    disk_model_5_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '5p')"  2>/dev/null | wc -l )
+    disk_model_6_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '6p')"  2>/dev/null | wc -l )
+    disk_model_7_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '7p')"  2>/dev/null | wc -l )
+    disk_model_8_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '8p')"  2>/dev/null | wc -l )
+    disk_model_9_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '9p')"  2>/dev/null | wc -l )
+    disk_model_0_num=$( cat $HOME/.abench/disk.info 2>/dev/null | grep "$(cat $HOME/.abench/disk.info.2 2>/dev/null | sed -n '10p')" 2>/dev/null | wc -l )
+
+    [[ $debug == 1 ]] && echo -e "disk_model_1_num=$disk_model_1_num"
+    [[ $debug == 1 ]] && echo -e "disk_model_2_num=$disk_model_2_num"
 }
 
 
@@ -610,6 +834,10 @@ ip_ipip() {
     ipip_Loc=$(  cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
     ipip_ISP=$(  cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
     rm -f $ipip_result
+    # echo -e  "  反向域名              ${green}$ipip_rDNS${jiacu}"
+    # echo -e  "  运营商                ${green}$ipip_ISP${jiacu}"
+    # echo -e  "  AS  信息              ${green}$asnnnnn, $isppppp${jiacu}"
+    # echo -e  "  地理位置              ${green}$ipip_Loc${jiacu}"
 }
 
 # Lack detail info
@@ -626,3 +854,39 @@ ip_mix() {
     echo -e "${bold}正在检查服务器的 ASN ...${normal}"
     asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
 }
+
+
+deprecated_disk_check() {
+    # 其实这个判定对于独服可能不太对
+    # disk_par_num=$(df -lh | grep -P "/home[0-9]+|media|home|mnt" | wc -l)
+    disk_par_num=$(cat $HOME/par_list | wc -l)
+    # 这个估计没毛病，Docker、独服、KVM 下都没问题的样子，别的不知道
+    # disk_par_num=$(lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>1 | wc -l)
+    
+    # / 为最大分区时，数字 +1
+    [[ $(df -lh | grep $(df -k | sort -rn -k4 | awk '{print $1}' | head -1) | awk '{print $NF}') == / ]] && disk_par_num=$(expr $disk_par_num + 1)
+    
+    # lsblk --nodeps --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL | awk '{if ($3 == 0) {$3="SSD"} if ($3 == 1) {$3="HDD"} ; printf("%-5s%7s%5s   %-10s%-15s\n", $1, $2, $3, $4, $5)}' 2>&1
+    # lsblk --exclude 1,2,11 --output NAME,SIZE,ROTA,TYPE,MOUNTPOINT,MODEL
+    # lsblk -dn -e 1,2,11 -o MODEL
+    
+    # disk_size=$(lsblk --nodeps --noheadings --output SIZE 2>1 | awk '{print $1}')
+    # disk_total_size=$( calc_disk ${disk_size[@]} )
+    # disk_used_size=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' | sed "s/G//" )
+    
+    # 2020.02.28 lsblk／fdisk -l 计算硬盘空间的好处是，一些没格式化或者没挂载的硬盘也能算出来，但是还是容易出错
+    # 下边这个是各类 bench 脚本通用的，还是用这个算了，起码算错了也没什么大不了的，因为大家都错了……
+    
+    # superbench
+    # disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
+    # bench.sh
+    # disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem|udev|docker' | awk '{print $2}' ))
+
+    # 高版本 smartctl 也可以看 NVMe 的 smart，不过需要编译，放在一键脚本里还是太麻烦了
+    # 还可以用 lsblk --nodeps --noheadings --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL 2>1
+    # nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g"
+    # udevadm info --name=/dev/nvme${i}n1 | grep "disk/by-id/nvme-" | head -1 | sed "s|S: disk/by-id/nvme-||" | awk -F '_' '{print $1,$2}'
+    # nvme_model=$(nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g")
+    # nvme_model="$(smartctl -a /dev/nvme${i}n1 | grep "Model Number:" | cut -d ":" -f 2 | sed -e 's/^[ \t]*//')"
+}
+
