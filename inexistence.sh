@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.6
+INEXISTENCEVER=1.2.0.7
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -1532,8 +1532,10 @@ if [[ $InsRclone == Yes ]]; then
     echo -e "${green}${bold}DONE${normal}"
 fi
 if [[ $InsWine == Yes ]]; then
-    bash $local_packages/package/mono/install --logbase $LogTimes
     bash $local_packages/package/wine/install --logbase $LogTimes
+fi
+if [[ $InsMono == Yes ]]; then
+    bash $local_packages/package/mono/install --logbase $LogTimes
 fi
 if [[ $InsVNC == Yes ]]; then
     bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
