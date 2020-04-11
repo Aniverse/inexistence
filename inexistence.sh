@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.0
+INEXISTENCEVER=1.2.1.1
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -21,45 +21,39 @@ aptsources=Yes
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,source-unchange,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,mono,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
-    -u | --user     ) iUser=$2          ; shift 2 ;;
-    -p | --password ) iPass=$2          ; shift 2 ;;
-    -b | --branch   ) iBranch=$2        ; shift 2 ;;
+    -u | --user       ) iUser=$2          ; shift 2 ;;
+    -p | --password   ) iPass=$2          ; shift 2 ;;
+    -b | --branch     ) iBranch=$2        ; shift 2 ;;
 
-    --de            ) if [[ $2 == ppa ]]; then
-                          de_version='Install from PPA'
-                      elif [[ $2 == repo ]]; then
-                          de_version='Install from repo'
-                      else
-                          de_version=$2
-                      fi
-                      shift 2 ;;
-    --qb            ) qb_version=$2     ; shift 2 ;;
-    --tr            ) tr_version=$2     ; shift 2 ;;
-    --rt            ) rt_version=$2     ; shift 2 ;;
-    --lt            ) lt_version=$2     ; shift 2 ;;
+    --de              ) if [[ $2 == ppa ]]; then
+                            de_version='Install from PPA'
+                        elif [[ $2 == repo ]]; then
+                            de_version='Install from repo'
+                        else
+                            de_version=$2
+                        fi
+                        shift 2 ;;
+    --qb              ) qb_version=$2     ; shift 2 ;;
+    --tr              ) tr_version=$2     ; shift 2 ;;
+    --rt              ) rt_version=$2     ; shift 2 ;;
+    --lt              ) lt_version=$2     ; shift 2 ;;
 
-    -d | --debug    ) DeBUG=1           ; shift ;;
-    -s | --skip     ) SYSTEMCHECK=0     ; shift ;;
-    -y | --yes      ) ForceYes=1        ; shift ;;
-
-    --quick         ) quick=1           ; shift ;;
-    --qb-static     ) qb_mode=static    ; shift ;;
-    --sihuo         ) sihuo=yes         ; shift ;;
-    --eng           ) script_lang=eng   ; shift ;;
-    --chs           ) script_lang=chs   ; shift ;;
-    --enable-ipv6   ) IPv6Opt=-i        ; shift ;;
-    --swap-yes      ) USESWAP="Yes"     ; shift ;;
-    --swap-no       ) USESWAP="No"      ; shift ;;
-    --bbr-yes       ) InsBBR="Yes"      ; shift ;;
-    --bbr-no        ) InsBBR="No"       ; shift ;;
-    --flood-yes     ) InsFlood="Yes"    ; shift ;;
-    --flood-no      ) InsFlood="No"     ; shift ;;
+    -d | --debug      ) DeBUG=1           ; shift ;;
+    -s | --skip       ) SYSTEMCHECK=0     ; shift ;;
+    -y | --yes        ) ForceYes=1        ; shift ;;
+    --separate        ) separate=1        ; shift ;;
+    --quick           ) quick=1           ; shift ;;
+    --qb-static       ) qb_mode=static    ; shift ;;
+    --sihuo           ) sihuo=yes         ; shift ;;
+    --eng             ) script_lang=eng   ; shift ;;
+    --chs             ) script_lang=chs   ; shift ;;
+    --enable-ipv6     ) IPv6Opt=-i        ; shift ;;
 
     --vnc             ) InsVNC="Yes"      ; shift ;;
     --x2go            ) InsX2GO="Yes"     ; shift ;;
@@ -69,17 +63,26 @@ while [ -n "$1" ] ; do case "$1" in
     --rclone          ) InsRclone="Yes"   ; shift ;;
     --source-unchange ) aptsources="No"   ; shift ;;
 
-    --flexget-yes   ) InsFlex="Yes"     ; shift ;;
-    --flexget-no    ) InsFlex="No"      ; shift ;;
-    --tweaks-yes    ) UseTweaks="Yes"   ; shift ;;
-    --tweaks-no     ) UseTweaks="No"    ; shift ;;
-    --mt-single     ) MAXCPUS=1         ; shift ;;
-    --mt-double     ) MAXCPUS=2         ; shift ;;
-    --mt-max        ) MAXCPUS=$(nproc)  ; shift ;;
-    --separate      ) separate=1        ; shift ;;
-    --skip-system-upgrade ) skip_system_upgrade=1 ; shift ;;
-    --tr-deb        ) tr_version=2.94   ; TRdefault=deb ; shift ;;
-    --mt-half       ) MAXCPUS=$(echo "$(nproc) / 2"|bc)  ; shift ;;
+    --swap            ) USESWAP="Yes"     ; shift ;;
+    --flood           ) InsFlood="No"     ; shift ;;
+    --filebrowser     ) InsFB="Yes"       ; shift ;;
+    --flexget         ) InsFlex="Yes"     ; shift ;;
+    --tweak           ) UseTweaks="Yes"   ; shift ;;
+    --bbr             ) InsBBR="Yes"      ; shift ;;
+
+    --no-swap         ) USESWAP="No"      ; shift ;;
+    --no-flood        ) InsFlood="No"     ; shift ;;
+    --no-fb           ) InsFB="No"        ; shift ;;
+    --no-flexget      ) InsFlex="No"      ; shift ;;
+    --no-tweaks       ) UseTweaks="No"    ; shift ;;
+    --no-bbr          ) InsBBR="No"       ; shift ;;
+
+    --mt-single       ) MAXCPUS=1         ; shift ;;
+    --mt-double       ) MAXCPUS=2         ; shift ;;
+    --mt-max          ) MAXCPUS=$(nproc)  ; shift ;;
+    --mt-half         ) MAXCPUS=$(echo "$(nproc) / 2"|bc)   ; shift ;;
+    --tr-deb          ) tr_version=2.94   ; TRdefault=deb   ; shift ;;
+    --skip-system-upgrade ) skip_system_upgrade=1           ; shift ;;
 
     -- ) shift ; break ;;
 esac ; done
