@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12012
+script_version=r12013
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -93,7 +93,7 @@ fi
 
 calc_disk() {
     local total_size=0 ; local array=$@
-    for size in "${array[@]}" ; do
+    for size in ${array[@]} ; do
         [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
         [ "`echo ${size:(-1)}`" == "K" ] && size=0
         [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
@@ -118,8 +118,8 @@ hardware_check_1() {
 
     disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
-    disk_total_size=$( calc_disk "${disk_size1[@]}" )
-    disk_used_size=$( calc_disk "${disk_size2[@]}" )
+    disk_total_size=$( calc_disk ${disk_size1[@]} )
+    disk_used_size=$( calc_disk ${disk_size2[@]} )
 
     # memory
     tram=$( free -m | awk '/Mem/ {print $2}' )
@@ -574,16 +574,16 @@ ipv6_check() {
 ip_ipapi() {
     mkdir -p $HOME/.abench
     wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > $HOME/.abench/ipapi 2>&1
-    ccoodde=$( cat $HOME/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
-    country=$( cat $HOME/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
-    regionn=$( cat $HOME/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
-    cityyyy=$( cat $HOME/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
-    isppppp=$( cat $HOME/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
-    asnnnnn=$( cat $HOME/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    ccoodde=$( cat $HOME/.abench/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+    country=$( cat $HOME/.abench/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+    regionn=$( cat $HOME/.abench/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+    cityyyy=$( cat $HOME/.abench/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+    isppppp=$( cat $HOME/.abench/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    asnnnnn=$( cat $HOME/.abench/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
     [[ $cityyyy == Singapore ]] && unset cityyyy
     [[ -z $isppppp ]] && isp="No ISP detected"
     [[ -z $asnnnnn ]] && isp="No ASN detected"
-    rm -f $HOME/ipapi 2>&1
+    rm -f $HOME/.abench/ipapi 2>&1
 }
 
 
