@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.8
+INEXISTENCEVER=1.2.0.9
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -589,12 +589,15 @@ apt-get -f -y install
 # 2020.01.27 这里乱七八糟的太多了，但是想删减的话又得对照很多地方比较麻烦，下个大改动再说
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
 build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
+python python3 python-dev python3-dev python-pip python3-pip python-setuptools
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-dos2unix subversion nethogs fontconfig ntp patch locate        python python3 python-dev python3-dev python-pip python3-pip python-setuptools
-ruby ruby-dev uuid socat           figlet toilet lolcat        libgd-dev libelf-dev libssl-dev zlib1g-dev     whiptail lsof pciutils gnupg
-zip unzip p7zip-full mediainfo mktorrent fail2ban lftp debian-archive-keyring software-properties-common"
+dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail
+libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common
+zip unzip p7zip-full mediainfo mktorrent fail2ban lftp"
 # bwm-ng wondershaper
+# uuid socat figlet toilet lolcat
+
 
 ######## These codes are from rtinst ########
 for package_name in $package_list ; do
@@ -621,8 +624,6 @@ pip install --upgrade pip
 hash -d pip
 pip install --upgrade setuptools
 pip install --upgrade speedtest-cli
-
-which fpm >/dev/null 2>&1 || gem install --no-ri --no-rdoc fpm
 
 # Fix interface in vnstat.conf
 [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
@@ -1493,13 +1494,13 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
     if   [[ $lt_version == RC_1_0 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -m deb
+        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -m deb
     elif [[ $lt_version == RC_1_1 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -m deb3
+        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -m deb3
     elif [[ $lt_version == RC_1_2 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -b RC_1_2
+        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -b RC_1_2
     else
-        bash $local_packages/package/libtorrent-rasterbar/install --logbase $LogTimes -v $lt_version
+        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -v $lt_version
     fi
 fi
 
