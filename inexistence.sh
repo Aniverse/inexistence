@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.1
+INEXISTENCEVER=1.2.1.2
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -739,12 +739,12 @@ if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
     mv -f BDinfoCli.0.7.3 BDinfoCli
 fi
 
-if [[ ! -f /etc/inexistence/02.Tools/bdinfocli.exe ]]; then
+if [[ ! -f /etc/abox/app/bdinfocli.exe ]]; then
     wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/abox/app/bdinfocli.exe
 fi
 
-
 # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
+echo -e "\nSTEP ONE COMPLETED\n"
 
 }
 
@@ -1240,9 +1240,8 @@ function install_tools() {
     mv NConvert/nconvert /usr/local/bin
     rm -rf NConvert* ; }
 ########## Blu-ray script ##########
-    wget -nv -N -O /usr/local/bin/bluray https://github.com/Aniverse/bluray/raw/master/bluray
-    chmod +x /usr/local/bin/bluray
-########## Install ffmpeg ########## https://johnvansickle.com/ffmpeg/
+    bash <(wget -qO- git.io/bluray) -u
+########## ffmpeg ########## https://johnvansickle.com/ffmpeg/
     if [[ -z $(command -v ffmpeg) ]]; then
         mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
         wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
@@ -1251,7 +1250,7 @@ function install_tools() {
         cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
         cd && rm -rf /log/inexistence/ffmpeg
     fi
-########## Install mkvtoolnix ##########
+########## mkvtoolnix ##########
     wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
     echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
     echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
@@ -1259,19 +1258,17 @@ function install_tools() {
     apt-get -y update
     apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick mktorrent
 ######################  eac3to  ######################
-    cd /etc/inexistence/02.Tools/eac3to
+    cd /etc/abox/app
     wget -nv -N http://madshi.net/eac3to.zip
     unzip -qq eac3to.zip
     rm -rf eac3to.zip ; cd
 
     touch $LockLocation/tools.lock
-
     echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
     mktorrent -h | head -n1
     mkvmerge --version
     echo "Mediainfo `mediainfo --version | grep Lib | cut -c17-`"
     echo "ffmpeg `ffmpeg 2>&1 | head -n1 | awk '{print $3}'`${normal}"
-    echo -e "\n\n\n${bailanse}  TOOLBOX-INSTALLATION-COMPLETED  ${normal}\n\n"
 }
 
 
