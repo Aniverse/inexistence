@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.0.5
+INEXISTENCEVER=1.2.0.6
 INEXISTENCEDATE=2020.04.11
 default_branch=master
 aptsources=Yes
@@ -21,7 +21,7 @@ aptsources=Yes
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,source-unchange,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,debug,source-unchange,swap-yes,swap-no,bbr-yes,bbr-no,flood-yes,flood-no,vnc,x2go,wine,mono,tools,flexget-yes,flexget-no,rclone,enable-ipv6,tweaks-yes,tweaks-no,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,skip-system-upgrade,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -64,6 +64,7 @@ while [ -n "$1" ] ; do case "$1" in
     --vnc             ) InsVNC="Yes"      ; shift ;;
     --x2go            ) InsX2GO="Yes"     ; shift ;;
     --wine            ) InsWine="Yes"     ; shift ;;
+    --mono            ) InsMono="Yes"     ; shift ;;
     --tools           ) InsTools="Yes"    ; shift ;;
     --rclone          ) InsRclone="Yes"   ; shift ;;
     --source-unchange ) aptsources="No"   ; shift ;;
@@ -506,8 +507,10 @@ function ask_continue() {
     [[ $rt_version != No ]] &&
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
-    echo "                  ${cyan}${bold}RDP${normal}           ${bold}${yellow}${InsRDP}${normal}"
-    echo "                  ${cyan}${bold}Wine / mono${normal}   ${bold}${yellow}${InsWine}${normal}"
+    echo "                  ${cyan}${bold}noVNC${normal}         ${bold}${yellow}${InsVNC}${normal}"
+    echo "                  ${cyan}${bold}X2Go${normal}          ${bold}${yellow}${InsX2Go}${normal}"
+    echo "                  ${cyan}${bold}Wine${normal}          ${bold}${yellow}${InsWine}${normal}"
+    echo "                  ${cyan}${bold}mono${normal}          ${bold}${yellow}${InsMono}${normal}"
     echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
     echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
     echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
@@ -637,17 +640,17 @@ else
     echo "$iUser:$iPass" | chpasswd
 fi
 
-cat << EOF >> $LogTimes/installed.log
+echo -e "
 如果要截图请截完整点，包含下面所有信息
 CPU        : $cname
 Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)
 Mem        : $tram MB ($uram MB Used)
 Disk       : $disk_total_size GB ($disk_used_size GB Used)
 OS         : $DISTRO $osversion $CODENAME ($arch)
-Kernel     : $kern
+Kernel     : $running_kernel
 ASN & ISP  : $asnnnnn, $isppppp
 Location   : $cityyyy, $regionn, $country
-Virt       : $virt
+Virt       : $virtual
 #################################
 InstalledTimes=$times
 INEXISTENCEVER=${INEXISTENCEVER}
@@ -657,25 +660,21 @@ MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 HomeUserNum=$(ls /home | wc -l)
 use_swap=$USESWAP
 #################################
-MaxCPUs=${MAXCPUS}
-apt_sources=${aptsources}
 qb_version=${qb_version}
 de_version=${de_version}
 rt_version=${rt_version}
 tr_version=${tr_version}
 lt_version=${lt_version}
-Flood=${InsFlood}
-Flexget=${InsFlex}
-rclone=${InsRclone}
-bbr=${InsBBR}
-Tweaks=${UseTweaks}
-Tools=${InsTools}
-RDP=${InsRDP}
-wine=${InsWine}
+MaxCPUs=${MAXCPUS} \t apt_sources=${aptsources}
+FlexGet=${InsFlex} \t Flood=${InsFlood}
+bbr=${InsBBR} \t\t Tweaks=${UseTweaks}
+rclone=${InsRclone} \t Tools=${InsTools}
+wine=${InsWine} \t\t mono=${InsMono}
+VNC=${InsVNC} \t\t X2Go=${InsX2Go}
 #################################
 如果要截图请截完整点，包含上面所有信息
+" >> $LogTimes/installed.log
 
-EOF
 
 cat << EOF >> $LogBase/version
 inexistence.times       $times
@@ -1417,7 +1416,7 @@ if   [[ $vnstat_webui == 1 ]]; then
      echo -e " ${cyan}Vnstat Dashboard${normal}    $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
 fi
 
-if [[ $InsRDP == VNC ]]; then
+if [[ $InsVNC == Yes ]]; then
     if [[ -e $LockLocation/novnc.lock ]]; then
         echo -e " ${cyan}noVNC${normal}               $(_if_running xfce               )   http://${serveripv4}:6082/vnc.html"
     else
@@ -1536,13 +1535,13 @@ if [[ $InsWine == Yes ]]; then
     bash $local_packages/package/mono/install --logbase $LogTimes
     bash $local_packages/package/wine/install --logbase $LogTimes
 fi
-if [[ $InsRDP == VNC ]]; then
+if [[ $InsVNC == Yes ]]; then
     bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
     bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
-elif [[ $InsRDP == X2Go ]]; then
+fi
+if [[ $InsX2Go == Yes ]]; then
     echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log
 fi
-
 [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
 [[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
 
