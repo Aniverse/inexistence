@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.3
-INEXISTENCEDATE=2020.04.11
+INEXISTENCEVER=1.2.1.4
+INEXISTENCEDATE=2020.04.12
 default_branch=master
 aptsources=Yes
 # --------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ function _client_version_check(){
     find /usr/lib -name libtorrent-rasterbar* 2>/dev/null | grep -q libtorrent-rasterbar && lt_exist=yes
     lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+ )
     lt_ver_qb3_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.0.6 && lt_ver_qb3_ok=Yes
-    lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=yes
+    lt_ver_de2_ok=No ; [[ ! -z $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_de2_ok=Yes
 }
 
 # --------------------------------------------------------------------------------
@@ -1473,9 +1473,7 @@ echo ; }
 
 ######################################################################################################
 
-if_ask_lt=0
-[[ $qb_version != No ]] && [[ $qb_mode != static ]] && if_ask_lt=1
-[[ $de_version != No ]] && if_ask_lt=1
+
 
 _intro
 ask_username
@@ -1485,6 +1483,9 @@ ask_apt_sources
 ask_swap
 ask_qbittorrent
 ask_deluge
+if_ask_lt=0
+[[ $qb_version != No ]] && [[ $qb_mode != static ]] && if_ask_lt=1
+[[ $de_version != No ]] && if_ask_lt=1
 [[ $if_ask_lt == 1 ]] && ask_libtorrent
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
