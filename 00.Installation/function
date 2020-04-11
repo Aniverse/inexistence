@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12065
+script_version=r12066
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -131,7 +131,10 @@ function echo_warning() {
     printf " ${yellow}${bold}WARNING: %s${normal}\n" "$@" | tee -a "$OutputLOG"
 }
 function echo_error() {
-    printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG"       # ; exit 1
+    printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG"
+}
+function echo_error_exit() {
+    printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG" ; exit 1
 }
 function echo_info() {
     printf " ${cyan}${bold}Info: %s${normal}\n" "$@" | tee -a "$OutputLOG"
