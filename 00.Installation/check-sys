@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12011
+script_version=r12012
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -93,7 +93,7 @@ fi
 
 calc_disk() {
     local total_size=0 ; local array=$@
-    for size in ${array[@]} ; do
+    for size in "${array[@]}" ; do
         [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
         [ "`echo ${size:(-1)}`" == "K" ] && size=0
         [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
@@ -118,8 +118,8 @@ hardware_check_1() {
 
     disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
-    disk_total_size=$( calc_disk ${disk_size1[@]} )
-    disk_used_size=$( calc_disk ${disk_size2[@]} )
+    disk_total_size=$( calc_disk "${disk_size1[@]}" )
+    disk_used_size=$( calc_disk "${disk_size2[@]}" )
 
     # memory
     tram=$( free -m | awk '/Mem/ {print $2}' )
@@ -668,7 +668,7 @@ function disk_check_smart () {
     case "$raidcard" in
         NoRaid      )   disk=$(fdisk -l 2>/dev/null| grep -i dev |egrep -v "(/dev/[brm])"| awk '/:/ {print $2}'| cut -f 1 -d ":") ; d=0
                         for i in $disk; do
-                            if [[ $( smartctl -a $i | grep Power_On_Hours | awk '{print $NF}') ) ]]; then
+                            if [[ $( smartctl -a $i | grep Power_On_Hours | awk '{print $NF}') ]]; then
                                 num="disk-$(expr $d + 1)"
                                 power_on_hours=$(smartctl -a $i | grep Power_On_Hours | awk '{print $NF}')
                                 model=$(smartctl -a $i | grep "Device Model"| grep -vi qemu | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
