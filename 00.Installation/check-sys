@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.09
-script_version=r11009
+script_update=2020.04.11
+script_version=r11010
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -526,10 +526,10 @@ function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{
 function redact_ip() {
     case "$1" in
         *.*)
-            printf '%s.xxx\n' "$(printf '%s\n' "$1" | cut -d . -f 1-3)"
+            printf '%s.xxx.xxx\n' "$(printf '%s\n' "$1" | cut -d . -f 1-2)"
             ;;
         *:*)
-            printf '%s:xxxx\n' "$(printf '%s\n' "$1" | cut -d : -f 1-3)"
+            printf '%s:xxxx:xxxx\n' "$(printf '%s\n' "$1" | cut -d : -f 1-2)"
             ;;
     esac
 }
@@ -597,30 +597,22 @@ check_release() {
     fi
 }
 
+# This function doesn't work anymore
 ip_ipip() {
     echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
-
     ipip_result=$HOME/ipip_result
     wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
-
-    # ipip_Loc=$( cat $ipip_result | grep -A3 地理位置   | grep -v 地理位置 | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-    # ipip_ISP=$( cat $ipip_result | grep -A3 -E "运营商|所有者" | grep -Ev "运营商|所有者" | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-
-      ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
-     ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
-    #ipip_CIDR=$( cat $ipip_result | grep -C7 ASN    | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    ipip_IP=$(   cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
+    ipip_ASN=$(  cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
     ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
-    # 2019.04.02 原先的已失效
-    # ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" | head -1 )
-    ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
+    ipip_AS=$(   cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
     ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
-     ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-     ipip_ISP=$( cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-
-    #[[ $ipip_result == $HOME/ipip_result ]] && 
+    ipip_Loc=$(  cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+    ipip_ISP=$(  cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
     rm -f $ipip_result
 }
 
+# Lack detail info
 ip_mix() {
     echo -e "${bold}正在检查服务器的地理位置（可能不准） ...${normal}"
     result=$( wget -t1 -T10 -qO- http://freeapi.ipip.net/$serveripv4 )
