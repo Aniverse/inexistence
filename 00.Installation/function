@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.11
-script_version=r12064
+script_version=r12065
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -270,6 +270,15 @@ function generate_status_lock () {
     [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
 }
 
+
+function install_base () {
+    local appname=$1
+    if [[ -f /etc/inexistence/00.Installation/package/$appname ]]; then
+        bash /etc/inexistence/00.Installation/package/$appname --logbase $LogTimes
+    else
+        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/$appname) --logbase $LogTimes
+    fi
+}
 
 
 ################################################################################################
