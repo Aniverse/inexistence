@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.5
+INEXISTENCEVER=1.2.1.6
 INEXISTENCEDATE=2020.04.12
 default_branch=master
 aptsources=Yes
@@ -56,7 +56,7 @@ while [ -n "$1" ] ; do case "$1" in
     --enable-ipv6     ) IPv6Opt=-i        ; shift ;;
 
     --vnc             ) InsVNC="Yes"      ; shift ;;
-    --x2go            ) InsX2GO="Yes"     ; shift ;;
+    --x2go            ) InsX2Go="Yes"     ; shift ;;
     --wine            ) InsWine="Yes"     ; shift ;;
     --mono            ) InsMono="Yes"     ; shift ;;
     --tools           ) InsTools="Yes"    ; shift ;;
@@ -64,7 +64,7 @@ while [ -n "$1" ] ; do case "$1" in
     --source-unchange ) aptsources="No"   ; shift ;;
 
     --swap            ) USESWAP="Yes"     ; shift ;;
-    --flood           ) InsFlood="No"     ; shift ;;
+    --flood           ) InsFlood="Yes"    ; shift ;;
     --filebrowser     ) InsFB="Yes"       ; shift ;;
     --flexget         ) InsFlex="Yes"     ; shift ;;
     --tweaks          ) UseTweaks="Yes"   ; shift ;;
@@ -516,12 +516,17 @@ function ask_continue() {
     echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
-
+    [[ -n $InsVNC ]] &&
     echo "                  ${cyan}${bold}noVNC${normal}         ${bold}${yellow}${InsVNC}${normal}"
+    [[ -n $InsX2Go ]] &&
     echo "                  ${cyan}${bold}X2Go${normal}          ${bold}${yellow}${InsX2Go}${normal}"
+    [[ -n $InsWine ]] &&
     echo "                  ${cyan}${bold}Wine${normal}          ${bold}${yellow}${InsWine}${normal}"
+    [[ -n $InsMono ]] &&
     echo "                  ${cyan}${bold}mono${normal}          ${bold}${yellow}${InsMono}${normal}"
+    [[ -n $InsTools ]] &&
     echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
+    [[ -n $InsRclone ]] &&
     echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
 
     [[ $sihuo == yes ]] && echo &&
