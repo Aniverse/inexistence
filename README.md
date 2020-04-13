@@ -151,7 +151,7 @@ Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/ar
 
 
 11. **Flood**  
-**`--flood-yes`**、**`--no-flood`**  
+**`--flood`**、**`--no-flood`**  
 选择不安装 rTorrent 的话这个选项不会出现  
 Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
 第一次登陆时需要填写信息，端口号是 5000，挂载点是 127.0.0.1  
@@ -165,7 +165,7 @@ Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决
 
 
 13. ***Flexget***  
-**`--flexget-yes`**、**`--no-flexget`**  
+**`--flexget`**、**`--no-flexget`**  
 Flexget 是一个十分强大的自动化工具，功能非常多。在这里我们用它来 RSS（它能做的事情远不止 RSS）  
 目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
@@ -189,7 +189,7 @@ File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除
 
 
 16. ***系统设置***  
-**`--tweaks`**、**`--tweaks`**  
+**`--tweaks`**、**`--no-tweaks`**  
 默认启用，具体操作如下：  
 - 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)  
 - 在 Ubuntu 18.04 上编译安装更高版本的 wget（自带的有点 bug）  
