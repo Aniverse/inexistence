@@ -175,10 +175,9 @@ Flexget 是一个十分强大的自动化工具，功能非常多。在这里我
 14. ***FileBrowser Enhanced***  
 **`--filebrowser`**、**`--no-fb`**  
 File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除，预览, 重命名以及编辑。  
-脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，功能更加强大  
+脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，[功能更加强大](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
 可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
-更多功能介绍可以看 [这张图](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
-脚本使用 root 运行 fb，挂载的是 / 目录。*** 默认账号和密码都是 admin，安装完后请尽快修改 ***  
+脚本使用 root 运行 fb，挂载的是 / 目录。***默认账号和密码都是 admin，安装完后请尽快修改***  
 
 
 15. ***BBR***  
@@ -191,12 +190,14 @@ File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除
 16. ***系统设置***  
 **`--tweaks`**、**`--no-tweaks`**  
 默认启用，具体操作如下：  
-- 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)  
+- 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)，可以在网页上查看流量统计  
+- （注：vnstat dashboard 使用的前提是用脚本安装了 rTorrent，且在 Debian 8 下不可用）  
 - 在 Ubuntu 18.04 上编译安装更高版本的 wget（自带的有点 bug）  
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
 - 修改 screenrc 设置  
+- 释放最大可用空间的硬盘分区的 Linux 保留空间  
 
 
 17. ***Remote Desktop***  
