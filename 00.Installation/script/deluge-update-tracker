@@ -66,7 +66,7 @@ esac ; done
 while [ $x -le 65 ]; do
     sleep 2
     echo -e "$(date "+%Y.%m.%d %H:%M:%S") [$x]\t$torrentname" >> $log
-    line=$(deluge-console "connect $local:$ddport; info" $1 2>1 | grep "Tracker status")
+    line=$(deluge-console "connect $local:$ddport; info" $1 2>&1 | grep "Tracker status")
     echo "$line" >> $log
     case "$line" in
 		*Unregistered*|*unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*|*Error*|*timed*out)
