@@ -5,8 +5,8 @@
 #
 #################################################################################
 
-script_update=2020.03.25
-script_version=r20001
+script_update=2020.04.15
+script_version=r20002
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3)
 blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7)
@@ -72,7 +72,7 @@ else
     if [ "${xxxsp}" == "1" ]; then
         echo
         read -ep "${bold}请输入你要限速的网卡名字，一般用默认的就可以了：${yellow}" -i $interface interface
-        if ! ifconfig | grep $interface -q then
+        if ! ifconfig | grep $interface -q ;then
             echo; echo "${bold}${red}警告 ${jiacu}未检测到名为 ${green}${interface}${jiacu} 的网卡 ，限速命令无法执行${normal}"; echo
             exit 1
         fi
