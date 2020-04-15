@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.11
-script_version=r10000
+script_update=2020.04.15
+script_version=r11001
 
 ################################################################################################ Debug
 
@@ -65,7 +65,13 @@ cat_outputlog
 ################################################################################################
 
 function install_docker () {
-    curl -sSL https://get.docker.com/ | sh >> "$OutputLOG" 2>&1
+    # curl -sSL https://get.docker.com/ | sh >> "$OutputLOG" 2>&1
+    apt_install_check    apt-transport-https ca-certificates curl gnupg2
+    apt_install_together
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - >> "$OutputLOG" 2>&1
+    echo "deb [arch=amd64] https://download.docker.com/linux/${DISTROL} ${CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+    apt_install_check    docker-ce docker-ce-cli containerd.io
+    apt_install_together
     generate_status_lock
 }
 
