@@ -89,7 +89,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 **目前默认对于内存小于 1926MB 的服务器直接启用 swap 不再询问，如不想使用 swap 请用 `--swap-no` 参数**  
 一些内存不够大的 VPS 在编译安装时可能物理内存不足，使用 swap 可以解决这个问题  
 实测 1C1T 1GB 内存 的 Vultr VPS 安装 Flood 不开启 swap 的话会失败，开启就没问题了  
-目前对于物理内存小于 1926MB 的都默认启用 swap，如果内存大于这个值那么你根本就不会看到这个选项……  
+目前对于物理内存小于 1926MB 的都默认启用 swap，如果内存大于这个值那么你根本就不会看到这个问题……  
 
 
 6. ***客户端安装选项***  
@@ -104,8 +104,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 7. ***qBittorrent***  
 **`--qb 4.2.3 --qb-static`**、**`--qb 3.3.11`**、**`--qb No`**  
 static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来安装。这两种安装方法的最大特点是安装速度非常快  
-因为 static 和 deb 安装已经很快了，因此去除了 repo 和 ppa 的安装选项  
-默认选项仍为 `4.1.9 (compile)` 是为了保证对 Debian 8 的兼容性，我个人推荐用 deb 或 static 模式  
+因为 static 和 deb 安装已经很快了，因此去除了从 repo 或 ppa 安装的选项  
 
 
 8. ***Deluge***  
@@ -164,19 +163,19 @@ Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决
 ***隐藏和从 repo/ppa 安装的选项均已移除***  
 
 
-13. ***Flexget***  
+13. ***FlexGet***  
 **`--flexget`**、**`--no-flexget`**  
-Flexget 是一个十分强大的自动化工具，功能非常多。在这里我们用它来 RSS（它能做的事情远不止 RSS）  
-目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python  
+Flexget 是一个非常强大的自动化工具，功能非常多。大多数国内盒子用户主要用它来 RSS（它能做的事情远不止 RSS）  
+目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python3  
 我启用了 daemon 模式和 WebUI，还预设了一些模板，仅供参考  
 注意：脚本里没有启用 schedules 或 crontab，需要的话自己设置  
 
 
 14. ***FileBrowser Enhanced***  
 **`--filebrowser`**、**`--no-fb`**  
-File Browser 提供了网页文件管理器的功能, 可以用于上传, 删除，预览, 重命名以及编辑。  
+File Browser 提供了网页文件管理器的功能, 可以用于上传、删除、预览、重命名以及编辑盒子上的文件  
 脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，[功能更加强大](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
-可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
+这个增强版还可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
 脚本使用 root 运行 fb，挂载的是 / 目录。***默认账号和密码都是 admin，安装完后请尽快修改***  
 
 
