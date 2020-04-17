@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.11
-script_version=r11062
+script_update=2020.04.17
+script_version=r11063
 
 ################################################################################################ Debug
 
@@ -219,7 +219,7 @@ function install_lt8_deb() {
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
-    [[ $CODENAME == Buster ]] && { echo -e "Error: No libtorrent 1.0.11 deb package for Debian 10, please use libtorrent 1.1 or later." ; exit 1 ; }
+    [[ $CODENAME =~ (buster|focal) ]] && { echo -e "Error: No libtorrent 1.0.11 deb package for Debian 10/Ubuntu 20.04 LTS, please use libtorrent 1.1 or later." ; exit 1 ; }
     wget -O lt.$CODENAME.1.0.11.deb -nv https://sourceforge.net/projects/inexistence/files/backup/deb/libtorrent-rasterbar-1.0.11.$CODENAME.amd64.deb/download >> $OutputLOG 2>&1
     dpkg -i lt.$CODENAME.1.0.11.deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
 
@@ -262,7 +262,8 @@ function install_lt9_deb2() {
 
     list="libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
 libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
-python-libtorrent_1.1.14-1build1_amd64.deb"
+python-libtorrent_1.1.14-1build1_amd64.deb
+python3-libtorrent_1.1.14-1build1_amd64.deb"
     mkdir -p /tmp/lt_deb
     cd /tmp/lt_deb
     for deb in $list ; do
@@ -333,7 +334,7 @@ case $mode in
               install_lt9_deb & spinner $!
               ;;
 
-    deb3    ) install_lt_dependencies_action ; version=1.1.14
+    deb3    ) version=1.1.14
               echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from pre-compiled deb package ..."
               install_lt9_deb2 & spinner $!
               ;;
