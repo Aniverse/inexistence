@@ -6,10 +6,135 @@
 
 
 
+libtorrent / do not install dependenices if using efs' deb
 
 
 
 
+## 2020.04.12/13/15/17
+
+`inexistence 1.2.1.6`  
+1. **UI：隐藏选项，如 rclone 那些，如果没选就不在确认页面里出现**  
+不然就会有人来问为什么没有选项  
+
+`Aniverse/rtinst`
+1. 尝试修复 pip 安装 cfscrape cloudscraper 的问题  
+
+`function r12069`
+1. check_var_OutputLOG，总是写入当前日志文件到 /tmp/current.logfile  
+2. APT_UPGRADE 时，如果没有日志路径那就输出到 /dev/null  
+3. 修复 apt_install_together  
+之前一直没试过，这次试了下才发现有问题，需要 eval 处理下  
+
+`filebrowser r10002`
+1. 修复手滑带来的 bug  
+
+`docker r11002`
+1. **不再使用官方脚本安装，并安装 containerd.io**  
+
+`README 1.3.3`
+1. 更新上次忘记更新的脚本参数  
+2. 补充说明 filebrowser 的账号密码都是 admin  
+3. tweaks 上补充调整项目 - 释放保留空间  
+这个很早就有了只是忘记写上去了  
+4. tweaks 上补充说明 vnstat dashboard 的限定条件  
+5. 说明目前只有 tr 保留了 repo/ppa 安装模式
+
+`xiansu r20002`
+1. 修复手滑带来的 bug  
+
+
+
+
+
+## 2020.04.11
+
+[这一天共有 43 条 commits 记录](https://github.com/Aniverse/inexistence/compare/a9a8da1...0ca4d67)  
+
+`inexistence 1.2.1.5`  
+1. **Bump version to 1.2.0**  
+1.1.0 到 1.2.0 差不多 1 年了……  
+2. **Bump version to 1.2.1**  
+一天连更两个版本号……  
+3. **Feature：更新命令行参数**  
+如 `--flexget-yes` 改为 `--flexget`，`--flood-no` 改为 `--no-flood`  
+4. **Feature：rclone、rdp、tools、wine、mono 不再提问是否安装**  
+仅能通过参数指定来安装，如 `--x2go`，取消了 `--rclone-no` 之类的参数    
+5. **Codes：ask 类的问题移到 ask 脚本中**  
+这一个操作大概让主脚本少了 700 行代码  
+6. Codes：大量原先 function 里没缩进的地方，加上缩进  
+7. Feature：去掉 qbittorrent_dev 变量  
+8. Feature：IP 地址的检查部分移入 `check-sys`  
+9. Feature：wine 和 mono 的安装和提问都独立开来  
+10. Feature：去掉了 step one 里一些非必要包的安装  
+11. **Feature：去掉了 step one 里安装 fpm 的步骤**  
+12. **Feature：step one 里安装 NConvert 的步骤移到了 tools 部分**  
+13. BugFix：更新 installed.log 里的信息  
+14. BugFix：更新 BDinfoCLI 的安装路径  
+15. Codes：删除 install_qbittorrent，全面使用子脚本  
+16. BugFix：修复一些 `2>&1` 写成了 `2>1` 的问题  
+17. UI：结尾处加入 FileBrowser 的链接  
+18. UI：一些没必要的情况下不询问 libtorrent 版本  
+19. UI：加入 filebrowser 是否安装的询问  
+20. Feature：安装 libtorrent-rasterbar 时使用当前的 logbase  
+21. Codes：删除了一些用不到的注释  
+
+`Aniverse/rtinst`
+1. 修复 rar 下载链接  
+2. 更改 rarlinux 的安装路径  
+
+`check-sys r12016`
+1. hardware_check1 里加入更多的信息监测  
+2. 加入 check_tcp_acc，支持监测锐速  
+3. redact_ip 阻挡最后两位 IP  
+4. 使用 ip 的命令，使用 2>&1 解决找不到命令的错误输出  
+5. 加入 seedbox_check、seedbox_neighbors_check  
+6. 加入 disk_check_smart、disk_check_raid、disk_check_no_root、  
+7. 加入 deprecated_disk_check  
+一堆都是从 abench 里来的功能。abench、inexistence、iferal、mingling 很多东西是互通的  
+
+`ask r10006`
+1. **初始化**  
+2. **加入 filebrowser**  
+3. fix ask_lt issue  
+4. ask_rtorrent 里的变量使用 local  
+5. **qBittorrent 默认选项改为 4.2.3 static，并去除编译选项**  
+编译在指定版本时仍然可用  
+
+`function r12067`
+1. 加入 lt/de/qb/rt/tr 可用的 deb 版本列表变量  
+2. 加入 echo_doing  
+3. NEW function generate_status_lock  
+进一步简化子脚本里的重复内容，不过之前的就懒得改了  
+4. NEW function install_base  
+5. NEW function _confirmation、validate_username    
+来自主脚本  
+
+`libtorrent-rasterbar r10062`
+1. **路径变化，不放在文件夹里了**  
+2. 使用 `install_base fpm` 来安装 fpm  
+
+`qbittorrent/install r12028`
+1. 使用 `install_base fpm` 来安装 fpm  
+
+`docker r10000`
+1. **初始化**  
+2. 目前使用的是官方脚本来安装，所以其实就是一行的事情……  
+
+`filebrowser r10001`
+1. **初始化**  
+2. 目前无法修改密码，默认账号密码都是 admin   
+3. 使用的是灯大的 Docker 增强版，没有原版的计划  
+
+`fpm r10001`
+1. **初始化**  
+
+`README 1.3.1`
+1. 更新脚本参数的说明  
+2. 那些隐藏选项的说明移动到了后边  
+3. 增加 FileBrowser 的描述  
+4. Some additional tools 的描述里移除了 mktorrent 和 bdinfocli  
+因为这两个现在在脚本第一步就会安装  
 
 
 
@@ -18,8 +143,8 @@
 ## 2020.04.06/07
 
 `inexistence 1.1.9.8`  
-1. NewFeature：使用独立脚本安装 qbittorrent  
-2. Feature：移除 qbittorrent 的 ppa 和 repo 安装模式  
+1. **NewFeature：使用独立脚本安装 qbittorrent**  
+2. **Feature：移除 qbittorrent 的 ppa 和 repo 安装模式**  
 3. Feature：加入 `--qb-static` 选项  
 4. Feature：加入 `--quick` 选项  
 目前区别就是不编绎 wget 和 vnstat，以后再改  
@@ -173,7 +298,7 @@
 1. **加入 Alpine Linux 的初步支持**  
 
 `README 1.3.0`
-1. 更新 novnc 部分描述 
+1. 更新 novnc 部分描述  
 2. 提示 transmission 修改版已被移除  
 3. 更新 FlexGet 的描述  
 4. 更新 gclone 的描述  
