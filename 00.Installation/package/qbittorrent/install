@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.11
-script_version=r12028
+script_update=2020.04.18
+script_version=r12029
 
 ################################################################################################ Debug
 
@@ -208,9 +208,11 @@ function qt_set_env() {
 function install_qbittorrent_dependencies() {
     lines2 >> $OutputLOG
 
-# apt-get -y install build-essential pkg-config automake libtool git libgeoip-dev python3 python3-dev zlib1g-dev \
-#   libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libssl-dev
-# build-essential libgl1-mesa-dev libssl-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev libboost-python-dev python python-dev python3 python3-dev pkg-config automake libtool git screen libgeoip-dev qtbase5-dev qttools5-dev-tools libqt5svg5-dev zlib1g-dev
+    # https://github.com/qbittorrent/qBittorrent/wiki/Compiling-qBittorrent-on-Debian-and-Ubuntu
+    apt_install_check build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev \
+                      python3   libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev
+                    # qtbase5-dev qttools5-dev-tools libqt5svg5-dev             libtorrent-rasterbar-dev
+    apt_install_together
 
     if version_ge $version_s 4.2.0 ; then
         # https://github.com/qbittorrent/qBittorrent/commit/5c63ad3b957f7d65c063cca82c6ba9a8512aeef2
@@ -246,6 +248,8 @@ function install_qbittorrent_dependencies() {
 function compile_qbittorrent() {
     lines2 >> $OutputLOG
     rm -rf qBittorren*
+
+    [[ ! -f $LOCKLocation/$AppNameLower.dependencies.lock ]] && install_qbittorrent_dependencies
 
     if   [[ -n $branch ]]; then
         git clone --depth=1 -b $branch https://github.com/qbittorrent/qBittorrent qBittorrent-$branch >> $OutputLOG 2>&1
