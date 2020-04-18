@@ -37,7 +37,7 @@ Usage:
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log -- "$@")
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log,tmp -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -46,6 +46,7 @@ while [ -n "$1" ] ; do case "$1" in
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
+         --tmp          ) tmp=1         ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
 
@@ -157,4 +158,10 @@ function install_python () {
 
 ################################################################################################
 
-
+if [[ $tmp == 1 ]]; then
+    if [[ ! -f $LOCKLocation/python3.lock ]]; then
+        echo_task "Installing Python3 ..."
+        install_python3 & spinner $!
+        check_status $status_lock
+    fi
+fi
