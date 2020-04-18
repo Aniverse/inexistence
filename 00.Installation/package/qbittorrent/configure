@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.07
-script_version=r12041
+script_update=2020.04.19
+script_version=r12042
 
 ################################################################################################ Debug
 
@@ -231,7 +231,7 @@ WebUI\RootFolder=$iHome/.config/qBittorrent/WebUI/miniers.qb-web
 EOF
 
     if [[ -z $(command -v qbpass) ]]; then
-        wget --no-check-certificate -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qb_password_gen_static/download -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
+        wget --no-check-certificate -nv https://github.com/KozakaiAya/libqbpasswd/releases/download/v0.2/qb_password_gen_static -O /usr/local/bin/qbpass >> $OutputLOG 2>&1
         chmod +x /usr/local/bin/qbpass >> $OutputLOG 2>&1
     fi
     qbPassOld=$(echo -n $iPass | md5sum | cut -f1 -d ' ')
