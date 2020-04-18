@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.18
-script_version=r10007
+script_update=2020.04.19
+script_version=r10008
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -388,7 +388,6 @@ function ask_transmission() {
 function ask_flexget() {
     while [[ -z $InsFlex ]]; do
         [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
-    	version_ge $qb_version 4.2.0 && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}qBittorrent 4.2.X is incompatible with current Flexget${normal}"
         read -ep "${bold}${yellow}$lang_would_you_like_to_install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
         case $responce in
             [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
