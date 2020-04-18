@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.18
-script_version=r12070
+script_update=2020.04.19
+script_version=r12071
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -394,13 +394,13 @@ function APT_UPGRADE() {
         status_done
     else
         [[ $APT_UPGRADE_SINGLE == 1 ]] && status_done
-        touch /tmp/apt.update.$(date+%Y%m%d)
+        touch /tmp/apt.update.$(date "+%Y%m%d")
 	fi
 }
 
 
 function APT_UPGRADE_check() {
-    if [[ ! -f /tmp/apt.update.$(date+%Y%m%d) ]]; then
+    if [[ ! -f /tmp/apt.update.$(date "+%Y%m%d") ]]; then
         APT_UPGRADE
     fi
 }

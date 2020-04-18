@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.2
+INEXISTENCEVER=1.2.2.3
 INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
@@ -567,7 +567,7 @@ if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
 fi
 
-APT_UPGRADE
+APT_UPGRADE_SINGLE=1 APT_UPGRADE
 
 #wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
