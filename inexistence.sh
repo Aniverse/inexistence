@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.6
-INEXISTENCEDATE=2020.04.12
+INEXISTENCEVER=1.2.1.7
+INEXISTENCEDATE=2020.04.18
 default_branch=master
 aptsources=Yes
 # --------------------------------------------------------------------------------
@@ -563,41 +563,16 @@ if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
     wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
     sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
     [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-elif [[ $CODENAME == jessie ]]; then
-    # cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
-    echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
-    cat > /etc/apt/sources.list.d/snapshot.jessie.list << EOF
-deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
-deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
-deb http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
-deb http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
-deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
-deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
-deb-src http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
-deb-src http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
-
-deb http://security.debian.org/ jessie/updates main contrib non-free
-deb-src http://security.debian.org/ jessie/updates main contrib non-free
-EOF
 fi
 
-# From swizzin
-if [[ $DISTROL == debian ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]]&& [[ $CODENAME != jessie ]]; then
-    echo "deb http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
-    echo "deb-src http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list
-fi
-
-apt-get -y update
-dpkg --configure -a
-apt-get -f -y install
+APT_UPGRADE
 
 #wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
 #dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
 # 2020.01.27 这里乱七八糟的太多了，但是想删减的话又得对照很多地方比较麻烦，下个大改动再说
+# 2020.04.18 先删了一些
 package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
-build-essential pkg-config checkinstall automake autoconf cmake libtool intltool
-python python3 python-dev python3-dev python-pip python3-pip python-setuptools
 htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
 ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
 dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail
@@ -627,11 +602,6 @@ if [ ! $? = 0 ]; then
     kill -s TERM $TOP_PID
     exit 1
 fi
-
-pip install --upgrade pip
-hash -d pip
-pip install --upgrade setuptools
-pip install --upgrade speedtest-cli
 
 # Fix interface in vnstat.conf
 [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
@@ -838,8 +808,13 @@ elif [[ $de_version == "Install from PPA" ]]; then
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
 else
     apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
-    # Deluge 2.0 需要高版本的这些
-    [[ $Deluge_2_later == Yes ]] && pip install --upgrade twisted pillow rencode pyopenssl
+    if [[ $Deluge_2_later == Yes ]]; then
+        apt-get install -y python-pip
+        pip install --upgrade pip
+        hash -d pip
+        pip install --upgrade setuptools
+        pip install --upgrade twisted pillow rencode pyopenssl
+    fi
     cd $SourceLocation
 
     if [[ $de_version == 2.0.3 ]]; then
@@ -987,7 +962,7 @@ function install_flood() {
     # https://github.com/nodesource/distributions/blob/master/README.md
     # curl -sL https://deb.nodesource.com/setup_11.x | bash -
     curl -sL https://deb.nodesource.com/setup_10.x | bash -
-    apt-get install -y nodejs
+    apt-get install -y nodejs build-essential # python3-dev
     npm install -g node-gyp
     git clone --depth=1 https://github.com/jfurrow/flood.git /srv/flood
     cd /srv/flood
@@ -1049,6 +1024,7 @@ else
   # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
 
     apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
+    apt-get install -y pkg-config automake autoconf cmake libtool intltool build-essential # 也不知道要不要，保险起见先装上去了
     apt-get install -y openssl
     [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
