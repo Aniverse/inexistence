@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.1.7
+INEXISTENCEVER=1.2.2.0
 INEXISTENCEDATE=2020.04.18
 default_branch=master
 aptsources=Yes
@@ -504,8 +504,8 @@ function ask_continue() {
     echo
     echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
     echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
-    [[ $de_version != No ]] || [[ $qb_version != No ]] &&
-    echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_display_ver}${normal}"
+    [[ -n $lt_version ]] &&
+    echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_version}${normal}"
     echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
     [[ $rt_version != No ]] &&
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
@@ -1464,10 +1464,12 @@ ask_apt_sources
 ask_swap
 ask_qbittorrent
 ask_deluge
-if_ask_lt=0
-[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_ask_lt=1
-[[ $de_version != No ]] && if_ask_lt=1
-[[ $if_ask_lt == 1 ]] && ask_libtorrent
+
+if_need_lt=0
+[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_need_lt=1
+[[ $de_version != No ]] && if_need_lt=1
+[[ $if_need_lt == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
+
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
