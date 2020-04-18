@@ -13,8 +13,8 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.0
-INEXISTENCEDATE=2020.04.18
+INEXISTENCEVER=1.2.2.1
+INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
 # --------------------------------------------------------------------------------
@@ -512,10 +512,12 @@ function ask_continue() {
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
     echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
 
-    echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
+
     echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+    [[ -n $InsBBR ]] &&
+    echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
     [[ -n $InsVNC ]] &&
     echo "                  ${cyan}${bold}noVNC${normal}         ${bold}${yellow}${InsVNC}${normal}"
     [[ -n $InsX2Go ]] &&
