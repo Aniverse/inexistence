@@ -1,18 +1,20 @@
 # Inexistence
 
 > This is a seedbox script focus on Chinese users, I would prefer [QuickBox Lite](https://github.com/amefs/quickbox-lite), [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
-> Just a seedbox script, no Plex, no Emby, no NZB support.  
+> Just a SEEDBOX script, no Plex, no Emby, no NZB support.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
 
 > [基本没人来的本脚本交流群，有事别问群主](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
 > 安利一下 efs 巨佬的牛逼盒子脚本，比我的脚本好多了：[QuickBox Lite](https://github.com/amefs/quickbox-lite)  
-> ARM 用户（树莓派、SYS ARM 独服等）可以试试这个：[QuickBox ARM](https://github.com/amefs/quickbox-arm)  
 
 ## Notes
 
-1. 只在独服和 KVM 虚拟化的 VPS 下测试通过，OpenVZ、Xen 等其他架构不保证没问题  
-2. 作者很懒，本文的使用说明更新并不及时，尤其是图片是一两年前的，与当前脚本存在较大出入  
-3. 建议重装完系统后使用此脚本，非全新安装的情况下不确定因素太多容易翻车  
+1. 本脚本只支持 x86_64 (amd64) 架构，其他架构都不支持。ARM 用户建议使用 [QuickBox ARM](https://github.com/amefs/quickbox-arm)  
+2. 本脚本只在独服和 KVM 虚拟化的 VPS 下测试，OpenVZ、Xen 等其他虚拟化架构仍可以尝试使用，但不保证没问题  
+3. 本脚本只支持 Debian 8/9/10, Ubuntu 16.04/18.04. Ubuntu 20.04 过一段时间会加上，同时 Debian 8 会被放弃支持  
+4. 本文的使用说明中的图片是一两年前的，与当前脚本存在较大出入（但文字内容是及时更新的）  
+5. 建议重装完系统后使用此脚本，非全新安装的情况下（比如你先跑了个其他盒子脚本再跑这个）不确定因素太多容易翻车  
+6. 目前没有简单易用的卸载方法。如果你有卸载的需求，使用前请三思  
 
 ## Usage
 
@@ -26,7 +28,7 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
-短命令（就是命令短一些，其他方面和上边那个没任何区别）  
+短命令（就是命令长度短一些，其他方面和上边那个没任何区别）  
 ```
 bash <(wget -qO- https://git.io/abcde)
 ```
