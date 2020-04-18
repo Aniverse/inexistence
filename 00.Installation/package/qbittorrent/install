@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.18
-script_version=r12029
+script_update=2020.04.19
+script_version=r12030
 
 ################################################################################################ Debug
 
@@ -104,6 +104,30 @@ fi
 
 ################################################################################################ dependencies
 
+
+function dl_qbittorrent_alt_webui() {
+    mkdir -p /opt/qBittorrent/WebUI && cd /opt/qBittorrent
+
+    # https://github.com/miniers/qb-web
+    rm -rf WebUI/miniers.qb-web                         >> $OutputLOG 2>&1
+    curl -sL https://api.github.com/repos/miniers/qb-web/releases/latest | sed "s|,|\n|g" | grep browser_download_url  | grep -oP "https.*zip" | xargs wget -O miniers.qb-web.zip >> $OutputLOG 2>&1
+    unzip -o miniers.qb-web.zip -d WebUI/miniers.qb-web >> $OutputLOG 2>&1
+    chown $iUser: WebUI/miniers.qb-web                  >> $OutputLOG 2>&1
+    rm -rf miniers.qb-web.zip                           >> $OutputLOG 2>&1
+
+    # https://github.com/CzBiX/qb-web
+    rm -rf WebUI/CzBiX.qb-web                           >> $OutputLOG 2>&1
+    tmp=$(curl -Ls https://github.com/CzBiX/qb-web/releases | grep -oE "CzBiX/qb-web/releases/download.*zip" | head -1)
+    wget -nv "https://github.com/$tmp"                  >> $OutputLOG 2>&1
+    unzip -o $(basename $tmp)                           >> $OutputLOG 2>&1
+    mv -f dist WebUI/CzBiX.qb-web                       >> $OutputLOG 2>&1
+    chown $iUser: WebUI/CzBiX.qb-web                    >> $OutputLOG 2>&1
+    rm -f $(basename $tmp)                              >> $OutputLOG 2>&1
+
+    chmod -R 777             /opt/qBittorrent/WebUI     >> $OutputLOG 2>&1 # This folder will also be used by someone else
+  # chown -R $iUser.$iUser   /opt/qBittorrent/WebUI     >> $OutputLOG 2>&1
+    cd
+}
 
 
 function install_qt_repo() {
@@ -344,6 +368,7 @@ function uninstall_old_qbittorrent() {
 
 stop_app
 uninstall_old_qbittorrent
+[[ $(command -v unzip) ]] && [[ ! -d /opt/qBittorrent/WebUI ]] && dl_qbittorrent_alt_webui
 
 case $mode in
     deb     ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from pre-built deb ..." | tee -a $OutputLOG

@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12042
+script_version=r12043
 
 ################################################################################################ Debug
 
@@ -23,7 +23,7 @@ unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG \
 
 AppName=qBittorrent
 AppNameLower=qbittorrent
-Need_SourceCode=no  # we no longer need to build qb_password_gen
+Need_SourceCode=no
 pm_action=configure
 
 function show_usage() { echo "
@@ -96,27 +96,6 @@ qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
 
 
 
-function dl_qbittorrent_alt_webui() {
-    cd $iHome/.config/qBittorrent
-    mkdir -p WebUI
-
-    # https://github.com/miniers/qb-web
-    curl -sL https://api.github.com/repos/miniers/qb-web/releases/latest | sed "s|,|\n|g" | grep browser_download_url  | grep -oP "https.*zip" | xargs wget -O miniers.qb-web.zip >> $OutputLOG 2>&1
-    unzip -o miniers.qb-web.zip -d WebUI/miniers.qb-web >> $OutputLOG 2>&1
-    chown $iUser: WebUI/miniers.qb-web                  >> $OutputLOG 2>&1
-    rm -rf miniers.qb-web.zip                           >> $OutputLOG 2>&1
-
-    # https://github.com/CzBiX/qb-web
-    tmp=$(curl -Ls https://github.com/CzBiX/qb-web/releases | grep -oE "CzBiX/qb-web/releases/download.*zip" | head -1)
-    wget -nv "https://github.com/$tmp"                  >> $OutputLOG 2>&1
-    unzip -o $(basename $tmp)                           >> $OutputLOG 2>&1
-    mv -f dist WebUI/CzBiX.qb-web                       >> $OutputLOG 2>&1
-    chown $iUser: WebUI/CzBiX.qb-web                    >> $OutputLOG 2>&1
-    rm -f $(basename $tmp)                              >> $OutputLOG 2>&1
-
-    cd
-}
-
 
 
 function configure_qbittorrent() {
@@ -154,7 +133,6 @@ EOF
         wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/qbittorrent/qqbb -O $local_script/qqbb >> $OutputLOG 2>&1
         chmod +x $local_script/qqbb
     fi
-    [[ $(command -v unzip) ]] && dl_qbittorrent_alt_webui
 
     # This is for users who still using qBittorrent older than 4.2.0
     # Therefore some qBittorrent-4.2-and-above-only settings are not added here
@@ -226,7 +204,7 @@ WebUI\CSRFProtection=false
 WebUI\HostHeaderValidation=true
 WebUI\LocalHostAuth=false
 WebUI\Port=$wPort
-WebUI\RootFolder=$iHome/.config/qBittorrent/WebUI/miniers.qb-web
+WebUI\RootFolder=/opt/qBittorrent/WebUI/miniers.qb-web
 
 EOF
 
