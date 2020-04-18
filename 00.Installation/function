@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.15
-script_version=r12069
+script_update=2020.04.18
+script_version=r12070
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -338,10 +338,35 @@ function validate_username() {
 ################################################################################################
 
 
+function apt_sources_add() {
+    if [[ $CODENAME == jessie ]] && [[ ! -f /etc/apt/sources.list.d/snapshot.jessie.list ]]; then
+        cat << EOF > /etc/apt/sources.list.d/snapshot.jessie.list
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie main non-free contrib
+deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-updates main non-free contrib
+deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian/20190321T212815Z/ jessie-backports main non-free contrib
+deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20190321T212815Z/ jessie/updates main non-free contrib
+deb http://security.debian.org/ jessie/updates main contrib non-free
+deb-src http://security.debian.org/ jessie/updates main contrib non-free
+EOF
+        # [check-valid-until=no] doesn't work
+        echo 'Acquire::Check-Valid-Until 0;' > /etc/apt/apt.conf.d/10-no-check-valid-until
+        # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9D6D8F6BC857C906 8B48AD6246925553 7638D0442B90D010 CBF8D6FD518E17E1
+    elif [[ $DISTRO == Debian ]] && [[ $CODENAME != jessie ]] && [[ ! $(grep "$CODENAME-backports" /etc/apt/sources.list) ]] && [[ ! -f /etc/apt/sources.list.d/debian-backports.list ]] ; then
+        echo "deb http://ftp.debian.org/debian $CODENAME-backports main"     >> /etc/apt/sources.list.d/debian-backports.list
+        echo "deb-src http://ftp.debian.org/debian $CODENAME-backports main" >> /etc/apt/sources.list.d/debian-backports.list
+    fi
+}
+
+
 # From QuickBox Lite
 function APT_UPGRADE() {
     [[ -z $OutputLOG ]] && OutputLOG=/dev/null
 	[[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
+    apt_sources_add
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
 	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
 	## auto solve lock
@@ -369,11 +394,20 @@ function APT_UPGRADE() {
         status_done
     else
         [[ $APT_UPGRADE_SINGLE == 1 ]] && status_done
+        touch /tmp/apt.update.$(date+%Y%m%d)
 	fi
 }
 
 
+function APT_UPGRADE_check() {
+    if [[ ! -f /tmp/apt.update.$(date+%Y%m%d) ]]; then
+        APT_UPGRADE
+    fi
+}
+
+
 function apt_install_check() {
+    APT_UPGRADE_check
     unset apt_install_list skip_list                                                                                # do not use local here
     packages=("$@")                                                                                                 # arg=("$@") packages=("${arg[@]:1}")
     [[ -z "$packages" ]] && echo "ERROR: No packages" | tee -a $OutputLOG && exit 1
@@ -406,7 +440,6 @@ function apt_install_together() {
     # test -z "$apt_install_list" || apt-get -y install "$apt_install_list" >> "$OutputLOG" 2>&1
     if [[ -n "$apt_install_list" ]]; then
         # apt-get -y --allow-unauthenticated -f install "$apt_install_list" >> "$OutputLOG" 2>&1
-        APT_UPGRADE
         eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "$apt_install_list" >> "$OutputLOG" 2>&1
         if [ ! $? = 0 ]; then
             echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
@@ -418,7 +451,6 @@ function apt_install_together() {
 
 function apt_install_separate() {
     if [[ -n "$apt_install_list" ]]; then
-        APT_UPGRADE
         for package in $apt_install_list; do
             DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package >> "$OutputLOG" 2>&1
             # || { echo | tee -a $OutputLOG ; echo_error "Failed to install $package" ; exit 1 ; }
