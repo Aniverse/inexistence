@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.18
-script_version=r10000
+script_update=2020.04.19
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -101,7 +101,7 @@ function pyenv_install() {
 }
 
 
-function install_python () {
+function install_python3 () {
     echo >> "$OutputLOG"
     APT_UPGRADE_check
     if [[ "$CODENAME" == "xenial" ]]; then

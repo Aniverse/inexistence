@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.1
+INEXISTENCEVER=1.2.2.2
 INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
@@ -809,6 +809,7 @@ elif [[ $de_version == "Install from PPA" ]]; then
     apt-get update
     apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
 else
+    apt-get install -y python python-pip python-setuptools
     apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
     if [[ $Deluge_2_later == Yes ]]; then
         apt-get install -y python-pip
