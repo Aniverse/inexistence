@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.6
+INEXISTENCEVER=1.2.3.7
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -482,12 +482,20 @@ de_version=${de_version}
 rt_version=${rt_version}
 tr_version=${tr_version}
 lt_version=${lt_version}
-MaxCPUs=${MAXCPUS} \t apt_sources=${aptsources}
-FlexGet=${InsFlex} \t Flood=${InsFlood}
-bbr=${InsBBR} \t\t Tweaks=${UseTweaks}
-rclone=${InsRclone} \t Tools=${InsTools}
-wine=${InsWine} \t\t mono=${InsMono}
-VNC=${InsVNC} \t\t X2Go=${InsX2Go}
+MaxCPUs=${MAXCPUS}
+apt_sources=${aptsources}
+FlexGet=${InsFlex}
+Flood=${InsFlood}
+FileBrowser=${InsFB}
+Tweaks=${UseTweaks}
+
+bbr=${InsBBR}
+rclone=${InsRclone}
+Tools=${InsTools}
+wine=${InsWine}
+mono=${InsMono}
+noVNC=${InsVNC}
+X2Go=${InsX2Go}
 #################################
 如果要截图请截完整点，包含上面所有信息
 " >> $LogTimes/installed.log
