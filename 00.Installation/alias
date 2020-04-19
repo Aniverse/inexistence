@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11007
+script_version=r11008
 ################################################################################################
 this_is_for_copy() {
     source /etc/bash.bashrc
@@ -113,6 +113,7 @@ fi
 
 newpass() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 sprunge.us() { curl -F 'sprunge=<-' http://sprunge.us ; }
+lines()  { printf "%-100s\n" "-" | sed 's/\s/-/g' ; }
 
 #ulimit -SHn 999999
 
@@ -235,6 +236,7 @@ alias swapoff="swapoff /etc/.swapfile;rm -f /etc/.swapfile"
 alias yuan="nano +20 /etc/apt/sources.list"
 alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
+alias s-log="echo \$(cat /tmp/current.logfile); lines ; tail -f \$(cat /tmp/current.logfile)"
 alias s-opt="echo && cat $LogBase/installed.log && echo"
 alias s-end="echo && cat $LogBase/end.log"
 
