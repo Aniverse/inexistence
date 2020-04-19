@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.12
-script_version=r10003
+script_update=2020.04.19
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -132,6 +132,10 @@ function install_vnstat() {
         touch /tmp/$status_lock.2.lock
     fi
     [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+
+    if wget --no-check-certificate "https://127.0.0.1/vnstat" -o /dev/null -qO- 2>&1  | grep Traffic -q ; then
+        touch $LOCKLocation/vnstat.dashboard.lock
+    fi
 
     echo >> $OutputLOG
 }

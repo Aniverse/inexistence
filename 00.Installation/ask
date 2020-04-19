@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11018
+script_version=r11019
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -727,11 +727,7 @@ function do_installation() {
     fi
     if [[ $UseTweaks == Yes ]]; then
         if [[ $quick != 1 ]]; then
-            # Upgrade vnstat, compile from source. And Install vnstat-dashboard
             bash $local_packages/package/vnstat/install --logbase $LogTimes
-            if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>&1 | grep Traffic -q ; then
-                vnstat_webui=1
-            fi
         fi
         write_current_logfile $LogLocation/98.tweaks
         echo -ne  "Configuring system settings ..."
