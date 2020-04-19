@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.2.7
+INEXISTENCEVER=1.2.2.8
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -92,7 +92,7 @@ esac ; done
 [[ $DeBUG == 1 ]] && { iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc) ; }
 
 [[ -z $iBranch ]] && iBranch=$default_branch
-times=$(cat /log/inexistence/iUser.txt 2>/dev/null | wc -l)
+times=$(cat /log/inexistence/info/installed.user.list.txt 2>/dev/null | wc -l)
 times=$(expr $times + 1)
 # --------------------------------------------------------------------------------
 source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
@@ -450,7 +450,7 @@ function preparation() {
 
     # 临时
     mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
-    echo $iUser >> $LogBase/iUser.txt
+    echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
@@ -459,10 +459,8 @@ function preparation() {
         [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
     fi
 
-    APT_UPGRADE_SINGLE=1 APT_UPGRADE
-
-    # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
-    # dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
+    # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb && dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
+    APT_UPGRADE_SINGLE=1   APT_UPGRADE
 
     # Install atop may causedpkg failure in some VPS, so install it separately
     [[ ! -d /proc/vz ]] && apt-get -y install atop
@@ -491,13 +489,7 @@ function preparation() {
     chmod -R 755 /etc/inexistence
     chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
 
-    # Add user
-    if id -u $iUser >/dev/null 2>&1; then
-        echo -e "\n$iUser already exists\n"
-    else
-        adduser --gecos "" $iUser --disabled-password --force-badname
-        echo "$iUser:$iPass" | chpasswd
-    fi
+    hezi_add_user $iUser $iPass
 
     echo -e "
 如果要截图请截完整点，包含下面所有信息
@@ -534,21 +526,21 @@ VNC=${InsVNC} \t\t X2Go=${InsX2Go}
 如果要截图请截完整点，包含上面所有信息
 " >> $LogTimes/installed.log
 
-    cat << EOF >> $LogBase/version
+    cat << EOF >> $LogBase/info/version.txt
 inexistence.times       $times
 inexistence.version     $INEXISTENCEVER
 inexistence.update      $INEXISTENCEDATE
 inexistence.lang        $script_lang
 inexistence.user        $iUser
 inexistence.setup       $(date "+%Y.%m.%d %H:%M")
-ASN                     $asnnnnn
 
 EOF
 
-    cat << EOF > $LogBase/serverip
-serveripv4    ${serveripv4}
-serveripv6    ${serveripv6}
-EOF
+    echo "${asnnnnn}" > $LogBase/info/asn.txt
+    echo "${serveripv4}" > $LogBase/info/serveripv4.txt
+    if [[ -n $serveripv6 ]]; then
+        echo "${serveripv6}" > $LogBase/info/serveripv6.txt
+    fi
 
     # Raise open file limits
     sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
