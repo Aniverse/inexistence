@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.3
+INEXISTENCEVER=1.2.2.4
 INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
@@ -1074,7 +1074,7 @@ fi
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 touch $LockLocation/transmission.lock
 
-cd ; echo -e "\n\n\n\n${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+cd ; echo -e "${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n"
 }
 
 
@@ -1102,7 +1102,7 @@ sed -i "s/RPCPASSWORD/$iPass/g" /root/.config/transmission-daemon/settings.json
 chmod -R 755 /root/.config/transmission-daemon
 
 systemctl daemon-reload
-systemctl enable transmission
+systemctl enable transmission > /dev/null
 systemctl start transmission
     fi
 }
@@ -1269,7 +1269,7 @@ function system_tweaks() {
             vnstat_webui=1
         fi
 
-        # Upgrade wget to avoid generate wget-logs when wget-qO-
+        # Upgrade wget to avoid generating wget-logs when wget-qO-
         if [[ $CODENAME == bionic ]] ; then
             apt-get install -y build-essential autopoint flex gperf texinfo gnutls-dev
             wget https://ftp.gnu.org/gnu/wget/wget-1.20.3.tar.gz
@@ -1309,8 +1309,8 @@ encoding utf8 utf8
 defscrollback 23333
 EOF
 
-    # 将最大的分区的保留空间设置为 0%
-    tune2fs -m 0 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+    # 将最大的分区的保留空间设置为 1 %
+    tune2fs -m 1 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
 
     locale-gen en_US.UTF-8
     locale
@@ -1457,8 +1457,6 @@ echo ; }
 
 ######################################################################################################
 
-
-
 _intro
 ask_username
 ask_password
@@ -1476,10 +1474,6 @@ if_need_lt=0
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
-# ask_rdp
-# ask_wine_mono
-# ask_tools
-# ask_rclone
 ask_flexget
 ask_filebrowser
 ask_tweaks
@@ -1491,70 +1485,7 @@ mv /etc/00.preparation.log $LogLocation/00.preparation.log
 
 ######################################################################################################
 
-[[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
-
-if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
-    if   [[ $lt_version == RC_1_0 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -m deb
-    elif [[ $lt_version == RC_1_1 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -m deb3
-    elif [[ $lt_version == RC_1_2 ]]; then
-        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -b RC_1_2
-    else
-        bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -v $lt_version
-    fi
-fi
-
-if [[ $qb_version != No ]]; then
-    if [[ $qb_mode == static ]]; then
-        bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
-    else
-        bash $local_packages/package/qbittorrent/install -v $qb_version           --logbase $LogTimes
-    fi
-    bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
-fi
-
-[[ $de_version != No ]] && {
-echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
-echo -ne "Configuring Deluge ... \n\n\n" ; config_deluge 2>&1 | tee $LogLocation/04.de2.log ; }
-
-[[ $rt_version != No ]] && {
-echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
-[[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
-
-[[ $tr_version != No ]] && {
-echo -ne "Installing Transmission ... "  ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
-echo -ne "Configuring Transmission ... " ; config_transmission  2>&1 | tee $LogLocation/09.tr2.log ; }
-
-if [[ $InsFlex == Yes ]]; then
-    bash $local_packages/package/flexget/install   --logbase $LogTimes
-    bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
-fi
-if [[ $InsRclone == Yes ]]; then
-    bash $local_packages/package/rclone/install --logbase $LogTimes
-    echo -ne "Installing gclone ... "
-    bash <(wget -qO- https://git.io/gclone.sh) > /dev/null 2>&1  # 懒得做检查了，一般不太可能失败。其实也可以放到 rclone 脚本里，先不改了吧
-    echo -e "${green}${bold}DONE${normal}"
-fi
-if [[ $InsWine == Yes ]]; then
-    bash $local_packages/package/wine/install --logbase $LogTimes
-fi
-if [[ $InsMono == Yes ]]; then
-    bash $local_packages/package/mono/install --logbase $LogTimes
-fi
-if [[ $InsVNC == Yes ]]; then
-    bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
-    bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
-fi
-if [[ $InsFB == Yes ]]; then
-    bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575
-fi
-if [[ $InsX2Go == Yes ]]; then
-    echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log
-fi
-[[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
-[[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
-
+do_installation
 end_pre
 script_end 2>&1 | tee $LogTimes/end.log
 rm -f "$0" > /dev/null 2>&1
