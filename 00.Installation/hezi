@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.19
-script_version=r10000
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -14,13 +14,13 @@ usage_for_debug() {
 
 ################################################################################################ Set Variables 1
 
-if [[ -f /etc/inexistence/00.Installation/function ]]; then
+if [[ -d /etc/inexistence/00.Installation ]]; then
     source /etc/inexistence/00.Installation/function
+    source /etc/inexistence/00.Installation/ask
 else
     source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/ask)
 fi
-
-source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/ask)
 
 ################################################################################################ Set Variables 2
 
