@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.5
+INEXISTENCEVER=1.2.3.6
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -832,8 +832,6 @@ transmission_2.94-1mod1_all.deb"
     cd
     apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission
 else
-  # [[ `dpkg -l | grep transmission-daemon` ]] && apt-get purge -y transmission-daemon
-
     apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
     apt-get install -y pkg-config automake autoconf cmake libtool intltool build-essential # 也不知道要不要，保险起见先装上去了
     apt-get install -y openssl
@@ -847,12 +845,10 @@ else
     ./autogen.sh
     ./configure
     make -j$MAXCPUS
+    make install
 
-    checkinstall -y --pkgversion=2.1.8 --pkgname=libevent --pkggroup libevent # make install
-    [[ $CODENAME == buster ]] && make install
-    ldconfig                                                                  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+    ldconfig # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
     cd ..
-
         git clone https://github.com/transmission/transmission transmission-$tr_version
         cd transmission-$tr_version
         git checkout $tr_version
@@ -860,23 +856,10 @@ else
         [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
         # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
         grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-
     ./autogen.sh
     ./configure --prefix=/usr
-
-    mkdir -p doc-pak
-    echo "A fast, easy, and free BitTorrent client" > description-pak
-
     make -j$MAXCPUS
-
-    if [[ $tr_installed == Yes ]]; then
-        make install
-    else
-        checkinstall -y --pkgversion=$tr_version --pkgname=transmission-seedbox --pkggroup transmission
-        [[ $CODENAME == buster ]] && make install
-        mv -f tr*deb $DebLocation
-    fi
-
+    make install
 fi
 
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
@@ -1143,9 +1126,9 @@ elif [[ $rt_version != No ]] && [[ $rt_installed == No  ]]; then
 fi
 
 # flexget 状态可能是 8 位字符长度的
-if   [[ $InsFlex != No ]] && [[ $flex_installed == Yes ]]; then
+if   [[ $InsFlex != No ]] && [[ $fg_installed == Yes ]]; then
      echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}"
-elif [[ $InsFlex != No ]] && [[ $flex_installed == No  ]]; then
+elif [[ $InsFlex != No ]] && [[ $fg_installed == No  ]]; then
      echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
      FXFAILED=1 ; INSFAILED=1
 fi
