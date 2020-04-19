@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.1
+INEXISTENCEVER=1.2.3.3
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -417,17 +417,17 @@ function preparation() {
     echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
-        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
-        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources > /dev/null
-        sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
-        [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117 > /dev/null
+        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak >> "$OutputLOG" 2>&1
+        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources  >> "$OutputLOG" 2>&1
+        sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list >> "$OutputLOG" 2>&1
+        [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117 >> "$OutputLOG" 2>&1
     fi
 
     # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb && dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
     APT_UPGRADE_SINGLE=1   APT_UPGRADE
 
     # Install atop may causedpkg failure in some VPS, so install it separately
-    [[ ! -d /proc/vz ]] && apt-get -y install atop > /dev/null
+    [[ ! -d /proc/vz ]] && apt-get -y install atop >> "$OutputLOG" 2>&1
 
     apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
                       htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli                            \
@@ -436,8 +436,9 @@ function preparation() {
                       libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common             \
                       zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
+    echo -n "Installing packages ..."
     apt_install_together & spinner $!
-    OutputLOG=/dev/null    status_done
+    status_done
 
     if [ ! $? = 0 ]; then
         echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
@@ -450,7 +451,7 @@ function preparation() {
 
     # Get repository
     [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
-    git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
+    git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence >> "$OutputLOG" 2>&1
     chmod -R 755 /etc/inexistence
     chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
 
@@ -541,16 +542,16 @@ EOF
     if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
         mkdir -p /etc/abox/app
         cd /etc/abox/app
-        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3 > /dev/null
+        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3 >> "$OutputLOG" 2>&1
         mv -f BDinfoCli.0.7.3 BDinfoCli
     fi
 
     if [[ ! -f /etc/abox/app/bdinfocli.exe ]]; then
-        wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/abox/app/bdinfocli.exe
+        wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -O -nv -N /etc/abox/app/bdinfocli.exe >> "$OutputLOG" 2>&1
     fi
 
     # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
-    echo -e "\nSTEP ONE COMPLETED\n"
+    echo -e "Preparation ${green}DONE${normal}"
 
 }
 
@@ -1257,8 +1258,8 @@ ask_tweaks
 ask_continue
 
 starttime=$(date +%s)
-preparation 2>&1 | tee /etc/00.preparation.log
-mv /etc/00.preparation.log $LogLocation/00.preparation.log
+OutputLOG=/etc/00.preparation.log     preparation 2>&1 | tee /etc/00.preparation.log
+mv /etc/00.preparation.log  $LogLocation/00.preparation.log
 
 ######################################################################################################
 
