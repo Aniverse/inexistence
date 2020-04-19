@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11020
+script_version=r11021
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -642,7 +642,7 @@ function do_installation() {
         fi
     fi
 
-    if [[ $qb_version != No ]]; then
+    if [[ -n $qb_version ]] && [[ $qb_version != No ]]; then
         if [[ $qb_mode == static ]]; then
             bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
         else
@@ -653,7 +653,7 @@ function do_installation() {
         fi
     fi
 
-    if [[ $de_version != No ]]; then
+    if [[ -n $de_version ]] && [[ $de_version != No ]]; then
         echo -ne "Installing Deluge ... "
         write_current_logfile $LogLocation/03.de1.log
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
@@ -666,7 +666,7 @@ function do_installation() {
         fi
     fi
 
-    if [[ $rt_version != No ]]; then
+    if [[ -n $rt_version ]] && [[ $rt_version != No ]]; then
         # echo -e "Installing rTorrent ... "
         lines
         install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
@@ -680,7 +680,7 @@ function do_installation() {
         OutputLOG=$LogLocation/07.flood.log    status_done
     fi
 
-    if [[ $tr_version != No ]]; then
+    if [[ -n $tr_version ]] && [[ $tr_version != No ]]; then
         write_current_logfile $LogLocation/08.tr1.log
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!

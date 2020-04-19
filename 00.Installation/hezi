@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.19
-script_version=r11005
+script_version=r11006
 
 ################################################################################################ Debug
 
@@ -58,7 +58,7 @@ function possible_usage () {
 ################################################################################################
 
 set_language
-_check_install_2
+check_install_2
 get_clients_version
 mkdir -p $LogBase/$times
 
