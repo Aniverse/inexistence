@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11015
+script_version=r11016
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -403,8 +403,8 @@ function ask_transmission() {
 
 function ask_flexget() {
     while [[ -z $InsFlex ]]; do
-        [[ $fg_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
-        read -ep "${bold}${yellow}$lang_would_you_like_to_install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        [[ $fg_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang FlexGet${normal}"
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install FlexGet?${normal} [Y]es or [${cyan}N${normal}]o: " responce
         case $responce in
             [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
             [nN] | [nN][Oo] | "" ) InsFlex=No ;;
@@ -457,9 +457,9 @@ function ask_rdp() {
     fi
 }
 
-function ask_wine_mono() {
+function ask_wine() {
     while [[ -z $InsWine ]]; do
-        read -ep "${bold}${yellow}$lang_would_you_like_to_install wine and mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install wine?${normal} [Y]es or [${cyan}N${normal}]o: " responce
         case $responce in
             [yY] | [yY][Ee][Ss]  ) InsWine=Yes ;;
             [nN] | [nN][Oo] | "" ) InsWine=No  ;;
@@ -467,9 +467,25 @@ function ask_wine_mono() {
         esac
     done
     if [[ $InsWine == Yes ]]; then
-        echo -e "${bold}${baiqingse}Wine${jiacu} and ${baiqingse}mono${jiacu} $lang_will_be_installed${normal}\n"
+        echo -e "${bold}${baiqingse}Wine${jiacu} $lang_will_be_installed${normal}\n"
     else
-        echo -e "${baizise}Wine or mono will ${baihongse}not${baizise} be installed${normal}\n"
+        echo -e "${baizise}Wine will ${baihongse}not${baizise} be installed${normal}\n"
+    fi
+}
+
+function ask_mono() {
+    while [[ -z $InsMono ]]; do
+        read -ep "${bold}${yellow}$lang_would_you_like_to_install mono?${normal} [Y]es or [${cyan}N${normal}]o: " responce
+        case $responce in
+            [yY] | [yY][Ee][Ss]  ) InsMono=Yes ;;
+            [nN] | [nN][Oo] | "" ) InsMono=No  ;;
+            *) InsMono=No ;;
+        esac
+    done
+    if [[ $InsMono == Yes ]]; then
+        echo -e "${bold}${baiqingse}Mono${jiacu} $lang_will_be_installed${normal}\n"
+    else
+        echo -e "${baizise}Mono will ${baihongse}not${baizise} be installed${normal}\n"
     fi
 }
 
