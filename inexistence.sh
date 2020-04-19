@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.0
+INEXISTENCEVER=1.2.3.1
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -418,9 +418,9 @@ function preparation() {
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
-        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
+        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources > /dev/null
         sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
-        [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
+        [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117 > /dev/null
     fi
 
     # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb && dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
@@ -437,7 +437,7 @@ function preparation() {
                       zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
     apt_install_together & spinner $!
-    OutputLOG=/DEV/NULL    status_done
+    OutputLOG=/dev/null    status_done
 
     if [ ! $? = 0 ]; then
         echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
@@ -512,10 +512,8 @@ EOF
     sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
     echo "fs.file-max = 1048576" >> /etc/sysctl.conf
     echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
-
     sed -i '/.*nofile.*/'d /etc/security/limits.conf
     sed -i '/.*nproc.*/'d /etc/security/limits.conf
-
     cat << EOF >> /etc/security/limits.conf
 * - nofile 1048575
 * - nproc 1048575
@@ -524,7 +522,6 @@ root hard nofile 1048574
 $iUser hard nofile 1048573
 $iUser soft nofile 1048573
 EOF
-
     sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
     sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
     echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
@@ -544,7 +541,7 @@ EOF
     if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
         mkdir -p /etc/abox/app
         cd /etc/abox/app
-        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
+        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3 > /dev/null
         mv -f BDinfoCli.0.7.3 BDinfoCli
     fi
 
@@ -1067,7 +1064,7 @@ function system_tweaks() {
 
     # Set timezone to UTC+8
     rm -rf /etc/localtime
-    ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+    ln -s  /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
     dpkg-reconfigure -f noninteractive tzdata
 
     ntpdate time.windows.com
