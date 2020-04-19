@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12081
+script_version=r12082
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -632,6 +632,7 @@ function cat_outputlog() {
 ################################################################################################ To be done
 ################################################################################################
 
+
 function get_clients_port() {
     # [[ -z $iHome ]] && { echo -e "ERROR: Please specify user" ; exit 1 ; }
     de_port=$(sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf 2>/dev/null)
@@ -643,7 +644,7 @@ function get_clients_port() {
 }
 
 function get_clients_version() {
-    de_installed_ver=$(deluged --version 2>/dev/null | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
+    de_installed_ver=$(deluged --version 2>/dev/null | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]+")
     qb_installed_ver=$(qbittorrent-nox --version 2>/dev/null | awk '{print $2}' | grep -oE "[0-9.]+")
     tr_installed_ver=$(transmission-daemon --help 2>/dev/null | head -n1 | awk '{print $2}')
     rt_installed_ver=$(rtorrent -h 2>/dev/null | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
