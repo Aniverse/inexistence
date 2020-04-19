@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12072
+script_version=r12073
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -353,6 +353,7 @@ function _confirmation(){
 
 function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
 
+
 # https://github.com/Azure/azure-devops-utils
 function validate_username() {
     iUser="$1" ; local min=1 ; local max=32
@@ -374,6 +375,23 @@ function validate_username() {
     fi
 }
 
+
+function export_inexistence_info() {
+    inexistence_ver=$( cat /log/inexistence/info/version.log | grep inexistence.version  | awk '{print $NF}' | head -1)
+    inexistence_date=$(cat /log/inexistence/info/version.log | grep inexistence.update   | awk '{print $NF}' | head -1)
+    asnnnnn==$($LogBase/info/asn.txt)
+    serveripv4=$(cat $LogBase/info/serveripv4.txt)
+    serveripv6=$(cat $LogBase/info/serveripv6.txt 2>/dev/null)
+
+    iUser=$(cat /log/inexistence/info/user.list.txt | head -1)
+    passphrase=$(cat /root/.ssh/users/${iUser})
+    passtest=$(cat /log/inexistence/users/${iUser}.info | cut -d: -f2)
+    if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
+        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -a -d -pass pass:${passphrase} -nosalt)
+    else
+        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -pbkdf2 -a -d -pass pass:${passphrase} -nosalt)
+    fi
+}
 
 
 ################################################################################################
