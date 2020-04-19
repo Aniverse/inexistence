@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.19
-script_version=r11004
+script_version=r11005
 
 ################################################################################################ Debug
 
@@ -60,6 +60,9 @@ function possible_usage () {
 set_language
 _check_install_2
 get_clients_version
+mkdir -p $LogBase/$times
+
+echo -e "\n${bold}这个脚本仍在测试阶段。qb/de/tr 在这里里只用于升级或者降级，不适用于全新安装${normal}\n"
 
 if [[ -z $iPass ]]; then
     create_user=1
@@ -68,11 +71,10 @@ if [[ -z $iPass ]]; then
 fi
 
 # password needed
-ask_qbittorrent
-ask_deluge
+[[ -n $qb_installed_ver ]] && ask_qbittorrent
+[[ -n $de_installed_ver ]] && ask_deluge
+[[ -n $tr_installed_ver ]] && ask_transmission
 ask_rtorrent
-[[ $rt_version != No ]] && ask_flood
-ask_transmission
 ask_flexget
 ask_filebrowser
 ask_rdp
