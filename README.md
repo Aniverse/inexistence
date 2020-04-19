@@ -11,7 +11,7 @@
 
 1. 本脚本只支持 x86_64 (amd64) 架构，其他架构都不支持。ARM 用户建议使用 [QuickBox ARM](https://github.com/amefs/quickbox-arm)  
 2. 本脚本只在独服和 KVM 虚拟化的 VPS 下测试，OpenVZ、Xen 等其他虚拟化架构仍可以尝试使用，但不保证没问题  
-3. 本脚本只支持 Debian 8/9/10, Ubuntu 16.04/18.04. Ubuntu 20.04 过一段时间会加上，同时 Debian 8 会被放弃支持  
+3. 本脚本目前支持 Debian 8/9/10, Ubuntu 16.04/18.04. *推荐使用 Debian 10 或 Ubuntu 18.04*，***尽量避免使用 Debian 8***  
 4. 本文的使用说明中的图片是一两年前的，与当前脚本存在较大出入（但文字内容是及时更新的）  
 5. 建议重装完系统后使用此脚本，非全新安装的情况下（比如你先跑了个其他盒子脚本再跑这个）不确定因素太多容易翻车  
 6. 目前没有简单易用的卸载方法。如果你有卸载的需求，使用前请三思  
@@ -94,22 +94,13 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 目前对于物理内存小于 1926MB 的都默认启用 swap，如果内存大于这个值那么你根本就不会看到这个问题……  
 
 
-6. ***客户端安装选项***  
-**`--de 1.3.15 --qb 4.2.3 --rt 0.9.4 --tr 2.93`**  
-下面四大客户端的安装，指定版本的都是编译安装，安装速度相对较慢但可以任选版本  
-选择 `30` 是自己指定另外的版本来安装  **（不会检查这个版本是否可用；可能会翻车）**  
-选择 `40` 是从系统源里安装，安装速度快但版本往往比较老，且无法指定版本  
-选择 `50` 是从 PPA 安装( Debian 不支持所以不会显示)，同样无法指定版本不过一般软件都是最新版  
-40 和 50 这两个选项目前仅有 deluge 保留，并且不久以后也会被移除  
-
-
-7. ***qBittorrent***  
+6. ***qBittorrent***  
 **`--qb 4.2.3 --qb-static`**、**`--qb 3.3.11`**、**`--qb No`**  
 static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来安装。这两种安装方法的最大特点是安装速度非常快  
 因为 static 和 deb 安装已经很快了，因此去除了从 repo 或 ppa 安装的选项  
 
 
-8. ***Deluge***  
+7. ***Deluge***  
 **`--de 1.3.15_skip_hash_check`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
 默认选项为从源码安装 1.3.15  
 2.0.3 目前运行在 Python 2.7 下，且仍然有一些 PT 站不支持 2.0.3，因此不推荐使用  
@@ -124,17 +115,7 @@ static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来�
 **使用修改版客户端、跳过校验 存在风险，后果自负**  
 
 
-9. ***libtorrent-rasterbar***  
-**`--lt RC_1_1`**、**`--lt system`**、**`--lt 1.1.12`**  
-要安装 Deluge 或者 qBittorrent 中的任意一个，就必须安装 libtorrent-rasterbar，因为 libtorrent-rasterbar 是这两个软件所使用的后端  
-如果你对这个选项不怎么了解，请使用脚本给出的默认选项，避免潜在的麻烦  
-从 Deluge 2.0 或 qBittorrent 4.1.4 开始，libtorrent-rasterbar 的最低版本要求升级到了 1.1  
-
-需要注意的是，这个 libtorrent-rasterbar 和 rTorrent 所使用的 libtorrent 是不一样的，切勿混淆  
-Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/arvidn/libtorrent)，rTorrent 使用的则是 [libtorrent-rakshasa](https://github.com/rakshasa/libtorrent)  
-
-
-10. ***rTorrent***  
+8. ***rTorrent***  
 **`--rt 0.9.8`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的  
 注意，`Ubuntu 18.04` 和 `Debian 9/10` 因为 OpenSSL 的原因，只能使用 0.9.6 及以上的版本，更低版本无法直接安装  
@@ -151,21 +132,21 @@ Deluge 和 qBittorrent 使用的是 [libtorrent-rasterbar](https://github.com/ar
 - `GeoIP2` 插件，代替原先的 GeoIP 插件，精确度更好，支持 IPv6 地址识别  
 
 
-11. **Flood**  
+9. **Flood**  
 **`--flood`**、**`--no-flood`**  
 选择不安装 rTorrent 的话这个选项不会出现  
 Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
 第一次登陆时需要填写信息，端口号是 5000，挂载点是 127.0.0.1  
 
 
-12. ***Transmission***  
+10. ***Transmission***  
 **`--tr-deb`**、**`--tr 2.83`**、**`--tr No`**  
 Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决了文件打开数问题）  
 此外还会安装 [加强版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
 ***隐藏和从 repo/ppa 安装的选项均已移除***  
 
 
-13. ***FlexGet***  
+11. ***FlexGet***  
 **`--flexget`**、**`--no-flexget`**  
 Flexget 是一个非常强大的自动化工具，功能非常多。大多数国内盒子用户主要用它来 RSS（它能做的事情远不止 RSS）  
 目前脚本里安装 Flexget 时版本会指定为 3.0.31，同时如果系统自带的 Python3 版本低于 3.6 还会升级 Python3  
@@ -173,7 +154,7 @@ Flexget 是一个非常强大的自动化工具，功能非常多。大多数国
 注意：脚本里没有启用 schedules 或 crontab，需要的话自己设置  
 
 
-14. ***FileBrowser Enhanced***  
+12. ***FileBrowser Enhanced***  
 **`--filebrowser`**、**`--no-fb`**  
 File Browser 提供了网页文件管理器的功能, 可以用于上传、删除、预览、重命名以及编辑盒子上的文件  
 脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，[功能更加强大](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
@@ -181,48 +162,40 @@ File Browser 提供了网页文件管理器的功能, 可以用于上传、删�
 脚本使用 root 运行 fb，挂载的是 / 目录。***默认账号和密码都是 admin，安装完后请尽快修改***  
 
 
-15. ***BBR***  
-**`--bbr`**、**`--no-bbr`**  
-（如果你想安装魔改版 BBR 或 锐速，请移步到 [TrCtrlProToc0l](https://github.com/Aniverse/TrCtrlProToc0l) 脚本）  
-会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认直接启用BBR（不安装新内核）  
-注意：更换内核有风险，可能会导致无法正常启动系统  
-
-
-16. ***系统设置***  
+14. ***系统设置***  
 **`--tweaks`**、**`--no-tweaks`**  
 默认启用，具体操作如下：  
 - 安装 [vnstat](https://github.com/vergoh/vnstat) 2.6 以及 [vnstat dashboard](https://github.com/alexandermarston/vnstat-dashboard/)，可以在网页上查看流量统计  
 - （注：vnstat dashboard 使用的前提是用脚本安装了 rTorrent，且在 Debian 8 下不可用）  
-- 在 Ubuntu 18.04 上编译安装更高版本的 wget（自带的有点 bug）  
 - 修改时区为 UTC+8  
 - 语言编码设置为 en.UTF-8  
 - 设置 `alias` 简化命令（私货夹带）  
 - 修改 screenrc 设置  
-- 释放最大可用空间的硬盘分区的 Linux 保留空间  
+- 将最大可用空间的硬盘分区的 Linux 保留空间调整到 1%（原先是 5%）  
 
 
-17. ***Remote Desktop***  
+15. ***Remote Desktop***  
 **`--vnc`**、**`--x2go`**  
 **是否安装的问题已被移除，只能使用命令行参数安装**  
 远程桌面可以完成一些 CLI 下做不了或者 CLI 实现起来很麻烦的操作，比如 BD-Remux，wine uTorrent  
 推荐使用 noVNC，网页上即可操作  
 
 
-18. ***wine / mono***  
+16. ***wine / mono***  
 **`--wine`、`--mono`**  
 **是否安装的问题已被移除，只能使用命令行参数安装**  
 `wine` 可以实现在 Linux 上运行 Windows 程序，比如 DVDFab、uTorrent  
 `mono` 是一个跨平台的 .NET 运行环境，BDinfoCLI、Jackett、Sonarr 等软件的运行都需要 mono   
 
 
-19. ***rclone***  
+17. ***rclone***  
 **`--rclone`**  
 **是否安装的问题已被移除，只能使用命令行参数安装**  
 rclone 是一个强大的网盘同步工具。默认不安装。安装好后需要自己输入 rclone config 进行配置  
 此外这个选项还会安装 [gclone](https://github.com/donwa/gclone)  
 
 
-20. ***Some additional tools***  
+18. ***Some additional tools***  
 **`--tools`**  
 **是否安装的问题已被移除，只能使用命令行参数安装**  
 安装下列软件：  
@@ -230,6 +203,21 @@ rclone 是一个强大的网盘同步工具。默认不安装。安装好后需�
 - `mkvtoolnix` 主要是用于做 BD-Remux  
 - `eac3to` 需要 wine 来运行，做 remux 时用得上  
 - `ffmpeg` 对于大多数盒子用户来说主要是拿来做视频截图用，安装的是静态编译版本  
+
+
+19. ***BBR***  
+**`--bbr`**、**`--no-bbr`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
+（如果你想安装魔改版 BBR 或 锐速，请移步到 [TrCtrlProToc0l](https://github.com/Aniverse/TrCtrlProToc0l) 脚本）  
+会检测你当前的内核版本，大于 4.9 是默认不安装新内核与 BBR，高于 4.9 是默认直接启用BBR（不安装新内核）  
+注意：更换内核有风险，可能会导致无法正常启动系统  
+
+
+20. ***libtorrent-rasterbar***  
+**`--lt RC_1_1`**、**`--lt RC_1_0`**、**`--lt system`**、**`--lt 1.1.12`**  
+**选择哪个版本的问题已被移除，默认使用 RC_1_1，只能使用命令行参数自行指定**  
+libtorrent-rasterbar 是 Deluge 和 qBittorrent 所使用的后端，除非 qBittorrent 使用静态编译版本，不然只要选择安装 Deluge 和 qBittorrent 中的任意一样，libtorrent 都是必装的。鉴于 lt 与 de/qb 兼容的情况比较复杂，现在脚本里直接统一使用 libtorrent RC_1_1（版本号 1.1.14）。如果你需要自定义版本号，请使用 `--lt <version>` 参数（自定义版本时，不保证脚本能正常工作）  
+
 
 
 ![确认信息](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.05.png)
