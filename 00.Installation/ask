@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11014
+script_version=r11015
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -23,23 +23,25 @@ usage_guide() {
 #[[ $script_lang == eng ]] &&
 #[[ $script_lang == chs ]] &&
 
-if [[ $script_lang == eng ]]; then
-    lang_do_not_install="Do not install"
-    language_select_another_version="Select another version"
-    which_version_do_you_want="Which version do you want?"
-    lang_yizhuang="You have already installed"
-    lang_will_be_installed="will be installed"
-    lang_note_that="Note that"
-    lang_would_you_like_to_install="Would you like to install"
-elif [[ $script_lang == chs ]]; then
-    lang_do_not_install="我不想安装"
-    language_select_another_version="以上版本都不要，我要另选一个版本"
-    which_version_do_you_want="你想要装什么版本？"
-    lang_yizhuang="你已经安装了"
-    lang_will_be_installed="将会被安装"
-    lang_note_that="注意"
-    lang_would_you_like_to_install="是否需要安装"
-fi
+function set_language() {
+    if [[ $script_lang == eng ]]; then
+        lang_do_not_install="Do not install"
+        language_select_another_version="Select another version"
+        which_version_do_you_want="Which version do you want?"
+        lang_yizhuang="You have already installed"
+        lang_will_be_installed="will be installed"
+        lang_note_that="Note that"
+        lang_would_you_like_to_install="Would you like to install"
+    elif [[ $script_lang == chs ]]; then
+        lang_do_not_install="我不想安装"
+        language_select_another_version="以上版本都不要，我要另选一个版本"
+        which_version_do_you_want="你想要装什么版本？"
+        lang_yizhuang="你已经安装了"
+        lang_will_be_installed="将会被安装"
+        lang_note_that="注意"
+        lang_would_you_like_to_install="是否需要安装"
+    fi
+}
 
 ################################################################################################
 
@@ -638,11 +640,11 @@ function do_installation() {
     if [[ $de_version != No ]]; then
         echo -ne "Installing Deluge ... "
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
-        status_done
+        OutputLOG=$LogLocation/03.de1.log   status_done
         if [[ -z $just_upgrade ]]; then
             echo -ne "Configuring Deluge ... "
             { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
-            status_done
+            OutputLOG=$LogLocation/04.de2.log    status_done
         fi
     fi
 
@@ -653,7 +655,7 @@ function do_installation() {
     if [[ $tr_version != No ]]; then
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
-        status_done
+        OutputLOG=$LogLocation/08.tr1.log    status_done
         if [[ -z $just_upgrade ]]; then
             bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
         fi

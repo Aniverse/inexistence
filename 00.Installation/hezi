@@ -4,12 +4,13 @@
 # Author: Aniverse
 
 script_update=2020.04.19
-script_version=r11003
+script_version=r11004
 
 ################################################################################################ Debug
 
 usage_for_debug() {
     bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/hezi)
+    s=/etc/inexistence/00.Installation/hezi;rm -f $s ; nano $s ; chmod 755 $s
 }
 
 ################################################################################################ Set Variables 1
@@ -56,6 +57,7 @@ function possible_usage () {
 
 ################################################################################################
 
+set_language
 _check_install_2
 get_clients_version
 
