@@ -2,7 +2,7 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.3.7
+SCRIPTVER=0.9.3.8
 SCRIPTUPDATE=2020.04.19.放弃治疗
 
 [[ $1 == -d ]] && DeBUG=1
@@ -96,17 +96,17 @@ CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiac
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
 
 ### 是否为内网 IP 地址 ###
-function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
+function isInternalIpAddress() { echo $1 | grep -qP '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
 
 lbit=$( getconf LONG_BIT )
 opsy=$( get_opsy )
 kern=$( uname -r )
 
 [ -d /etc/inexistence ] && inexistence=1
-grep -i s-alias /etc/bash.bashrc -q && tweaks=1
-inexistence_ver=$(cat /log/inexistence/version | grep inexistence.version  | awk '{print $NF}' | head -1)
-inexistence_date=$(cat /log/inexistence/version | grep inexistence.update   | awk '{print $NF}' | head -1)
-iUser=$(cat /log/inexistence/version | grep inexistence.user | awk '{print $NF}' | head -1)
+grep -i s-alias /etc/bash.bashrc -q && tweaks_enabled=1
+inexistence_ver=$( cat /log/inexistence/info/version.log | grep inexistence.version  | awk '{print $NF}' | head -1)
+inexistence_date=$(cat /log/inexistence/info/version.log | grep inexistence.update   | awk '{print $NF}' | head -1)
+iUser=$(cat /log/inexistence/info/user.list.txt | head -1)
 # --------------------------------------------------------------------------------
 
 
@@ -211,7 +211,7 @@ esac ; }
 # 01. 查看 SSH 命令
 function _usage() {
 clear ; echo
-                                                                if [[ $inexistence == 1 ]] && [[ $tweaks == 1 ]]; then
+                                                                if [[ $inexistence == 1 ]] && [[ $tweaks_enabled == 1 ]]; then
 echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
 echo -e " ${bold}"
 echo -e " ${green}qb a${jiacu} = 运行 qBittorrent-nox ${green}dea${jiacu} = 运行 Deluged  ${green}dewa${jiacu} = 运行 Deluge WebUI  ${green}rta${jiacu} = 运行 rTorrent"
