@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.9
+INEXISTENCEVER=1.2.3.10
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -136,14 +136,6 @@ function _oscheck() {
 # Ctrl+C 时恢复样式
 cancel() { echo -e "${normal}" ; reset -w ; exit ; }
 trap cancel SIGINT
-
-# --------------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 
@@ -419,12 +411,12 @@ EOF
     [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
     bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
     mkdir -p $local_script
-    ln -s $local_packages/script/* $local_script
-    ln -s $local_packages/hezi     $local_script
+    ln -s    $local_packages/script/*    $local_script
+    ln -s    $local_packages/hezi        $local_script
     echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
 
-    ln -s /etc/inexistence $WebROOT/h5ai/inexistence
-    ln -s /log $WebROOT/h5ai/log
+    ln -s /etc/inexistence   $WebROOT/h5ai/inexistence
+    ln -s /log               $WebROOT/h5ai/log
 
     if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
         mkdir -p /etc/abox/app
@@ -439,15 +431,8 @@ EOF
 
     # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
     echo -e "Preparation ${green}${bold}DONE${normal}"
-
 }
 
-
-
-
-
-# --------------------- 升级系统 --------------------- #
-# https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade
 
 function _distro_upgrade_upgrade() {
     echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
@@ -456,7 +441,6 @@ function _distro_upgrade_upgrade() {
     echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
     apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
 }
-
 
 
 function _distro_upgrade() {
@@ -512,7 +496,6 @@ function _distro_upgrade() {
 
 
 
-# 安装 Deluge
 function install_deluge() {
 
     if [[ $separate == 10086 ]] ; then
@@ -590,8 +573,6 @@ function install_deluge() {
 
 
 
-# --------------------- Deluge 启动脚本、配置文件 --------------------- #
-
 function config_deluge() {
     mkdir -p /home/$iUser/deluge/{download,torrent,watch}
     ln -s /home/$iUser/deluge/download $WebROOT/h5ai/$iUser/deluge
@@ -639,8 +620,6 @@ EOF
 
 
 
-# --------------------- 使用修改版 rtinst 安装 rTorrent, ruTorrent，h5ai, vsftpd --------------------- #
-
 function install_rtorrent() {
     bash -c "$(wget -qO- https://raw.githubusercontent.com/Aniverse/rtinst/master/rtsetup)"
     sed -i "s/make\ \-s\ \-j\$(nproc)/make\ \-s\ \-j${MAXCPUS}/g" /usr/local/bin/rtupdate
@@ -660,8 +639,6 @@ function install_rtorrent() {
 
 
 
-
-# --------------------- 安装 Node.js 与 flood --------------------- #
 
 function install_flood() {
     # https://github.com/nodesource/distributions/blob/master/README.md
@@ -691,9 +668,6 @@ function install_flood() {
 
 
 
-
-
-# --------------------- 安装 Transmission --------------------- #
 
 function install_transmission() {
     if [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
@@ -755,8 +729,6 @@ function install_transmission() {
 
 
 
-
-# --------------------- 安装 BBR --------------------- #
 
 function install_bbr() {
     if [[ $bbrinuse == Yes ]]; then
@@ -820,8 +792,6 @@ function bnx2_firmware() {
 
 
 
-# --------------------- 安装 X2Go --------------------- #
-
 function install_x2go() {
     apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
 
@@ -855,8 +825,6 @@ EOF
 
 
 
-
-# --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
 function install_tools() {
     ########## NConvert ##########
@@ -902,7 +870,6 @@ function install_tools() {
 
 
 
-# --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
     # Set timezone to UTC+8
     rm -rf /etc/localtime
