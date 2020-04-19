@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12073
+script_version=r12074
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -379,7 +379,7 @@ function validate_username() {
 function export_inexistence_info() {
     inexistence_ver=$( cat /log/inexistence/info/version.log | grep inexistence.version  | awk '{print $NF}' | head -1)
     inexistence_date=$(cat /log/inexistence/info/version.log | grep inexistence.update   | awk '{print $NF}' | head -1)
-    asnnnnn==$($LogBase/info/asn.txt)
+    asnnnnn=$(cat $LogBase/info/asn.txt)
     serveripv4=$(cat $LogBase/info/serveripv4.txt)
     serveripv6=$(cat $LogBase/info/serveripv6.txt 2>/dev/null)
 
@@ -603,7 +603,7 @@ de_port_w=$(sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf)
 qb_port_w=$(sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf)
 qb_port_i=$(sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf)
 tr_port=$(grep rpc-port $iHome/.config/transmission-daemon/settings.json | grep -oE "[0-9]+")
-fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config/ym; | grep -i port | grep -oE "[0-9]+")
+fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config/ym | grep -i port | grep -oE "[0-9]+")
 
 de_installed_ver=$(deluged --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
 qb_installed_ver=$(qbittorrent-nox --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
