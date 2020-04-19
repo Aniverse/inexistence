@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12083
+script_version=r13084
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -567,8 +567,9 @@ function check_remote_git_repo_branch() {
 
 
 ################################################################################################
-################################################################################################ OLD functions
 ################################################################################################
+################################################################################################
+
 
 function if_running () { ps -ef | grep -v grep | grep -q "$1" && echo "${green}Running ${normal}" || echo "${red}Inactive${normal}" ; }
 
@@ -597,6 +598,102 @@ function check_install_2(){
     done
 }
 
+function if_reverse() {
+    if [[ $enable_reverse == 1 ]]; then
+        qbweb="/qbittorrent"
+        deweb="/deluge"
+        trweb="/transmission"
+        fgweb="/flexget"
+        fbweb="/filebrowser"
+        fdweb="/flood"
+        vncweb="/novnc"
+        sss="s"
+    else
+        qbweb=":2017"
+        deweb=":8112"
+        trweb=":9099"
+        fgweb=":6566"
+        fbweb=":7575"
+        fdweb=":3000"
+        vncweb=":6082/vnc.html"
+        sss=""
+    fi
+}
+
+function output_url() {
+    local installed=$1
+    local name=$2
+    local progress=$3
+    local suffix=$4
+    local need_password=$5
+    local status=$(if_running $progress)
+    if [[ -n $need_password ]]; then
+        local passurl="${iUser}:${iPass}@"
+    else
+        local passurl
+    fi
+    [[ $progress =~ (rtorrent|nginx) ]] && local sss=s
+    if [[ $installed == Yes ]]; then
+        printf "%-31s %-21s %-99s\n" "${cyan} $name${normal}" "$status" "http${sss}://${passurl}${serveripv4}${suffix}"
+    else
+        printf "%-31s %-30s %-99s\n" "${red} $name${normal}" "${bold}${baihongse} ERROR ${normal}" "${bold}${red}Installation FAILED${normal}"
+        export sth_failed=1
+        eval ${progress}_failed=1
+    fi
+}
+
+function show_uploaded_log () {
+    local up_log=$1
+    if [[ -f $up_log ]]; then
+        echo -e " $(cat $up_log | curl -s -F 'sprunge=<-' http://sprunge.us)"
+    else
+        echo -e " ERROR: Logfile $up_log NOT FOUND"
+    fi
+}
+
+function END_output_url() {
+    if_reverse
+    echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
+    printf "%-75s\n" "-" | sed 's/\s/-/g'
+
+    [[ $qb_version != No  ]] && output_url  $qb_installed   "qBittorrent WebUI"   qbittorrent         $qbweb
+    [[ $de_version != No  ]] && output_url  $de_installed   "Deluge WebUI"        deluged             $deweb
+    [[ $tr_version != No  ]] && output_url  $tr_installed   "Transmission WebUI"  transmission        $trweb
+    if [[ $rt_version != No ]]; then
+        output_url  $rt_installed  "RuTorrent"          rtorrent        "/rutorrent"  need_password
+        [[ $rt_installed == Yes  ]] &&
+        output_url  $rt_installed  "h5ai File Indexer"  nginx           "/h5ai"       need_password
+        [[ $fd_installed == Yes  ]] &&
+        output_url  $fd_installed  "Flood"              npm             $fdweb
+    fi
+    [[ $InsFlex    != No  ]] && output_url  $fg_installed   "FlexGet WebUI"       flexget             $fgweb
+    [[ $InsFB      == Yes ]] && output_url  $fb_installed   "FileBrowser"         filebrowser         $fbweb
+    [[ $InsVNC     == Yes ]] && output_url  $vnc_installed  "noVNC"               xfce                $vncweb
+    [[ $vns_installed == Yes ]] && output_url $vns_installed "Vnstat Dashboard"   vnstatd             "/vnstat"
+
+    echo
+    echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
+    echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
+    [[ $InsFlex != No ]] && [[ $fg_installed == Yes ]] && echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
+    printf "%-75s\n\n" "-" | sed 's/\s/-/g'
+
+    _time installation
+
+    if [[ -n $sth_failed ]]; then
+        echo -e "\n ${bold}Unfortunately something went wrong during installation."
+        echo -e " You can check logs by typing these commands or visit websites below:"
+        echo -e " ${yellow}cat $LogTimes/installed.log"
+        [[ -n $qbittorrent_failed  ]] && show_uploaded_log  $LogLocation/05.qb1.log
+        [[ -n $deluged_failed      ]] && show_uploaded_log  $LogLocation/03.de1.log
+        [[ -n $transmission_failed ]] && show_uploaded_log  $LogLocation/08.tr1.log
+        [[ -n $RTFAILED            ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
+        [[ -n $FDFAILED            ]] && show_uploaded_log  $LogLocation/07.flood.log
+        [[ -n $flexget_failed      ]] && show_uploaded_log  $LogTimes/log/install.flexget.txt
+        [[ -n $xfce_failed         ]] && show_uploaded_log  $LogTimes/log/install.novnc.txt
+        echo -ne "${normal}"
+    fi
+    echo
+}
 
 ################################################################################################
 ################################################################################################ Debug functions
