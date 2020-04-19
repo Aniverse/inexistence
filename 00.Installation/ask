@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r10009
+script_version=r11010
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -19,6 +19,41 @@ usage_guide() {
 }
 
 ################################################################################################
+
+#[[ $script_lang == eng ]] &&
+#[[ $script_lang == chs ]] &&
+
+if [[ $script_lang == eng ]]; then
+    lang_do_not_install="Do not install"
+    language_select_another_version="Select another version"
+    which_version_do_you_want="Which version do you want?"
+    lang_yizhuang="You have already installed"
+    lang_will_be_installed="will be installed"
+    lang_note_that="Note that"
+    lang_would_you_like_to_install="Would you like to install"
+elif [[ $script_lang == chs ]]; then
+    lang_do_not_install="我不想安装"
+    language_select_another_version="以上版本都不要，我要另选一个版本"
+    which_version_do_you_want="你想要装什么版本？"
+    lang_yizhuang="你已经安装了"
+    lang_will_be_installed="将会被安装"
+    lang_note_that="注意"
+    lang_would_you_like_to_install="是否需要安装"
+fi
+
+################################################################################################
+
+### 输入自己想要的软件版本 ###
+# ${blue}(use it at your own risk)${normal}
+function _input_version() {
+    if [[ $script_lang == eng ]]; then
+        echo -e "\n${JG} ${bold}Use it at your own risk and make sure to input version correctly${normal}"
+        read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}"
+    elif [[ $script_lang == chs ]]; then
+        echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
+        read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
+    fi
+}
 
 function ask_username(){
     clear
@@ -200,9 +235,6 @@ function ask_deluge() {
         echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
         echo -e  "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (Only for test)"
         echo -e  "${blue}30)${normal} $language_select_another_version"
-        echo -e "${green}40)${normal} Deluge ${cyan}$DE_repo_ver${normal} from ${cyan}repo${normal}"
-        [[ $DISTRO == Ubuntu ]] &&
-        echo -e "${green}50)${normal} Deluge ${cyan}$DE_latest_ver${normal} from ${cyan}PPA${normal}"
         echo -e   "${red}99)${normal} $lang_do_not_install Deluge"
 
         [[ $de_installed == Yes ]] &&
@@ -219,8 +251,6 @@ function ask_deluge() {
             30) _input_version && de_version="${input_version_num}" ;;
             31) _input_version && de_version="${input_version_num}" && de_test=yes &&  de_branch=yes ;;
             32) _input_version && de_version="${input_version_num}" && de_test=yes && de_version=yes ;;
-            40) de_version='Install from repo' ;;
-            50) de_version='Install from PPA' ;;
             99) de_version=No ;;
             * | "") de_version=1.3.15 ;;
         esac
@@ -232,26 +262,10 @@ function ask_deluge() {
     [[ $de_version == '1.3.15_skip_hash_check'  ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
 
     if [[ $de_version == No ]]; then
-        echo "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}"
-    elif [[ $de_version == "Install from repo" ]]; then
-        sleep 0
-    elif [[ $de_version == "Install from PPA" ]]; then
-        if [[ $DISTRO == Debian ]]; then
-            echo -e "${bailanse}${bold} ATTENTION ${normal} ${bold}Your Linux distribution is ${green}Debian${jiacu}, which is not supported by ${green}Ubuntu${jiacu} PPA"
-            echo -ne "Therefore "
-            de_version='Install from repo'
-        else
-            echo "${bold}${baiqingse}Deluge $DE_latest_ver${normal} ${bold}$lang_will_be_installed from PPA${normal}"
-        fi
+        echo -e "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}\n"
     else
-        echo "${bold}${baiqingse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}"
+        echo -e "${bold}${baiqingse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}\n"
     fi
-
-    if [[ $de_version == "Install from repo" ]]; then
-        echo "${bold}${baiqingse}Deluge $DE_repo_ver${normal} ${bold}$lang_will_be_installed from repository${normal}"
-    fi
-
-    echo
 }
 
 function ask_rtorrent() {
@@ -490,6 +504,24 @@ function ask_tweaks() {
     fi
 }
 
+function ask_reboot() {
+    if [[ $script_lang == eng ]]; then
+        local lang_1="Would you like to reboot the system now?"
+        local lang_2="WTF, try reboot manually?"
+        local lang_3="Reboot has been canceled..."
+    elif [[ $script_lang == chs ]]; then
+        local lang_1="你现在想要重启系统么？"
+        local lang_2="emmmm，重启失败，你手动重启试试？"
+        local lang_3="已取消重启……"
+    fi
+    echo -ne "${bold}${yellow}$lang_1 ${normal} [y/${cyan}N${normal}]: "
+    if [[ $ForceYes == 1 ]];then reboot || echo "$lang_2" ; else read -e is_reboot ; fi
+    if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
+    else echo -e "${bold}$lang_3${normal}\n" ; fi
+}
+
+
+
 ################################################################################################
 ################################################################################################ NEW FUNCTIONS after creating this script
 ################################################################################################
@@ -639,4 +671,41 @@ function do_installation() {
     fi
     [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
     [[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
+}
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################
+################################################################################################ DEPRECATED
+################################################################################################
+
+function version_check_latest_and_repo() {
+    # 2020.04.07 这个检查比较慢，以后干脆写死，提高速度
+    # 有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包的情况
+    QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -1)
+    [[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
+    
+    QB_latest_ver=$(wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -1)
+    [[ -z $QB_latest_ver ]] && QB_latest_ver=4.2.3
+    
+    DE_repo_ver=$(apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -1)
+    [[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
+    
+    DE_latest_ver=$(wget -qO- https://dev.deluge-torrent.org/wiki/ReleaseNotes | grep wiki/ReleaseNotes | grep -Eo "[12]\.[0-9.]+" | sed 's/">/ /' | awk '{print $1}' | head -1)
+    [[ -z $DE_latest_ver ]] && DE_latest_ver=2.0.3
+    # DE_github_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
+    
+    TR_repo_ver=$(apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -1)
+    [[ -z $TR_repo_ver ]] && { [[ $CODENAME == bionic ]] && TR_repo_ver=2.92 ; [[ $CODENAME == xenial ]] && TR_repo_ver=2.84 ; [[ $CODENAME == jessie ]] && TR_repo_ver=2.84 ; [[ $CODENAME == stretch ]] && TR_repo_ver=2.92 ; }
+    
+    TR_latest_ver=$(wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -1)
+    [[ -z $TR_latest_ver ]] && TR_latest_ver=2.94
 }
