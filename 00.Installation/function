@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12078
+script_version=r12079
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -640,11 +640,11 @@ function get_clients_version() {
     rt_installed_ver=$(rtorrent -h 2>/dev/null | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p')
     lt_installed_ver=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9]+.[0-9]+.[0-9]+)
 
-    # libssl_ver=$(dpkg-query -W -f='${Version}' libssl-dev 2>&1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1)
-    # ffmpeg_ver=$(ffmpeg 2>&1 | head -n1 | awk '{print $3}')
-    # irssi_ver=$(irssi --version 2>&1 | awk '{print $2}')
-    # mi_ver=$(mediainfo --version 2>&1 | grep Lib | cut -c17-)
-
+    libssl_ver=$(dpkg-query -W -f='${Version}' libssl-dev 2>&1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1)
+    ffmpeg_ver=$(ffmpeg 2>&1 | head -n1 | awk '{print $3}')
+    irssi_ver=$(irssi --version 2>&1 | awk '{print $2}')
+    mi_ver=$(mediainfo --version 2>&1 | grep Lib | cut -c17-)
+    rclone_ver=$(rclone --version 2>&1 | head -n1 | awk '{print $2}' | sed "s/v//")
     # find /usr/lib -name libtorrent-rasterbar* 2>/dev/null | grep -q libtorrent-rasterbar && lt_exist=yes
 }
 
