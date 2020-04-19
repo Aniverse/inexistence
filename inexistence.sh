@@ -5,16 +5,17 @@
 #
 # --------------------------------------------------------------------------------
 usage() {
-bash <(wget -qO- https://git.io/abcde)
-bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
+    bash <(wget -qO- https://git.io/abcde)
+    bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/inexistence.sh)
 }
 
 # --------------------------------------------------------------------------------
+INEXISTENCEVER=1.2.2.7
+INEXISTENCEDATE=2020.04.19
+
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.6
-INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
 # --------------------------------------------------------------------------------
@@ -927,36 +928,6 @@ echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-contr
 touch $LockLocation/transmission.lock
 
 cd ; echo -e "${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n"
-}
-
-
-
-
-
-# --------------------- 配置 Transmission --------------------- #
-
-function config_transmission() {
-    if [[ $separate == 1 ]] ; then
-        bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
-    else
-[[ -d /root/.config/transmission-daemon ]] && rm -rf /root/.config/transmission-daemon.old && mv /root/.config/transmission-daemon /root/.config/transmission-daemon.old
-
-mkdir -p /home/$iUser/transmission/{download,torrent,watch} /root/.config/transmission-daemon
-chown -R $iUser.$iUser /home/$iUser/transmission
-ln -s /home/$iUser/transmission/download $WebROOT/h5ai/$iUser/transmission
-
-cp -f /etc/inexistence/00.Installation/template/config/transmission.settings.json /root/.config/transmission-daemon/settings.json
-cp -f /etc/inexistence/00.Installation/template/systemd/transmission.service /etc/systemd/system/transmission.service
-[[ `command -v transmission-daemon` == /usr/local/bin/transmission-daemon ]] && sed -i "s/usr/usr\/local/g" /etc/systemd/system/transmission.service
-
-sed -i "s/RPCUSERNAME/$iUser/g" /root/.config/transmission-daemon/settings.json
-sed -i "s/RPCPASSWORD/$iPass/g" /root/.config/transmission-daemon/settings.json
-chmod -R 755 /root/.config/transmission-daemon
-
-systemctl daemon-reload
-systemctl enable transmission > /dev/null
-systemctl start transmission
-    fi
 }
 
 
