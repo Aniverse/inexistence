@@ -2,7 +2,7 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.3
+SCRIPTVER=0.9.4.4
 SCRIPTUPDATE=2020.04.19.还能抢救下
 
 [[ $1 == -d ]] && DeBUG=1
@@ -22,7 +22,7 @@ else
 fi
 
 [ -d /etc/inexistence ] && inexistence=1
-_check_install_2
+check_install_2
 export_inexistence_info
 
 # --------------------------------------------------------------------------------
@@ -226,8 +226,7 @@ function _stats() {
 
 # 04. 查看安装的客户端的版本
 
-# 判断软件版本。部分使用正则表达式提取数字部分，如果有类似 dev/beta 这样的版本号则无法显示出来
-# Flexget 速度太慢，放弃检查了
+# 2020.04.19 下次参照 script_end 的方式重写这部分
 function _client_version_check() { clear
 if [[ ! $qbtnox_ver ]]; then
     echo -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
