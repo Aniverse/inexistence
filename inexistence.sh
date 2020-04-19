@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.2.10
+INEXISTENCEVER=1.2.2.11
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -424,7 +424,7 @@ function preparation() {
     [[ $USESWAP == Yes ]] && swap_on
 
     # 临时
-    mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
+    mkdir -p $LogBase/app $LogBase/info $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
     echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
@@ -545,6 +545,7 @@ EOF
     bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
     mkdir -p $local_script
     ln -s $local_packages/script/* $local_script
+    ln -s $local_packages/hezi     $local_script
     echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
 
     ln -s /etc/inexistence $WebROOT/h5ai/inexistence

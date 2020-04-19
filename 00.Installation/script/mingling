@@ -2,7 +2,7 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.2
+SCRIPTVER=0.9.4.3
 SCRIPTUPDATE=2020.04.19.还能抢救下
 
 [[ $1 == -d ]] && DeBUG=1
@@ -13,7 +13,7 @@ s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
 
 # ---------------------------------------------------------------------
 
-if [[ -f /etc/inexistence/00.Installation ]]; then
+if [[ -d /etc/inexistence/00.Installation ]]; then
     source /etc/inexistence/00.Installation/function
     source /etc/inexistence/00.Installation/check-sys
 else
