@@ -200,8 +200,8 @@ function ask_qbittorrent() {
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
     
-        [[ $qb_installed == Yes ]] &&
-        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qbtnox_ver}${normal}"
+        [[ -n $qb_installed_ver ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qb_installed_ver}${normal}"
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
         case $version in
             01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
@@ -237,8 +237,8 @@ function ask_deluge() {
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install Deluge"
 
-        [[ $de_installed == Yes ]] &&
-        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Deluge ${deluged_ver}${reset_underline}${normal}"
+        [[ -n $de_installed_ver ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Deluge ${de_installed_ver}${reset_underline}${normal}"
 
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
         case $version in
@@ -298,8 +298,8 @@ function ask_rtorrent() {
             echo -e "${green}17)${normal} rTorrent ${cyan}feature-bind branch${normal} ($lang_ipv6_1)"
             echo -e   "${red}99)${normal} $lang_do_not_install rTorrent"
     
-            [[ $rt_installed == Yes ]] &&
-            echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}rTorrent ${rtorrent_ver}${normal}"
+            [[ -n $rt_installed_ver ]] &&
+            echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}rTorrent ${rt_installed_ver}${normal}"
             [[ $rtorrent_dev == 1 ]] &&
             echo "${bold}${red}$lang_note_that${normal} ${bold}${green}Debian 9/10${jiacu} and ${green}Ubuntu 18.04 ${jiacu}is only supported by ${green}rTorrent 0.9.6 and later${normal}"
     
@@ -371,8 +371,8 @@ function ask_transmission() {
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install Transmission"
 
-        [[ $tr_installed == Yes ]] &&
-        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Transmission ${trd_ver}${normal}"
+        [[ -n $tr_installed_ver ]] &&
+        echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Transmission ${tr_installed_ver}${normal}"
 
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}21${normal}): " version
 
