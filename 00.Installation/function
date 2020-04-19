@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12071
+script_version=r12072
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -94,9 +94,6 @@ DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 [[ $DISTRO == Ubuntu ]] && osversion=$(grep Ubuntu /etc/issue | head -1 | grep -oE  "[0-9.]+")
 [[ $DISTRO == Debian ]] && osversion=$(cat /etc/debian_version)
 [[ ! $DISTRO =~ (Ubuntu|Debian) ]] && DISTRO=$(get_opsy)
-
-
-
 
 ################################################################################################ Shared seedbox check
 
@@ -291,10 +288,56 @@ function install_base () {
     fi
 }
 
+function swap_on () { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048 ; mkswap /root/.swapfile ; swapon /root/.swapfile ; swapon -s ; }
+function swap_off() { swapoff /root/.swapfile ; rm -f /root/.swapfile ; }
+
+function _time() {
+    local timeWORK=$1
+    endtime=$(date +%s)
+    timeused=$(( $endtime - $starttime ))
+    if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
+        timeusedmin=$(expr $timeused / 60)
+        timeusedsec=$(expr $timeused % 60)
+        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedmin} min ${timeusedsec} sec${normal}"
+    elif [[ $timeused -ge 3600 ]]; then
+        timeusedhour=$(expr $timeused / 3600)
+        timeusedmin=$(expr $(expr $timeused % 3600) / 60)
+        timeusedsec=$(expr $timeused % 60)
+        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
+    else
+        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeused} sec${normal}"
+    fi
+}
+
 
 ################################################################################################
 ################################################################################################ User-related
 ################################################################################################
+
+
+function hezi_add_user() {
+    iUser=$1
+    iPass=$2
+    local passphrase
+    passphrase=$(openssl rand -hex 64)
+    mkdir -p /log/inexistence/users
+    if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
+        echo "${iUser}:$(echo "${iPass}" | openssl enc -aes-128-ecb -a -e -pass pass:"${passphrase}" -nosalt)"         > /log/inexistence/users/${iUser}.info
+    else
+        echo "${iUser}:$(echo "${iPass}" | openssl enc -aes-128-ecb -pbkdf2 -a -e -pass pass:"${passphrase}" -nosalt)" > /log/inexistence/users/${iUser}.info
+    fi
+    mkdir -p /root/.ssh/users
+    echo "${passphrase}" > /root/.ssh/users/${iUser}
+    chmod 600 /root/.ssh/users/${iUser} && chmod 700 /root/.ssh
+    if ! id -u "${iUser}" >/dev/null 2>&1; then
+        useradd "${iUser}" -m -G www-data -s /bin/bash
+        chpasswd <<< "${iUser}:${iPass}"
+    fi
+    if ! groups $iUser | grep -qE ' sudo(\s|$)'; then
+        adduser $iUser sudo
+    fi
+    # echo "${iUser} ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/inexistence
+}
 
 
 function _confirmation(){
