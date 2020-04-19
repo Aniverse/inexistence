@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.4
+INEXISTENCEVER=1.2.2.5
 INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
@@ -113,29 +113,7 @@ export LogLocation=$LogTimes/install
 export LockLocation=$LogBase/lock
 export WebROOT=/var/www
 
-# 临时
-# 一个想法，脚本传入到单个脚本里一个参数 log-base，比如装 de 脚本的 log 位置：
-# log-base=/log/inexistence/$times, SourceLocation=$log-base/source
-# bash deluge/configure -u aniverse -p test20190416 --dport 58856 --wport 8112 --iport 22022 --logbase /log/inexistence/$times
 # --------------------------------------------------------------------------------
-### 颜色样式 ###
-function _colors() {
-black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)
-blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
-on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
-on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
-shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
-underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
-standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
-baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
-heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
-CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}" ; }
-_colors
-# --------------------------------------------------------------------------------
-
-function swap_on()  { dd if=/dev/zero of=/root/.swapfile bs=1M count=2048  ;  mkswap /root/.swapfile  ;  swapon /root/.swapfile  ;  swapon -s  ;  }
-function swap_off() { swapoff /root/.swapfile  ;  rm -f /root/.swapfile ; }
 
 # 用于退出脚本
 export TOP_PID=$$
@@ -179,18 +157,6 @@ function _client_version_check(){
 
 # --------------------------------------------------------------------------------
 
-### 输入自己想要的软件版本 ###
-# ${blue}(use it at your own risk)${normal}
-function _input_version() {
-    if [[ $script_lang == eng ]]; then
-        echo -e "\n${JG} ${bold}Use it at your own risk and make sure to input version correctly${normal}"
-        read -ep "${bold}${yellow}Input the version you want: ${cyan}" input_version_num; echo -n "${normal}"
-    elif [[ $script_lang == chs ]]; then
-        echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
-        read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
-    fi
-}
-
 ### 检查系统是否被支持 ###
 function _oscheck() {
     if [[ $SysSupport =~ (1|4|5) ]]; then
@@ -207,27 +173,7 @@ cancel() { echo -e "${normal}" ; reset -w ; exit ; }
 trap cancel SIGINT
 
 # --------------------------------------------------------------------------------
-# 快速跳转
-#[[ $script_lang == eng ]] &&
-#[[ $script_lang == chs ]] &&
 
-if [[ $script_lang == eng ]]; then
-    lang_do_not_install="Do not install"
-    language_select_another_version="Select another version"
-    which_version_do_you_want="Which version do you want?"
-    lang_yizhuang="You have already installed"
-    lang_will_be_installed="will be installed"
-    lang_note_that="Note that"
-    lang_would_you_like_to_install="Would you like to install"
-elif [[ $script_lang == chs ]]; then
-    lang_do_not_install="我不想安装"
-    language_select_another_version="以上版本都不要，我要另选一个版本"
-    which_version_do_you_want="你想要装什么版本？"
-    lang_yizhuang="你已经安装了"
-    lang_will_be_installed="将会被安装"
-    lang_note_that="注意"
-    lang_would_you_like_to_install="是否需要安装"
-fi
 
 
 
@@ -287,27 +233,6 @@ hardware_check_1
 echo -e "${bold}Checking bittorrent clients' version ...${normal}"
 _check_install_2
 _client_version_check
-
-# 2020.04.07 这个检查比较慢，以后干脆写死，提高速度
-# 有可能出现刚开的机器没有 apt update，直接 apt-cache policy 提示找不到包的情况
-QB_repo_ver=$(apt-cache policy qbittorrent-nox | grep -B1 http | grep -Eo "[234]\.[0-9.]+\.[0-9.]+" | head -1)
-[[ -z $QB_repo_ver ]] && { [[ $CODENAME == bionic ]] && QB_repo_ver=4.0.3 ; [[ $CODENAME == xenial ]] && QB_repo_ver=3.3.1 ; [[ $CODENAME == jessie ]] && QB_repo_ver=3.1.10 ; [[ $CODENAME == stretch ]] && QB_repo_ver=3.3.7 ; }
-
-QB_latest_ver=$(wget -qO- https://github.com/qbittorrent/qBittorrent/releases | grep releases/tag | grep -Eo "[45]\.[0-9.]+" | head -1)
-[[ -z $QB_latest_ver ]] && QB_latest_ver=4.2.3
-
-DE_repo_ver=$(apt-cache policy deluged | grep -B1 http | grep -Eo "[12]\.[0-9.]+\.[0-9.]+" | head -1)
-[[ -z $DE_repo_ver ]] && { [[ $CODENAME == bionic ]] && DE_repo_ver=1.3.15 ; [[ $CODENAME == xenial ]] && DE_repo_ver=1.3.12 ; [[ $CODENAME == jessie ]] && DE_repo_ver=1.3.10 ; [[ $CODENAME == stretch ]] && DE_repo_ver=1.3.13 ; }
-
-DE_latest_ver=$(wget -qO- https://dev.deluge-torrent.org/wiki/ReleaseNotes | grep wiki/ReleaseNotes | grep -Eo "[12]\.[0-9.]+" | sed 's/">/ /' | awk '{print $1}' | head -1)
-[[ -z $DE_latest_ver ]] && DE_latest_ver=1.3.15
-# DE_github_latest_ver=` wget -qO- https://github.com/deluge-torrent/deluge/releases | grep releases/tag | grep -Eo "[12]\.[0-9.]+.*" | sed 's/\">//' | head -n1 `
-
-TR_repo_ver=$(apt-cache policy transmission-daemon | grep -B1 http | grep -Eo "[23]\.[0-9.]+" | head -1)
-[[ -z $TR_repo_ver ]] && { [[ $CODENAME == bionic ]] && TR_repo_ver=2.92 ; [[ $CODENAME == xenial ]] && TR_repo_ver=2.84 ; [[ $CODENAME == jessie ]] && TR_repo_ver=2.84 ; [[ $CODENAME == stretch ]] && TR_repo_ver=2.92 ; }
-
-TR_latest_ver=$(wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -1)
-[[ -z $TR_latest_ver ]] && TR_latest_ver=2.94
 
 clear
 
@@ -457,38 +382,9 @@ echo
 
 
 
-function ask_reboot() {
-    if [[ $script_lang == eng ]]; then
-        local lang_1="Would you like to reboot the system now?"
-        local lang_2="WTF, try reboot manually?"
-        local lang_3="Reboot has been canceled..."
-    elif [[ $script_lang == chs ]]; then
-        local lang_1="你现在想要重启系统么？"
-        local lang_2="emmmm，重启失败，你手动重启试试？"
-        local lang_3="已取消重启……"
-    fi
-    echo -ne "${bold}${yellow}$lang_1 ${normal} [y/${cyan}N${normal}]: "
-    if [[ $ForceYes == 1 ]];then reboot || echo "$lang_2" ; else read -e is_reboot ; fi
-    if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
-    else echo -e "${bold}$lang_3${normal}\n" ; fi
-}
 
-function _time() {
-    endtime=$(date +%s)
-    timeused=$(( $endtime - $starttime ))
-    if [[ $timeused -gt 60 && $timeused -lt 3600 ]]; then
-        timeusedmin=$(expr $timeused / 60)
-        timeusedsec=$(expr $timeused % 60)
-        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedmin} min ${timeusedsec} sec${normal}"
-    elif [[ $timeused -ge 3600 ]]; then
-        timeusedhour=$(expr $timeused / 3600)
-        timeusedmin=$(expr $(expr $timeused % 3600) / 60)
-        timeusedsec=$(expr $timeused % 60)
-        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeusedhour} hour ${timeusedmin} min ${timeusedsec} sec${normal}"
-    else
-        echo -e " ${baiqingse}${bold}The $timeWORK took about ${timeused} sec${normal}"
-    fi
-}
+
+
 
 
 
@@ -511,11 +407,10 @@ function ask_continue() {
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
     echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
-
-
     echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
+
     [[ -n $InsBBR ]] &&
     echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
     [[ -n $InsVNC ]] &&
@@ -530,7 +425,6 @@ function ask_continue() {
     echo "                  ${cyan}${bold}UpTools${normal}       ${bold}${yellow}${InsTools}${normal}"
     [[ -n $InsRclone ]] &&
     echo "                  ${cyan}${bold}rclone${normal}        ${bold}${yellow}${InsRclone}${normal}"
-
     [[ $sihuo == yes ]] && echo &&
     echo "                  ${cyan}${bold}私货${normal}          ${bold}${yellow}有${normal}"
     echo
@@ -785,7 +679,7 @@ function _distro_upgrade() {
 
     _distro_upgrade_upgrade
 
-    timeWORK=upgradation ; echo -e "\n\n\n" ; _time
+    echo -e "\n\n\n" ; _time upgradation
 
     [[ $DeBUG != 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
     sleep 5  ;  eboot -f  ;  init 6  ;  sleep 5  ;  kill -s TERM $TOP_PID ; exit
@@ -1433,8 +1327,7 @@ echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
 echo '---------------------------------------------------------------------------------'
 echo
 
-timeWORK=installation
-_time
+_time installation
 
 [[ -n $INSFAILED ]] && {
 echo -e "\n ${bold}Unfortunately something went wrong during installation.
