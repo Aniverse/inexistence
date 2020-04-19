@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12076
+script_version=r12077
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -377,13 +377,13 @@ function validate_username() {
 
 
 function export_inexistence_info() {
-    inexistence_ver=$( cat /log/inexistence/info/version.log | grep inexistence.version  | awk '{print $NF}' | head -1)
-    inexistence_date=$(cat /log/inexistence/info/version.log | grep inexistence.update   | awk '{print $NF}' | head -1)
+    inexistence_ver=$( cat /log/inexistence/info/version.txt | grep inexistence.version  | awk '{print $NF}' | head -1)
+    inexistence_date=$(cat /log/inexistence/info/version.txt | grep inexistence.update   | awk '{print $NF}' | head -1)
     asnnnnn=$(cat $LogBase/info/asn.txt)
     serveripv4=$(cat $LogBase/info/serveripv4.txt)
     serveripv6=$(cat $LogBase/info/serveripv6.txt 2>/dev/null)
 
-    iUser=$(cat /log/inexistence/info/user.list.txt | head -1)
+    iUser=$(cat /log/inexistence/info/installed.user.list.txt | head -1)
     passphrase=$(cat /root/.ssh/users/${iUser})
     passtest=$(cat /log/inexistence/users/${iUser}.info | cut -d: -f2)
     if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
