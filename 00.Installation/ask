@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11010
+script_version=r11011
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -621,7 +621,7 @@ function do_installation() {
             bash $local_packages/package/libtorrent-rasterbar --logbase $LogTimes -v $lt_version
         fi
     fi
-    
+
     if [[ $qb_version != No ]]; then
         if [[ $qb_mode == static ]]; then
             bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
@@ -630,19 +630,24 @@ function do_installation() {
         fi
         bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
     fi
-    
-    [[ $de_version != No ]] && {
-    echo -ne "Installing Deluge ... \n\n\n" ; install_deluge 2>&1 | tee $LogLocation/03.de1.log
-    echo -ne "Configuring Deluge ... \n\n\n" ; config_deluge 2>&1 | tee $LogLocation/04.de2.log ; }
-    
+
+    if [[ $de_version != No ]] && {
+        echo -ne "Installing Deluge ... "
+        { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
+        echo -ne "Configuring Deluge ... "
+        { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
+    fi
+
     [[ $rt_version != No ]] && {
     echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
     [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
-    
-    [[ $tr_version != No ]] && {
-    echo -ne "Installing Transmission ... "  ; install_transmission 2>&1 | tee $LogLocation/08.tr1.log
-    echo -ne "Configuring Transmission ... " ; config_transmission  2>&1 | tee $LogLocation/09.tr2.log ; }
-    
+
+    if [[ $tr_version != No ]]; then
+        echo -ne "Installing Transmission ... "
+        { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
+        bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
+    fi
+
     if [[ $InsFlex == Yes ]]; then
         bash $local_packages/package/flexget/install   --logbase $LogTimes
         bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
