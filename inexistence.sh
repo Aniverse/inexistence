@@ -13,7 +13,7 @@ bash <(curl -s https://raw.githubusercontent.com/Aniverse/inexistence/master/ine
 SYSTEMCHECK=1
 DeBUG=0
 script_lang=eng
-INEXISTENCEVER=1.2.2.5
+INEXISTENCEVER=1.2.2.6
 INEXISTENCEDATE=2020.04.19
 default_branch=master
 aptsources=Yes
@@ -186,82 +186,79 @@ trap cancel SIGINT
 
 # --------------------- 系统检查 --------------------- #
 function _intro() {
+    [[ $DeBUG != 1 ]] && clear
+    
+    # 检查是否以 root 权限运行脚本
+    if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
+    else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
+    
+    # 检查是否为 x86_64 架构
+    [[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
 
-clear
+    # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
+    SysSupport=0
+    [[ $CODENAME =~  (bionic|buster)  ]] && SysSupport=1
+    [[ $CODENAME =~  (xenial|stretch) ]] && SysSupport=4
+    [[ $CODENAME ==  trusty  ]] && SysSupport=2
+    [[ $CODENAME ==  wheezy  ]] && SysSupport=3
+    [[ $CODENAME ==  jessie ]] && SysSupport=5
+    [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
-# 检查是否以 root 权限运行脚本
-if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
-else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
+    # 允许跳过系统升级选项的问题
+    [[ $skip_system_upgrade != 1 ]] && {
+        # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
+        [[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
+        [[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
+        # 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
+        [[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
+        [[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
+    }
 
-# 检查是否为 x86_64 架构
-[[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
+    # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
+    [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
 
-# 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
-SysSupport=0
-[[ $CODENAME =~        (bionic|buster)         ]] && SysSupport=1
-[[ $CODENAME ==        trusty         ]] && SysSupport=2
-[[ $CODENAME ==        wheezy         ]] && SysSupport=3
-[[ $CODENAME =~        (xenial|stretch)        ]] && SysSupport=4
-[[ $CODENAME ==        jessie         ]] && SysSupport=5
-[[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
+    # 检查本脚本是否支持当前系统，可以关闭此功能
+    [[ $SYSTEMCHECK == 1 ]] && [[ $distro_up != Yes ]] && _oscheck
 
-# 允许跳过系统升级选项的问题
-[[ $skip_system_upgrade != 1 ]] && {
-    # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
-    [[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
-    [[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
-    # 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
-    [[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
-    [[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
-}
+    # 装 wget 以防万一（虽然脚本一般情况下就是 wget 下来的……）
+    which wget | grep -q wget || { echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget ; }
+    which wget | grep -q wget || { echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID ; }
 
-# rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
-[[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
+    ipv4_check
+    ip_ipapi
+    ipv6_check
+    echo -e "${bold}Checking your server's specification ...${normal}"
+    hardware_check_1
+    echo -e "${bold}Checking bittorrent clients' version ...${normal}"
+    _check_install_2
+    _client_version_check
 
-# 检查本脚本是否支持当前系统，可以关闭此功能
-[[ $SYSTEMCHECK == 1 ]] && [[ $distro_up != Yes ]] && _oscheck
+    clear
 
-# 装 wget 以防万一（虽然脚本一般情况下就是 wget 下来的……）
-which wget | grep -q wget || { echo "${bold}Now the script is installing ${yellow}wget${jiacu} ...${normal}" ; apt-get install -y wget ; }
-which wget | grep -q wget || { echo -e "${red}${bold}Failed to install wget, please check it and rerun once it is resolved${normal}\n" && kill -s TERM $TOP_PID ; }
+    wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/files/logo/inexistence.logo.1
 
-ipv4_check
-ip_ipapi
-ipv6_check
-echo -e "${bold}Checking your server's specification ...${normal}"
-hardware_check_1
-echo -e "${bold}Checking bittorrent clients' version ...${normal}"
-_check_install_2
-_client_version_check
+    echo "${bold}---------- [System Information] ----------${normal}"
+    echo
+    echo -ne "  IPv4      : ";[[ -n ${serveripv4} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
+    echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
+    echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
+    echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
+    
+    echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
+    echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
+    echo -e  "  Mem       : ${cyan}$tram MB ($uram MB Used)${normal}"
+    echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
+    echo -e  "  OS        : ${cyan}$displayOS${normal}"
+    echo -e  "  Kernel    : ${cyan}$running_kernel${normal}"
+    echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
+    echo -e  "  Virt      : ${cyan}$virtual${normal}"
 
-clear
+    [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
+    [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
+    [[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
 
-wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/files/logo/inexistence.logo.1
-
-echo "${bold}---------- [System Information] ----------${normal}"
-echo
-echo -ne "  IPv4      : ";[[ -n ${serveripv4} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
-echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
-echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
-echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
-
-echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
-echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
-echo -e  "  Mem       : ${cyan}$tram MB ($uram MB Used)${normal}"
-echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-echo -e  "  OS        : ${cyan}$displayOS${normal}"
-echo -e  "  Kernel    : ${cyan}$running_kernel${normal}"
-echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
-echo -e  "  Virt      : ${cyan}$virtual${normal}"
-
-[[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
-[[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
-[[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
-
-echo
-echo -e "${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
-echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
-
+    echo -e "\n${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
+    echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
 }
 
 
@@ -448,77 +445,60 @@ function ask_continue() {
 
 function preparation() {
 
-[[ $USESWAP == Yes ]] && swap_on
+    [[ $USESWAP == Yes ]] && swap_on
 
-# 临时
-mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
-echo $iUser >> $LogBase/iUser.txt
+    # 临时
+    mkdir -p $LogBase/app $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
+    echo $iUser >> $LogBase/iUser.txt
 
-if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
-    cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
-    wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
-    sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
-    [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-fi
-
-APT_UPGRADE_SINGLE=1 APT_UPGRADE
-
-#wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
-#dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
-
-# 2020.01.27 这里乱七八糟的太多了，但是想删减的话又得对照很多地方比较麻烦，下个大改动再说
-# 2020.04.18 先删了一些
-package_list="screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release
-htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail
-libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common
-zip unzip p7zip-full mediainfo mktorrent fail2ban lftp"
-# bwm-ng wondershaper
-# uuid socat figlet toilet lolcat
-
-
-######## These codes are from rtinst ########
-for package_name in $package_list ; do
-    if [ $(apt-cache show -q=0 $package_name 2>&1 | grep -c "No packages found") -eq 0 ]; then
-        if [ $(dpkg-query -W -f='${Status}' $package_name 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-            install_list="$install_list $package_name"
-        fi
-    else
-        echo "$package_name not found, skipping"
+    if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
+        cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak
+        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
+        sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list
+        [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
     fi
-done
 
-# Install atop may causedpkg failure in some VPS, so install it separately
-[[ ! -d /proc/vz ]] && apt-get -y install atop
+    APT_UPGRADE_SINGLE=1 APT_UPGRADE
 
-test -z "$install_list" || apt-get -y install $install_list
-if [ ! $? = 0 ]; then
-    echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Failed to install packages, please check it and rerun once it is resolved${normal}\n"
-    kill -s TERM $TOP_PID
-    exit 1
-fi
+    # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb
+    # dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
 
-# Fix interface in vnstat.conf
-[[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
+    # Install atop may causedpkg failure in some VPS, so install it separately
+    [[ ! -d /proc/vz ]] && apt-get -y install atop
 
-sed -i "s/TRANSLATE=1/TRANSLATE=0/" /etc/checkinstallrc
+    apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release \
+                      htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
+                      ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
+                      dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail
+                      libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common
+                      zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper 
+                    # uuid socat figlet toilet lolcat
+    apt_install_together
 
-# Get repository
-[[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
-git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
-chmod -R 755 /etc/inexistence
-chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
+    if [ ! $? = 0 ]; then
+        echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
+        kill -s TERM $TOP_PID
+        exit 1
+    fi
 
-# Add user
-if id -u $iUser >/dev/null 2>&1; then
-    echo -e "\n$iUser already exists\n"
-else
-    adduser --gecos "" $iUser --disabled-password --force-badname
-    echo "$iUser:$iPass" | chpasswd
-fi
+    # Fix interface in vnstat.conf
+    [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
 
-echo -e "
+    # Get repository
+    [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
+    git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence
+    chmod -R 755 /etc/inexistence
+    chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
+
+    # Add user
+    if id -u $iUser >/dev/null 2>&1; then
+        echo -e "\n$iUser already exists\n"
+    else
+        adduser --gecos "" $iUser --disabled-password --force-badname
+        echo "$iUser:$iPass" | chpasswd
+    fi
+
+    echo -e "
 如果要截图请截完整点，包含下面所有信息
 CPU        : $cname
 Cores      : ${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)
@@ -553,8 +533,7 @@ VNC=${InsVNC} \t\t X2Go=${InsX2Go}
 如果要截图请截完整点，包含上面所有信息
 " >> $LogTimes/installed.log
 
-
-cat << EOF >> $LogBase/version
+    cat << EOF >> $LogBase/version
 inexistence.times       $times
 inexistence.version     $INEXISTENCEVER
 inexistence.update      $INEXISTENCEDATE
@@ -565,21 +544,21 @@ ASN                     $asnnnnn
 
 EOF
 
-cat << EOF > $LogBase/serverip
+    cat << EOF > $LogBase/serverip
 serveripv4    ${serveripv4}
 serveripv6    ${serveripv6}
 EOF
 
-# Raise open file limits
-sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
-sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
-echo "fs.file-max = 1048576" >> /etc/sysctl.conf
-echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
+    # Raise open file limits
+    sed -i '/^fs.file-max.*/'d /etc/sysctl.conf
+    sed -i '/^fs.nr_open.*/'d /etc/sysctl.conf
+    echo "fs.file-max = 1048576" >> /etc/sysctl.conf
+    echo "fs.nr_open = 1048576" >> /etc/sysctl.conf
 
-sed -i '/.*nofile.*/'d /etc/security/limits.conf
-sed -i '/.*nproc.*/'d /etc/security/limits.conf
+    sed -i '/.*nofile.*/'d /etc/security/limits.conf
+    sed -i '/.*nproc.*/'d /etc/security/limits.conf
 
-cat << EOF >> /etc/security/limits.conf
+    cat << EOF >> /etc/security/limits.conf
 * - nofile 1048575
 * - nproc 1048575
 root soft nofile 1048574
@@ -588,34 +567,34 @@ $iUser hard nofile 1048573
 $iUser soft nofile 1048573
 EOF
 
-sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
-sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
-echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
-echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
+    sed -i '/^DefaultLimitNOFILE.*/'d /etc/systemd/system.conf
+    sed -i '/^DefaultLimitNPROC.*/'d /etc/systemd/system.conf
+    echo "DefaultLimitNOFILE=999998" >> /etc/systemd/system.conf
+    echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
-# alias and locales
-[[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
-bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
-mkdir -p $local_script
-ln -s $local_packages/script/* $local_script
-echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
+    # alias and locales
+    [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
+    bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
+    mkdir -p $local_script
+    ln -s $local_packages/script/* $local_script
+    echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
 
-ln -s /etc/inexistence $WebROOT/h5ai/inexistence
-ln -s /log $WebROOT/h5ai/log
+    ln -s /etc/inexistence $WebROOT/h5ai/inexistence
+    ln -s /log $WebROOT/h5ai/log
 
-if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
-    mkdir -p /etc/abox/app
-    cd /etc/abox/app
-    svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
-    mv -f BDinfoCli.0.7.3 BDinfoCli
-fi
+    if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
+        mkdir -p /etc/abox/app
+        cd /etc/abox/app
+        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3
+        mv -f BDinfoCli.0.7.3 BDinfoCli
+    fi
 
-if [[ ! -f /etc/abox/app/bdinfocli.exe ]]; then
-    wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/abox/app/bdinfocli.exe
-fi
+    if [[ ! -f /etc/abox/app/bdinfocli.exe ]]; then
+        wget https://github.com/Aniverse/bluray/raw/master/tools/bdinfocli.exe -qO /etc/abox/app/bdinfocli.exe
+    fi
 
-# sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
-echo -e "\nSTEP ONE COMPLETED\n"
+    # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
+    echo -e "\nSTEP ONE COMPLETED\n"
 
 }
 
@@ -695,85 +674,72 @@ function install_deluge() {
     if [[ $separate == 10086 ]] ; then
         bash $local_packages/package/deluge/install -v $de_version
     else
+        apt-get install -y python python-pip python-setuptools
+        apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
+        if [[ $Deluge_2_later == Yes ]]; then
+            apt-get install -y python-pip
+            pip install --upgrade pip
+            hash -d pip
+            pip install --upgrade setuptools
+            pip install --upgrade twisted pillow rencode pyopenssl
+        fi
+        cd $SourceLocation
 
-if [[ $de_version == "Install from repo" ]]; then
-    apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
-elif [[ $de_version == "Install from PPA" ]]; then
-    add-apt-repository -y ppa:deluge-team/ppa
-    apt-get update
-    apt-get install -y deluge deluged deluge-web deluge-console deluge-gtk
-else
-    apt-get install -y python python-pip python-setuptools
-    apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
-    if [[ $Deluge_2_later == Yes ]]; then
-        apt-get install -y python-pip
-        pip install --upgrade pip
-        hash -d pip
-        pip install --upgrade setuptools
-        pip install --upgrade twisted pillow rencode pyopenssl
-    fi
-    cd $SourceLocation
+        if [[ $de_version == 2.0.3 ]]; then
+            while true ; do
+                wget -nv -N https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
+                sleep 1
+            done
+            tar xf deluge-$de_version.tar.xz
+            rm -f deluge-$de_version.tar.xz
+            cd deluge-2.0.3
+        else
+            [[ $Deluge_1_3_15_skip_hash_check_patch == Yes  ]] && de_version=1.3.15
+            while true ; do
+                wget -nv -N https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
+                sleep 1
+            done
+            tar xf deluge-$de_version.tar.gz
+            rm -f deluge-$de_version.tar.gz
+            cd deluge*$de_version
+        fi
 
-    if [[ $de_version == 2.0.3 ]]; then
-        while true ; do
-            wget -nv -N https://ftp.osuosl.org/pub/deluge/source/2.0/deluge-2.0.3.tar.xz && break
-            sleep 1
-        done
-        tar xf deluge-$de_version.tar.xz
-        rm -f deluge-$de_version.tar.xz
-        cd deluge-2.0.3
-    else
-        [[ $Deluge_1_3_15_skip_hash_check_patch == Yes  ]] && de_version=1.3.15
-        while true ; do
-            wget -nv -N https://github.com/deluge-torrent/deluge/archive/deluge-$de_version.tar.gz && break
-            sleep 1
-        done
-        tar xf deluge-$de_version.tar.gz
-        rm -f deluge-$de_version.tar.gz
-        cd deluge*$de_version
-    fi
+        ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
+        ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
+        ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
+        ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
+        if [[ $Deluge_ssl_fix_patch == Yes ]]; then
+            sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
+            sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
+            echo -e "\n\nSSL FIX (FOR LOG)\n\n"
+            python setup.py build  > /dev/null
+            python setup.py install --install-layout=deb --record /log/inexistence/deluge_filelist.txt > /dev/null
+            mv -f /usr/bin/deluged /usr/bin/deluged2
+            wget -nv -N http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
+            tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
+        fi
 
-    ### 修复稍微新一点的系统（比如 Debian 8）（Ubuntu 14.04 没问题）下 RPC 连接不上的问题。这个问题在 Deluge 1.3.11 上已解决
-    ### http://dev.deluge-torrent.org/attachment/ticket/2555/no-sslv3.diff
-    ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.9/deluge/core/rpcserver.py
-    ### https://github.com/deluge-torrent/deluge/blob/deluge-1.3.11/deluge/core/rpcserver.py
-    if [[ $Deluge_ssl_fix_patch == Yes ]]; then
-        sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
-        sed -i "/        ctx = SSL.Context(SSL.SSLv23_METHOD)/a\        ctx.set_options(SSL.OP_NO_SSLv2 & SSL.OP_NO_SSLv3)" deluge/core/rpcserver.py
-        echo -e "\n\nSSL FIX (FOR LOG)\n\n"
         python setup.py build  > /dev/null
-        python setup.py install --install-layout=deb --record /log/inexistence/deluge_filelist.txt > /dev/null
-        mv -f /usr/bin/deluged /usr/bin/deluged2
-        wget -nv -N http://download.deluge-torrent.org/source/deluge-1.3.15.tar.gz
-        tar xf deluge-1.3.15.tar.gz && rm -f deluge-1.3.15.tar.gz && cd deluge-1.3.15
+        python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
+        python setup.py install_data # For Desktop users
+
+        if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
+            wget https://raw.githubusercontent.com/Aniverse/inexistence/files/miscellaneous/deluge.1.3.15.skip.no.full.allocate.patch \
+            -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+            cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
+            patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
+        fi
+        # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
+        if [[ $sihuo == yes ]]; then
+            wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/deluge.status.bar.patch \
+            -O /tmp/deluge.status.bar.patch
+            cd /usr/lib/python2.7/dist-packages/deluge-${de_version}-py2.7.egg/deluge
+            patch -p1 < /tmp/deluge.status.bar.patch
+        fi
+        [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
     fi
 
-    python setup.py build  > /dev/null
-    python setup.py install --install-layout=deb --record $LogLocation/install_deluge_filelist_$de_version.txt  > /dev/null # 输出太长了，省略大部分，反正也不重要
-    python setup.py install_data # For Desktop users
-
-    if [[ $Deluge_1_3_15_skip_hash_check_patch == Yes ]]; then
-        wget https://raw.githubusercontent.com/Aniverse/inexistence/files/miscellaneous/deluge.1.3.15.skip.no.full.allocate.patch \
-        -O /tmp/deluge.1.3.15.skip.no.full.allocate.patch
-        cd /usr/lib/python2.7/dist-packages/deluge-1.3.15-py2.7.egg/deluge
-        patch -p1 < /tmp/deluge.1.3.15.skip.no.full.allocate.patch
-    fi
-
-    # 这个私货是修改 Deluge WebUI 里各个标签的默认排序以及宽度，符合我个人的习惯（默认的简直没法用，每次都要改很麻烦）
-    if [[ $sihuo == yes ]]; then
-        wget -nv https://github.com/Aniverse/inexistence/raw/files/miscellaneous/deluge.status.bar.patch \
-        -O /tmp/deluge.status.bar.patch
-        cd /usr/lib/python2.7/dist-packages/deluge-${de_version}-py2.7.egg/deluge
-        patch -p1 < /tmp/deluge.status.bar.patch
-    fi
-
-    [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
-
-fi
-
-    fi
-
-cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+    cd ; echo -e "${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n"
 }
 
 
@@ -783,17 +749,16 @@ cd ; echo -e "\n\n\n\n${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n\n\
 # --------------------- Deluge 启动脚本、配置文件 --------------------- #
 
 function config_deluge() {
+    mkdir -p /home/$iUser/deluge/{download,torrent,watch}
+    ln -s /home/$iUser/deluge/download $WebROOT/h5ai/$iUser/deluge
+    chown -R $iUser.$iUser /home/$iUser/deluge
 
-mkdir -p /home/$iUser/deluge/{download,torrent,watch}
-ln -s /home/$iUser/deluge/download $WebROOT/h5ai/$iUser/deluge
-chown -R $iUser.$iUser /home/$iUser/deluge
+    mkdir -p /root/.config
+    [[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
+    cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
+    chmod -R 755 /root/.config
 
-mkdir -p /root/.config
-[[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
-cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
-chmod -R 755 /root/.config
-
-cat > /tmp/deluge.userpass.py <<EOF
+    cat > /tmp/deluge.userpass.py <<EOF
 #!/usr/bin/env python
 import hashlib
 import sys
@@ -804,27 +769,27 @@ s.update(salt)
 s.update(password)
 print s.hexdigest()
 EOF
+    DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
+    DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
+    echo "$iUser:$iPass:10" >> /root/.config/deluge/auth
+    chmod 600 /root/.config/deluge/auth
+    sed -i "s/delugeuser/$iUser/g" /root/.config/deluge/core.conf
+    sed -i "s/DWSALT/$DWSALT/g" /root/.config/deluge/web.conf
+    sed -i "s/DWP/$DWP/g" /root/.config/deluge/web.conf
 
-DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
-DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
-echo "$iUser:$iPass:10" >> /root/.config/deluge/auth
-chmod 600 /root/.config/deluge/auth
-sed -i "s/delugeuser/$iUser/g" /root/.config/deluge/core.conf
-sed -i "s/DWSALT/$DWSALT/g" /root/.config/deluge/web.conf
-sed -i "s/DWP/$DWP/g" /root/.config/deluge/web.conf
+    cp -f /etc/inexistence/00.Installation/template/systemd/deluged.service /etc/systemd/system/deluged.service
+    cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
+    [[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
+    # or perhaps Type=forking ?
 
-cp -f /etc/inexistence/00.Installation/template/systemd/deluged.service /etc/systemd/system/deluged.service
-cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
-[[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
-# or perhaps Type=forking ?
+    systemctl daemon-reload
+    systemctl enable /etc/systemd/system/deluge-web.service
+    systemctl enable /etc/systemd/system/deluged.service
+    systemctl start deluged
+    systemctl start deluge-web
 
-systemctl daemon-reload
-systemctl enable /etc/systemd/system/deluge-web.service
-systemctl enable /etc/systemd/system/deluged.service
-systemctl start deluged
-systemctl start deluge-web
-
-touch $LockLocation/deluge.lock ; }
+    touch $LockLocation/deluge.lock
+}
 
 
 
@@ -889,14 +854,7 @@ function install_flood() {
 
 function install_transmission() {
 
-if [[ "${tr_version}" == "Install from repo" ]]; then
-    apt-get install -y transmission-daemon transmission-cli
-elif [[ "${tr_version}" == "Install from PPA" ]]; then
-    apt-get install -y software-properties-common
-    add-apt-repository -y ppa:transmissionbt/ppa
-    apt-get update
-    apt-get install -y transmission-daemon transmission-cli
-elif [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
+if [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
     list="transmission-common_2.94-1mod1_all.deb
 transmission-cli_2.94-1mod1_amd64.deb
 transmission-daemon_2.94-1mod1_amd64.deb
