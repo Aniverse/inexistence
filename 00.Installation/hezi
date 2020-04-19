@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.19
-script_version=r10001
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -42,6 +42,7 @@ export LockLocation=$LogBase/lock
 export WebROOT=/var/www
 
 export MAXCPUS=$(nproc)
+export script_lang=chs
 export_inexistence_info
 
 ################################################################################################

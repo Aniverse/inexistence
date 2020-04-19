@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11006
+script_version=r11007
 ################################################################################################
 this_is_for_copy() {
     source /etc/bash.bashrc
@@ -124,6 +124,7 @@ export LANGUAGE=en_US.UTF-8
 export repo="https://github.com/Aniverse/inexistence"
 export local_repo_base=/etc/inexistence
 export local_packages=/etc/inexistence/00.Installation
+export local_script=/usr/local/bin/abox
 export eth=$wangka
 
 alias qba="systemctl start qbittorrent@$iUser"
