@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.2.12
+INEXISTENCEVER=1.2.3.0
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -113,7 +113,7 @@ export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/install
 export LockLocation=$LogBase/lock
 export WebROOT=/var/www
-
+set_language
 # --------------------------------------------------------------------------------
 
 # 用于退出脚本
@@ -427,7 +427,7 @@ function preparation() {
     APT_UPGRADE_SINGLE=1   APT_UPGRADE
 
     # Install atop may causedpkg failure in some VPS, so install it separately
-    [[ ! -d /proc/vz ]] && apt-get -y install atop
+    [[ ! -d /proc/vz ]] && apt-get -y install atop > /dev/null
 
     apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
                       htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli                            \
@@ -436,7 +436,8 @@ function preparation() {
                       libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common             \
                       zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
-    apt_install_together
+    apt_install_together & spinner $!
+    OutputLOG=/DEV/NULL    status_done
 
     if [ ! $? = 0 ]; then
         echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
@@ -500,8 +501,8 @@ inexistence.setup       $(date "+%Y.%m.%d %H:%M")
 
 EOF
 
-    echo "${asnnnnn}" > $LogBase/info/asn.txt
-    echo "${serveripv4}" > $LogBase/info/serveripv4.txt
+    echo "${asnnnnn}"        > $LogBase/info/asn.txt
+    echo "${serveripv4}"     > $LogBase/info/serveripv4.txt
     if [[ -n $serveripv6 ]]; then
         echo "${serveripv6}" > $LogBase/info/serveripv6.txt
     fi
