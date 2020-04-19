@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.11
-script_version=r12016
+script_update=2020.04.19
+script_version=r12017
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -22,11 +22,11 @@ fi
 
 get_opsy() {
     # Fedora, CentOS
-    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}'          /etc/redhat-release && return
     # Gentoo, Slackware, Arch Linux, Alpine Linux, Ubuntu, Debian, OpenSUSE
-    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/os-release     ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release     && return
     # Ubuntu
-    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
+    [ -f /etc/lsb-release    ] && awk -F'[="]+' '/DESCRIPTION/{print $2}'       /etc/lsb-release    && return
 }
 
 lbit=$(getconf LONG_BIT 2>1)
@@ -42,7 +42,7 @@ DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 [[ ! $DISTRO =~ (Ubuntu|Debian) ]] && DISTRO=$(get_opsy)
 
 check_pm() {
-    if type dnf       >/dev/null 2>&1; then  # Fedora, CentOS 8
+    if  type dnf      >/dev/null 2>&1; then  # Fedora, CentOS 8
         pm=dnf
     elif type yum     >/dev/null 2>&1; then  # CentOS
         pm=yum
@@ -126,9 +126,9 @@ hardware_check_1() {
     cat /sys/block/vd*/queue/rotational 2>/dev/null | grep -q 0 && SSD=yes
 
     # memory
-    tram=$( free -m | awk '/Mem/ {print $2}' )
-    uram=$( free -m | awk '/Mem/ {print $3}' )
-    swap=$( free -m | awk '/Swap/ {print $2}' )
+    tram=$(  free -m | awk '/Mem/  {print $2}' )
+    uram=$(  free -m | awk '/Mem/  {print $3}' )
+    swap=$(  free -m | awk '/Swap/ {print $2}' )
     uswap=$( free -m | awk '/Swap/ {print $3}' )
     memory_usage=`free -m |grep -i mem | awk '{printf ("%.2f\n",$3/$2*100)}'`%
 
@@ -151,7 +151,6 @@ check_tcp_acc() {
     [[ $tcp_control == nanqinlang  ]] && tcp_c_name="nanqinlang (南琴浪版魔改 BBR)"
     ps aux | grep -v grep | grep appex -q && tcp_c_name="锐速"
 }
-
 
 
 ################################################################################################
@@ -551,8 +550,7 @@ check_virt
 
 
 function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
-
-function isInternalIpAddress() { echo $1 | grep -qE '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
+function isInternalIpAddress() { echo $1 | grep -qP '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
 
 # From nench.sh
 function redact_ip() {
