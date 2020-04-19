@@ -2,7 +2,7 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.1
+SCRIPTVER=0.9.4.2
 SCRIPTUPDATE=2020.04.19.还能抢救下
 
 [[ $1 == -d ]] && DeBUG=1
@@ -91,9 +91,6 @@ case $response in
             _client_version_check
             _show_client_version
             _main_menu ;;
-#   5 | 05) # 查看客户端是否都在运行
-#           _ifrunning
-#           _main_menu ;;
     6 | 06) # 进入客户端操作菜单
             _show_client_menu
             _client_menu_response ;;
@@ -209,7 +206,7 @@ function _stats() {
     echo
     echo -e  "${bold}  操作系统    : ${cyan}$displayOS${normal}"
     echo -e  "${bold}  系统内核    : ${cyan}$running_kernel${normal}"
-    echo -ne "${bold}  虚拟化      : ${cyan}$virtual${normal}"
+    echo -e  "${bold}  虚拟化      : ${cyan}$virtual${normal}"
 
     echo -e  "${bold}  IPv4 地址   : ${cyan}$serveripv4${normal}"
     echo -ne "${bold}  IPv6 地址   : ${cyan}"
@@ -238,9 +235,9 @@ if [[ ! $qbtnox_ver ]]; then
     if [[ ! $de_installed == No        ]]; then delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'` ; deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` ; else delugelt_ver=好像没安装 ; deluged_ver=好像没安装 ; fi
     if [[ ! $tr_installed == No        ]]; then trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; else trd_ver=好像没安装 ; fi
     if [[ ! $rt_installed == No        ]]; then rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'` ; else rtorrent_ver=好像没安装 ; fi
-  # if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
+    if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
     if [[ ! $rclone_installed == No    ]]; then rclone_ver=`rclone --version | head -n1 | awk '{print $2}' | sed "s/v//"` >/dev/null 2>&1 ; else rclone_ver=好像没安装 ; fi
-  # if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
+    if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
     if [[ ! $ffmpeg_installed == No    ]]; then ffmpeg_ver=`ffmpeg 2>&1 | head -n1 | awk '{print $3}'` ; else ffmpeg_ver=好像没安装 ; fi
     if [[ ! $mediainfo_installed == No ]]; then mp_ver=`mediainfo --version | grep Lib | cut -c17-` ; else mp_ver=好像没安装 ; fi
     echo -e "${guangbiao}"
@@ -256,7 +253,7 @@ function _show_client_version() { clear ; echo
     echo -e "    ${cyan}${bold}libtorrent-rasterbar${normal}   ${bold}${yellow}${delugelt_ver}${normal}"
     echo -e "    ${cyan}${bold}rTorrent${normal}               ${bold}${yellow}${rtorrent_ver}${normal}"
     echo -e "    ${cyan}${bold}Transmission${normal}           ${bold}${yellow}${trd_ver}${normal}"
-    echo -e "    ${cyan}${bold}Flexget${normal}                ${bold}${yellow}${flexget_ver}${normal}"
+    echo -e "    ${cyan}${bold}FlexGet${normal}                ${bold}${yellow}${flexget_ver}${normal}"
     echo -e "    ${cyan}${bold}rclone${normal}                 ${bold}${yellow}${rclone_ver}${normal}"
     echo -e "    ${cyan}${bold}AutoDL-Irssi${normal}           ${bold}${yellow}${irssi_ver}${normal}"
     echo -e "    ${cyan}${bold}ffmpeg${normal}                 ${bold}${yellow}${ffmpeg_ver}${normal}"
@@ -268,41 +265,23 @@ function _show_client_version() { clear ; echo
 
 
 
-# 05. 查看客户端是否都在运行
-# 2020.04.19 这里看着真乱，下次再说
-function _ifrunning() { clear ; echo
-
-echo -e " ${baihongse}${bold}                                        05. 客户端运行状况                                         ${normal}\n${bold}"
-_ifrunning_3
-echo -e "${normal}\n ${baihongse}${bold}                             注意：客户端在运行不代表你就能打开 WebUI                              ${normal}"
+function if_running_cn () {
+    if ps -ef | grep -v grep | grep -q "$1"; then
+        client_status="${green}${bold}正在运行${jiacu}"
+    else
+        client_status="${red}${bold}没在运行${jiacu}"
+    fi
 }
 
-function _is_running_1 () { ps aux | grep $kehuduan | grep -v grep > /dev/null ; }
-
-function _is_running_2(){ _is_running_1
-if ( _is_running_1 ); then client_status="${green}${bold}正在运行${jiacu}"
-else client_status="${red}${bold}没在运行${jiacu}" ; fi ; }
-
-function _ifrunning_3() { 
-if [[ ! $qb_installed == No ]]; then kehuduan=qbittorrent-nox ; _is_running_2 ; qb_status_1="${client_status}"
-echo -e "  ${cyan}qBittorrent ${jiacu}                   $qb_status_1" ; fi
-
-if [[ ! $de_installed == No ]]; then kehuduan=deluged ; _is_running_2 ; de_status_1="${client_status}"
-echo -e "  ${cyan}Deluged ${jiacu}                       $de_status_1"
-kehuduan=deluge-web ; _is_running_2 ; dew_status_1="${client_status}"
-echo -e "  ${cyan}Deluge Web ${jiacu}                    $dew_status_1" ; fi
-
-if [[ ! $tr_installed == No ]]; then kehuduan=transmission-daemon ; _is_running_2 ; tr_status_1="${client_status}"
-echo -e "  ${cyan}Transmission ${jiacu}                  $tr_status_1" ; fi
-
-if [[ ! $rt_installed == No ]]; then kehuduan=rtorrent ; _is_running_2 ; rt_status_1="${client_status}"
-echo -e "  ${cyan}rTorrent ${jiacu}                      $rt_status_1" ; fi
-
-if [[ ! $irssi_installed == No ]]; then kehuduan=irssi ; _is_running_2 ; irssi_status_1="${client_status}"
-echo -e "  ${cyan}AutoDL-Irssi ${jiacu}                  $irssi_status_1" ; fi
-
-if [[ ! $flex_installed == No ]]; then kehuduan=flexget ; _is_running_2 ; flex_status_1="${client_status}"
-echo -e "  ${cyan}Flexget daemon ${jiacu}                $flex_status_1" ; fi
+function if_running_check() {
+    [[ $qb_installed != No ]] && if_running_cn qbittorrent-nox     && echo -e "  ${cyan}qBittorrent ${jiacu}                   $client_status"
+    [[ $de_installed != No ]] && if_running_cn deluged             && echo -e "  ${cyan}Deluged ${jiacu}                       $client_status" &&
+                                 if_running_cn deluge-web          && echo -e "  ${cyan}Deluge Web ${jiacu}                    $client_status"
+    [[ $tr_installed != No ]] && if_running_cn transmission-daemon && echo -e "  ${cyan}Transmission ${jiacu}                  $client_status"
+    [[ $rt_installed != No ]] && if_running_cn rtorrent            && echo -e "  ${cyan}rTorrent ${jiacu}                      $client_status"
+    [[ $fg_installed != No ]] && if_running_cn flexget             && echo -e "  ${cyan}Flexget daemon ${jiacu}                $client_status"
+    [[ $irssi_installed != No ]] && if_running_cn irssi            && echo -e "  ${cyan}AutoDL-Irssi ${jiacu}                  $client_status"
+    echo
 }
 
 
@@ -316,8 +295,7 @@ echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ;
 # 06-1-2. 客户端操作菜单——零
 function _show_client_menu_0() { clear ; echo
 echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} \n${bold}"
-_ifrunning_3
-echo
+if_running_check
 echo -e "  ${green}(01) ${jiacu}运行 qBittorrent          ${green}(13) ${jiacu}运行 rTorrent             ${green} ${jiacu}"
 echo -e "  ${green}(02) ${jiacu}关闭 qBittorrent          ${green}(14) ${jiacu}关闭 rTorrent             ${green} ${jiacu}"
 echo -e "  ${green}(03) ${jiacu}重启 qBittorrent          ${green}(15) ${jiacu}重启 rTorrent             ${green} ${jiacu}"
@@ -372,9 +350,9 @@ function _xunwen1() { echo -ne "${yellow}${bold}你还想做什么吗？(默认�
 
 # 06-4. 检查相关脚本是否存在
 function _systemd_check() {
-if [[ ! -f /etc/systemd/system/qbittorrent@.service ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/transmission.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/flexget@.service     ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/qbittorrent@.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/transmission@.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
+if [[ ! -f /etc/systemd/system/flexget@.service      ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /etc/systemd/system/deluged.service ]] || [[ ! -f /etc/systemd/system/deluge-web.service ]]; then echo -e "  ${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ ! -f /usr/local/bin/rt ]]; then echo -e "${red}${bold}未检测到 rTorrent 与 Irssi 的脚本，本菜单中 rt 与 irssi  的相关操作无法使用${normal}" ; Unusable=1 ; fi
 if [[ $Unusable == 1 ]]; then echo -e "${red}${bold}虽然某些功能无法使用，但是选项还在，你仍可以输入相关选项\n输入后本脚本会告诉你客户端已经关了或者开起来了，而实际上什么也没有发生 ←_←${normal}\n" ; fi ; }
