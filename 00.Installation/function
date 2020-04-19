@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r12074
+script_version=r12075
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -554,6 +554,34 @@ function check_remote_git_repo_branch() {
     git ls-remote --heads $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
     grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
+}
+
+
+################################################################################################
+################################################################################################ OLD functions
+################################################################################################
+
+
+function _if_running () { ps -ef | grep -v grep  | grep -q "$1" && echo "${green}Running ${normal}" || echo "${red}Inactive${normal}" ; }
+
+function _check_install_1(){
+    client_location=$( command -v ${client_name} )
+    [[ "${client_name}" == "qbittorrent-nox"     ]] && client_name=qb
+    [[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
+    [[ "${client_name}" == "deluged"  ]] && client_name=de
+    [[ "${client_name}" == "rtorrent" ]] && client_name=rt
+    [[ "${client_name}" == "flexget"  ]] && client_name=fg
+    if [[ -a $client_location ]]; then
+        eval "${client_name}"_installed=Yes
+    else
+        eval "${client_name}"_installed=No
+    fi
+}
+
+function _check_install_2(){
+    for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone ffmpeg mediainfo wine mono; do
+        client_name=$apps ; _check_install_1
+    done
 }
 
 

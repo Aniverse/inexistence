@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.2.8
+INEXISTENCEVER=1.2.2.9
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -119,31 +119,6 @@ export WebROOT=/var/www
 # 用于退出脚本
 export TOP_PID=$$
 trap 'exit 1' TERM
-
-# 判断是否在运行
-function _if_running () { ps -ef | grep "$1" | grep -v grep > /dev/null && echo "${green}Running ${normal}" || echo "${red}Inactive${normal}" ; }
-
-# --------------------------------------------------------------------------------
-# 检查客户端是否已安装、客户端版本
-function _check_install_1(){
-    client_location=$( command -v ${client_name} )
-    [[ "${client_name}" == "qbittorrent-nox" ]] && client_name=qb
-    [[ "${client_name}" == "transmission-daemon" ]] && client_name=tr
-    [[ "${client_name}" == "deluged" ]] && client_name=de
-    [[ "${client_name}" == "rtorrent" ]] && client_name=rt
-    [[ "${client_name}" == "flexget" ]] && client_name=flex
-    if [[ -a $client_location ]]; then
-        eval "${client_name}"_installed=Yes
-    else
-        eval "${client_name}"_installed=No
-    fi
-}
-
-function _check_install_2(){
-    for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone irssi ffmpeg mediainfo wget wine mono; do
-        client_name=$apps ; _check_install_1
-    done
-}
 
 function _client_version_check(){
     [[ $qb_installed == Yes ]] && qbtnox_ver=$( qbittorrent-nox --version 2>&1 | awk '{print $2}' | sed "s/v//" )

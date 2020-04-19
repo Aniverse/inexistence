@@ -2,25 +2,16 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.0
+SCRIPTVER=0.9.4.1
 SCRIPTUPDATE=2020.04.19.还能抢救下
 
 [[ $1 == -d ]] && DeBUG=1
-
-# 2020.02.28
-# 说实话，我现在真的很不想动这个脚本，看着就感觉太乱了
 
 usage_guide() {
 s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
 }
 
-# 判断客户端是否在运行---------------------------------------------------------------------
-
-function _is_running_1 () { ps aux | grep $kehuduan | grep -v grep > /dev/null ; }
-
-function _is_running_2(){ _is_running_1
-if ( _is_running_1 ); then client_status="${green}${bold}正在运行${jiacu}"
-else client_status="${red}${bold}没在运行${jiacu}" ; fi ; }
+# ---------------------------------------------------------------------
 
 if [[ -f /etc/inexistence/00.Installation ]]; then
     source /etc/inexistence/00.Installation/function
@@ -30,26 +21,8 @@ else
     source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
 fi
 
-# 检查是否安装了客户端 ----------------------------------------------------------------------- #
-
-# 用于检查
-function _check_install(){
-  client_location=$( command -v ${client_name} )
-    if [[ "${client_name}" == "qbittorrent-nox"     ]]; then client_name=qb
-  elif [[ "${client_name}" == "transmission-daemon" ]]; then client_name=tr
-  elif [[ "${client_name}" == "deluged"             ]]; then client_name=de
-  elif [[ "${client_name}" == "rtorrent"            ]]; then client_name=rt
-  elif [[ "${client_name}" == "flexget"             ]]; then client_name=flex
-  fi
-
-  if [[ -a $client_location ]]; then eval ${client_name}_installed=Yes
-  else eval ${client_name}_installed=No ; fi
-}
-  
-# 检查客户端安装情况
-for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone smartctl irssi ffmepg mediainfo; do client_name=$apps ; _check_install ; done
-
 [ -d /etc/inexistence ] && inexistence=1
+_check_install_2
 export_inexistence_info
 
 # --------------------------------------------------------------------------------
@@ -271,41 +244,44 @@ if [[ ! $qbtnox_ver ]]; then
     if [[ ! $ffmpeg_installed == No    ]]; then ffmpeg_ver=`ffmpeg 2>&1 | head -n1 | awk '{print $3}'` ; else ffmpeg_ver=好像没安装 ; fi
     if [[ ! $mediainfo_installed == No ]]; then mp_ver=`mediainfo --version | grep Lib | cut -c17-` ; else mp_ver=好像没安装 ; fi
     echo -e "${guangbiao}"
-fi ; }
+fi
+}
 
 # 显示版本
 function _show_client_version() { clear ; echo
-  echo -e " ${white}${on_magenta}${bold}                                         04. 客户端的版本                                         ${normal} "
-  echo
-  echo -e "    ${cyan}${bold}qBittorrent${normal}            ${bold}${yellow}${qbtnox_ver}${normal}"
-  echo -e "    ${cyan}${bold}Deluge${normal}                 ${bold}${yellow}${deluged_ver}${normal}"
-  echo -e "    ${cyan}${bold}libtorrent-rasterbar${normal}   ${bold}${yellow}${delugelt_ver}${normal}"
-  echo -e "    ${cyan}${bold}rTorrent${normal}               ${bold}${yellow}${rtorrent_ver}${normal}"
-  echo -e "    ${cyan}${bold}Transmission${normal}           ${bold}${yellow}${trd_ver}${normal}"
-  echo -e "    ${cyan}${bold}Flexget${normal}                ${bold}${yellow}${flexget_ver}${normal}"
-  echo -e "    ${cyan}${bold}rclone${normal}                 ${bold}${yellow}${rclone_ver}${normal}"
-  echo -e "    ${cyan}${bold}AutoDL-Irssi${normal}           ${bold}${yellow}${irssi_ver}${normal}"
-  echo -e "    ${cyan}${bold}ffmpeg${normal}                 ${bold}${yellow}${ffmpeg_ver}${normal}"
-  echo -e "    ${cyan}${bold}mediainfo${normal}              ${bold}${yellow}${mp_ver}${normal}"
-  echo ; }
+    echo -e " ${white}${on_magenta}${bold}                                         04. 客户端的版本                                         ${normal} "
+    echo
+    echo -e "    ${cyan}${bold}qBittorrent${normal}            ${bold}${yellow}${qbtnox_ver}${normal}"
+    echo -e "    ${cyan}${bold}Deluge${normal}                 ${bold}${yellow}${deluged_ver}${normal}"
+    echo -e "    ${cyan}${bold}libtorrent-rasterbar${normal}   ${bold}${yellow}${delugelt_ver}${normal}"
+    echo -e "    ${cyan}${bold}rTorrent${normal}               ${bold}${yellow}${rtorrent_ver}${normal}"
+    echo -e "    ${cyan}${bold}Transmission${normal}           ${bold}${yellow}${trd_ver}${normal}"
+    echo -e "    ${cyan}${bold}Flexget${normal}                ${bold}${yellow}${flexget_ver}${normal}"
+    echo -e "    ${cyan}${bold}rclone${normal}                 ${bold}${yellow}${rclone_ver}${normal}"
+    echo -e "    ${cyan}${bold}AutoDL-Irssi${normal}           ${bold}${yellow}${irssi_ver}${normal}"
+    echo -e "    ${cyan}${bold}ffmpeg${normal}                 ${bold}${yellow}${ffmpeg_ver}${normal}"
+    echo -e "    ${cyan}${bold}mediainfo${normal}              ${bold}${yellow}${mp_ver}${normal}"
+    echo
+}
 
 
 
 
 
 # 05. 查看客户端是否都在运行
+# 2020.04.19 这里看着真乱，下次再说
 function _ifrunning() { clear ; echo
-
-# qb_status_2="$( qbc | grep Active | cut -c12- | sed 's/sin.*//' )"
-# de_status_2="$( dec | grep Active | cut -c12- | sed 's/sin.*//' )"
-# tr_status_2="$( trc | grep Active | cut -c12- | sed 's/sin.*//' )"
 
 echo -e " ${baihongse}${bold}                                        05. 客户端运行状况                                         ${normal}\n${bold}"
 _ifrunning_3
-echo -e "${normal}\n ${baihongse}${bold}                             注意：客户端在运行不代表你就能打开 WebUI                              ${normal}" ; }
+echo -e "${normal}\n ${baihongse}${bold}                             注意：客户端在运行不代表你就能打开 WebUI                              ${normal}"
+}
 
+function _is_running_1 () { ps aux | grep $kehuduan | grep -v grep > /dev/null ; }
 
-
+function _is_running_2(){ _is_running_1
+if ( _is_running_1 ); then client_status="${green}${bold}正在运行${jiacu}"
+else client_status="${red}${bold}没在运行${jiacu}" ; fi ; }
 
 function _ifrunning_3() { 
 if [[ ! $qb_installed == No ]]; then kehuduan=qbittorrent-nox ; _is_running_2 ; qb_status_1="${client_status}"
@@ -326,7 +302,8 @@ if [[ ! $irssi_installed == No ]]; then kehuduan=irssi ; _is_running_2 ; irssi_s
 echo -e "  ${cyan}AutoDL-Irssi ${jiacu}                  $irssi_status_1" ; fi
 
 if [[ ! $flex_installed == No ]]; then kehuduan=flexget ; _is_running_2 ; flex_status_1="${client_status}"
-echo -e "  ${cyan}Flexget daemon ${jiacu}                $flex_status_1" ; fi ; }
+echo -e "  ${cyan}Flexget daemon ${jiacu}                $flex_status_1" ; fi
+}
 
 
 
