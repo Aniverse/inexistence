@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11012
+script_version=r11013
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -401,7 +401,7 @@ function ask_transmission() {
 
 function ask_flexget() {
     while [[ -z $InsFlex ]]; do
-        [[ $flex_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
+        [[ $fg_installed == Yes ]] && echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang flexget${normal}"
         read -ep "${bold}${yellow}$lang_would_you_like_to_install Flexget?${normal} [Y]es or [${cyan}N${normal}]o: " responce
         case $responce in
             [yY] | [yY][Ee][Ss]  ) InsFlex=Yes ;;
