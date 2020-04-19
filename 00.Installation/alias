@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.14
-script_version=r11005
+script_update=2020.04.19
+script_version=r11006
 ################################################################################################
 this_is_for_copy() {
     source /etc/bash.bashrc
@@ -142,11 +142,11 @@ alias dewb="systemctl stop deluge-web"
 alias dewc="systemctl status deluge-web"
 alias dewr="systemctl restart deluge-web"
 alias dewl="tail -200 /log/inexistence/app/delugeweb.log"
-alias tra="systemctl start transmission"
-alias trb="systemctl stop transmission"
-alias trc="systemctl status transmission"
-alias trr="systemctl restart transmission"
-alias trl="tail -200 /root/.config/transmission-daemon/tr.log"
+alias tra="systemctl start transmission@$iUser"
+alias trb="systemctl stop transmission@$iUser"
+alias trc="systemctl status transmission@$iUser"
+alias trr="systemctl restart transmission@$iUser"
+alias trl="tail -200 /home/$iUser/.config/transmission-daemon/tr.log"
 alias rta="su $iUser -c 'rt start'"
 alias rtb="su $iUser -c 'rt -k stop'"
 alias rtc="su $iUser -c 'rt'"
