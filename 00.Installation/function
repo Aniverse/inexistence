@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r13084
+script_version=r13085
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -672,9 +672,10 @@ function END_output_url() {
     [[ $vns_installed == Yes ]] && output_url $vns_installed "Vnstat Dashboard"   vnstatd             "/vnstat"
 
     echo
-    echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
-    echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
-    [[ $InsFlex != No ]] && [[ $fg_installed == Yes ]] && echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
+    echo -e " ${cyan}Your Username${normal}         ${bold}${iUser}${normal}"
+    echo -e " ${cyan}Your Password${normal}         ${bold}${iPass}${normal}"
+    [[ $InsFlex != No ]] && [[ $fg_installed == Yes ]] &&
+    echo -e " ${cyan}FlexGet Login${normal}         ${bold}flexget${normal}"
     printf "%-75s\n\n" "-" | sed 's/\s/-/g'
 
     _time installation
