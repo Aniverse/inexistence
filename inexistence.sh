@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.2.9
+INEXISTENCEVER=1.2.2.10
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -440,12 +440,12 @@ function preparation() {
     # Install atop may causedpkg failure in some VPS, so install it separately
     [[ ! -d /proc/vz ]] && apt-get -y install atop
 
-    apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release \
-                      htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli
-                      ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl
-                      dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail
-                      libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common
-                      zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper 
+    apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
+                      htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli                            \
+                      ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl \
+                      dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail                                  \
+                      libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common             \
+                      zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
     apt_install_together
 
