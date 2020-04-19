@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.3
+INEXISTENCEVER=1.2.3.4
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -455,7 +455,7 @@ function preparation() {
     chmod -R 755 /etc/inexistence
     chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
 
-    hezi_add_user $iUser $iPass
+    hezi_add_user $iUser $iPass >> "$OutputLOG" 2>&1
 
     echo -e "
 如果要截图请截完整点，包含下面所有信息
@@ -551,7 +551,7 @@ EOF
     fi
 
     # sed -i -e "s|username=.*|username=$iUser|" -e "s|password=.*|password=$iPass|" /usr/local/bin/rtskip
-    echo -e "Preparation ${green}DONE${normal}"
+    echo -e "Preparation ${green}${bold}DONE${normal}"
 
 }
 
@@ -696,7 +696,7 @@ function install_deluge() {
         [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
     fi
 
-    cd ; echo -e "${bailanse}  DELUGE-INSTALLATION-COMPLETED  ${normal}\n"
+    cd
 }
 
 
@@ -799,7 +799,7 @@ function install_flood() {
 
     touch $LockLocation/flood.lock
 
-    cd ; echo -e "\n\n\n\n${baihongse}  FLOOD-INSTALLATION-COMPLETED  ${normal}\n\n\n"
+    cd
 }
 
 
@@ -883,7 +883,7 @@ fi
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 touch $LockLocation/transmission.lock
 
-cd ; echo -e "${baizise}  TR-INSTALLATION-COMPLETED  ${normal}\n"
+cd
 }
 
 
@@ -985,8 +985,6 @@ EOF
     apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
     touch $LockLocation/x2go.lock
-
-    echo -e "\n\n\n${bailvse}  X2GO-INSTALLATION-COMPLETED  ${normal}\n\n"
 }
 
 
@@ -1040,43 +1038,17 @@ function install_tools() {
 
 # --------------------- 一些设置修改 --------------------- #
 function system_tweaks() {
-
-    if [[ $quick != 1 ]]; then
-        # Upgrade vnstat, compile from source. And Install vnstat-dashboard
-        bash $local_packages/package/vnstat/install --logbase $LogTimes
-        if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>&1 | grep Traffic -q ; then
-            vnstat_webui=1
-        fi
-
-        # Upgrade wget to avoid generating wget-logs when wget-qO-
-        if [[ $CODENAME == bionic ]] ; then
-            apt-get install -y build-essential autopoint flex gperf texinfo gnutls-dev
-            wget https://ftp.gnu.org/gnu/wget/wget-1.20.3.tar.gz
-            tar zxf wget-1.20.3.tar.gz
-            cd wget-1.20.3
-            ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --localedir=/usr/share/locale --docdir=/usr/share/doc/wget
-            make -j$MAXCPUS
-            make install
-            cd ..
-            rm -rf wget-1.20.3.tar.gz wget-1.20.3
-            wget --version
-        fi
-    fi
-
     # Set timezone to UTC+8
     rm -rf /etc/localtime
     ln -s  /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
-    dpkg-reconfigure -f noninteractive tzdata
-
-    ntpdate time.windows.com
-    hwclock -w
-
+    dpkg-reconfigure -f noninteractive tzdata  >> "OutputLOG" 2>&1
+    ntpdate time.windows.com                   >> "OutputLOG" 2>&1
+    hwclock -w                                 >> "OutputLOG" 2>&1
     # Change default system language to English
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale
-    dpkg-reconfigure --frontend=noninteractive locales
-    update-locale LANG=en_US.UTF-8
-
+    dpkg-reconfigure --frontend=noninteractive locales   >> "OutputLOG" 2>&1
+    update-locale LANG=en_US.UTF-8                       >> "OutputLOG" 2>&1
     # screen config
     cat << EOF >> /etc/screenrc
 shell -$SHELL
@@ -1087,14 +1059,13 @@ defencoding utf8
 encoding utf8 utf8
 defscrollback 23333
 EOF
-
     # 将最大的分区的保留空间设置为 1 %
-    tune2fs -m 1 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+    tune2fs -m 1 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)   >> "OutputLOG" 2>&1
 
-    locale-gen en_US.UTF-8
-    locale
-    sysctl -p
-    apt-get -y autoremove
+    locale-gen en_US.UTF-8          >> "OutputLOG" 2>&1
+    locale                          >> "OutputLOG" 2>&1
+    sysctl -p                       >> "OutputLOG" 2>&1
+    apt-get -y autoremove           >> "OutputLOG" 2>&1
     touch $LockLocation/tweaks.lock
 }
 

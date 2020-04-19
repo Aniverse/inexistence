@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11016
+script_version=r11017
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -655,20 +655,31 @@ function do_installation() {
 
     if [[ $de_version != No ]]; then
         echo -ne "Installing Deluge ... "
+        write_current_logfile $LogLocation/03.de1.log
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
         OutputLOG=$LogLocation/03.de1.log   status_done
         if [[ -z $just_upgrade ]]; then
+            write_current_logfile $LogLocation/04.de2.log
             echo -ne "Configuring Deluge ... "
             { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
             OutputLOG=$LogLocation/04.de2.log    status_done
         fi
     fi
 
-    [[ $rt_version != No ]] && {
-    echo -ne "Installing rTorrent ... \n\n\n" ; install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
-    [[ $InsFlood == Yes ]] && { echo -ne "Installing Flood ... \n\n\n" ; install_flood 2>&1 | tee $LogLocation/07.flood.log ; } ; }
+    if [[ $rt_version != No ]]; then
+        echo -e "Installing rTorrent ... "
+        install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
+    fi
+
+    if [[ $InsFlood == Yes ]]; then
+        write_current_logfile $LogLocation/07.flood.log
+        echo -ne "Installing Flood ... "
+        { install_flood > $LogLocation/07.flood.log 2>&1 ; } & spinner $!
+        OutputLOG=$LogLocation/07.flood.log    status_done
+    fi
 
     if [[ $tr_version != No ]]; then
+        write_current_logfile $LogLocation/08.tr1.log
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
         OutputLOG=$LogLocation/08.tr1.log    status_done
@@ -701,10 +712,30 @@ function do_installation() {
         bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575
     fi
     if [[ $InsX2Go == Yes ]]; then
-        echo -ne "Installing X2Go ... \n\n\n" ; install_x2go 2>&1 | tee $LogLocation/12.x2go.log
+        write_current_logfile $LogLocation/12.x2go.log
+        echo -ne "Installing X2Go ... "
+        { install_x2go > $LogLocation/12.x2go.log 2>&1 ; } & spinner $!
+        OutputLOG=$LogLocation/12.x2go.log    status_done
     fi
-    [[ $InsTools  == Yes ]]  && { echo -ne "Installing Uploading Toolbox ... \n\n\n" ; install_tools 2>&1 | tee $LogLocation/13.tool.log ; }
-    [[ $UseTweaks == Yes ]]  && { echo -e  "Configuring system settings ..." ; system_tweaks ; }
+    if [[ $InsTools  == Yes ]]; then
+        write_current_logfile $LogLocation/13.tool.log
+        echo -ne "Installing Uploading Toolbox ... "
+        { install_tools > $LogLocation/13.tool.log 2>&1 ; } & spinner $!
+        OutputLOG=$LogLocation/13.tool.log    status_done
+    fi
+    if [[ $UseTweaks == Yes ]]; then
+        if [[ $quick != 1 ]]; then
+            # Upgrade vnstat, compile from source. And Install vnstat-dashboard
+            bash $local_packages/package/vnstat/install --logbase $LogTimes
+            if wget --no-check-certificate "https://127.0.0.1/vnstat" -qO- 2>&1 | grep Traffic -q ; then
+                vnstat_webui=1
+            fi
+        fi
+        write_current_logfile $LogLocation/98.tweaks
+        echo -ne  "Configuring system settings ..."
+        OutputLOG=$LogLocation/98.tweaks    system_tweaks  & spinner $!
+        OutputLOG=$LogLocation/98.tweaks    status_done
+    fi
 }
 
 
