@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.8
+INEXISTENCEVER=1.2.3.9
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -225,127 +225,6 @@ function _intro() {
     echo -e "\n${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
     echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
 }
-
-
-
-
-
-
-# --------------------- 询问是否升级系统 --------------------- #
-
-function _ask_distro_upgrade_1() {
-
-[[ $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-[[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
-echo
-echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
-echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
-echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
-echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
-
-case $responce in
-    01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-    03 | 3     ) distro_up=No                                                                                               ;;
-    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-esac
-
-if [[ $distro_up == Yes ]]; then
-    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-    _distro_upgrade | tee /etc/00.distro_upgrade.log
-else
-    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-fi
-
-echo
-}
-
-function _ask_distro_upgrade_2() {
-
-[[ $CODENAME == wheezy ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-[[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_DISTRO_3="Debian 10"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; UPGRADE_CODENAME_3=buster ; }
-echo
-echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
-echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal} (Default)"
-echo -e "${green}03)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_3${normal}"
-echo -e "${green}04)${normal} Do NOT upgrade system and exit script"
-echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
-
-case $responce in
-    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-    02 | 2 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-    03 | 3     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_3  && UPGRADE_DISTRO=$UPGRADE_DISTRO_3 && UPGRDAE3=Yes ;;
-    04 | 4     ) distro_up=No                                                                                               ;;
-    *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-esac
-
-if [[ $distro_up == Yes ]]; then
-    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-    _distro_upgrade | tee /etc/00.distro_upgrade.log
-else
-    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-fi
-
-echo
-}
-
-function _ask_distro_upgrade_3() {
-
-[[ $CODENAME == stretch || $CODENAME == xenial ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
-[[ $CODENAME == stretch ]] && { UPGRADE_DISTRO_1="Debian 10"     ; UPGRADE_CODENAME_1=buster ; }
-[[ $CODENAME == xenial  ]] && { UPGRADE_DISTRO_1="Ubuntu 18.04" ; UPGRADE_CODENAME_1=bionic  ; }
-echo
-echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
-echo -e "${green}02)${normal} Do NOT upgrade system"
-echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
-
-case $responce in
-    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-    02 | 2 | "") distro_up=No                                                                                               ;;
-    *          ) distro_up=No                                                                                               ;;
-esac
-
-if [[ $distro_up == Yes ]]; then
-    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-    _distro_upgrade | tee /etc/00.distro_upgrade.log
-else
-    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-fi
-
-echo
-}
-
-function _ask_distro_upgrade_4() {
-
-[[ $CODENAME == jessie ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
-[[ $CODENAME == jessie ]] && { UPGRADE_DISTRO_1="Debian 9" ; UPGRADE_DISTRO_2="Debian 10" ; UPGRADE_CODENAME_1=stretch ; UPGRADE_CODENAME_2=buster  ; }
-echo
-echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
-echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
-echo -e "${green}03)${normal} Do NOT upgrade system "
-echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}03${normal}): " ; read -e responce
-
-case $responce in
-    01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-    02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-    03 | 3 | "") distro_up=No                                                                                               ;;
-    *          ) distro_up=No                                                                                               ;;
-esac
-
-if [[ $distro_up == Yes ]]; then
-    echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-    _distro_upgrade | tee /etc/00.distro_upgrade.log
-else
-    echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-fi
-
-echo
-}
-
-
-
-
-
 
 
 
@@ -817,61 +696,60 @@ function install_flood() {
 # --------------------- 安装 Transmission --------------------- #
 
 function install_transmission() {
-
-if [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
-    list="transmission-common_2.94-1mod1_all.deb
-transmission-cli_2.94-1mod1_amd64.deb
-transmission-daemon_2.94-1mod1_amd64.deb
-transmission-gtk_2.94-1mod1_amd64.deb
-transmission-qt_2.94-1mod1_amd64.deb
-transmission_2.94-1mod1_all.deb"
-    mkdir -p /tmp/tr_deb
-    cd /tmp/tr_deb
-    for deb in $list ; do
-        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb
-      # apt-get -y install /tmp/tr_deb/$deb
-    done
-    if [[ $CODENAME != jessie ]]; then
-        apt-get -y install ./*deb
+    if [[ "${tr_version}" == 2.94 ]] && [[ "${TRdefault}" == deb ]]; then
+        list="transmission-common_2.94-1mod1_all.deb
+    transmission-cli_2.94-1mod1_amd64.deb
+    transmission-daemon_2.94-1mod1_amd64.deb
+    transmission-gtk_2.94-1mod1_amd64.deb
+    transmission-qt_2.94-1mod1_amd64.deb
+    transmission_2.94-1mod1_all.deb"
+        mkdir -p /tmp/tr_deb
+        cd /tmp/tr_deb
+        for deb in $list ; do
+            wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb
+          # apt-get -y install /tmp/tr_deb/$deb
+        done
+        if [[ $CODENAME != jessie ]]; then
+            apt-get -y install ./*deb
+        else
+            dpkg -i ./*deb
+            apt-get -fy install
+        fi
+        cd
+        apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission
     else
-        dpkg -i ./*deb
-        apt-get -fy install
+        apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
+        apt-get install -y pkg-config automake autoconf cmake libtool intltool build-essential # 也不知道要不要，保险起见先装上去了
+        apt-get install -y openssl
+        [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
+
+        cd $SourceLocation
+        wget -nv -N https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
+        tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
+        mv libevent-release-2.1.8-stable libevent-2.1.8
+        cd libevent-2.1.8
+        ./autogen.sh
+        ./configure
+        make -j$MAXCPUS
+        make install
+
+        ldconfig # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+        cd ..
+            git clone https://github.com/transmission/transmission transmission-$tr_version
+            cd transmission-$tr_version
+            git checkout $tr_version
+            # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
+            [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
+            # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
+            grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+        ./autogen.sh
+        ./configure --prefix=/usr
+        make -j$MAXCPUS
+        make install
     fi
-    cd
-    apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission
-else
-    apt-get install -y libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev # > /dev/null
-    apt-get install -y pkg-config automake autoconf cmake libtool intltool build-essential # 也不知道要不要，保险起见先装上去了
-    apt-get install -y openssl
-    [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
 
-    cd $SourceLocation
-    wget -nv -N https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz
-    tar xf release-2.1.8-stable.tar.gz ; rm -rf release-2.1.8-stable.tar.gz
-    mv libevent-release-2.1.8-stable libevent-2.1.8
-    cd libevent-2.1.8
-    ./autogen.sh
-    ./configure
-    make -j$MAXCPUS
-    make install
-
-    ldconfig # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
-    cd ..
-        git clone https://github.com/transmission/transmission transmission-$tr_version
-        cd transmission-$tr_version
-        git checkout $tr_version
-        # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
-        [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
-        # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
-        grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
-    ./autogen.sh
-    ./configure --prefix=/usr
-    make -j$MAXCPUS
-    make install
-fi
-
-echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
-touch $LockLocation/transmission.lock
+    echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+    touch $LockLocation/transmission.lock
 }
 
 
