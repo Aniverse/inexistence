@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2020.04.19
+script_version=r10000
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/hezi)
+}
+
+################################################################################################ Set Variables 1
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+
+source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/ask)
+
+################################################################################################ Set Variables 2
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$PATH
+export TZ=/usr/share/zoneinfo/Asia/Shanghai
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
+export local_packages=/etc/inexistence/00.Installation
+export local_script=/usr/local/bin/abox
+
+export iBranch=master
+export times=0
+export LogBase=/log/inexistence
+export LogTimes=$LogBase/$times
+export SourceLocation=$LogTimes/source
+export DebLocation=$LogTimes/deb
+export LogLocation=$LogTimes/install
+export LockLocation=$LogBase/lock
+export WebROOT=/var/www
+
+export MAXCPUS=$(nproc)
+export_inexistence_info
+
+################################################################################################
+
+function possible_usage () {
+    hezi anzhuang rclone wine mono
+    hezi anzhuang deluge
+    # 可以是输入 hezi 后，出现类似 acctcp 脚本的一个选单，或者直接用 whiptail 来做
+}
+
+################################################################################################
+
+
+ask_swap
+
+# This will be enabled after removing force configuration
+# ask_qbittorrent
+# ask_deluge
+# ask_rtorrent
+# [[ $rt_version != No ]] && ask_flood
+# ask_transmission
+
+ask_flexget
+ask_filebrowser
+ask_rdp
+
+ask_wine
+ask_mono
+ask_tools
+ask_rclone
+
+if_need_lt=0
+[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_need_lt=1
+[[ $de_version != No ]] && if_need_lt=1
+[[ $if_need_lt == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
+
+do_installation
