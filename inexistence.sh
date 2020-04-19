@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.7
+INEXISTENCEVER=1.2.3.8
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -872,8 +872,6 @@ fi
 
 echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 touch $LockLocation/transmission.lock
-
-cd
 }
 
 
@@ -948,7 +946,6 @@ function bnx2_firmware() {
 
 function install_x2go() {
     apt-get install -y xfce4 xfce4-goodies fonts-noto xfonts-intl-chinese-big xfonts-wqy
-    echo -e "\n\n\n  xfce4  \n\n\n\n"
 
     if [[ $DISTRO == Ubuntu ]]; then
         apt-get install -y software-properties-common firefox
@@ -1064,137 +1061,6 @@ EOF
 
 
 
-# --------------------- 结尾 --------------------- #
-
-function end_pre() {
-    [[ $USESWAP == Yes ]] && swap_off
-    _check_install_2
-    unset INSFAILED QBFAILED TRFAILED DEFAILED RTFAILED FDFAILED FXFAILED
-    #if [[ $rt_version != No ]]; then RTWEB="/rt" ; TRWEB="/tr" ; DEWEB="/de" ; QBWEB="/qb" ; sss=s ; else RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017" ; fi
-    RTWEB="/rutorrent" ; TRWEB=":9099" ; DEWEB=":8112" ; QBWEB=":2017"
-    FXWEB=":6566" ; FDWEB=":3000"
-
-    if [[ `  ps -ef | grep deluged | grep -v grep ` ]] && [[ `  ps -ef | grep deluge-web | grep -v grep ` ]] ; then
-        destatus="${green}Running ${normal}"
-    else
-        destatus="${red}Inactive${normal}" 
-    fi
-
-    ps --user $iUser | grep flexget -q  && flexget_status="${green}Running  ${normal}" || flexget_status="${red}Inactive ${normal}"
-    Installation_FAILED="${bold}${baihongse} ERROR ${normal}"
-
-    clear
-}
-
-
-
-function script_end() {
-echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
-echo '---------------------------------------------------------------------------------'
-
-
-if   [[ $qb_version != No ]] && [[ $qb_installed == Yes ]]; then
-     echo -e " ${cyan}qBittorrent WebUI${normal}   $(_if_running qbittorrent-nox    )   http${sss}://${serveripv4}${QBWEB}"
-elif [[ $qb_version != No ]] && [[ $qb_installed == No ]]; then
-     echo -e " ${red}qBittorrent WebUI${normal}   ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     QBFAILED=1 ; INSFAILED=1
-fi
-
-
-if   [[ $de_version != No ]] && [[ $de_installed == Yes ]]; then
-     echo -e " ${cyan}Deluge WebUI${normal}        $destatus   http${sss}://${serveripv4}${DEWEB}"
-elif [[ $de_version != No ]] && [[ $de_installed == No ]]; then
-     echo -e " ${red}Deluge WebUI${normal}        ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     DEFAILED=1 ; INSFAILED=1
-fi
-
-
-if   [[ $tr_version != No ]] && [[ $tr_installed == Yes ]]; then
-     echo -e " ${cyan}Transmission WebUI${normal}  $(_if_running transmission-daemon)   http${sss}://${iUser}:${iPass}@${serveripv4}${TRWEB}"
-elif [[ $tr_version != No ]] && [[ $tr_installed == No ]]; then
-     echo -e " ${red}Transmission WebUI${normal}  ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     TRFAILED=1 ; INSFAILED=1
-fi
-
-
-if   [[ $rt_version != No ]] && [[ $rt_installed == Yes ]]; then
-     echo -e " ${cyan}RuTorrent${normal}           $(_if_running rtorrent           )   https://${iUser}:${iPass}@${serveripv4}${RTWEB}"
-     [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] && 
-     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-     [[ $InsFlood == Yes ]] && [[   -e $LockLocation/flood.fail.lock ]] &&
-     echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && { INSFAILED=1 ; FDFAILED=1 ; }
-     echo -e " ${cyan}h5ai File Indexer${normal}   $(_if_running nginx              )   https://${iUser}:${iPass}@${serveripv4}/h5ai"
-elif [[ $rt_version != No ]] && [[ $rt_installed == No  ]]; then
-     echo -e " ${red}RuTorrent${normal}           ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     [[ $InsFlood == Yes ]] && [[ ! -e $LockLocation/flood.fail.lock ]] &&
-     echo -e " ${cyan}Flood${normal}               $(_if_running npm                )   http://${serveripv4}${FDWEB}"
-     [[ $InsFlood == Yes ]] && [[   -e $LockLocation/flood.fail.lock ]] &&
-     echo -e " ${red}Flood${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}" && FDFAILED=1
-     RTFAILED=1 ; INSFAILED=1
-fi
-
-# flexget 状态可能是 8 位字符长度的
-if   [[ $InsFlex != No ]] && [[ $fg_installed == Yes ]]; then
-     echo -e " ${cyan}Flexget WebUI${normal}       $flexget_status  http://${serveripv4}${FXWEB}"
-elif [[ $InsFlex != No ]] && [[ $fg_installed == No  ]]; then
-     echo -e " ${red}Flexget WebUI${normal}       ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-     FXFAILED=1 ; INSFAILED=1
-fi
-
-if   [[ $vnstat_webui == 1 ]]; then
-     echo -e " ${cyan}Vnstat Dashboard${normal}    $(_if_running vnstatd            )   https://${serveripv4}/vnstat"
-fi
-
-if [[ $InsFB == Yes ]]; then
-    if [[ -e $LockLocation/filebrowser.lock ]]; then
-        echo -e " ${cyan}FileBrowser${normal}         $(_if_running filebrowser        )   http://${serveripv4}:7575"
-    else
-        echo -e " ${red}FileBrowser${normal}         ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-        FBFAILED=1 ; INSFAILED=1
-    fi
-fi
-
-if [[ $InsVNC == Yes ]]; then
-    if [[ -e $LockLocation/novnc.lock ]]; then
-        echo -e " ${cyan}noVNC${normal}               $(_if_running xfce               )   http://${serveripv4}:6082/vnc.html"
-    else
-        echo -e " ${red}noVNC${normal}               ${bold}${baihongse} ERROR ${normal}    ${bold}${red}Installation FAILED${normal}"
-        VNCFAILED=1 ; INSFAILED=1
-    fi
-fi
-
-echo
-echo -e " ${cyan}Your Username${normal}       ${bold}${iUser}${normal}"
-echo -e " ${cyan}Your Password${normal}       ${bold}${iPass}${normal}"
-[[ $InsFlex != No ]] && [[ $flex_installed == Yes ]] &&
-echo -e " ${cyan}FlexGet Login${normal}       ${bold}flexget${normal}"
-# [[ $InsRDP == VNC ]] && [[ $CODENAME == xenial ]] &&
-# echo -e " ${cyan}VNC  Password${normal}       ${bold}` echo ${iPass} | cut -c1-8` ${normal}"
-
-echo '---------------------------------------------------------------------------------'
-echo
-
-_time installation
-
-[[ -n $INSFAILED ]] && {
-echo -e "\n ${bold}Unfortunately something went wrong during installation.
- You can check logs by typing these commands or visit websites below:
- ${yellow}cat $LogTimes/installed.log"
-[[ -n $QBFAILED ]] && echo -e " $(cat $LogLocation/05.qb1.log | curl -s -F 'sprunge=<-' http://sprunge.us)"
-[[ -n $DEFAILED ]] && echo -e " cat $LogLocation/03.de1.log" #&& echo "DELTCFail=$DELTCFail"
-[[ -n $TRFAILED ]] && echo -e " cat $LogLocation/08.tr1.log"
-[[ -n $RTFAILED ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
-[[ -n $FDFAILED ]] && echo -e " cat $LogLocation/07.flood.log"
-[[ -n $FXFAILED ]] && echo -e " $(cat $LogTimes/log/install.flexget.txt | curl -s -F 'sprunge=<-' http://sprunge.us)"
-[[ -n $VNCFAILED ]] && echo -e " $(cat $LogTimes/log/install.novnc.txt | curl -s -F 'sprunge=<-' http://sprunge.us)"
-echo -ne "${normal}" ; }
-
-echo ; }
-
-
-
-
-
 ######################################################################################################
 
 _intro
@@ -1226,7 +1092,9 @@ mv /etc/00.preparation.log  $LogLocation/00.preparation.log
 ######################################################################################################
 
 do_installation
-end_pre
-script_end 2>&1 | tee $LogTimes/end.log
-rm -f "$0" > /dev/null 2>&1
+[[ $USESWAP == Yes ]] && swap_off
+check_install_2
+clear
+END_output_url 2>&1 | tee $LogTimes/end.log
+# rm -f "$0" > /dev/null 2>&1
 ask_reboot
