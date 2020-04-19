@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11013
+script_version=r11014
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -607,6 +607,8 @@ function ask_bbr() {
 ################################################################################################ Install actions
 ################################################################################################
 
+
+
 function do_installation() {
     [[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
 
@@ -628,14 +630,20 @@ function do_installation() {
         else
             bash $local_packages/package/qbittorrent/install -v $qb_version           --logbase $LogTimes
         fi
-        bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+        if [[ -z $just_upgrade ]]; then
+            bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
+        fi
     fi
 
     if [[ $de_version != No ]]; then
         echo -ne "Installing Deluge ... "
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
-        echo -ne "Configuring Deluge ... "
-        { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
+        status_done
+        if [[ -z $just_upgrade ]]; then
+            echo -ne "Configuring Deluge ... "
+            { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
+            status_done
+        fi
     fi
 
     [[ $rt_version != No ]] && {
@@ -645,7 +653,10 @@ function do_installation() {
     if [[ $tr_version != No ]]; then
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
-        bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
+        status_done
+        if [[ -z $just_upgrade ]]; then
+            bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
+        fi
     fi
 
     if [[ $InsFlex == Yes ]]; then
