@@ -2,16 +2,13 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.3.8
-SCRIPTUPDATE=2020.04.19.放弃治疗
+SCRIPTVER=0.9.4.0
+SCRIPTUPDATE=2020.04.19.还能抢救下
 
 [[ $1 == -d ]] && DeBUG=1
 
 # 2020.02.28
 # 说实话，我现在真的很不想动这个脚本，看着就感觉太乱了
-
-# 2020.04.19
-# 用了 function 后可以简化很多很多，但是我现在真的不太想改这个玩意儿
 
 usage_guide() {
 s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
@@ -25,18 +22,13 @@ function _is_running_2(){ _is_running_1
 if ( _is_running_1 ); then client_status="${green}${bold}正在运行${jiacu}"
 else client_status="${red}${bold}没在运行${jiacu}" ; fi ; }
 
-# 硬盘空间计算 --------------------------------------------------------------------------------
-
-calc_disk() {
-local total_size=0 ; local array=$@
-for size in ${array[@]} ; do
-    [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
-    [ "`echo ${size:(-1)}`" == "K" ] && size=0
-    [ "`echo ${size:(-1)}`" == "M" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' / 1024}' )
-    [ "`echo ${size:(-1)}`" == "T" ] && size=$( awk 'BEGIN{printf "%.1f", '$size_t' * 1024}' )
-    [ "`echo ${size:(-1)}`" == "G" ] && size=${size_t}
-    total_size=$( awk 'BEGIN{printf "%.1f", '$total_size' + '$size'}' )
-done ; echo ${total_size} ; }
+if [[ -f /etc/inexistence/00.Installation ]]; then
+    source /etc/inexistence/00.Installation/function
+    source /etc/inexistence/00.Installation/check-sys
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/check-sys)
+fi
 
 # 检查是否安装了客户端 ----------------------------------------------------------------------- #
 
@@ -51,77 +43,16 @@ function _check_install(){
   fi
 
   if [[ -a $client_location ]]; then eval ${client_name}_installed=Yes
-  else eval ${client_name}_installed=No ; fi ; }
+  else eval ${client_name}_installed=No ; fi
+}
   
 # 检查客户端安装情况
 for apps in qbittorrent-nox deluged rtorrent transmission-daemon flexget rclone smartctl irssi ffmepg mediainfo; do client_name=$apps ; _check_install ; done
-    
-# 操作系统检测
-get_opsy() {
-[[ -f /etc/redhat-release ]] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release      && return
-[[ -f /etc/os-release     ]] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
-[[ -f /etc/lsb-release    ]] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release      && return ; }
-
-  if [[ -f /etc/redhat-release ]]; then faxingban="centos"
-elif cat /etc/issue | grep -Eqi "debian"; then faxingban="debian"
-elif cat /etc/issue | grep -Eqi "ubuntu"; then faxingban="ubuntu"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then faxingban="centos"
-elif cat /proc/version | grep -Eqi "debian"; then faxingban="debian"
-elif cat /proc/version | grep -Eqi "ubuntu"; then faxingban="ubuntu"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then faxingban="centos" ; fi
-
-DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
-DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
-CODENAME=$(cat /etc/os-release | grep VERSION= | tr '[A-Z]' '[a-z]' | sed 's/\"\|(\|)\|[0-9.,]\|version\|lts//g' | awk '{print $2}')
-[[ $DISTRO == Ubuntu ]] && osversion=`  grep -oE  "[0-9.]+" /etc/issue  `
-[[ $DISTRO == Debian ]] && osversion=`  cat /etc/debian_version  `
-
-# 颜色 -----------------------------------------------------------------------------------
-
-black=$(tput setaf 0)   ; red=$(tput setaf 1)          ; green=$(tput setaf 2)   ; yellow=$(tput setaf 3);  bold=$(tput bold)  
-blue=$(tput setaf 4)    ; magenta=$(tput setaf 5)      ; cyan=$(tput setaf 6)    ; white=$(tput setaf 7) ;  normal=$(tput sgr0)
-on_black=$(tput setab 0); on_red=$(tput setab 1)       ; on_green=$(tput setab 2); on_yellow=$(tput setab 3)
-on_blue=$(tput setab 4) ; on_magenta=$(tput setab 5)   ; on_cyan=$(tput setab 6) ; on_white=$(tput setab 7)
-shanshuo=$(tput blink)  ; wuguangbiao=$(tput civis)    ; guangbiao=$(tput cnorm) ; jiacu=${normal}${bold}
-underline=$(tput smul)  ; reset_underline=$(tput rmul) ; dim=$(tput dim)
-standout=$(tput smso)   ; reset_standout=$(tput rmso)  ; title=${standout}
-baihuangse=${white}${on_yellow}; bailanse=${white}${on_blue} ; bailvse=${white}${on_green}
-baiqingse=${white}${on_cyan}   ; baihongse=${white}${on_red} ; baizise=${white}${on_magenta}
-heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
-CW="${bold}${baihongse} ERROR ${jiacu}";ZY="${baihongse}${bold} ATTENTION ${jiacu}";JG="${baihongse}${bold} WARNING ${jiacu}"
-
-# 定义变量 --------------------------------------------------------------------------------
-
-### 是否为 IP 地址 ###
-function isValidIpAddress() { echo $1 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' ; }
-
-### 是否为内网 IP 地址 ###
-function isInternalIpAddress() { echo $1 | grep -qP '(192\.168\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(172\.((1[6-9])|(2\d)|(3[0-1]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))|(10\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.((\d{1,2})$|(1\d{2})$|(2[0-4]\d)$|(25[0-5])$))' ; }
-
-lbit=$( getconf LONG_BIT )
-opsy=$( get_opsy )
-kern=$( uname -r )
 
 [ -d /etc/inexistence ] && inexistence=1
-grep -i s-alias /etc/bash.bashrc -q && tweaks_enabled=1
-inexistence_ver=$( cat /log/inexistence/info/version.log | grep inexistence.version  | awk '{print $NF}' | head -1)
-inexistence_date=$(cat /log/inexistence/info/version.log | grep inexistence.update   | awk '{print $NF}' | head -1)
-iUser=$(cat /log/inexistence/info/user.list.txt | head -1)
+export_inexistence_info
+
 # --------------------------------------------------------------------------------
-
-
-function _ip() { echo -e "\n${bold}正在检查盒子的公网 IPv4、IPv6 地址 ...${normal}"
-
-  serveripv4=$( ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' )
-  isInternalIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-  isValidIpAddress "$serveripv4" || serveripv4=$( wget -t1 -T7 -qO- ipecho.net/plain )
-  isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}检查公网 IPv4 地址失败，使用内网地址代替 ...${normal}" ; serveripv4=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ; }
-
-# serveripv6=$( wget --no-check-certificate -qO- -t1 -T8 ipv6.icanhazip.com )
-  serveripv6=$( wget -t1 -T5 -qO- v6.ipv6-test.com/api/myip.php | grep -Eo "[0-9a-z:]+" | head -n1 )
-}
-
 
 # 更新脚本
 function _update_mingling() {
@@ -140,11 +71,12 @@ function _update_mingling() {
 
 # 00. 脚本的欢迎界面，还没写好
 function _logo() {
-clear ; wget --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/files/logo/mingling.logo.1
-echo -e "${bold}$SCRIPTVER${normal}"
-if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
-if [[ ! "$faxingban" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
-if [[ ! "$inexistence" == 1 ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi ; }
+    clear ; wget --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/files/logo/mingling.logo.1
+    echo -e "${bold}$SCRIPTVER${normal}"
+    if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
+    if [[ ! "$DISTROL" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
+    if [[ ! "$inexistence" == 1 ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi
+}
 
 
 
@@ -235,10 +167,6 @@ echo -e " ${green}s-end${jiacu} = 显示脚本安装完后输出的信息       
 echo -e " ${green}vnss ${jiacu} = 显示盒子最近一个月的流量统计            ${green}vns${jiacu} = 查看当前网速情况，按 Ctrl+C 退出"
 echo -e " ${green}sshr ${jiacu} = 开启 SSH root 登陆                      ${green}vms${jiacu} = 查看当前内存、CPU、IO 状况"
 echo
-# echo -e " ${blue}mingling${jiacu}  盒子操作脚本，也就是你现在正在用的这个脚本"
-# echo
-# echo -e " ${blue}xiansu${jiacu}    限制盒子全局上传速度的脚本，适用于保证带宽有限的盒子"
-# echo
 echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
 echo
 echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
@@ -268,23 +196,14 @@ echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
 
 
 # 02. 查看客户端网址
-function _showurl() { _ip ; clear ; echo
-# 相当于注释掉
-if [[ $inexistence == 2 ]]; then
-    echo -e " ${baiqingse}${bold}                                         02. 客户端的网址                                          ${normal}\n"
-    echo -e "${bold}---------------------------------------------------------------------------------------------------\n"
-    [[ ! $qb_installed == No ]] && echo -e " ${cyan}qBittorrent WebUI${jiacu}    http://${serveripv4}:2017"
-    [[ ! $de_installed == No ]] && echo -e " ${cyan}Deluge WebUI${jiacu}         http://${serveripv4}:8112"
-    [[ ! $tr_installed == No ]] && echo -e " ${cyan}Transmission WebUI${jiacu}   http://${serveripv4}:9099"
-    [[ ! $rt_installed == No ]] && echo -e " ${cyan}RuTorrent${jiacu}            https://${serveripv4}/rutorrent"
-    [[ ! $flex_installed == No ]] && echo -e " ${cyan}Flexget WebUI${jiacu}        http://${serveripv4}:6566"
-#   echo -e " ${cyan}MkTorrent WebUI${jiacu}      https://${serveripv4}/mktorrent"
-    echo -e "\n---------------------------------------------------------------------------------------------------${normal}"
-elif [[ $inexistence == 1 ]]; then
-    sed "s/.*COMPLETED.*//" /log/inexistence/*/end.log
-else
-    echo -e "${bold}似乎你没有使用 inexistence 脚本，本功能无法使用"
-fi ; }
+function _showurl() { 
+    clear ; echo
+    if [[ $inexistence == 1 ]]; then
+        sed "s/.*COMPLETED.*//" /log/inexistence/*/end.log
+    else
+        echo -e "${bold}似乎你没有使用 inexistence 脚本，本功能无法使用"
+    fi
+}
 
 
 
@@ -292,129 +211,44 @@ fi ; }
 
 # 03. 查看系统信息
 function _stats() {
+    ipv4_check
+    ipv6_check
+    ip_ipapi
+    echo "${bold}正在检查盒子的各项参数 ...${normal}"
+    hardware_check_1
 
-if [[ $virtwhat_installed == No ]] || [[ $lsb_installed == No ]] || [[ $smartctl_installed == No ]]; then
-    echo  -ne "${wuguangbiao}${cyan}${bold}你可能是第一次运行 mingling, ${normal}"
-    echo  -ne "${cyan}${bold}现在正在安装 ${yellow}lsb-release${jiacu} ${yellow}smartmontools${jiacu} 用于系统信息监测 ...${normal}"
-    apt-get install -yqq smartmontools > /dev/null 2>&1
-    echo  -e "${guangbiao}"
-fi
+    clear ; echo
+    echo " ${bailanse}${bold}                                           03. 系统信息                                            ${normal}"
+    echo " ${bold}"
 
-_ip
+  # echo -e  "${bold}  内存占用    : ${cyan}$memory_usage${normal}"
+  # echo -e  "${bold}  交换占用    : ${cyan}$swap_usage${normal}"
 
-cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-virtualx=$(dmesg 2>1)
-[[ $(which dmidecode) ]] && {
-sys_manu=$(dmidecode -s system-manufacturer) 2>/dev/null
-sys_product=$(dmidecode -s system-product-name) 2>/dev/null
-sys_ver=$(dmidecode -s system-version) 2>/dev/null ; }
+    echo -e  "${bold}  CPU 型号    : ${cyan}$CPUNum$cname${normal}"
+    echo -e  "${bold}  CPU 核心    : ${cyan}${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
+    echo -e  "${bold}  CPU 状态    : ${cyan}${freq} MHz, ${cpu_percent}% Utilization${normal}"
+    echo -e  "${bold}  硬盘大小    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
 
-dmi=$(LANG=C dmidecode 2>&1)
-arch2=$(uname -p)
+    echo -e  "${bold}  内存大小    : ${cyan}$tram MB ($uram MB Used) ($memory_usage)${normal}"
+    echo -e  "${bold}  交换分区    : ${cyan}$swap MB ($uswap MB Used)${normal}"
+    echo -e  "${bold}  运行时间    : ${cyan}$uptime1${normal}"
+    echo -e  "${bold}  系统负载    : ${cyan}$load${normal}"
+    echo
+    echo -e  "${bold}  操作系统    : ${cyan}$displayOS${normal}"
+    echo -e  "${bold}  系统内核    : ${cyan}$running_kernel${normal}"
+    echo -ne "${bold}  虚拟化      : ${cyan}$virtual${normal}"
 
-if grep docker /proc/1/cgroup -qa 2>/dev/null ; then
-    virt="Docker"
-elif grep lxc /proc/1/cgroup -qa 2>/dev/null; then
-    virt="Lxc"
-elif grep -qa container=lxc /proc/1/environ 2>/dev/null; then
-    virt="Lxc"
-elif [[ -f /proc/user_beancounters ]]; then
-    virt="OpenVZ"
-elif [[ "$virtualx" == *kvm-clock* ]] || [[ "$cname" == *KVM* ]]; then
-    virt="KVM"
-elif [[ "$virtualx" == *"VMware Virtual Platform"* ]]; then
-    virt="VMware"
-elif [[ "$virtualx" == *"Parallels Software International"* ]]; then
-    virt="Parallels"
-elif [[ "$virtualx" == *VirtualBox* ]]; then
-    virt="VirtualBox"
-elif [[ "$sys_manu" == *"Microsoft Corporation"* ]] && [[ "$sys_product" == *"Virtual Machine"* ]]; then
-    [[ "$sys_ver" == *"7.0"* || "$sys_ver" == *"Hyper-V" ]] && virt="Hyper-V" || virt="Microsoft Virtual Machine"
-elif grep -q '^vendor_id.*PowerVM Lx86' /proc/cpuinfo; then
-    virt="IBM PowerVM Lx86"
-elif echo "$dmi" | grep -q 'Manufacturer.*HITACHI' && echo "$dmi" | grep -q 'Product.* LPAR'; then
-    virt="Virtage"
-elif grep -q '^vendor_id.*IBM/S390' /proc/cpuinfo; then
-    virt="IBM SystemZ"
-elif [[ -e /proc/xen ]] || [[ $(grep -q xen /sys/hypervisor/type 2>/dev/null) ]]; then
-    virt="Xen"
-    grep -q "control_d" "/proc/xen/capabilities" 2>/dev/null && virt="Xen-Dom0" || virt="Xen-DomU"
-#elif [[ "$arch2" = ia64 ]] && [[ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]]; then
-#   virt="Xen-HVM"
-elif grep -q UML "/proc/cpuinfo"; then
-    virt="UML"
-fi
+    echo -e  "${bold}  IPv4 地址   : ${cyan}$serveripv4${normal}"
+    echo -ne "${bold}  IPv6 地址   : ${cyan}"
 
-[[ "$virtual" != KVM ]] && grep -q QEMU /proc/cpuinfo && virt="QEMU"
-[[ -z "$virtual" ]] && virt="未检测到虚拟化（可能是独立服务器）"
+    if [[ $serveripv6 ]]; then
+        echo -e "$serveripv6${normal}"
+    else
+        echo -e "未检测到公网 IPv6 地址${normal}"
+    fi
 
-echo "${bold}正在检查盒子的各项参数 ...${normal}"
-
-disk_size1=($( LANG=C df -hPl | grep -wvP '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem|docker|md[0-9]+/[a-z]*' | awk '{print $2}' ))
-disk_size1=($( LANG=C df -hPl | grep -wvP '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem|docker|md[0-9]+/[a-z]*' | awk '{print $3}' ))
-disk_total_size=$( calc_disk ${disk_size1[@]} )
-disk_used_size=$( calc_disk ${disk_size2[@]} )
-uptime1=$( awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60} {printf("%d days %d hour %d min\n",a,b,c)}' /proc/uptime )
-uptime2=`uptime | grep -ohe 'up .*' | sed 's/,/\ hours/g' | awk '{ printf $2" "$3 }'`
-load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
-
-cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-cores=$( awk -F: '/model name/ {core++} END {print core}' /proc/cpuinfo )
-cpucores_single=$( grep 'core id' /proc/cpuinfo | sort -u | wc -l )
-#physical_cpu_number=$( grep 'physical id' /proc/cpuinfo | cut -c15-17 )
-cpu_percent=$( top -b -n 1|grep Cpu|awk '{print $2}'|cut -f 1 -d "." )
-cpunumbers=$( grep 'physical id' /proc/cpuinfo | sort -u | wc -l )
-cpucores=$( expr $cpucores_single \* $cpunumbers )
-cputhreads=$( grep 'processor' /proc/cpuinfo | sort -u | wc -l )
-if [[ -z $virtual ]] || [[ $virtual == Docker ]]; then
-    [[ $cpunumbers == 2 ]] && CPUNum='双路 ' ; [[ $cpunumbers == 4 ]] && CPUNum='四路 ' ; [[ $cpunumbers == 8 ]] && CPUNum='八路 '
-fi
-
-freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-tram=$( free -m | awk '/Mem/ {print $2}' )
-uram=$( free -m | awk '/Mem/ {print $3}' )
-swap=$( free -m | awk '/Swap/ {print $2}' )
-uswap=$( free -m | awk '/Swap/ {print $3}' )
-memory_usage=`free -m |grep -i mem | awk '{printf ("%.2f\n",$3/$2*100)}'`%
-root_usage=`df -h / | awk '/\// {print $(NF-1)}'`
-swap_usage=`free -m | awk '/Swap/ { printf("%3.1f%%", "exit !$2;$3/$2*100") }'`
-users=`users | wc -w`
-processes=`ps aux | wc -l`
-date=$( date +%Y-%m-%d" "%H:%M:%S )
-
-# DISTRO=$(lsb_release -is) ; RELEASE=$(lsb_release -rs) ; CODENAME=$(lsb_release -cs) ; virtua=$(virt-what) 2>/dev/null
-
-  clear ; echo
-  echo " ${bailanse}${bold}                                           03. 系统信息                                            ${normal}"
-  echo " ${bold}"
-
-# echo -e  "${bold}  内存占用    : ${cyan}$memory_usage${normal}"
-# echo -e  "${bold}  交换占用    : ${cyan}$swap_usage${normal}"
-
-  echo -e  "${bold}  CPU 型号    : ${cyan}$CPUNum$cname${normal}"
-  echo -e  "${bold}  CPU 核心    : ${cyan}${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
-  echo -e  "${bold}  CPU 状态    : ${cyan}${freq} MHz, ${cpu_percent}% Utilization${normal}"
-  echo -e  "${bold}  硬盘大小    : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
-
-  echo -e  "${bold}  内存大小    : ${cyan}$tram MB ($uram MB Used) ($memory_usage)${normal}"
-  echo -e  "${bold}  交换分区    : ${cyan}$swap MB ($uswap MB Used)${normal}"
-  echo -e  "${bold}  运行时间    : ${cyan}$uptime1${normal}"
-  echo -e  "${bold}  系统负载    : ${cyan}$load${normal}"
-  echo
-  echo -e  "${bold}  操作系统    : ${cyan}$DISTRO $RELEASE $CODENAME ($lbit Bit)${normal}"
-  echo -e  "${bold}  系统内核    : ${cyan}$kern${normal}"
-  echo -ne "${bold}  虚拟化      : ${cyan}$virt${normal}"
-
-  echo -e  "${bold}  IPv4 地址   : ${cyan}$serveripv4${normal}"
-  echo -ne "${bold}  IPv6 地址   : ${cyan}"
-
-  if [[ $serveripv6 ]]; then
-      echo -e "$serveripv6${normal}"
-  else
-      echo -e "未检测到公网 IPv6 地址${normal}"
-  fi
-
-  echo -e "${bold}  服务器时间  : ${cyan}$date${normal}" ; }
+    echo -e "${bold}  服务器时间  : ${cyan}$date${normal}"
+}
 
 
 
