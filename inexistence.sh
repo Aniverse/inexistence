@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.4
+INEXISTENCEVER=1.2.3.5
 INEXISTENCEDATE=2020.04.19
 
 SYSTEMCHECK=1
@@ -429,6 +429,7 @@ function preparation() {
     # Install atop may causedpkg failure in some VPS, so install it separately
     [[ ! -d /proc/vz ]] && apt-get -y install atop >> "$OutputLOG" 2>&1
 
+    echo -n "Installing packages ..."
     apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
                       htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli                            \
                       ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl \
@@ -436,7 +437,6 @@ function preparation() {
                       libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common             \
                       zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
-    echo -n "Installing packages ..."
     apt_install_together & spinner $!
     status_done
 
@@ -768,7 +768,6 @@ function install_rtorrent() {
     mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
     ln -s /home/${iUser} $WebROOT/h5ai/$iUser/user.root
     touch $LockLocation/rtorrent.lock
-    echo -e "\n\n\n\n${baihongse}  RT-INSTALLATION-COMPLETED  ${normal}\n\n\n"
 }
 
 
@@ -977,11 +976,11 @@ EOF
         # gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E
         # gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E1F958385BFE2B6E
-        apt-get -y update
+        APT_UPGRADE
         apt-get -y install x2go-keyring iceweasel
     fi
 
-    apt-get -y update
+    APT_UPGRADE
     apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
     touch $LockLocation/x2go.lock
@@ -994,15 +993,16 @@ EOF
 # --------------------- 安装 mkvtoolnix／mktorrent／ffmpeg／mediainfo／eac3to --------------------- #
 
 function install_tools() {
-########## NConvert ##########
+    ########## NConvert ##########
     cd $SourceLocation
     wget -t1 -T5 -nv -N http://download.xnview.com/NConvert-linux64.tgz && {
-    tar zxf NConvert-linux64.tgz
-    mv NConvert/nconvert /usr/local/bin
-    rm -rf NConvert* ; }
-########## Blu-ray script ##########
+        tar zxf NConvert-linux64.tgz
+        mv NConvert/nconvert /usr/local/bin
+        rm -rf NConvert*
+    }
+    ########## Blu-ray script ##########
     bash <(wget -qO- git.io/bluray) -u
-########## ffmpeg ########## https://johnvansickle.com/ffmpeg/
+    ########## ffmpeg ########## https://johnvansickle.com/ffmpeg/
     if [[ -z $(command -v ffmpeg) ]]; then
         mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
         wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
@@ -1011,14 +1011,14 @@ function install_tools() {
         cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
         cd && rm -rf /log/inexistence/ffmpeg
     fi
-########## mkvtoolnix ##########
+    ########## mkvtoolnix ##########
     wget -qO- https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add -
     echo "deb https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" > /etc/apt/sources.list.d/mkvtoolnix.list
     echo "deb-src https://mkvtoolnix.download/${DISTROL}/ $CODENAME main" >> /etc/apt/sources.list.d/mkvtoolnix.list
 
     apt-get -y update
     apt-get install -y mkvtoolnix mkvtoolnix-gui imagemagick mktorrent
-######################  eac3to  ######################
+    ######################  eac3to  ######################
     cd /etc/abox/app
     wget -nv -N http://madshi.net/eac3to.zip
     unzip -qq eac3to.zip
