@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.10
-INEXISTENCEDATE=2020.04.19
+INEXISTENCEVER=1.2.3.11
+INEXISTENCEDATE=2020.04.21
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -111,7 +111,7 @@ export LogTimes=$LogBase/$times
 export SourceLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/install
-export LockLocation=$LogBase/lock
+export LOCKLocation=$LogBase/.lock
 export WebROOT=/var/www
 set_language
 # --------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ function preparation() {
     [[ $USESWAP == Yes ]] && swap_on
 
     # 临时
-    mkdir -p $LogBase/app $LogBase/info $SourceLocation $LockLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
+    mkdir -p $LogBase/app $LogBase/info $SourceLocation $LOCKLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
     echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
@@ -613,7 +613,7 @@ EOF
     systemctl start deluged
     systemctl start deluge-web
 
-    touch $LockLocation/deluge.lock
+    touch $LOCKLocation/deluge.lock
 }
 
 
@@ -633,7 +633,7 @@ function install_rtorrent() {
     mv /root/rtinst.log $LogLocation/07.rtinst.script.log
     mv /home/$iUser/rtinst.info $LogLocation/07.rtinst.info.txt
     ln -s /home/${iUser} $WebROOT/h5ai/$iUser/user.root
-    touch $LockLocation/rtorrent.lock
+    touch $LOCKLocation/rtorrent.lock
 }
 
 
@@ -653,14 +653,14 @@ function install_flood() {
     sed -i "s/127.0.0.1/0.0.0.0/" /srv/flood/config.js
 
     npm run build 2>&1 | tee /tmp/flood.log
-    rm -rf $LockLocation/flood.fail.lock
-    # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LockLocation/flood.fail.lock
+    rm -rf $LOCKLocation/flood.fail.lock
+    # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LOCKLocation/flood.fail.lock
 
     cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
     systemctl start  flood
     systemctl enable flood
 
-    touch $LockLocation/flood.lock
+    touch $LOCKLocation/flood.lock
 
     cd
 }
@@ -723,7 +723,7 @@ function install_transmission() {
     fi
 
     echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
-    touch $LockLocation/transmission.lock
+    touch $LOCKLocation/transmission.lock
 }
 
 
@@ -773,7 +773,7 @@ function enable_bbr() {
     echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
     echo "net.ipv4.tcp_congestion_control = $bbrname" >> /etc/sysctl.conf
     sysctl -p
-    touch $LockLocation/bbr.lock
+    touch $LOCKLocation/bbr.lock
 }
 
 # Install firmware for BCM NIC
@@ -819,7 +819,7 @@ EOF
     APT_UPGRADE
     apt-get -y install x2goserver x2goserver-xsession pulseaudio
 
-    touch $LockLocation/x2go.lock
+    touch $LOCKLocation/x2go.lock
 }
 
 
@@ -858,7 +858,7 @@ function install_tools() {
     unzip -qq eac3to.zip
     rm -rf eac3to.zip ; cd
 
-    touch $LockLocation/tools.lock
+    touch $LOCKLocation/tools.lock
     echo -e "\n\n\n${bailvse}Version${normal}${bold}${green}"
     mktorrent -h | head -n1
     mkvmerge --version
@@ -899,7 +899,7 @@ EOF
     locale                          >> "OutputLOG" 2>&1
     sysctl -p                       >> "OutputLOG" 2>&1
     apt-get -y autoremove           >> "OutputLOG" 2>&1
-    touch $LockLocation/tweaks.lock
+    touch $LOCKLocation/tweaks.lock
 }
 
 
