@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2020.04.21
+script_version=r10000
+
+################################################################################################ Debug
+
+usage_for_debug() {
+
+    if [[ -f /etc/inexistence/00.Installation/package/npm ]]; then
+        bash /etc/inexistence/00.Installation/package/npm
+    else
+        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/npm)
+    fi
+
+}
+
+################################################################################################
+
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+
+AppName=npm
+AppNameLower=npm
+AppExec=npm
+AppTest="$AppExec version"
+Need_SourceCode=no
+pm_action=install
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -l        Specifiy LogBase (Not log file)
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -v | --version      ) version="$2"  ; shift 2 ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
+    -- ) shift ; break ;;
+esac ; done
+
+################################################################################################ Set Variables
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+
+set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
+
+################################################################################################
+
+function install_npm () {
+    bash <(curl -sL https://deb.nodesource.com/setup_10.x) >> "$OutputLOG" 2>&1
+    APT_UPGRADE
+    apt_install_check    nodejs build-essential
+    apt_install_together
+    generate_status_lock
+}
+
+################################################################################################
+
+eval $AppTest > /dev/null 2>&1
+exit=$?
+if [[ $exit != 0 ]]; then
+    echo_task "Installing $AppName ..."
+    install_npm & spinner $!
+    check_status $AppNameLower
+fi
