@@ -6,7 +6,167 @@
 
 
 
-libtorrent / do not install dependenices if using efs' deb
+
+
+
+
+
+
+
+
+
+
+
+## 2020.04.21
+
+`the inexistence project`  
+1. lock 位置改成了 /log/inexistence/.lock，即隐藏了这个文件夹  
+
+`npm r10000`  
+1. 初始化  
+
+`function r13088`
+1. function loggg  
+这个主要是自己单独测试某一部分 debug 时用的，与 write_current_logfile 稍有区别  
+
+
+
+
+
+## 2020.04.18/19
+
+[这两天共有 5+44 条 commits 记录](https://github.com/Aniverse/inexistence/compare/6a9dd59...10ba81b)  
+
+`the inexistence project`  
+直接总结下比较大的几点改动：
+1. hezi 脚本加入。这个脚本的使用场景是，安装完 inexistence 后，想补充安装之前没安装的软件，或者对 de/qb/tr/rt 进行升级/降级操作，就可以使用这个脚本而不至于重新跑一次 inexistence。这个也比使用单独的命令方便一些。目前的实现比较简单，交互与 inexistence 没什么区别，以后会往 QuickBox 和 swizzin 的 box 脚本方向靠拢  
+2. 终于干掉了 ask_lt  
+3. UI 方面，终于把各种安装时的输出隐藏掉了，看上去清爽不少  
+4. Transmission 转为用户态运行，alias 和 mingling 也对应更新了  
+5. inexistence 从 1580 行左右砍到了 950 行不到，mingling 也砍了 200 行  
+
+`inexistence 1.2.2.0`  
+1. **Bump version to 1.2.2**  
+2. **Bump version to 1.2.3**  
+3. **UI：不再询问 lt 版本，统一使用 lt 1.1.14**  
+命令行参数指定的方式仍然可用  
+4. **Feature：preparation 去掉 build-essential 和 python/pip 的安装**  
+加速脚本安装  
+5. **Codes：简化代码**  
+又有一堆 functions 移到了 ask 和 function 内，大致的在下面有写  
+6. **Codes：增加缩进**
+现在所有 function 都有缩进了  
+7. UI：确认信息界面，修复 lt 和 bbr 是否显示的判断逻辑  
+8. **Feature：preparation 部分引入了 APT_UPGRADE_SINGLE=1 APT_UPGRADE 与 apt_install_together & spinner $!**  
+9. Other：installed.log 格式修改，因为空格长度还是不太好控制  
+10. **Feature：盒子信息单独放到 info 目录，记录 ip 地址、asn 等用于后续判断**  
+11. Codes：移除 Deluge 和 Transmission 从 repo 和 PPA 安装的代码  
+12. UI：去掉了一堆 INSTALLATION-COMPLETED  
+13. Codes：因为启用了 tr/conf ，所以删除了 config_transmission  
+14. Feature：bionic 下不再编译 wget  
+考虑整个 deb，或者干脆 static，或者直接编译好的 wget 替换说不定都可以？  
+15. **UI：隐藏一切不必要的输出（>> "OutputLOG" 2>&1）**  
+16. **UI：script_end 部分重写，重写的部分在 function 内**  
+17. if_ask_lt=0 改为 if_need_lt=0  
+18. **Codes：执行安装的部分改为 do_installation 并移到了 ask 内**  
+19. 现在一堆功能都移到了 function、ask、各类 install/configure 里，inexistence 的行数会越来越少  
+
+`ask r11021`
+1. function set_language、ask_reboot、_input_version  
+2. **删除 function ask_libtorrent**  
+3. 修复 qb 安装 4.1.9/4.2.3 模式只能是 deb 的问题  
+4. 修复对客户端是否已安装的判断  
+5. **移除 deluge PPA 和 repo 的选项**  
+6. ask_wine_mono 独立成 ask_wine 和 ask_mono  
+7. function **do_installation**   
+8. **整个安装过程中隐藏所有非必要输出**  
+9. 使用 write_current_logfile 方便查看传统 function 的实时日志  
+10. DEPRECATED 部分加入 version_check_latest_and_repo  
+因为不使用 PPA 和 repo 了，所以其实版本检查显得没必要了  
+11. 升级系统部分的代码暂时移了进来，等新版完成后移除  
+12. 移除 FlexGet 提示与 qBittorrent 4.2 不兼容的提示  
+
+`function r13085`
+1. apt_sources_add
+Debian 8 下添加源，其他 Debian 系统如果缺少 backports 也会补上  
+2. APT_UPGRADE  
+apt_sources_add 已被添加到 APT_UPGRADE 内  
+3. apt_install_check 与 APT_UPGRADE_check  
+APT_UPGRADE_check：如果今天没跑过 apt update，那就在检查软件包之前先跑一次 update，同时生成当日的 lock  
+apt_install_check 前加入 APT_UPGRADE_check  
+这是综合考虑降低出错率和节省时间的方案  
+4. write_current_logfile 配合传统安装 function 使用  
+5. swap_on、swap_off、_time 引入  
+6. **NEW：hezi_add_user**  
+现在会记录账号和密码。密码的加密方式照抄 QuickBox-Lite  
+7. **NEW：export_inexistence_info**  
+用于检查安装信息，包括 ASN、IP 地址、用户名和密码的提取，用于后续安装  
+8. if_running、check_install 引入  
+主要是配合 hezi 使用，此外 check_install 也加入了 vnstat dashboard 之类的检测（通过 lock 文件判断）    
+9. **NEW：END_output_url**  
+使用 functions 以及 printf 大幅简化了之前的安装结果、访问链接输出，同时检测方式一部分也改为了 lock 检测，这样子也方便以后调用  
+10. **NEW：show_uploaded_log**  
+所有出错的日志都上传到 sprunge.us  
+11. get_clients_port 和 get_clients_version 功能分离  
+
+`hezi r11006`
+1. 初始化  
+2. 各种 bug fix，以及功能改进。具体 feature 见上文  
+3. 没检测到 inexistence 设定的账号密码时也可以手动录入。从代码来看这个脚本大概是可以独立于 inexistence 使用的，不过我也还没测试过  
+
+`check-sys r12017`
+1. 部分缩进对齐  
+2. 修复 isInternalIpAddress  
+
+`mingling 0.9.4.4`
+1. **引入 source function/check-sys，大幅简化代码**  
+删了几百行，舒服多了。不过还是很乱  
+2. 删了一些不用的注释和老旧的代码，进一步简化代码  
+3. 缩进改正  
+4. 配合 tr 用户态的改变，修改对应命令  
+5. _client_version_check 里重新启用 flexget 和 irssi，这个以后还要重写  
+6. 简化 if_running_check  
+
+`alias r11008`
+1. 加入 lines、$local_script、s-log  
+2. tr 转为用户态的配套修改  
+
+`python r10001`
+1. 初始化  
+2. 这个就是从 flexget 安装脚本里抽出来的  
+3. 以后会改为 pyenv 的方式，这个以后再改。目前 pyenv 的安装代码是写了但是没启用  
+
+`flexget/install`
+1. 忘记改版本号了 orz  
+2. 抽出 python3 安装部分成独立脚本，拿来调用  
+
+`qbittorrent/install r12030`
+1. dl_qbittorrent_alt_webui 加入  
+unzip 如果没有的话从这里加上更合理  
+2. AltWebUI 路径改为 /opt/qBittorrent/WebUI  
+因为没必要每个用户都有单独的第三方 WebUI，有一份不就行了  
+3. install_qbittorrent_dependencies 启用备注是的依赖部分  
+
+`qbittorrent/configure r12043`
+1. dl_qbittorrent_alt_webui 移到了 qbittorrent/install  
+2. 配置文件里 AltWebUI 路径对应变更  
+
+`vnstat/install r10004`
+1. 如果能访问 vnstat dashboard 那就生成一个 lock 文件用于后续判断  
+
+`libtorrent-rasterbar r10062`
+1. lt 1.0.11 无法在 buster 和 focal 下安装，增加 focal  
+2. 加入 python3-libtorrent 包的安装  
+3. **安装 efs 的 deb 时不先安装编译依赖**  
+缩短安装时间  
+
+`README 1.3.5`
+1. 开头的 Notes 部分，补充了一些内容，如只支持 amd64 的说明，以及推荐使用的系统  
+2. 客户端安装选项这一栏删除  
+3. libtorrent-rasterbar 因为变为隐藏项目了所以说明放后边，内容也重写了  
+4. bbr 的说明也因为变为隐藏项所以放到了后边  
+5. tweaks 部分说明保留空间的释放调整到了 1%，同时取消 wget 在 bionic 上的编译  
+
 
 
 
