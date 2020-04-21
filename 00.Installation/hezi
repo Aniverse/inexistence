@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.19
-script_version=r11006
+script_update=2020.04.21
+script_version=r11007
 
 ################################################################################################ Debug
 
@@ -39,7 +39,7 @@ export LogTimes=$LogBase/$times
 export SourceLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/install
-export LockLocation=$LogBase/lock
+export LOCKLocation=$LogBase/.lock
 export WebROOT=/var/www
 
 export MAXCPUS=$(nproc)
