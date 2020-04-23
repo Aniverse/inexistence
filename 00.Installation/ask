@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.19
-script_version=r11021
+script_version=r11022
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -198,7 +198,8 @@ function ask_qbittorrent() {
         echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
         [[ $CODENAME != jessie ]] &&
         echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
-        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}"
+        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}" &&
+        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.4 (compile)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
     
@@ -210,6 +211,7 @@ function ask_qbittorrent() {
             02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
             11) qb_version=4.1.9 ;;
             12) qb_version=4.2.3 ;;
+            21) qb_version=4.2.4 ;;
             30) _input_version && qb_version="${input_version_num}"  ;;
             99) qb_version=No ;;
             * | "") qb_version=4.2.3 ; qb_mode=static ;;
