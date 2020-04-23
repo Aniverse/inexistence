@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r13096
+script_version=r13097
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -747,9 +747,14 @@ function output_url() {
     else
         local passurl
     fi
+    if [[ -n "$rt_domain" ]]; then
+        local serverurl="${rt_domain}"
+    else
+        local serverurl="${serveripv4}"
+    fi
     [[ $progress =~ (rtorrent|nginx) ]] && local sss=s
     if [[ $installed == Yes ]]; then
-        printf "%-31s %-21s %-99s\n" "${cyan} $name${normal}" "$status" "http${sss}://${passurl}${serveripv4}${suffix}"
+        printf "%-31s %-21s %-99s\n" "${cyan} $name${normal}" "$status" "http${sss}://${passurl}${serverurl}${suffix}"
     else
         printf "%-31s %-30s %-99s\n" "${red} $name${normal}" "${bold}${baihongse} ERROR ${normal}" "${bold}${red}Installation FAILED${normal}"
         export sth_failed=1

@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.3
+INEXISTENCEVER=1.2.4.4
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -22,7 +22,7 @@ aptsources=Yes
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "no-reboot,quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "domain:,no-reboot,quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -44,6 +44,7 @@ while [ -n "$1" ] ; do case "$1" in
     --tr              ) tr_version=$2     ; shift 2 ;;
     --rt              ) rt_version=$2     ; shift 2 ;;
     --lt              ) lt_version=$2     ; shift 2 ;;
+    --domain          ) rt_domain=$2      ; shift 2 ;;
 
     -d | --debug      ) DeBUG=1           ; shift ;;
     -s | --skip       ) SYSTEMCHECK=0     ; shift ;;
@@ -212,15 +213,17 @@ function _intro() {
     echo -e  "  Virt      : ${cyan}$virtual${normal}"
 
     [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
+    [[ -n "$rt_domain" ]] && [[ $(host "$rt_domain" 2>&1 | grep -oE "[0-9.]+\.[0-9.]+") != "$serveripv4" ]] &&
+    echo_warning "\nIt seems your domain $rt_domain does NOT resolve to your ipv4 address $serveripv4"
 
     if [[ $CODENAME == jessie ]]; then
         echo -e "\n${bold}${red}警告：除非万不得已，不然不要使用 Debian 8 运行本脚本！${normal}"
     elif [[ $CODENAME == focal ]]; then
         echo -e "\n${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
     elif [[ $CODENAME == stretch ]]; then
-        echo -e "\n${bold}${red}建议升级到 Debian 10 再使用本脚本${normal}"
+        sleep 0.1 # echo -e "\n${bold}${red}建议升级到 Debian 10 再使用本脚本${normal}"
     elif [[ $CODENAME == xenial ]]; then
-        echo -e "\n${bold}${red}建议升级到 Ubuntu 18.04 再使用本脚本${normal}"
+        sleep 0.1 # echo -e "\n${bold}${red}建议升级到 Ubuntu 18.04 再使用本脚本${normal}"
     fi
 
     [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
@@ -424,12 +427,12 @@ EOF
     [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
     bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
     mkdir -p $local_script
-    ln -s    $local_packages/script/*    $local_script
-    ln -s    $local_packages/hezi        $local_script
+    ln -s    $local_packages/script/*    $local_script   >> "$OutputLOG" 2>&1
+    ln -s    $local_packages/hezi        $local_script   >> "$OutputLOG" 2>&1
     echo "export PATH=$local_script:$PATH" >> /etc/bash.bashrc
 
-    ln -s /etc/inexistence   $WebROOT/h5ai/inexistence
-    ln -s /log               $WebROOT/h5ai/log
+    ln -s /etc/inexistence   $WebROOT/h5ai/inexistence   >> "$OutputLOG" 2>&1
+    ln -s /log               $WebROOT/h5ai/log           >> "$OutputLOG" 2>&1
 
     if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
         mkdir -p /etc/abox/app
@@ -641,6 +644,16 @@ function install_rtorrent() {
         rtupdate $IPv6Opt $rt_versionIns
     else
         rtinst --ssh-default --ftp-default --rutorrent-master --force-yes --log $IPv6Opt -v $rt_versionIns -u $iUser -p $iPass -w $iPass
+    fi
+
+    if [[ -n "$rt_domain" ]] && [[ $(systemctl is-active nginx 2>/dev/null) == active ]]; then
+        cd ; wget -O- https://raw.githubusercontent.com/acmesh-official/acme.sh/master/acme.sh | INSTALLONLINE=1  sh
+        /root/.acme.sh/acme.sh --issue -d $rt_domain --webroot /var/www && \
+        /root/.acme.sh/acme.sh --installcert -d $rt_domain \
+        --key-file   /etc/ssl/private/ruweb.key \
+        --fullchain-file /etc/ssl/ruweb.crt \
+        --reloadcmd  "service nginx force-reload"
+        rm -f master.tar.gz
     fi
 
     mv /root/rtinst.log $LogLocation/07.rtinst.script.log
