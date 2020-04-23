@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r11027
+script_version=r11028
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -459,10 +459,19 @@ function ask_reboot() {
         local lang_2="emmmm，重启失败，你手动重启试试？"
         local lang_3="已取消重启……"
     fi
-    echo -ne "${bold}${yellow}$lang_1 ${normal} [y/${cyan}N${normal}]: "
-    if [[ $ForceYes == 1 ]];then reboot || echo "$lang_2" ; else read -e is_reboot ; fi
-    if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then reboot
-    else echo -e "${bold}$lang_3${normal}\n" ; fi
+    if [[ $NoReboot != 1 ]]; then
+        echo -ne "${bold}${yellow}$lang_1 ${normal} [y/${cyan}N${normal}]: "
+        if [[ $ForceYes == 1 ]];then
+            reboot || echo "$lang_2"
+        else
+            read -e is_reboot
+        fi
+        if [[ $is_reboot == "y" || $is_reboot == "Y" ]]; then
+            reboot
+        else
+            echo -e "${bold}$lang_3${normal}\n"
+        fi
+    fi
 }
 
 

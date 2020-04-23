@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.2
+INEXISTENCEVER=1.2.4.3
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -22,7 +22,7 @@ aptsources=Yes
 
 # 获取参数
 
-OPTS=$(getopt -o dsyu:p:b: --long "quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b: --long "no-reboot,quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
 
 eval set -- "$OPTS"
@@ -78,6 +78,7 @@ while [ -n "$1" ] ; do case "$1" in
     --no-tweaks       ) UseTweaks="No"    ; shift ;;
     --no-bbr          ) InsBBR="No"       ; shift ;;
 
+    --no-reboot       ) NoReboot=1        ; shift ;;
     --mt-single       ) MAXCPUS=1         ; shift ;;
     --mt-double       ) MAXCPUS=2         ; shift ;;
     --mt-max          ) MAXCPUS=$(nproc)  ; shift ;;
@@ -955,7 +956,7 @@ mv /etc/00.preparation.log  $LogLocation/00.preparation.log
 do_installation
 [[ $USESWAP == Yes ]] && swap_off
 check_install_2
-clear
+# clear
 END_output_url 2>&1 | tee $LogTimes/end.log
 # rm -f "$0" > /dev/null 2>&1
 ask_reboot
