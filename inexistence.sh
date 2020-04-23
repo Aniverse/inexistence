@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.1
+INEXISTENCEVER=1.2.4.2
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -886,16 +886,17 @@ function system_tweaks() {
     # Set timezone to UTC+8
     rm -rf /etc/localtime
     ln -s  /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
-    dpkg-reconfigure -f noninteractive tzdata  >> "OutputLOG" 2>&1
-    ntpdate time.windows.com                   >> "OutputLOG" 2>&1
-    hwclock -w                                 >> "OutputLOG" 2>&1
+    dpkg-reconfigure -f noninteractive tzdata  >> "$OutputLOG" 2>&1
+    ntpdate time.windows.com                   >> "$OutputLOG" 2>&1
+    hwclock -w                                 >> "$OutputLOG" 2>&1
     # Change default system language to English
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale
-    dpkg-reconfigure --frontend=noninteractive locales   >> "OutputLOG" 2>&1
-    update-locale LANG=en_US.UTF-8                       >> "OutputLOG" 2>&1
+    dpkg-reconfigure --frontend=noninteractive locales   >> "$OutputLOG" 2>&1
+    update-locale LANG=en_US.UTF-8                       >> "$OutputLOG" 2>&1
     # screen config
-    cat << EOF >> /etc/screenrc
+    if ! grep "defencoding utf8" /etc/screenrc -q ; then
+        cat << EOF >> /etc/screenrc
 shell -$SHELL
 
 startup_message off
@@ -904,13 +905,17 @@ defencoding utf8
 encoding utf8 utf8
 defscrollback 23333
 EOF
+    fi
     # 将最大的分区的保留空间设置为 1 %
-    tune2fs -m 1 $(df -k | sort -rn -k4 | awk '{print $1}' | head -1)   >> "OutputLOG" 2>&1
+    MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | grep -v overlay | head -1)
+    if mount | grep $MaxDisk | grep ext4 ; then
+        tune2fs -m 1 $MaxDisk   >> "$OutputLOG" 2>&1
+    fi
 
-    locale-gen en_US.UTF-8          >> "OutputLOG" 2>&1
-    locale                          >> "OutputLOG" 2>&1
-    sysctl -p                       >> "OutputLOG" 2>&1
-    apt-get -y autoremove           >> "OutputLOG" 2>&1
+    locale-gen en_US.UTF-8          >> "$OutputLOG" 2>&1
+    locale                          >> "$OutputLOG" 2>&1
+    sysctl -p                       >> "$OutputLOG" 2>&1
+    apt-get -y autoremove           >> "$OutputLOG" 2>&1
     touch $LOCKLocation/tweaks.lock
 }
 
