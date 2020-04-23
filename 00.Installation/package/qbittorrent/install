@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r12032
+script_version=r12033
 
 ################################################################################################ Debug
 
@@ -70,17 +70,17 @@ cat_outputlog
 
 ################################################################################################ Set Variables 2
 
-qb_deb_available=['4.1.9','4.2.3']
+qb_deb_available=('4.1.9' '4.2.3')
 
 git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
-[[ -z $mode ]] && [[ ${qb_deb_available[*]} =~ ${version} ]] && mode=deb
-[[ $mode == deb ]] && [[ ! ${qb_deb_available[*]} =~ ${version} ]] && echo_error "$version is not available in deb mode" && exit 1
+[[ -z $mode ]] && echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" && mode=deb
+[[ $mode == deb ]] && [[ ! $(echo "${qb_deb_available[*]}" | grep -w "${qb_version}") ]] && echo_error "$version is not available in deb mode" && exit 1
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
-if [[ $version == 4.2.3.1 ]]; then
-    mode=static ; version_s=4.2.3
+if [[ $version == 4.2.4.12 ]]; then
+    mode=static ; version_s=4.2.4
 elif [[ -n $version ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
     version_s=$version
