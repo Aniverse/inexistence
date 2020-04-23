@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r12031
+script_version=r12032
 
 ################################################################################################ Debug
 
@@ -198,10 +198,12 @@ function install_qbittorrent_deb() {
 }
 
 function install_qbittorrent_static() {
-    if   [[ $version == 4.2.3 ]];then
+    if   [[ $version == 4.2.3 ]]; then
         qb_static=4.2.3.lt.1.1.14
-    elif [[ $version == 4.2.3.1 ]];then
-        qb_static=4.2.3.lt.1.2.5
+    elif [[ $version == 4.2.4 ]]; then
+        qb_static=4.2.4.lt.1.1.14
+    elif [[ $version == 4.2.4.12 ]]; then
+        qb_static=4.2.4.lt.1.2.6
     else
         qb_static=4.1.9.lt.1.1.14
     fi

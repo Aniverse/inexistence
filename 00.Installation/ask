@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r11025
+script_version=r11026
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -123,12 +123,14 @@ function ask_apt_sources() {
 # wget -qO- -o /dev/null "https://github.com/qbittorrent/qBittorrent/releases" | grep -Eo "release-[0-9.]+" | sed -e "s/\.$//" -e "s/release-//" | sort -u | pr -6 -t ; echo
 function ask_qbittorrent() {
     while [[ -z $qb_version ]]; do
-        echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 (static)${normal}"
-        echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 (static)${normal}"
+        echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 ${normal}(static)${normal}"
+        echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 ${normal}(static)${normal}"
+        echo -e "${green}03)${normal} qBittorrent ${cyan}4.2.4 ${normal}(static)${normal}"
+        echo -e "${green}04)${normal} qBittorrent ${cyan}4.2.4 ${normal}with libtorrent ${cyan}1.2.6${normal} (static)${normal}"
         [[ $CODENAME != jessie ]] &&
-        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 (deb)${normal}" &&
-        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 (deb)${normal}" &&
-        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.4 (compile)${normal}"
+        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}" &&
+        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 ${normal}(deb)${normal}" &&
+        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.4 ${normal}(compile)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
     
@@ -138,6 +140,8 @@ function ask_qbittorrent() {
         case $version in
             01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
             02 | 2) qb_version=4.2.3 ; qb_mode=static ;;
+            03 | 3) qb_version=4.2.4 ; qb_mode=static ;;
+            04 | 4) qb_version=4.2.4.12 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
             12) qb_version=4.2.3    ;;
             21) qb_version=4.2.4    ;;
