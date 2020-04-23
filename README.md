@@ -11,7 +11,7 @@
 
 1. 本脚本只支持 x86_64 (amd64) 架构，其他架构都不支持。ARM 用户建议使用 [QuickBox ARM](https://github.com/amefs/quickbox-arm)  
 2. 本脚本只在独服和 KVM 虚拟化的 VPS 下测试，OpenVZ、Xen 等其他虚拟化架构仍可以尝试使用，但不保证没问题  
-3. 本脚本目前支持 Debian 8/9/10, Ubuntu 16.04/18.04. *推荐使用 Debian 10 或 Ubuntu 18.04*，***尽量避免使用 Debian 8***  
+3. 本脚本目前支持 Debian 9/10, Ubuntu 16.04/18.04. *推荐使用 Debian 10 或 Ubuntu 18.04*  
 4. 本文的使用说明中的图片是一两年前的，与当前脚本存在较大出入（但文字内容是及时更新的）  
 5. 建议重装完系统后使用此脚本，非全新安装的情况下（比如你先跑了个其他盒子脚本再跑这个）不确定因素太多容易翻车  
 6. 目前没有简单易用的卸载方法。如果你有卸载的需求，使用前请三思  
@@ -62,7 +62,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 ![安装时的选项](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.04.png)
 
 1. ***是否升级系统***  
-低于 `Ubuntu 18.04`、`Debian 10` 的 LTS 系统可以选择用脚本升级系统  
+低于 `Ubuntu 18.04`、`Debian 10` 的 LTS 系统可以选择用脚本升级系统（Ubuntu 20.04 暂不支持）  
 一般来说整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
 升级完后会直接执行重启命令，重启完后你需要再次运行脚本来完成软件的安装  
 
@@ -422,27 +422,27 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 * [x] 增加 transmission/configure  
 * [ ] 增加 flood/install  
 * [x] 加入 novnc  
-* [ ] 加入 filebrowser  
+* [x] 加入 filebrowser  
 * [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
 * [ ] 更新 README 的图片  
 
 中期  
 
-* [ ] 新增分支 debian8，作为最后一个支持 Debian 8 的版本  
-* [ ] 在新的 master 分支上抛弃 Debian 8 支持  
-* [ ] 在新的 master 分支上去除脚本里的换源、tools、bbr、wine 问题  
-* [ ] 在新的 master 分支上去除脚本里的 install from ppa. repo  
-* [ ] 在新的 master 分支上去除 libtorrent 1.0 选项  
-* [ ] 在新的 master 分支上去除 rTorrent 0.9.6 及以下的选项  
+* [x] 放弃 Debian 8 支持  
+* [x] 去除脚本里的换源、tools、bbr、wine 问题  
+* [x] 去除脚本里的 install from ppa. repo  
+* [x] 去除 libtorrent 1.0 选项  
+* [ ] 去除 rTorrent 0.9.6 及以下的选项  
 * [ ] 增加 deluge/install  
-* [ ] 增加 qbittorrent/install  
+* [x] 增加 qbittorrent/install  
 * [ ] 增加 transmission/install  
-* [ ] 增加 `hezi` 脚本，类似 quickbox 的 `box`（可能替代 `mingling`）  
+* [x] 增加 `hezi` 脚本，类似 quickbox 的 `box`（可能替代 `mingling`）  
 * [ ] 增加 `mima` 脚本  
 
 远期  
 
-* [ ] 在新的 master 分支上增加 Ubuntu 20.04 LTS 支持  
+* [ ] 增加 Ubuntu 20.04 LTS 支持  
+* [ ] inexistence.sh 完整的中文交互界面  
 * [ ] Deluge 2 w/ Python3  
 
 
