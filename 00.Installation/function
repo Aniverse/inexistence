@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.22
-script_version=r13089
+script_update=2020.04.23
+script_version=r13090
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -69,11 +69,11 @@ fi
 
 self_location="$0"
 
-lt_deb_available=['1.1.14']
-qb_deb_available=['4.1.9','4.2.3']
-de_deb_available=['2.0.3']
-rt_deb_available=['0.9.4','0.9.6','0.9.7','0.9.8']
-tr_deb_available=['0.9.4','0.9.6','0.9.7','0.9.8']
+lt_deb_available=('1.1.14')
+qb_deb_available=('4.1.9' '4.2.3')
+de_deb_available=('2.0.3')
+rt_deb_available=('0.9.4' '0.9.6' '0.9.7' '0.9.8')
+tr_deb_available=('2.9.4')
 
 ################################################################################################ OS Check
 
@@ -368,14 +368,97 @@ function _confirmation(){
     done
 }
 
+
 function genpasswd() { local genln=$1 ; [ -z "$genln" ] && genln=12 ; tr -dc A-Za-z0-9 < /dev/urandom | head -c ${genln} | xargs ; }
+
+
+function ask_username(){
+    clear
+    validate_username $iUser
+    if [[ $username_valid == empty ]]; then
+        echo -e "${bold}${yellow}The script needs a username${jiacu}"
+        echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
+        ask_input_username
+    elif [[ $username_valid == false ]]; then
+      # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
+        ask_input_username
+    elif [[ $username_valid == true ]]; then
+      # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
+        echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
+    fi
+}
+
+
+function ask_input_username(){
+    local answerusername ; local reinput_name
+    confirm_name=false
+    while [[ $confirm_name == false ]]; do
+        while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
+            reinput_name=false
+            read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
+            validate_username $answerusername
+        done
+
+        addname=$answerusername
+        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
+        read answer
+        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
+                        [nN] | [nN][Oo]          ) reinput_name=true ;;
+                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o" ;;
+        esac
+
+        iUser=$addname
+    done
+    echo
+}
+
+
+# 一定程度上的密码复杂度检测：https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator
+# 询问密码。目前的复杂度判断还不够 Flexget 的程度，但总比没有强……
+function ask_password() {
+    local password1 ; local password2 ; #local exitvalue=0
+    exec 3>&1 >/dev/tty
+
+    if [[ $iPass = "" ]]; then
+        echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
+        echo "The password must consist of characters and numbers and at least 8 chars,"
+        echo "or you can leave it blank to generate a random password"
+        while [ -z $localpass ]; do
+            read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
+    
+            if [ -z $password1 ]; then
+                localpass=$(genpasswd) ; # exitvalue=1
+                echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
+            elif [ ${#password1} -lt 8 ]; then # At least [8] chars long
+                echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
+            elif ! echo "$password1" | grep -q '[0-9]'; then # At least [1] number
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
+            elif ! echo "$password1" | grep -q '[a-zA-Z]'; then # At least [1] letter
+                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
+            else
+                while [[ $password2 = "" ]]; do
+                    read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
+                done
+                if [ $password1 != $password2 ]; then
+                    echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
+                else
+                    localpass=$password1
+                fi
+            fi
+        done
+        iPass=$localpass
+        exec >&3- ; echo ; # return $exitvalue
+    else
+        echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
+    fi
+}
 
 
 # https://github.com/Azure/azure-devops-utils
 function validate_username() {
     iUser="$1" ; local min=1 ; local max=32
     # This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
-    local reserved_names="adm admin audio backup bin cdrom crontab daemon dialout dip disk fax floppy fuse games gnats irc kmem landscape libuuid list lp mail man messagebus mlocate netdev news nobody nogroup operator plugdev proxy root sasl shadow src ssh sshd staff sudo sync sys syslog tape tty users utmp uucp video voice whoopsie www-data "
+    local reserved_names=('adm' 'admin' 'audio' 'backup' 'bin' 'cdrom' 'crontab' 'daemon' 'dialout' 'dip' 'disk' 'fax' 'floppy' 'fuse' 'games' 'gnats' 'irc' 'kmem' 'landscape' 'libuuid' 'list' 'lp' 'mail' 'man' 'messagebus' 'mlocate' 'netdev' 'news' 'nobody' 'nogroup' 'operator' 'plugdev' 'proxy' 'root' 'sasl' 'shadow' 'src' 'ssh' 'sshd' 'staff' 'sudo' 'sync' 'sys' 'syslog' 'tape' 'tty' 'users' 'utmp' 'uucp' 'video' 'voice' 'whoopsie' 'www-data')
     if [ -z "$iUser" ]; then
         username_valid=empty
     elif [ ${#iUser} -lt $min ] || [ ${#username} -gt $max ]; then
@@ -384,7 +467,7 @@ function validate_username() {
     elif ! [[ "$iUser" =~ ^[a-z][-a-z0-9_]*$ ]]; then
         echo -e "${CW} The username must contain only lowercase letters, digits, underscores and starts with a letter${normal}"
         username_valid=false
-    elif [[ "$reserved_names" =~ " $iUser "  ]]; then
+    elif [[ $(echo "${reserved_names[@]}" | grep -wq "$iUser") ]]; then
         echo -e "${CW} The username cannot be an Ubuntu reserved name${normal}"
         username_valid=false
     else
