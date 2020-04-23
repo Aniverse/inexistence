@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.5
+INEXISTENCEVER=1.2.4.6
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -363,7 +363,7 @@ InstalledTimes=$times
 INEXISTENCEVER=${INEXISTENCEVER}
 INEXISTENCEDATE=${INEXISTENCEDATE}
 Setup_date=$(date "+%Y.%m.%d %H:%M")
-MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | head -1)
+MaxDisk=$MaxDisk
 HomeUserNum=$(ls /home | wc -l)
 use_swap=$USESWAP
 #################################
@@ -925,7 +925,7 @@ EOF
     fi
     # 将最大的分区的保留空间设置为 1 %
     MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | grep -v overlay | head -1)
-    if mount | grep $MaxDisk | grep ext4 ; then
+    if mount | grep $MaxDisk | grep ext4 -q ; then
         tune2fs -m 1 $MaxDisk   >> "$OutputLOG" 2>&1
     fi
 
@@ -972,7 +972,7 @@ mv /etc/00.preparation.log  $LogLocation/00.preparation.log
 do_installation
 [[ $USESWAP == Yes ]] && swap_off
 check_install_2
-# clear
+echo ; [[ $sihuo != yes ]] && clear
 END_output_url 2>&1 | tee $LogTimes/end.log
 # rm -f "$0" > /dev/null 2>&1
 ask_reboot
