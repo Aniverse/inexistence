@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r12044
+script_version=r12045
 
 ################################################################################################ Debug
 
@@ -146,10 +146,6 @@ EOF
 
 
 function write_qbittorrent_conf () {
-    if [[ -d $iHome/.config/qBittorrent ]]; then
-        mv $iHome/.config/qBittorrent  $iHome/.config/qBittorrent.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
-        rm -rf $iHome/.config/qBittorrent  >> $OutputLOG 2>&1
-    fi
     # This is for users who still using qBittorrent older than 4.2.0
     # Therefore some qBittorrent-4.2-and-above-only settings are not added here
     cat << EOF > $qbconf
@@ -246,6 +242,11 @@ function configure_qbittorrent() {
 
     echo >> $OutputLOG
 
+    if [[ -d $iHome/.config/qBittorrent ]]; then
+        mv $iHome/.config/qBittorrent  $iHome/.config/qBittorrent.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
+        rm -rf $iHome/.config/qBittorrent  >> $OutputLOG 2>&1
+    fi
+    mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
     if [[ -f $local_packages/package/qbittorrent/qqbb ]]; then
         ln -s  $local_packages/package/qbittorrent/qqbb      $local_script/qqbb       >> $OutputLOG 2>&1
     else
@@ -253,7 +254,6 @@ function configure_qbittorrent() {
         chmod +x $local_script/qqbb
     fi
 
-    mkdir -p  $iHome/qbittorrent/{download,torrent,watch}   $iHome/.config/qBittorrent   $local_script   $PortLocation
     write_qbittorrent_systemd
     write_qbittorrent_conf
     write_qbittorrent_nginx_reverse_proxy
