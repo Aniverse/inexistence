@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.0
+INEXISTENCEVER=1.2.4.1
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -124,10 +124,10 @@ trap 'exit 1' TERM
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-    if [[ $SysSupport =~ (1|4|5) ]]; then
+    if [[ $SysSupport =~ (1|4) ]]; then
         echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
     else
-        echo -e "\n${bold}${red}Too young too simple! Only Debian 8/9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
+        echo -e "\n${bold}${red}Too young too simple! Only Debian 9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
         ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
         exit 1
     fi
@@ -210,8 +210,20 @@ function _intro() {
     echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
     echo -e  "  Virt      : ${cyan}$virtual${normal}"
 
-    [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
     [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
+
+    if [[ $CODENAME == jessie ]]; then
+        echo -e "\n${bold}${red}警告：除非万不得已，不然不要使用 Debian 8 运行本脚本！${normal}"
+    elif [[ $CODENAME == focal ]]; then
+        echo -e "\n${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
+    elif [[ $CODENAME == stretch ]]; then
+        echo -e "\n${bold}${red}建议升级到 Debian 10 再使用本脚本${normal}"
+    elif [[ $CODENAME == xenial ]]; then
+        echo -e "\n${bold}${red}建议升级到 Ubuntu 18.04 再使用本脚本${normal}"
+    fi
+
+    [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
+    
     [[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
 
     echo -e "\n${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
