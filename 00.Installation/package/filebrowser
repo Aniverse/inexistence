@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.13
-script_version=r10002
+script_update=2020.04.15
+script_version=r11003
 
 ################################################################################################ Debug
 
@@ -33,21 +33,25 @@ pm_action=install
 function show_usage() { echo "
 $AppName $pm_action $script_version ($script_update)
 Usage:
+      -u        Username for FileBrowser
+      -p        Password for FileBrowser
       -l        Specifiy LogBase (Not log file)
       -d        Enable debug mode
       -w        WebUI port for FileBrowser
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -o v:l:w:d -al version:,debug,logbase:,wport:,log -- "$@")
+OPTS=$(getopt -o v:l:w:u:d -al username:,password:,version:,debug,logbase:,wport:,log -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
 while [ -n "$1" ] ; do case "$1" in
+    -u | --username     ) iUser="$2"    ; shift 2 ;;
+    -p | --password     ) iPass="$2"    ; shift 2 ;;
     -v | --version      ) version="$2"  ; shift 2 ;;
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
-    -d | --debug        ) debug=1       ; shift   ;;
     -w | --wport        ) wPort="$2"    ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
@@ -65,24 +69,114 @@ check_var_OutputLOG
 debug_log_location
 cat_outputlog
 [[ -z $wPort ]] && wPort=7575
+wPort2=7576
+[[ -z $lang ]] && lang=zh-cn
 PortCheck $wPort
 [[ $port_used == 1 ]] && echo_error_exit "Please change your port"
 
 ################################################################################################
 
-function install_filebrowser () {
-    mkdir -p $HOME/.docker/fb/config
-    docker run -itd  \
-            -e PUID=$UID \
-            -e PGID=$GID \
-            -e WEB_PORT=$wPort \
-            -e FB_AUTH_SERVER_ADDR="127.0.0.1" \
-            -p $wPort:$wPort \
-            -v $HOME/.docker/fb/config:/config \
-            -v /:/myfiles \
-            --mount type=tmpfs,destination=/tmp \
-            --restart always \
-            80x86/filebrowser:amd64 >> "$OutputLOG" 2>&1
+function get_filebrowser_origin () {
+    mkdir -p /tmp/fb && cd /tmp/fb
+    wget https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
+    tar zxf linux-amd64-filebrowser.tar.gz             >> "$OutputLOG" 2>&1
+    mv /tmp/fb/filebrowser /usr/local/bin/filebrowser  >> "$OutputLOG" 2>&1
+}
+
+function get_filebrowser_ee () {
+    docker pull 80x86/filebrowser:amd64 >> "$OutputLOG" 2>&1
+}
+
+function create_filebrowser_conf () {
+    local user=$1
+    [[ $user == root ]] && local uhome=/root || local uhome=/home/$user
+    mkdir -p /root/.config/filebrowser-ee/log/
+    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config init                                     >> "$OutputLOG" 2>&1
+    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config config set --locale  $lang               >> "$OutputLOG" 2>&1
+    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config init users add $user $iPass --perm.admin >> "$OutputLOG" 2>&1
+}
+
+function create_filebrowser_systemd () {
+    local user=$1
+    _UID=$(id -u ${user})
+    _GID=$(id -g ${user})
+    if [[ $user == root ]]; then
+        local unit=filebrowser-root.service
+        local suffix=""
+        local mountpoint="/"
+        local PORT=$wPort2
+        local uhome=/root
+        local url=fb
+    else
+        local unit=filebrowser@${user}.service
+        local suffix="-${user}"
+        local mountpoint="/home/${user}/"
+        local PORT=$wPort
+        local uhome=/home/$user
+        local url=filebrowser
+    fi
+    cat << EOF > /etc/systemd/system/$unit
+[Unit]
+Description=File Browser Enhanced Edition
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop filebrowser${suffix}
+ExecStartPre=-/usr/bin/docker rm filebrowser${suffix}
+#ExecStartPre=/usr/bin/docker pull 80x86/filebrowser:amd64
+ExecStart=/usr/bin/docker run \
+-e PUID=$_UID \
+-e PGID=$_GID \
+-e WEB_PORT=${PORT} \
+-e UMASK_SET=133 \
+-e FB_BASEURL="/$url/" \
+-p ${PORT}:${PORT} \
+-v ${uhome}/.config/filebrowser:/config \
+-v ${mountpoint}:/myfiles \
+--mount type=tmpfs,destination=/tmp \
+--restart=always \
+--name="filebrowser${suffix}" \
+80x86/filebrowser:amd64
+ExecStop=/usr/bin/docker stop filebrowser${suffix}
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload >> "$OutputLOG" 2>&1
+}
+
+
+
+function filebrowser_root () {
+11
+}
+
+
+
+
+
+
+systemctl enable filebrowser@${iUser}
+systemctl start  filebrowser@${iUser}
+
+
+function install_filebrowser_ee () {
+    install_filebrowser
+
+    if [[ ! -f /root/.config/filebrowser-ee/database.db ]]; then
+        create_filebrowser_conf      root
+        create_filebrowser_systemd   root
+        systemctl enable filebrowser-root >> "$OutputLOG" 2>&1
+        systemctl start  filebrowser-root >> "$OutputLOG" 2>&1
+    fi
+    create_filebrowser_conf       $iUser
+    create_filebrowser_systemd    $iUser
+    systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
+    systemctl start  filebrowser@${iUser} >> "$OutputLOG" 2>&1
+    sleep 3
+
     generate_status_lock
 }
 
