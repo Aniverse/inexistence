@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r11024
+script_version=r11025
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -44,6 +44,12 @@ function set_language() {
 }
 
 ################################################################################################
+
+lt_deb_available=('1.1.14')
+qb_deb_available=('4.1.9' '4.2.3')
+de_deb_available=('2.0.3')
+rt_deb_available=('0.9.4' '0.9.6' '0.9.7' '0.9.8')
+tr_deb_available=('2.9.4')
 
 ### 输入自己想要的软件版本 ###
 # ${blue}(use it at your own risk)${normal}
@@ -141,7 +147,7 @@ function ask_qbittorrent() {
         esac
     done
 
-    [[ -z $qb_mode ]] && [[ echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" ]] && qb_mode=deb
+    [[ -z $qb_mode ]] && echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" && qb_mode=deb
 
     if [[ $qb_version == No ]]; then
         echo -e "\n${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}"
