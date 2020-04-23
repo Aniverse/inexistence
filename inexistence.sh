@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.4
+INEXISTENCEVER=1.2.4.5
 INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
@@ -198,10 +198,6 @@ function _intro() {
 
     echo "${bold}---------- [System Information] ----------${normal}"
     echo
-    echo -ne "  IPv4      : ";[[ -n ${serveripv4} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
-    echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
-    echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
-    echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
     
     echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
     echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
@@ -211,10 +207,17 @@ function _intro() {
     echo -e  "  Kernel    : ${cyan}$running_kernel${normal}"
     echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
     echo -e  "  Virt      : ${cyan}$virtual${normal}"
+    echo
+    [[ -n "$rt_domain" ]] &&
+    echo -e  "  Domain    : ${cyan}$rt_domain${normal}"
+    echo -ne "  IPv4      : ";[[ -n ${serveripv4} ]] && echo "${cyan}$serveripv4${normal}" || echo "${cyan}No Public IPv4 Address Found${normal}"
+    echo -ne "  IPv6      : ";[[ -n ${serveripv6} ]] && echo "${cyan}$serveripv6${normal}" || echo "${cyan}No Public IPv6 Address Found${normal}"
+    echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
+    echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
 
     [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
     [[ -n "$rt_domain" ]] && [[ $(host "$rt_domain" 2>&1 | grep -oE "[0-9.]+\.[0-9.]+") != "$serveripv4" ]] &&
-    echo_warning "\nIt seems your domain $rt_domain does NOT resolve to your ipv4 address $serveripv4"
+    echo -e "\n${yellow}${bold}It seems your domain $rt_domain does NOT resolve to your IPv4 address $serveripv4${normal}"
 
     if [[ $CODENAME == jessie ]]; then
         echo -e "\n${bold}${red}警告：除非万不得已，不然不要使用 Debian 8 运行本脚本！${normal}"
