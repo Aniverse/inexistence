@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r11008
+script_version=r11009
 
 ################################################################################################ Debug
 
@@ -81,7 +81,7 @@ function get_filebrowser_origin () {
     wget -nv https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
     tar zxf linux-amd64-filebrowser.tar.gz             >> "$OutputLOG" 2>&1
     mv /tmp/fb/filebrowser /usr/local/bin/filebrowser  >> "$OutputLOG" 2>&1
-    cd && rm -f /tmp/fb/filebrowser
+    cd && rm -rf /tmp/fb/filebrowser
 }
 
 function get_filebrowser_ee () {
@@ -154,19 +154,27 @@ function write_filebrowser_nginx_reverse_proxy () {
     # Nginx Reverse
     # Currently this is only for the first non-root user
     if [[ -d /etc/nginx/apps ]]; then
-        cat << EOF > /etc/nginx/apps/filebrowser.conf
+        cat << 'EOF' > /etc/nginx/apps/filebrowser.conf
+location /fb {
+  return 301 /filebrowser/;
+}
+
 location /filebrowser {
-  rewrite ^/filebrowser/(.*) /$1 break;
-  proxy_pass http://$remote_user.filebrowser-ee;
+  return 301 /filebrowser/;
+}
+
+location /fb/ {
+  rewrite ^/fb/(.*) /$1 break;
+  proxy_pass http://fb;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "upgrade";
   proxy_set_header Host $host;
 }
 
-location /fb {
-  rewrite ^/fb/(.*) /$1 break;
-  proxy_pass http://$remote_user.filebrowser-ee;
+location /filebrowser/ {
+  rewrite ^/filebrowser/(.*) /$1 break;
+  proxy_pass http://filebrowser;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "upgrade";
