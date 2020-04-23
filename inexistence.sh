@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.3.11
-INEXISTENCEDATE=2020.04.21
+INEXISTENCEVER=1.2.4.0
+INEXISTENCEDATE=2020.04.23
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -110,7 +110,7 @@ export LogBase=/log/inexistence
 export LogTimes=$LogBase/$times
 export SourceLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
-export LogLocation=$LogTimes/install
+export LogLocation=$LogTimes/log
 export LOCKLocation=$LogBase/.lock
 export WebROOT=/var/www
 set_language
@@ -709,13 +709,13 @@ function install_transmission() {
 
         ldconfig # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
         cd ..
-            git clone https://github.com/transmission/transmission transmission-$tr_version
-            cd transmission-$tr_version
-            git checkout $tr_version
-            # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
-            [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
-            # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
-            grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+        git clone https://github.com/transmission/transmission transmission-$tr_version
+        cd transmission-$tr_version
+        git checkout $tr_version
+        # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
+        [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
+        # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
+        grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
         ./autogen.sh
         ./configure --prefix=/usr
         make -j$MAXCPUS
@@ -909,25 +909,24 @@ EOF
 ######################################################################################################
 
 _intro
+[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 ask_username
 ask_password
 ask_apt_sources
-[[ -z $MAXCPUS ]] && MAXCPUS=$(nproc)
 ask_swap
 ask_qbittorrent
 ask_deluge
-
-if_need_lt=0
-[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_need_lt=1
-[[ $de_version != No ]] && if_need_lt=1
-[[ $if_need_lt == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
-
 ask_rtorrent
 [[ $rt_version != No ]] && ask_flood
 ask_transmission
 ask_flexget
 ask_filebrowser
 ask_tweaks
+
+if_need_lt=0
+[[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_need_lt=1
+[[ $de_version != No ]] && if_need_lt=1
+[[ $if_need_lt == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
 ask_continue
 
 starttime=$(date +%s)
