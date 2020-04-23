@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r11023
+script_version=r11024
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -54,85 +54,6 @@ function _input_version() {
     elif [[ $script_lang == chs ]]; then
         echo -e "\n${JG} ${bold}确保你输入的版本号能用，不然输错了脚本也不管的${normal}"
         read -ep "${bold}${yellow}输入你想要的版本号： ${cyan}" input_version_num; echo -n "${normal}"
-    fi
-}
-
-function ask_username(){
-    clear
-    validate_username $iUser
-    if [[ $username_valid == empty ]]; then
-        echo -e "${bold}${yellow}The script needs a username${jiacu}"
-        echo -e "This will be your primary user. It can be an existing user or a new user ${normal}"
-        ask_input_username
-    elif [[ $username_valid == false ]]; then
-      # echo -e "${JG} The preset username doesn't pass username check, please set a new username"
-        ask_input_username
-    elif [[ $username_valid == true ]]; then
-      # iUser=`  echo $iUser | tr 'A-Z' 'a-z'  `
-        echo -e "${bold}Username sets to ${blue}$iUser${normal}\n"
-    fi
-}
-
-function ask_input_username(){
-    local answerusername ; local reinput_name
-    confirm_name=false
-    while [[ $confirm_name == false ]]; do
-        while [[ $answerusername = "" ]] || [[ $reinput_name = true ]] || [[ $username_valid = false ]]; do
-            reinput_name=false
-            read -ep "${bold}Enter username: ${blue}" answerusername ; echo -n "${normal}"
-            validate_username $answerusername
-        done
-
-        addname=$answerusername
-        echo -n "${normal}${bold}Confirm that username is ${blue}${addname}${normal}, ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o? "
-        read answer
-        case $answer in [yY] | [yY][Ee][Ss] | "" ) confirm_name=true ;;
-                        [nN] | [nN][Oo]          ) reinput_name=true ;;
-                        *                        ) echo "${bold}Please enter ${bold}${green}[Y]es${normal} or [${bold}${red}N${normal}]o";;
-        esac
-
-        iUser=$addname
-    done
-    echo
-}
-
-# 一定程度上的密码复杂度检测：https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator
-# 询问密码。目前的复杂度判断还不够 Flexget 的程度，但总比没有强……
-function ask_password() {
-    local password1 ; local password2 ; #local exitvalue=0
-    exec 3>&1 >/dev/tty
-
-    if [[ $iPass = "" ]]; then
-        echo "${bold}${yellow}The script needs a password, it will be used for Unix and WebUI${jiacu} "
-        echo "The password must consist of characters and numbers and at least 8 chars,"
-        echo "or you can leave it blank to generate a random password"
-        while [ -z $localpass ]; do
-            read -ep "${jiacu}Enter the password: ${blue}" password1 ; echo -n "${normal}"
-    
-            if [ -z $password1 ]; then
-                localpass=$(genpasswd) ; # exitvalue=1
-                echo "${jiacu}Random password sets to ${blue}$localpass${normal}"
-            elif [ ${#password1} -lt 8 ]; then # At least [8] chars long
-                echo "${bold}${red}ERROR${normal} ${bold}Password must be at least ${red}[8]${jiacu} chars long${normal}" && continue
-            elif ! echo "$password1" | grep -q '[0-9]'; then # At least [1] number
-                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] number${normal}" && continue
-            elif ! echo "$password1" | grep -q '[a-zA-Z]'; then # At least [1] letter
-                echo "${bold}${red}ERROR${normal} ${bold}Password must have at least ${red}[1] letter${normal}" && continue
-            else
-                while [[ $password2 = "" ]]; do
-                    read -ep "${jiacu}Enter the new password again: ${blue}" password2 ; echo -n "${normal}"
-                done
-                if [ $password1 != $password2 ]; then
-                    echo "${bold}${red}WARNING${normal} ${bold}Passwords do not match${normal}" ; unset password2
-                else
-                    localpass=$password1
-                fi
-            fi
-        done
-        iPass=$localpass
-        exec >&3- ; echo ; # return $exitvalue
-    else
-        echo -e "${bold}Password sets to ${blue}$iPass${normal}\n"
     fi
 }
 
