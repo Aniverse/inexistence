@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r13094
+script_version=r13095
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -761,7 +761,7 @@ function show_uploaded_log () {
     if [[ -f $up_log ]]; then
         echo -e " $(cat $up_log | curl -s -F 'sprunge=<-' http://sprunge.us)"
     else
-        echo -e " ERROR: Logfile $up_log NOT FOUND"
+        echo -e " ${red}ERROR: Logfile $up_log NOT FOUND${yellow}"
     fi
 }
 
@@ -798,13 +798,13 @@ function END_output_url() {
         echo -e "\n ${bold}Unfortunately something went wrong during installation."
         echo -e " You can check logs by typing these commands or visit websites below:"
         echo -e " ${yellow}cat $LogTimes/installed.log"
-        [[ -n $qbittorrent_failed  ]] && show_uploaded_log  $LogLocation/05.qb1.log
+        [[ -n $qbittorrent_failed  ]] && show_uploaded_log  $LogLocation/install.qbittorrent.txt
         [[ -n $deluged_failed      ]] && show_uploaded_log  $LogLocation/03.de1.log
         [[ -n $transmission_failed ]] && show_uploaded_log  $LogLocation/08.tr1.log
         [[ -n $RTFAILED            ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
         [[ -n $FDFAILED            ]] && show_uploaded_log  $LogLocation/07.flood.log
-        [[ -n $flexget_failed      ]] && show_uploaded_log  $LogTimes/log/install.flexget.txt
-        [[ -n $xfce_failed         ]] && show_uploaded_log  $LogTimes/log/install.novnc.txt
+        [[ -n $flexget_failed      ]] && show_uploaded_log  $LogLocation/install.flexget.txt
+        [[ -n $xfce_failed         ]] && show_uploaded_log  $LogLocation/install.novnc.txt
         echo -ne "${normal}"
     fi
     echo
