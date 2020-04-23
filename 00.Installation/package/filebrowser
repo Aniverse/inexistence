@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r11007
+script_version=r11008
 
 ################################################################################################ Debug
 
@@ -150,12 +150,48 @@ EOF
 }
 
 
+function write_filebrowser_nginx_reverse_proxy () {
+    # Nginx Reverse
+    # Currently this is only for the first non-root user
+    if [[ -d /etc/nginx/apps ]]; then
+        cat << EOF > /etc/nginx/apps/filebrowser.conf
+location /filebrowser {
+  rewrite ^/filebrowser/(.*) /$1 break;
+  proxy_pass http://$remote_user.filebrowser-ee;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
+}
+
+location /fb {
+  rewrite ^/fb/(.*) /$1 break;
+  proxy_pass http://$remote_user.filebrowser-ee;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
+}
+EOF
+        cat << EOF > /etc/nginx/conf.d/filebrowser.conf
+upstream filebrowser {
+    server 127.0.0.1:${wPort};
+}
+
+upstream fb {
+    server 127.0.0.1:${wPort2};
+}
+EOF
+        nginx -s reload      >> "$OutputLOG" 2>&1
+    fi
+}
+
+
 function filebrowser_root () {
     if [[ ! -f /root/.config/filebrowser-ee/database.db ]]; then
         create_filebrowser_conf      root
         create_filebrowser_systemd   root
-      # systemctl enable filebrowser-root >> "$OutputLOG" 2>&1
-      # systemctl start  filebrowser-root >> "$OutputLOG" 2>&1
+      # systemctl enable filebrowser-root --now >> "$OutputLOG" 2>&1
     fi
 }
 
@@ -167,6 +203,7 @@ function install_filebrowser_ee () {
     filebrowser_root
     create_filebrowser_conf       $iUser
     create_filebrowser_systemd    $iUser
+    write_filebrowser_nginx_reverse_proxy
     systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
     systemctl start  filebrowser@${iUser} >> "$OutputLOG" 2>&1
     sleep 1
