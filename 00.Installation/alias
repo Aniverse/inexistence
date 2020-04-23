@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.22
-script_version=r11009
+script_update=2020.04.23
+script_version=r11010
 ################################################################################################
 this_is_for_copy() {
     source /etc/bash.bashrc
@@ -236,9 +236,9 @@ alias swapoff="swapoff /etc/.swapfile;rm -f /etc/.swapfile"
 alias yuan="nano +20 /etc/apt/sources.list"
 alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*PasswordAuthentication.*/d' /etc/ssh/sshd_config ; sed -i '/.*PermitRootLogin.*/d' /etc/ssh/sshd_config ; echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config ; /etc/init.d/ssh restart >/dev/null 2>&1 && echo -e '\n已开启 root 登陆\n'"
 
-alias s-log="echo \$(cat /tmp/current.logfile 2>/dev/null); lines ; tail -f \$(cat /tmp/current.logfile 2>/dev/null)"
 alias s-opt="echo && cat $LogBase/installed.log && echo"
 alias s-end="echo && cat $LogBase/end.log"
+function s-log() { local logfile=\$(cat /tmp/current.logfile) ; echo \$logfile ; lines ; tail -f \$logfile ; }
 
 ################## Personal Alias END ##################
 

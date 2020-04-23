@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r11005
+script_version=r11006
 
 ################################################################################################ Debug
 
@@ -26,7 +26,7 @@ unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
 AppName=FileBrowser
 AppNameLower=filebrowser
 AppExec=""
-AppTest="docker ps | grep -q filebrowser"
+AppTest="docker ps | grep filebrowser | grep -q $iUser"
 Need_SourceCode=no
 pm_action=install
 
