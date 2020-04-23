@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r11006
+script_version=r11007
 
 ################################################################################################ Debug
 
@@ -13,7 +13,7 @@ usage_for_debug() {
     export s=$local_packages/package/filebrowser
     rm -f $s ; nano $s
     if [[ -f /etc/inexistence/00.Installation/package/filebrowser ]]; then
-        bash /etc/inexistence/00.Installation/package/filebrowser
+        bash /etc/inexistence/00.Installation/package/filebrowser -u $iUser -p $iPass
     else
         bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/filebrowser)
     fi
@@ -22,13 +22,6 @@ usage_for_debug() {
 ################################################################################################
 
 unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
-
-AppName=FileBrowser
-AppNameLower=filebrowser
-AppExec=""
-AppTest="docker ps | grep filebrowser | grep -q $iUser"
-Need_SourceCode=no
-pm_action=install
 
 function show_usage() { echo "
 $AppName $pm_action $script_version ($script_update)
@@ -56,6 +49,13 @@ while [ -n "$1" ] ; do case "$1" in
     -- ) shift ; break ;;
 esac ; done
 
+AppName=FileBrowser
+AppNameLower=filebrowser
+AppExec=""
+AppTest="docker ps | grep filebrowser | grep -q $iUser"
+Need_SourceCode=no
+pm_action=install
+
 ################################################################################################ Set Variables
 
 if [[ -f /etc/inexistence/00.Installation/function ]]; then
@@ -78,7 +78,7 @@ PortCheck $wPort
 
 function get_filebrowser_origin () {
     mkdir -p /tmp/fb && cd /tmp/fb
-    wget https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
+    wget -nv https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
     tar zxf linux-amd64-filebrowser.tar.gz             >> "$OutputLOG" 2>&1
     mv /tmp/fb/filebrowser /usr/local/bin/filebrowser  >> "$OutputLOG" 2>&1
     cd && rm -f /tmp/fb/filebrowser
@@ -169,7 +169,7 @@ function install_filebrowser_ee () {
     create_filebrowser_systemd    $iUser
     systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
     systemctl start  filebrowser@${iUser} >> "$OutputLOG" 2>&1
-    sleep 3
+    sleep 1
 
     generate_status_lock
 }
