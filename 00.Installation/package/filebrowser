@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.15
-script_version=r11003
+script_update=2020.04.23
+script_version=r11004
 
 ################################################################################################ Debug
 
@@ -81,6 +81,7 @@ function get_filebrowser_origin () {
     wget https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
     tar zxf linux-amd64-filebrowser.tar.gz             >> "$OutputLOG" 2>&1
     mv /tmp/fb/filebrowser /usr/local/bin/filebrowser  >> "$OutputLOG" 2>&1
+    cd && rm -f /tmp/fb/filebrowser
 }
 
 function get_filebrowser_ee () {
@@ -90,10 +91,11 @@ function get_filebrowser_ee () {
 function create_filebrowser_conf () {
     local user=$1
     [[ $user == root ]] && local uhome=/root || local uhome=/home/$user
-    mkdir -p /root/.config/filebrowser-ee/log/
+    rm -rf   $uhome/.config/filebrowser-ee
+    mkdir -p $uhome/.config/filebrowser-ee/log
     /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config init                                     >> "$OutputLOG" 2>&1
-    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config config set --locale  $lang               >> "$OutputLOG" 2>&1
-    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config init users add $user $iPass --perm.admin >> "$OutputLOG" 2>&1
+    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config set --locale  $lang                      >> "$OutputLOG" 2>&1
+    /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db users add $iUser $iPass --perm.admin            >> "$OutputLOG" 2>&1
 }
 
 function create_filebrowser_systemd () {
@@ -133,7 +135,7 @@ ExecStart=/usr/bin/docker run \
 -e UMASK_SET=133 \
 -e FB_BASEURL="/$url/" \
 -p ${PORT}:${PORT} \
--v ${uhome}/.config/filebrowser:/config \
+-v ${uhome}/.config/filebrowser-ee:/config \
 -v ${mountpoint}:/myfiles \
 --mount type=tmpfs,destination=/tmp \
 --restart=always \
@@ -148,29 +150,21 @@ EOF
 }
 
 
-
 function filebrowser_root () {
-11
-}
-
-
-
-
-
-
-systemctl enable filebrowser@${iUser}
-systemctl start  filebrowser@${iUser}
-
-
-function install_filebrowser_ee () {
-    install_filebrowser
-
     if [[ ! -f /root/.config/filebrowser-ee/database.db ]]; then
         create_filebrowser_conf      root
         create_filebrowser_systemd   root
-        systemctl enable filebrowser-root >> "$OutputLOG" 2>&1
-        systemctl start  filebrowser-root >> "$OutputLOG" 2>&1
+      # systemctl enable filebrowser-root >> "$OutputLOG" 2>&1
+      # systemctl start  filebrowser-root >> "$OutputLOG" 2>&1
     fi
+}
+
+
+function install_filebrowser_ee () {
+    get_filebrowser_origin
+    get_filebrowser_ee
+
+    filebrowser_root
     create_filebrowser_conf       $iUser
     create_filebrowser_systemd    $iUser
     systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
