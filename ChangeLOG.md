@@ -6,12 +6,44 @@
 
 
 
+## 2020.04.22/23
 
+`the inexistence project`  
+1. **Bump version to 1.2.4**  
+2. **Feature：放弃 Debian 8 支持**  
+仍然可以使用 `-s` 跳过检查来使用，基本功能还是没问题的，针对 Debian 8 进行的特殊处理的代码也仍然保留  
+3. Feature：增加 qb 4.2.4  
+4. BugFix：fix pattern full match  
+5. deb_available 列表从 function 移到了 ask  
 
+`inexistence 1.2.4.1`  
+1. Feature：export LogLocation=$LogTimes/log（原来是 $LogTimes/install）  
+2. Codes：调整 if_need_lt 的位置  
 
+`function r13094`
+1. **NEW function app_manager**  
+Usage: app_manager qbittorrent configure -u someone -p teleph0ne -w 7451 -i 9152  
+2. app_manager 和 install_base 执行结束后会恢复原先的 /tmp/current.logfile  
 
+`ask r11025`
+1. Feature：移除 tr 2.84/2.92 选项  
 
+`alias r11010`
+1. BugFix：s-log，使用 function 代替 alias  
 
+`filebrowser r11006`
+1. 多用户支持，单用户挂载 /home/username 路径  
+2. 有个 root 运行挂载 / 目录的 fb，这个 fb 默认不启用  
+3. 默认账号密码为脚本设定的账号密码，而不再是 `admin`  
+4. 是否在运行的检测方式更加严格，检测对应用户  
+
+`qbittorrent/install r12031`
+1. BugFix：修复 install fpm 时因为多输出一行导致交互界面错乱的问题  
+
+`README 1.3.7`
+1. 支持系统里去掉了 Debian 8，提示不支持 20.04  
+2. 更新 to do list 的完成情况  
+3. 更新了 filebrowser 的说明  
 
 
 
@@ -28,6 +60,7 @@
 `function r13088`
 1. function loggg  
 这个主要是自己单独测试某一部分 debug 时用的，与 write_current_logfile 稍有区别  
+2. $LockLocation → $LOCKLocation  
 
 
 
@@ -38,14 +71,14 @@
 [这两天共有 5+44 条 commits 记录](https://github.com/Aniverse/inexistence/compare/6a9dd59...10ba81b)  
 
 `the inexistence project`  
-直接总结下比较大的几点改动：
+直接总结下比较大的几点改动：  
 1. hezi 脚本加入。这个脚本的使用场景是，安装完 inexistence 后，想补充安装之前没安装的软件，或者对 de/qb/tr/rt 进行升级/降级操作，就可以使用这个脚本而不至于重新跑一次 inexistence。这个也比使用单独的命令方便一些。目前的实现比较简单，交互与 inexistence 没什么区别，以后会往 QuickBox 和 swizzin 的 box 脚本方向靠拢  
 2. 终于干掉了 ask_lt  
 3. UI 方面，终于把各种安装时的输出隐藏掉了，看上去清爽不少  
 4. Transmission 转为用户态运行，alias 和 mingling 也对应更新了  
 5. inexistence 从 1580 行左右砍到了 950 行不到，mingling 也砍了 200 行  
 
-`inexistence 1.2.2.0`  
+`inexistence 1.2.3.10`  
 1. **Bump version to 1.2.2**  
 2. **Bump version to 1.2.3**  
 3. **UI：不再询问 lt 版本，统一使用 lt 1.1.14**  
@@ -54,7 +87,7 @@
 加速脚本安装  
 5. **Codes：简化代码**  
 又有一堆 functions 移到了 ask 和 function 内，大致的在下面有写  
-6. **Codes：增加缩进**
+6. **Codes：增加缩进**  
 现在所有 function 都有缩进了  
 7. UI：确认信息界面，修复 lt 和 bbr 是否显示的判断逻辑  
 8. **Feature：preparation 部分引入了 APT_UPGRADE_SINGLE=1 APT_UPGRADE 与 apt_install_together & spinner $!**  
@@ -89,25 +122,23 @@
 `function r13085`
 1. apt_sources_add
 Debian 8 下添加源，其他 Debian 系统如果缺少 backports 也会补上  
-2. APT_UPGRADE  
-apt_sources_add 已被添加到 APT_UPGRADE 内  
-3. apt_install_check 与 APT_UPGRADE_check  
-APT_UPGRADE_check：如果今天没跑过 apt update，那就在检查软件包之前先跑一次 update，同时生成当日的 lock  
-apt_install_check 前加入 APT_UPGRADE_check  
+2. apt_sources_add 已被添加到 APT_UPGRADE 内  
+3. APT_UPGRADE_check：如果今天没跑过 apt update，那就在检查软件包之前先跑一次 update，同时生成当日的 lock  
+4. apt_install_check 前加入 APT_UPGRADE_check  
 这是综合考虑降低出错率和节省时间的方案  
-4. write_current_logfile 配合传统安装 function 使用  
-5. swap_on、swap_off、_time 引入  
-6. **NEW：hezi_add_user**  
+5. write_current_logfile 配合传统安装 function 使用  
+6. swap_on、swap_off、_time 引入  
+7. **NEW：hezi_add_user**  
 现在会记录账号和密码。密码的加密方式照抄 QuickBox-Lite  
-7. **NEW：export_inexistence_info**  
+8. **NEW：export_inexistence_info**  
 用于检查安装信息，包括 ASN、IP 地址、用户名和密码的提取，用于后续安装  
-8. if_running、check_install 引入  
+9. if_running、check_install 引入  
 主要是配合 hezi 使用，此外 check_install 也加入了 vnstat dashboard 之类的检测（通过 lock 文件判断）    
-9. **NEW：END_output_url**  
+10. **NEW：END_output_url**  
 使用 functions 以及 printf 大幅简化了之前的安装结果、访问链接输出，同时检测方式一部分也改为了 lock 检测，这样子也方便以后调用  
-10. **NEW：show_uploaded_log**  
+11. **NEW：show_uploaded_log**  
 所有出错的日志都上传到 sprunge.us  
-11. get_clients_port 和 get_clients_version 功能分离  
+12. get_clients_port 和 get_clients_version 功能分离  
 
 `hezi r11006`
 1. 初始化  
@@ -144,7 +175,7 @@ apt_install_check 前加入 APT_UPGRADE_check
 1. dl_qbittorrent_alt_webui 加入  
 unzip 如果没有的话从这里加上更合理  
 2. AltWebUI 路径改为 /opt/qBittorrent/WebUI  
-因为没必要每个用户都有单独的第三方 WebUI，有一份不就行了  
+因为没必要每个用户都有单独的第三方 WebUI，有一份就行了  
 3. install_qbittorrent_dependencies 启用备注是的依赖部分  
 
 `qbittorrent/configure r12043`
@@ -157,7 +188,7 @@ unzip 如果没有的话从这里加上更合理
 `libtorrent-rasterbar r10062`
 1. lt 1.0.11 无法在 buster 和 focal 下安装，增加 focal  
 2. 加入 python3-libtorrent 包的安装  
-3. **安装 efs 的 deb 时不先安装编译依赖**  
+3. **安装 efs 的 deb 时不安装编译依赖**  
 缩短安装时间  
 
 `README 1.3.5`
