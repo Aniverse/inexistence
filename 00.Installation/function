@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.04.23
-script_version=r13092
+script_version=r13093
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -294,9 +294,30 @@ function install_base () {
     local appname=$1
     if [[ ! -f $LOCKLocation/$appname.lock ]]; then
         if [[ -f /etc/inexistence/00.Installation/package/$appname ]]; then
-            bash /etc/inexistence/00.Installation/package/$appname --logbase $LogTimes
+            bash /etc/inexistence/00.Installation/package/$appname --logbase $LogTimes ${*:2}
         else
-            bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/$appname) --logbase $LogTimes
+            bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/$appname) --logbase $LogTimes ${*:2}
+        fi
+    fi
+}
+
+
+# Usage: app_manager qbittorrent install   -v 4.2.1 --debug
+# Usage: app_manager qbittorrent configure -u someone -p teleph0ne -w 7451 -i 9152
+function app_manager () {
+    local app_name=$1
+    local app_action=$2
+    if [[ ! -d $LOCKLocation/$appname.lock ]]; then
+        if [[ -f /etc/inexistence/00.Installation/package/$app_name/$app_action ]]; then
+            bash /etc/inexistence/00.Installation/package/$app_name/$app_action --logbase $LogTimes ${*:3}
+        else
+            rm -rf /tmp/app_manager && mkdir -p /tmp/app_manager && cd /tmp/app_manager
+            wget https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/$app_name/$app_action > /dev/null 2>&1
+            if [[ -f /tmp/app_manager/$app_action ]]; then
+                bash $app_action --logbase $LogTimes ${*:3}
+            else
+                echo_error_exit "Action ${app_action} for $app_name doesn't exist"
+            fi
         fi
     fi
 }
