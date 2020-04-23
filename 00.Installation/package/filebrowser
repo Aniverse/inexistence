@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.04.23
-script_version=r11004
+script_version=r11005
 
 ################################################################################################ Debug
 
@@ -180,5 +180,5 @@ install_base docker
 which docker > /dev/null || echo_error_exit "No Docker found"
 
 echo_task "Installing $AppName ..."
-install_filebrowser & spinner $!
+install_filebrowser_ee & spinner $!
 check_status $AppNameLower

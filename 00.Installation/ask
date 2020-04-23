@@ -634,7 +634,7 @@ function do_installation() {
         bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
     fi
     if [[ $InsFB == Yes ]]; then
-        bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575
+        bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575  -u $iUser -p $iPass
     fi
     if [[ $InsX2Go == Yes ]]; then
         write_current_logfile $LogLocation/12.x2go.log

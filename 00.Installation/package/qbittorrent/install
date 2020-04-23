@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.19
-script_version=r12030
+script_update=2020.04.23
+script_version=r12031
 
 ################################################################################################ Debug
 
@@ -323,8 +323,6 @@ function compile_qbittorrent() {
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
-    install_base fpm
-
     if [[ -n $(which fpm) ]]; then
         fpm -C $SCLocation/tmp-$AppNameLower -n $DebName -v $version_s \
             -p $DebLocation/$DebName-$version_s-$CODENAME-$arch.deb \
@@ -386,6 +384,7 @@ case $mode in
                   echo -ne "Installing $AppName build dependencies ..." | tee -a $OutputLOG
                   install_qbittorrent_dependencies & spinner $!
                   check_status $status_lock
+                  install_base fpm
             # fi
 
               echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from source codes ..." | tee -a $OutputLOG
