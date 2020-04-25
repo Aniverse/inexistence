@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.17
-script_version=r11063
+script_update=2020.04.25
+script_version=r11064
 
 ################################################################################################ Debug
 
@@ -182,8 +182,6 @@ function install_lt_source() {
     rm -rf $SCLocation/tmp-$AppNameLower
     mkdir -p /usr/local/include/libtorrent
 
-    install_base fpm
-
     if [[ -n $(which fpm) ]]; then
         make install     DESTDIR=$SCLocation/tmp-$AppNameLower  >> $OutputLOG 2>&1
         mv $SCLocation/tmp-libtorrent-rasterbar/usr/local/lib/python2.7/site-packages \
@@ -339,7 +337,8 @@ case $mode in
               install_lt9_deb2 & spinner $!
               ;;
 
-    source  ) install_lt_dependencies_action
+    source  ) install_base fpm
+              install_lt_dependencies_action
 
               if echo $branch | grep -qEo "[012]_[0-9]_[0-9]+"; then
                   echo_task "Installing libtorrent-rasterbar ${bold}${cyan}$version${normal} from source codes ..."
