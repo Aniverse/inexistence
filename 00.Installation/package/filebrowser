@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.23
-script_version=r11009
+script_update=2020.04.25
+script_version=r11010
 
 ################################################################################################ Debug
 
@@ -214,7 +214,13 @@ function install_filebrowser_ee () {
     write_filebrowser_nginx_reverse_proxy
     systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
     systemctl start  filebrowser@${iUser} >> "$OutputLOG" 2>&1
+
     sleep 1
+    # Debug
+    docker ps             >> "$OutputLOG" 2>&1
+    echo "iUser=$iUser"   >> "$OutputLOG" 2>&1
+    eval $AppTest         >> "$OutputLOG" 2>&1
+    docker ps | grep filebrowser | grep $iUser  >> "$OutputLOG" 2>&1
 
     generate_status_lock
 }
