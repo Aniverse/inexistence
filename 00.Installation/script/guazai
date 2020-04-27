@@ -2,8 +2,8 @@
 # Author: Aniverse
 #
 #################################################################################
-script_update=2020.03.29
-script_version=r11000
+script_update=2020.04.27
+script_version=r11001
 
 black=$(tput setaf 0); red=$(tput setaf 1); green=$(tput setaf 2); yellow=$(tput setaf 3); blue=$(tput setaf 4); magenta=$(tput setaf 5); cyan=$(tput setaf 6); white=$(tput setaf 7); bold=$(tput bold); normal=$(tput sgr0); underline=$(tput smul); reset_underline=$(tput rmul); jiacu=${normal}${bold}
 
@@ -19,7 +19,7 @@ function _file() {
     file_title_clean="$(echo "$file_title_clean" | tr -d ')')"
     mkdir -p "/bluray/mount/$file_title_clean"
     bdpath="/bluray/mount/$file_title_clean"
-    mount -o loop "$bdisopath" "$bdpath" >/dev/null 2>&1
+    mount -o ro,loop "$bdisopath" "$bdpath" # >/dev/null 2>&1
     echo -e "${normal}已将 ${cyan}$disk${normal} 以只读模式挂载到 ${cyan}$bdpath${normal}"
 }
 
