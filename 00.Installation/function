@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.25
-script_version=r13100
+script_update=2020.04.27
+script_version=r13101
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -325,6 +325,25 @@ function app_manager () {
         fi
     fi
     echo -n "$logfile" > /tmp/current.logfile # restore logfile, as $OutputLOG has been updated in sub-script
+}
+
+
+function check_if_succeed(){
+    local wait=$1
+    local command="$2"
+    local seconds=0
+    unset waits
+    while ( ! eval "$command" > /dev/null 2>&1 ) ; do
+        seconds=$(( $seconds + 1 ))
+        sleep 1
+        if [[ $seconds == $wait ]]; then
+            echo
+            return 1
+            export waits=$wait
+        fi
+    done
+    export waits=$seconds
+    return 0
 }
 
 
