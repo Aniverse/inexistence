@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.25
-script_version=r11010
+script_update=2020.04.27
+script_version=r11011
 
 ################################################################################################ Debug
 
@@ -52,7 +52,7 @@ esac ; done
 AppName=FileBrowser
 AppNameLower=filebrowser
 AppExec=""
-AppTest="docker ps | grep filebrowser | grep -q $iUser"
+AppTest="docker ps | grep filebrowser | grep $iUser"
 Need_SourceCode=no
 pm_action=install
 
@@ -215,12 +215,11 @@ function install_filebrowser_ee () {
     systemctl enable filebrowser@${iUser} >> "$OutputLOG" 2>&1
     systemctl start  filebrowser@${iUser} >> "$OutputLOG" 2>&1
 
-    sleep 1
+    check_if_succeed 20 "$AppTest"
     # Debug
     docker ps             >> "$OutputLOG" 2>&1
     echo "iUser=$iUser"   >> "$OutputLOG" 2>&1
-    eval $AppTest         >> "$OutputLOG" 2>&1
-    docker ps | grep filebrowser | grep $iUser  >> "$OutputLOG" 2>&1
+    echo "waits=$waits"   >> "$OutputLOG" 2>&1
 
     generate_status_lock
 }
