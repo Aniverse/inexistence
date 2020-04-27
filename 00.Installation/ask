@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.23
-script_version=r11028
+script_update=2020.04.27
+script_version=r11029
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -126,11 +126,11 @@ function ask_qbittorrent() {
         echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 ${normal}(static)${normal}"
         echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 ${normal}(static)${normal}"
         echo -e "${green}03)${normal} qBittorrent ${cyan}4.2.4 ${normal}(static)${normal}"
-        echo -e "${green}04)${normal} qBittorrent ${cyan}4.2.4 ${normal}(static) (with libtorrent ${cyan}1.2.6${normal})"
+      # echo -e "${green}04)${normal} qBittorrent ${cyan}4.2.4 ${normal}(static) (with libtorrent ${cyan}1.2.6${normal})"
         [[ $CODENAME != jessie ]] &&
         echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}" &&
         echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 ${normal}(deb)${normal}" &&
-        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.4 ${normal}(compile)${normal}"
+        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.5 ${normal}(compile)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
     
@@ -144,7 +144,7 @@ function ask_qbittorrent() {
             04 | 4) qb_version=4.2.4.12 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
             12) qb_version=4.2.3    ;;
-            21) qb_version=4.2.4    ;;
+            21) qb_version=4.2.5    ;;
             30) _input_version && qb_version="${input_version_num}"  ;;
             99) qb_version=No ;;
             * | "") qb_version=4.2.3 ; qb_mode=static ;;
