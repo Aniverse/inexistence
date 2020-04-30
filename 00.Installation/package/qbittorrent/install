@@ -75,8 +75,8 @@ qb_deb_available=('4.1.9' '4.2.3')
 git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
-[[ -z $mode ]] && echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" && mode=deb
-[[ $mode == deb ]] && [[ ! $(echo "${qb_deb_available[*]}" | grep -w "${qb_version}") ]] && echo_error "$version is not available in deb mode" && exit 1
+[[ -z $mode ]] && [[ -n $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && mode=deb
+[[ $mode == deb ]] && [[ -z $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && echo_error "$version is not available in deb mode" && exit 1
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
 if [[ $version == 4.2.4.12 ]]; then
