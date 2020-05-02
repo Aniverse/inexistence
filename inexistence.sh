@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.6
-INEXISTENCEDATE=2020.04.23
+INEXISTENCEVER=1.2.4.7
+INEXISTENCEDATE=2020.05.02
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -189,7 +189,7 @@ function _intro() {
     echo -e "${bold}Checking your server's specification ...${normal}"
     hardware_check_1
     echo -e "${bold}Checking bittorrent clients' version ...${normal}"
-    _check_install_2
+    check_install_2
     get_clients_version
 
     clear
@@ -258,7 +258,7 @@ function ask_continue() {
     [[ $rt_version != No ]] &&
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
-    echo "                  ${cyan}${bold}Flexget${normal}       ${bold}${yellow}${InsFlex}${normal}"
+    echo "                  ${cyan}${bold}FlexGet${normal}       ${bold}${yellow}${InsFlex}${normal}"
     echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
@@ -524,10 +524,10 @@ function install_deluge() {
         apt-get install -y python-twisted python-openssl python-xdg python-chardet geoip-database python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako
         if [[ $Deluge_2_later == Yes ]]; then
             apt-get install -y python-pip
-            pip install --upgrade pip
-            hash -d pip
-            pip install --upgrade setuptools
-            pip install --upgrade twisted pillow rencode pyopenssl
+            pip2 install --upgrade pip
+            hash -d pip2
+            pip2 install --upgrade setuptools
+            pip2 install --upgrade twisted[tls] twisted pillow rencode pyopenssl
         fi
         cd $SourceLocation
 
