@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.27
-script_version=r11011
+script_update=2020.05.09
+script_version=r11012
 
 ################################################################################################ Debug
 
@@ -156,7 +156,7 @@ function write_filebrowser_nginx_reverse_proxy () {
     if [[ -d /etc/nginx/apps ]]; then
         cat << 'EOF' > /etc/nginx/apps/filebrowser.conf
 location /fb {
-  return 301 /filebrowser/;
+  return 301 /fb/;
 }
 
 location /filebrowser {
