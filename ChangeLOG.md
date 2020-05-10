@@ -6,39 +6,103 @@
 
 
 
+
+
+
+
+
+
+## [2020.04.24/25/27/30, 2020.05.02/09/10](https://github.com/Aniverse/inexistence/compare/9aaaa80...7ba4632)  
+
+`inexistence 1.2.4.7`  
+1. BugFix：修复一些手滑的地方  
+2. 安装 deluge 2.0.3 依赖时指定使用 pip2  
+现在默认 pip 使用 pip3 了，此外 de2.0 的安装似乎存在问题，以后再修  
+
+`ask r11029`
+1. 去掉 qBittorrent 4.2.4 (with lt 1.2) 选项  
+2. 增加 qBittorrent 4.2.5 (compile) 选项  
+
+`function r13101`
+1. NEW function: check_if_succeed  
+2. UI：增加 filebrowser 出错时的输出  
+
+`filebrowser r11012`
+1. check_if_succeed 来判断 AppTest 是否成功    
+2. BugFix：修复 /fb 反代跳转到 /filebrowser/ 的问题  
+
+`libtorrent-rasterbar r11064`
+1. UI：移动 install_base fpm 的位置  
+
+`qbittorrent/install r12033`
+1. Merge PR from DieNacht，修复模式判断的问题  
+
+`guazai r11001`
+1. 使用 `ro` (read-only) 挂载参数  
+
+`README 1.3.8`
+1. 更新了 filebrowser 启用 root 版的说明（之前忘了加 --now）  
+
+
+
+
+
 ## 2020.04.22/23
+
+[这两天共有 1+28 条 commits 记录](https://github.com/Aniverse/inexistence/compare/0e326d7...14f4f5d)  
 
 `the inexistence project`  
 1. **Bump version to 1.2.4**  
 2. **Feature：放弃 Debian 8 支持**  
-仍然可以使用 `-s` 跳过检查来使用，基本功能还是没问题的，针对 Debian 8 进行的特殊处理的代码也仍然保留  
+仍然可以用 `-s` 跳过检查来使用，基本功能还是没问题的，针对 Debian 8 的特殊处理的代码也仍然保留  
 3. Feature：增加 qb 4.2.4  
 4. BugFix：fix pattern full match  
 5. deb_available 列表从 function 移到了 ask  
+6. ask_username 等账号密码相关 function 从 ask 移到了 function  
 
-`inexistence 1.2.4.1`  
+`inexistence 1.2.4.6`  
 1. Feature：export LogLocation=$LogTimes/log（原来是 $LogTimes/install）  
 2. Codes：调整 if_need_lt 的位置  
+3. SystemTwaeks：非 ext4 分区不释放保留空间，同时排除 MaxDisk 的检测上 grep -v overlay  
+4. BugFix：修复 SystemTwaeks 日志保存位置不对的问题  
+5. UI：输出最终结果前不做 clear  
+6. Feature：加入 `--domain` 可以指定域名，并用 acme.sh 来签证书（安装 rTorrent 才有）  
+7. BugFix：软链接一些路径的时候，输出也扔到 $OutputLOG  
 
-`function r13094`
+`function r13098`
 1. **NEW function app_manager**  
 Usage: app_manager qbittorrent configure -u someone -p teleph0ne -w 7451 -i 9152  
-2. app_manager 和 install_base 执行结束后会恢复原先的 /tmp/current.logfile  
+2. Feature：app_manager 和 install_base 执行结束后会恢复原先的 /tmp/current.logfile  
+3. BugFix：修复用户名对 reserved_names 的判断  
+4. Feature：if_reverse 启用反代前会先检查 nginx 的运行状态  
+5. Feature：启用 FlexGet 的反代  
+6. Feature：output_url 可以输出先前指定的域名  
+7. BugFix：修复部分软件日志路径错误的问题  
 
-`ask r11025`
+`ask r11028`
 1. Feature：移除 tr 2.84/2.92 选项  
+2. Feature：增加 qb 4.2.4，编译和静态模式两种选项，并提供 lt 1.2.6 版  
+3. BugFix：修复 FileBrowser 没指定用户名和密码的问题  
 
 `alias r11010`
 1. BugFix：s-log，使用 function 代替 alias  
 
-`filebrowser r11006`
+`filebrowser r11009`
 1. 多用户支持，单用户挂载 /home/username 路径  
 2. 有个 root 运行挂载 / 目录的 fb，这个 fb 默认不启用  
 3. 默认账号密码为脚本设定的账号密码，而不再是 `admin`  
 4. 是否在运行的检测方式更加严格，检测对应用户  
+5. 修复是否在运行检测出错的问题  
+6. 加入 `-u` 和 `-p` 参数  
 
-`qbittorrent/install r12031`
+`qbittorrent/install r12033`
 1. BugFix：修复 install fpm 时因为多输出一行导致交互界面错乱的问题  
+2. Feature：静态编译加上 4.2.4 和 4.2.4.12 (libtorrent 1.2 ver)  
+3. BugFix：修复安装模式判断可能出错的问题  
+
+`qbittorrent/configure r12045`
+1. write_qbittorrent_nginx_reverse_proxy  
+2. 部分内容 function 化  
 
 `README 1.3.7`
 1. 支持系统里去掉了 Debian 8，提示不支持 20.04  
