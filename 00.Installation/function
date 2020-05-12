@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.27
-script_version=r13101
+script_update=2020.05.12
+script_version=r13102
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -524,6 +524,7 @@ function export_inexistence_info() {
     asnnnnn=$(cat $LogBase/info/asn.txt)
     serveripv4=$(cat $LogBase/info/serveripv4.txt)
     serveripv6=$(cat $LogBase/info/serveripv6.txt 2>/dev/null)
+    [[ -f /log/inexistence/.lock/tweaks.lock ]] && tweaks_enabled=1
 
     iUser=$(cat /log/inexistence/info/installed.user.list.txt | head -1)
     passphrase=$(cat /root/.ssh/users/${iUser})
