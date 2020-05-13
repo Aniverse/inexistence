@@ -462,20 +462,11 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 ## Some references
 
+Special thanks to [efs](https://github.com/amefs) and [DieNacht](https://github.com/DieNacht).  
+
 https://github.com/arakasi72/rtinst  
 https://github.com/QuickBox/QB  
 https://github.com/liaralabs/swizzin  
-https://github.com/qbittorrent/qBittorrent  
-https://github.com/jfurrow/flood  
-https://flexget.com  
-https://wiki.winehq.org  
-https://wiki.x2go.org  
-http://www.mono-project.com  
-https://rclone.org/install  
-http://dev.deluge-torrent.org/wiki/UserGuide    
-https://mkvtoolnix.download/downloads.html  
-http://outlyer.net/etiq/projects/vcs  
-https://amefs.net  
 https://www.dwhd.org  
 https://moeclub.org  
 https://sometimesnaive.org  
@@ -485,19 +476,22 @@ https://blog.rhilip.info
 https://ymgblog.com  
 http://wilywx.com  
 http://xiaofd.win/onekey-ruisu.html  
-https://github.com/arfoll/unrarall  
 https://github.com/teddysun/across  
 https://github.com/FunctionClub  
 https://github.com/oooldking/script  
 https://github.com/gutenye/systemd-units  
 https://github.com/outime/ipv6-dhclient-script  
-https://github.com/jxzy199306/ipv6_dhclient_online_net  
 https://github.com/GalaxyXL/qBittorrent-autoremove  
-https://xxxxxx.org/forums/viewtopic?topicid=61434  
-https://github.com/superlukia/transmission-2.92_skiphashcheck  
+https://hdbits.org/forums/viewtopic?topicid=61434  
 https://tieba.baidu.com/p/5536354634  
-https://tieba.baidu.com/p/5532509017  
-https://tieba.baidu.com/p/5158974574  
 https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade  
-https://github.com/Azure/azure-devops-utils  
 https://stackoverflow.com/questions/36524872/check-single-character-in-array-bash-for-password-generator  
+https://github.com/Azure/azure-devops-utils  
+https://github.com/linuxserver/reverse-proxy-confs  
+https://github.com/zoffline/BDInfoCLI-ng  
+https://github.com/IvonWei/flexget_qbittorrent_mod  
+https://github.com/Juszoe/flexget-nexusphp  
+https://github.com/CzBiX/qb-web  
+https://github.com/miniers/qb-web  
+https://github.com/userdocs/qbittorrent-nox-static  
+https://github.com/KozakaiAya/libqbpasswd  
