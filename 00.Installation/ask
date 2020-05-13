@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.27
-script_version=r11029
+script_update=2020.05.13
+script_version=r11030
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -163,24 +163,18 @@ function ask_qbittorrent() {
 # wget -qO- "http://download.deluge-torrent.org/source/" | grep -Eo "1\.3\.[0-9]+" | sort -u | pr -6 -t ; echo
 function ask_deluge() {
     while [[ -z $de_version ]]; do
-        echo -e "${green}01)${normal} Deluge ${cyan}1.3.9${normal}"
-        echo -e "${green}02)${normal} Deluge ${cyan}1.3.13${normal}"
-        echo -e "${green}03)${normal} Deluge ${cyan}1.3.14${normal}"
-        echo -e "${green}04)${normal} Deluge ${cyan}1.3.15${normal}"
-        echo -e  "${blue}11)${normal} Deluge ${blue}2.0.3${normal} (Only for test)"
+        echo -e "${green}01)${normal} Deluge ${cyan}1.3.15${normal}"
+        echo -e  "${blue}02)${normal} Deluge ${blue}2.0.3${normal} (Python 2.7)"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install Deluge"
 
         [[ -n $de_installed_ver ]] &&
         echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}Deluge ${de_installed_ver}${reset_underline}${normal}"
 
-        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}04${normal}): " version
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}01${normal}): " version
         case $version in
-            01 | 1) de_version=1.3.9 ;;
-            02 | 2) de_version=1.3.13 ;;
-            03 | 3) de_version=1.3.14 ;;
-            04 | 4) de_version=1.3.15 ;;
-            11) de_version=2.0.3 ;;
+            01 | 1) de_version=1.3.15 ;;
+            02 | 2) de_version=2.0.3 ;;
             21) de_version='1.3.15_skip_hash_check' ;;
             30) _input_version && de_version="${input_version_num}" ;;
             31) _input_version && de_version="${input_version_num}" && de_test=yes &&  de_branch=yes ;;
