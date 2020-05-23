@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.23
-script_version=r12033
+script_update=2020.05.23
+script_version=r12034
 
 ################################################################################################ Debug
 
@@ -200,14 +200,14 @@ function install_qbittorrent_deb() {
 function install_qbittorrent_static() {
     if   [[ $version == 4.2.3 ]]; then
         qb_static=4.2.3.lt.1.1.14
-    elif [[ $version == 4.2.4 ]]; then
-        qb_static=4.2.4.lt.1.1.14
-    elif [[ $version == 4.2.4.12 ]]; then
-        qb_static=4.2.4.lt.1.2.6
+    elif [[ $version == 4.2.5.12 ]]; then
+        qb_static=4.2.5.lt.1.2.6
     else
         qb_static=4.1.9.lt.1.1.14
     fi
-    wget -nv https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download -O $AppExec >> $OutputLOG 2>&1
+    # https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download
+    qb_static_url="https://github.com/Aniverse/qbittorrent-nox-static/releases/download/4.2.4/qbittorrent-nox.${qb_static}"
+    wget "qb_static_url" -O $AppExec >> $OutputLOG 2>&1
     chmod +x $AppExec >> $OutputLOG 2>&1
 }
 
@@ -376,7 +376,7 @@ case $mode in
               check_status_qbt | tee -a $OutputLOG
               ;;
 
-    static  ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from static build ..." | tee -a $OutputLOG
+    static  ) echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} static build ..." | tee -a $OutputLOG
               install_qbittorrent_static & spinner $!
               check_status_qbt | tee -a $OutputLOG
               ;;
