@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.05.23
-script_version=r12034
+script_version=r12035
 
 ################################################################################################ Debug
 
@@ -207,7 +207,7 @@ function install_qbittorrent_static() {
     fi
     # https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download
     qb_static_url="https://github.com/Aniverse/qbittorrent-nox-static/releases/download/4.2.4/qbittorrent-nox.${qb_static}"
-    wget "qb_static_url" -O $AppExec >> $OutputLOG 2>&1
+    wget "$qb_static_url" -O $AppExec >> $OutputLOG 2>&1
     chmod +x $AppExec >> $OutputLOG 2>&1
 }
 
