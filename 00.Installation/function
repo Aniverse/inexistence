@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.12
-script_version=r13102
+script_update=2020.05.23
+script_version=r13103
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -165,6 +165,16 @@ function spinner() {
         printf "\b\b\b\b\b\b"
     done
     printf "    \b\b\b\b"
+}
+
+
+function check_var_iUser_iPass_iHome() {
+    [[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
+    id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
+    # [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
+    # [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
+    iHome=$(grep $iUser /etc/passwd | awk -F':' '{print $(NF-1)}')
+    [[ -z $iHome ]] && { echo -e "ERROR: User home not found" ; exit 1 ; }
 }
 
 

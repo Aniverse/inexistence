@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.13
-script_version=r10002
+script_update=2020.05.23
+script_version=r10003
 
 ################################################################################################ Debug
 
@@ -70,25 +70,22 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+add_local_script_to_PATH
+check_var_iUser_iPass_iHome
 
 ################################################################################################ Set Variables 2
 
-[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
-id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
-[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
-[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=8112
 [[ -z $iPort ]] && iPort=58846
 
 PortCheck $wPort $iPort
 [[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
-
-de_installed_ver=
+de_installed_ver=$(deluged --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
 
 ################################################################################################
 
 # Deluge Password Calculatation
-cat <<EOF > /tmp/deluge.userpass.py
+cat << EOF > /tmp/deluge.userpass.py
 #!/usr/bin/env python
 import hashlib
 import sys
@@ -117,13 +114,12 @@ DUDID=$(python /tmp/deluge.addhost.py)
 
 
 
-function _setde() {
+function configure_deluge() {
 
 # [[ -d $User_PATH/.config/deluge ]] && rm -rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge $User_PATH/.config/deluge.old
 mkdir -p $User_PATH/deluge/{download,torrent,watch}
 
-chmod -R 777 $User_PATH/deluge
-chown -R ${ANUSER}:${ANUSER} $User_PATH/deluge
+
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log
@@ -168,7 +164,14 @@ sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
 sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
 chmod +x /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py /usr/local/bin/deluge-update-tracker
 
-touch /etc/inexistence/01.Log/lock/deluge.lock ; }
+    status_lock=$AppName-c
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    # full program name will not be displayed, so just transmiss not deluge-daemon
+    ps --user $iUser | grep transmiss -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    echo >> $OutputLOG
+
+}
 
 
 
