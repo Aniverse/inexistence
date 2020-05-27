@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.7
-INEXISTENCEDATE=2020.05.02
+INEXISTENCEVER=1.2.4.8
+INEXISTENCEDATE=2020.05.27
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -116,6 +116,7 @@ export LogLocation=$LogTimes/log
 export LOCKLocation=$LogBase/.lock
 export WebROOT=/var/www
 set_language
+MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | grep -v overlay | head -1)
 # --------------------------------------------------------------------------------
 
 # 用于退出脚本
@@ -690,7 +691,6 @@ function install_flood() {
     systemctl enable flood
 
     touch $LOCKLocation/flood.lock
-
     cd
 }
 
@@ -924,7 +924,6 @@ defscrollback 23333
 EOF
     fi
     # 将最大的分区的保留空间设置为 1 %
-    MaxDisk=$(df -k | sort -rn -k4 | awk '{print $1}' | grep -v overlay | head -1)
     if mount | grep $MaxDisk | grep ext4 -q ; then
         tune2fs -m 1 $MaxDisk   >> "$OutputLOG" 2>&1
     fi
@@ -960,7 +959,7 @@ ask_tweaks
 if_need_lt=0
 [[ $qb_version != No ]] && [[ -z $qb_mode ]] && if_need_lt=1
 [[ $de_version != No ]] && if_need_lt=1
-[[ $if_need_lt == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
+[[ $if_need_lt  == 1 ]] && [[ -z $lt_version ]] && lt_version=RC_1_1
 ask_continue
 
 starttime=$(date +%s)
