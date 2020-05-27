@@ -11,9 +11,11 @@
 * [x] 加入 filebrowser  
 * [ ] 加入 deluge/configure  
 * [ ] 加入 deluge/install，但不支持 2.0.3 的 python3 模式  
+* [ ] inexistence.sh 加入 --help，解释各参数的作用与用法  
 * [ ] 整合 DieNacht 的升级系统／换源脚本  
 * [ ] 更新 README 的图片  
 * [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
+* [ ] 这波清理完以后发布 release，主要是备份和方便以后跨版本对比  
 * [ ] 升级 bdinfocli 的版本  
 * [ ] 各软件的日志软链接到一个目录，方便在 h5ai／FileBrowser 中查看  
 
@@ -85,14 +87,14 @@
 1. NEW function: check_var_iUser_iPass_iHome  
 中间还修复了一次判断，现在检测 iHome 的方式应该靠谱了  
 2. BugFix：增加 tweaks_enabled 的变量  
-这个是修复 mingling 的 bug  
+这个是为了修复 mingling 的 bug  
 
 `qbittorrent/configure r12046`
 1. 使用 check_var_iUser_iPass_iHome  
 
 `qbittorrent/install r12035`
 1. Feature：移除 qb 4.2.4 static，加入 4.2.5.12 static  
-2. **Feature：从 GitHub release 下载 qbittorrent-nox static-build**
+2. **Feature：从 GitHub release 下载 qbittorrent-nox static-build**  
 SourceForge 有时候下载速度实在是堪忧，虽然现在 GitHub 也不是很稳，但 GitHub 的正常运转是整个脚本能正常运作的基础，要是 GitHub 都挂了那脚本功能出问题是非常正常的  
 3. UI：从静态编译安装时，安装时的提示文字中去掉 from  
 
@@ -148,9 +150,7 @@ SourceForge 有时候下载速度实在是堪忧，虽然现在 GitHub 也不是
 
 
 
-## 2020.04.22/23
-
-[这两天共有 1+28 条 commits 记录](https://github.com/Aniverse/inexistence/compare/0e326d7...14f4f5d)  
+## [2020.04.22/23, 1+28 commits](https://github.com/Aniverse/inexistence/compare/0e326d7...14f4f5d)  
 
 `the inexistence project`  
 1. **Bump version to 1.2.4**  
@@ -231,9 +231,7 @@ Usage: app_manager qbittorrent configure -u someone -p teleph0ne -w 7451 -i 9152
 
 
 
-## 2020.04.18/19
-
-[这两天共有 5+44 条 commits 记录](https://github.com/Aniverse/inexistence/compare/6a9dd59...10ba81b)  
+## [2020.04.18/19, 5+44 commits](https://github.com/Aniverse/inexistence/compare/6a9dd59...10ba81b)  
 
 `the inexistence project`  
 直接总结下比较大的几点改动：  
@@ -403,9 +401,7 @@ unzip 如果没有的话从这里加上更合理
 
 
 
-## 2020.04.11
-
-[这一天共有 43 条 commits 记录](https://github.com/Aniverse/inexistence/compare/a9a8da1...0ca4d67)  
+## [2020.04.11, 43 commits](https://github.com/Aniverse/inexistence/compare/a9a8da1...0ca4d67)  
 
 `inexistence 1.2.1.5`  
 1. **Bump version to 1.2.0**  
