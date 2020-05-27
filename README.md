@@ -409,43 +409,6 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 
 
 
-
-## To do list
-
-近期  
-
-* [x] IPv6 脚本更新  
-* [x] 增加 flexget/install  
-* [x] 增加 flexget/configure  
-* [x] 增加 vnstat/install  
-* [ ] 增加 deluge/configure  
-* [x] 增加 transmission/configure  
-* [ ] 增加 flood/install  
-* [x] 加入 novnc  
-* [x] 加入 filebrowser  
-* [ ] 重写升级系统和换源部分，可能会作为子脚本／外部脚本使用  
-* [ ] 更新 README 的图片  
-
-中期  
-
-* [x] 放弃 Debian 8 支持  
-* [x] 去除脚本里的换源、tools、bbr、wine 问题  
-* [x] 去除脚本里的 install from ppa. repo  
-* [x] 去除 libtorrent 1.0 选项  
-* [ ] 去除 rTorrent 0.9.6 及以下的选项  
-* [ ] 增加 deluge/install  
-* [x] 增加 qbittorrent/install  
-* [ ] 增加 transmission/install  
-* [x] 增加 `hezi` 脚本，类似 quickbox 的 `box`（可能替代 `mingling`）  
-* [ ] 增加 `mima` 脚本  
-
-远期  
-
-* [ ] 增加 Ubuntu 20.04 LTS 支持  
-* [ ] inexistence.sh 完整的中文交互界面  
-* [ ] Deluge 2 w/ Python3  
-
-
 ## Something else
 
 还有一些脚本，比如 `zuozhong`，在此不作介绍了，基本看名字都知道是干什么用的了  

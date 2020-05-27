@@ -1,3 +1,63 @@
+# To do list
+
+近期  
+
+* [x] IPv6 脚本更新  
+* [x] 加入 flexget/install  
+* [x] 加入 flexget/configure  
+* [x] 加入 vnstat/install  
+* [x] 加入 transmission/configure  
+* [x] 加入 novnc  
+* [x] 加入 filebrowser  
+* [ ] 加入 deluge/configure  
+* [ ] 加入 deluge/install，但不支持 2.0.3 的 python3 模式  
+* [ ] 整合 DieNacht 的升级系统／换源脚本  
+* [ ] 更新 README 的图片  
+* [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
+* [ ] 升级 bdinfocli 的版本  
+* [ ] 各软件的日志软链接到一个目录，方便在 h5ai／FileBrowser 中查看  
+
+中期  
+
+* [x] 放弃 Debian 8 支持  
+* [x] 移除脚本里的换源、tools、bbr、wine 问题  
+* [x] 移除脚本里的 install from ppa. repo  
+* [x] 移除 libtorrent 1.0 选项  
+* [x] 加入 qbittorrent/install  
+* [ ] 加入 flood/install  
+* [ ] 加入 x2go/install  
+* [ ] 加入 transmission/install  
+* [ ] 新增 Transmission 3.0  
+* [ ] 移除 rTorrent 0.9.6 及以下的选项  
+* [ ] deluge/install 支持 2.0.3 的 python3 模式  
+* [ ] `hezi` 脚本支持 `hezi install qb 4.2.5` 这样的用法  
+* [ ] 补全 changelog，即补完我在使用 git 之前的更新记录  
+
+远期  
+
+* [ ] 支持 Ubuntu 20.04 LTS  
+* [ ] 使用 pyenv  
+* [ ] 使主脚本 inexistence.sh 有完整的中文交互界面  
+* [ ] 不使用 rtinst，自己写 rTorrent 与 ruTorrent 的安装  
+* [ ] 加入 ftp/install  
+* [ ] 加入 nginx/configure  
+* [ ] `hezi` 脚本里加入新增用户、删除用户、改用户密码的功能  
+
+设想阶段（可能砍掉）  
+
+* [ ] 加入 rTorrent 和 Transmission 的静态编译版本  
+* [ ] 某种程度上的 Docker 版 inexistence（与非 docker 版有区别，且不经常更新）  
+* [ ] 下载 efs deb 失败时的 fallback  
+
+
+
+
+
+
+
+
+
+
 # ChangeLog  
 
 
@@ -7,6 +67,47 @@
 
 
 
+
+
+
+## [2020.05.12/13/23/27](https://github.com/Aniverse/inexistence/compare/7ba4632...33ef6a6)  
+
+`inexistence 1.2.4.8`  
+1. BugFix：修复 s-opt 中没有 MaxDisk 变量的问题  
+
+`ask r11030`
+1. 移除 qBittorrent 4.2.4 选项  
+2. 新增 qBittorrent 4.2.5 (static, libtorrent 1.2) 选项  
+3. 移除 Deluge 1.3.9/13/14 选项  
+4. Deluge 2.0.3 only for test 的提示改为 Python 2.7  
+
+`function r13104`
+1. NEW function: check_var_iUser_iPass_iHome  
+中间还修复了一次判断，现在检测 iHome 的方式应该靠谱了  
+2. BugFix：增加 tweaks_enabled 的变量  
+这个是修复 mingling 的 bug  
+
+`qbittorrent/configure r12046`
+1. 使用 check_var_iUser_iPass_iHome  
+
+`qbittorrent/install r12035`
+1. Feature：移除 qb 4.2.4 static，加入 4.2.5.12 static  
+2. **Feature：从 GitHub release 下载 qbittorrent-nox static-build**
+SourceForge 有时候下载速度实在是堪忧，虽然现在 GitHub 也不是很稳，但 GitHub 的正常运转是整个脚本能正常运作的基础，要是 GitHub 都挂了那脚本功能出问题是非常正常的  
+3. UI：从静态编译安装时，安装时的提示文字中去掉 from  
+
+`deluge/configure r10003`
+1. 同步近期代码变动，大改以后再说  
+
+`README 1.3.9`
+1. References：Special thanks to [efs](https://github.com/amefs) and [DieNacht](https://github.com/DieNacht)  
+2. References：移除了一些已经不用的东西，比如 vcs 和 unrarall 脚本  
+3. References：移除了一些官网教程的链接  
+4. References：新增了近期集成的一些东西的链接，以及参考资料  
+
+`ChangeLOG 1.1.0`  
+1. 近期的 changelog 里都包含了 comparison 的链接  
+2. to do list 从 README 移到了 ChangeLOG  
 
 
 
@@ -20,8 +121,8 @@
 现在默认 pip 使用 pip3 了，此外 de2.0 的安装似乎存在问题，以后再修  
 
 `ask r11029`
-1. 去掉 qBittorrent 4.2.4 (with lt 1.2) 选项  
-2. 增加 qBittorrent 4.2.5 (compile) 选项  
+1. 移除 qBittorrent 4.2.4 (with lt 1.2) 选项  
+2. 新增 qBittorrent 4.2.5 (compile) 选项  
 
 `function r13101`
 1. NEW function: check_if_succeed  
@@ -4746,7 +4847,7 @@ bdinfo、bejietu、guazai、jietu、zuozhong
 
 
 
-似乎到此为止 GitHub 更新的部分写完了，剩下的是本地的部分了……真麻烦，呸  
+似乎到此为止 GitHub 更新的部分写完了，剩下的是本地的部分了……真麻烦  
 还有 rtinst 的部分……  
 
 -------------------
