@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.23
-script_version=r13103
+script_update=2020.05.27
+script_version=r13104
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -173,8 +173,9 @@ function check_var_iUser_iPass_iHome() {
     id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
     # [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
     # [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
-    iHome=$(grep $iUser /etc/passwd | awk -F':' '{print $(NF-1)}')
-    [[ -z $iHome ]] && { echo -e "ERROR: User home not found" ; exit 1 ; }
+    # iHome=$(grep $iUser /etc/passwd | awk -F':' '{print $(NF-1)}')
+    iHome=$(eval echo "~$iUser")
+    [[ ! -d $iHome ]] && { echo -e "ERROR: User home not found" ; exit 1 ; }
 }
 
 
