@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.04.19
-script_version=r12017
+script_update=2020.05.31
+script_version=r12018
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -722,7 +722,7 @@ function disk_check_smart () {
                             if [[ $( nvme smart-log /dev/nvme$i 2>&1 | grep power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
                                 power_on_hours=$(nvme smart-log /dev/nvme$i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
-                                model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | sed 's/  .*: //' | sed 's/ *$//')
+                                model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | awk -F':' '{print $2,$3,$4}' | sed 's/^ //')
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
                         done
