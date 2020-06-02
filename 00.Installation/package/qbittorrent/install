@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.05.23
-script_version=r12035
+script_update=2020.06.02
+script_version=r12036
 
 ################################################################################################ Debug
 
@@ -79,9 +79,7 @@ lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 
 [[ $mode == deb ]] && [[ -z $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && echo_error "$version is not available in deb mode" && exit 1
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
-if [[ $version == 4.2.4.12 ]]; then
-    mode=static ; version_s=4.2.4
-elif [[ -n $version ]]; then
+if [[ -n $version ]] && [[ $mode == source ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
     version_s=$version
 fi
