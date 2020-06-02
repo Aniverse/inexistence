@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.21
-script_version=r11007
+script_update=2020.06.02
+script_version=r11008
 
 ################################################################################################ Debug
 
@@ -62,8 +62,6 @@ check_install_2
 get_clients_version
 mkdir -p $LogBase/$times
 
-echo -e "\n${bold}这个脚本仍在测试阶段。qb/de/tr 在这里里只用于升级或者降级，不适用于全新安装${normal}\n"
-
 if [[ -z $iPass ]]; then
     create_user=1
     ask_username
@@ -71,9 +69,12 @@ if [[ -z $iPass ]]; then
 fi
 
 # password needed
-[[ -n $qb_installed_ver ]] && ask_qbittorrent
-[[ -n $de_installed_ver ]] && ask_deluge
-[[ -n $tr_installed_ver ]] && ask_transmission
+# [[ -n $qb_installed_ver ]] && 
+ask_qbittorrent
+# [[ -n $de_installed_ver ]] && 
+ask_deluge
+# [[ -n $tr_installed_ver ]] && 
+ask_transmission
 ask_rtorrent
 ask_flexget
 ask_filebrowser
