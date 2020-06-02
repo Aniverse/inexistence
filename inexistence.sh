@@ -10,8 +10,10 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.5.6
-INEXISTENCEDATE=2020.06.02
+script_version=1.2.5.7
+script_update=2020.06.02
+script_name=inexistence
+script_cmd="bash <(wget -qO- git.io/abcde)"
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -143,7 +145,7 @@ function _intro() {
     echo -e  "  Disk      : ${cyan}$disk_total_size GB ($disk_used_size GB Used)${normal}"
     echo -e  "  OS        : ${cyan}$displayOS${normal}"
     echo -e  "  Kernel    : ${cyan}$running_kernel${normal}"
-    echo -e  "  Script    : ${cyan}$INEXISTENCEVER ($INEXISTENCEDATE), $iBranch branch${normal}"
+    echo -e  "  Script    : ${cyan}$script_version ($script_update), $iBranch branch${normal}"
     echo -e  "  Virt      : ${cyan}$virtual${normal}"
     echo
     [[ -n "$rt_domain" ]] &&
@@ -299,8 +301,8 @@ Location   : $cityyyy, $regionn, $country
 Virt       : $virtual
 #################################
 InstalledTimes=$times
-INEXISTENCEVER=${INEXISTENCEVER}
-INEXISTENCEDATE=${INEXISTENCEDATE}
+INEXISTENCEVER=${script_version}
+INEXISTENCEDATE=${script_update}
 Setup_date=$(date "+%Y.%m.%d %H:%M")
 MaxDisk=$MaxDisk
 HomeUserNum=$(ls /home | wc -l)
@@ -331,8 +333,8 @@ X2Go=${InsX2Go}
 
     cat << EOF >> $LogBase/info/version.txt
 inexistence.times       $times
-inexistence.version     $INEXISTENCEVER
-inexistence.update      $INEXISTENCEDATE
+inexistence.version     $script_version
+inexistence.update      $script_update
 inexistence.lang        $script_lang
 inexistence.user        $iUser
 inexistence.setup       $(date "+%Y.%m.%d %H:%M")

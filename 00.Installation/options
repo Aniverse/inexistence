@@ -11,6 +11,10 @@
 
 function show_inex_usage () {
     echo -e "
+$script_name $script_version ($script_update)
+
+Usage: $script_cmd [OPTS]
+
 Options:
   -u, --username <username>       Specify username
   -p. --password <password>       Specify password
@@ -27,7 +31,7 @@ Options:
   -y, --yes                       Force yes to all questions
   --enable-ipv6                   Enable IPv6 for rTorrent
   --qb-static                     Install qBittorrent static builds instead of via deb or compile
-  --tr-deb                        Install Transmission via deb
+  --tr-deb                        Install Transmission 2.94 via deb
   -h, --help                      Display this help and exit
 
   --APPNAME                       Install an application
@@ -38,7 +42,12 @@ Options:
   --no-SOMETHING                  DO NOT install or do something
 
   Available SOMETHING:
-  flood | flexget | filebrowser | bbr | tweaks | swap | reboot | system-upgrade | source-change
+  flexget | filebrowser | bbr | tweaks | swap | reboot | system-upgrade | source-change
+
+Example:
+  $script_cmd -u aniverse -p ajYeTGRkFw42 -y --de 1.3.15 --qb no --rt no  \\
+  --hostname myseedbox --flexget --no-bbr --rclone --tweaks --tr-deb --vnc \\
+  --no-system-upgrade --no-reboot --no-source-change --no-filebrowser
 "
     exit
 }
