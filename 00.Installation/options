@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r10002
+# script_version=r10003
 # This var will recover other script's var when source
 #
 ################################################################################################
@@ -60,7 +60,7 @@ function opts_action () {
         -p | --password   ) iPass=$2          ; shift 2 ;;
         -b | --branch     ) iBranch=$2        ; shift 2 ;;
     
-        --de              ) qb_version=$2     ; shift 2 ;;
+        --de              ) de_version=$2     ; shift 2 ;;
         --qb              ) qb_version=$2     ; shift 2 ;;
         --tr              ) tr_version=$2     ; shift 2 ;;
         --rt              ) rt_version=$2     ; shift 2 ;;

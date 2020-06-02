@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.5.7
+script_version=1.2.5.8
 script_update=2020.06.02
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -24,7 +24,7 @@ aptsources=Yes
 
 # 获取参数
 source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/options)
-OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && show_inex_usage
 eval set -- "$OPTS"
 opts_action "$@"

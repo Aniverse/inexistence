@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.02
-script_version=r11015
+script_version=r11016
 script_name=hezi
 
 ################################################################################################ Debug
@@ -74,12 +74,13 @@ function possible_usage () {
 ACTION=$1
 
 function ask_if_install () {
-    local script_cmd="hezi buchong"
-    local ExtraArgs=${*:2}
-    local OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$ExtraArgs")
+    script_cmd="hezi buchong"
+    arg=("$@")
+    ExtraArgs=("${arg[@]:1}")
+    OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,qb:,rt:,tr:,lt:,qb-static,separate" -- "${ExtraArgs[@]}")
     [ ! $? = 0 ] && show_inex_usage
     eval set -- "$OPTS"
-    opts_action "$ExtraArgs"
+    opts_action "${ExtraArgs[@]}"
 
     set_language
     check_install_2
