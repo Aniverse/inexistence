@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.02
-script_version=r10004
+script_version=r10005
 
 ################################################################################################ Debug
 
@@ -79,7 +79,7 @@ check_var_iUser_iPass_iHome
 [[ -z $wPort ]] && wPort=9099
 [[ -z $iPort ]] && iPort=52333  # Default: 51413 ?
 PortCheck $wPort $iPort
-[[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
+[[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
 
 tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
