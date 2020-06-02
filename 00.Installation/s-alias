@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r12011
+# script_version=r12012
 
 ################## Inexistence Mod Start ##################
 
@@ -135,16 +135,16 @@ alias irssic="su iUser -c 'rt -i'"
 alias irssir="su iUser -c 'rt -i -k restart'"
 alias irssiscreen="chmod -R 777 /dev/pts && su iUser -c 'screen -r irssi'"
 alias fga="systemctl start flexget@iUser"
-alias fgaa="flexget -c /home/iUser/flexget/config.yml daemon start --daemonize"
 alias fgb="systemctl stop flexget@iUser"
 alias fgc="systemctl status flexget@iUser"
-alias fgcc="flexget -c /home/iUser/flexget/config.yml daemon status"
 alias fgr="systemctl restart flexget@iUser"
-alias fgrr="flexget -c /home/iUser/flexget/config.yml daemon reload-config"
+alias fgaa="runuser -l iUser -c 'flexget daemon start --daemonize'"
+alias fgcc="runuser -l iUser -c 'flexget daemon status'"
+alias fgrr="runuser -l iUser -c 'flexget daemon reload-config'"
+alias fgcheck="runuser -l iUser -c 'flexget check'"
+alias fge="runuser -l iUser -c 'flexget execute'"
 alias fgl="echo ; tail -300 /home/iUser/.config/flexget/flexget.log ; echo"
 alias fgs="nano +60 /home/iUser/.config/flexget/config.yml"
-alias fgcheck="flexget -c /home/iUser/flexget/config.yml check"
-alias fge="flexget -c /home/iUser/flexget/config.yml execute"
 alias fla="systemctl start flood"
 alias flb="systemctl stop flood"
 alias flc="systemctl status flood"

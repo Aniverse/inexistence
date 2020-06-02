@@ -253,7 +253,8 @@ function ask_continue() {
     echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
     echo "                  ${cyan}${bold}FlexGet${normal}       ${bold}${yellow}${InsFlex}${normal}"
-    echo "                  ${cyan}${bold}System tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
+    echo "                  ${cyan}${bold}FileBrowser${normal}   ${bold}${yellow}${InsFB}${normal}"
+    echo "                  ${cyan}${bold}System Tweak${normal}  ${bold}${yellow}${UseTweaks}${normal}"
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
 

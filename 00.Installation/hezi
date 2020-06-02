@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.02
-script_version=r11009
+script_version=r11011
 
 ################################################################################################ Debug
 
@@ -52,9 +52,8 @@ export_inexistence_info
 function show_usage () {
     echo -e "${bold}hezi $script_version ($script_update)${normal}
 这是一个用于管理盒子的脚本，目前支持的用法有：
-hezi buchong = 盒子补充 ———— 补充安装软件
-hezi gengxin = 盒子更新 ———— 更新脚本到最新版（尚未完善）
-"
+hezi buchong = 盒子补充 —————— 补充安装软件
+hezi gengxin = 盒子更新 —————— 更新脚本到最新版（尚未完善）"
 }
 
 function possible_usage () {
@@ -114,6 +113,7 @@ function update_inexistence () {
     git pull
     # wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/alias -O /etc/inexistence/00.Installation/alias
     # wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/function -O /etc/inexistence/00.Installation/function
+    sed -i "s/iUser/$iUser/g" $local_packages/s-alias
     chmod 644 /usr/local/bin/s-alias
 }
 
@@ -122,5 +122,7 @@ function update_inexistence () {
 case $ACTION in
     buchong     ) ask_if_install ; do_installation ;;
     gengxin     ) update_inexistence ;;
-    *           ）show_usage ;;
+    *           ) show_usage ;;
 esac
+
+echo test
