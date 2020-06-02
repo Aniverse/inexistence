@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r10000
+# script_version=r10001
 # This var will recover other script's var when source
 #
 ################################################################################################
@@ -41,7 +41,7 @@ function show_inex_usage () {
   Available SOMETHING:
   flood | flexget | filebrowser | bbr | tweaks | swap | reboot | system-upgrade | source-change
 "
-    # exit
+    exit
 }
 
 ################################################################################################
