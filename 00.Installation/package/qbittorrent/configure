@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.23
-script_version=r12046
+script_update=2020.06.02
+script_version=r12047
 
 ################################################################################################ Debug
 
@@ -36,11 +36,12 @@ Usage:
       -i        Incoming port for qBittorrent
       -l        language for qBittorrent WebUI
       -d        Enable debug mode
+      -f        Force recover existing configuration
       --shared  run this script without root privilege, this is for shared seedbox
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,shared,log,help" -- "$@")
+OPTS=$(getopt -a -o u:p:w:i:l:dhf --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,shared,log,help,force" -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
@@ -52,6 +53,7 @@ while true; do
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
     -l | --lang     ) lang="$2"     ; shift 2 ;;
     -d | --debug    ) debug=1       ; shift   ;;
+    -f | --force    ) force=1       ; shift   ;;
     -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
          --log      ) show_log=1    ; shift   ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
@@ -284,7 +286,10 @@ function configure_qbittorrent() {
 
 
 
-
-echo_task "Configuring $AppName ..."
-configure_qbittorrent & spinner $!
-check_status $status_lock
+if [[ -d $iHome/.config/qBittorrent ]] && [[ $force != 1 ]] ;then
+    echo -e "Configuration for $iUser already exists, skip configuration ..."
+else
+    echo_task "Configuring $AppName ..."
+    configure_qbittorrent & spinner $!
+    check_status $status_lock
+fi

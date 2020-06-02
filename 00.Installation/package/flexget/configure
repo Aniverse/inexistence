@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.04.03
-script_version=r10009
+script_update=2020.06.02
+script_version=r10010
 
 ################################################################################################ Debug
 
@@ -36,10 +36,11 @@ Usage:
       -w        Specifiy FlexGet WebUI port
       -p        Specifiy FlexGet WebUI password
       -d        Enable debug mode
+      -f        Force recover existing configuration
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:l:w:d --long user:,password:,debug,logbase:,wport:,system,single,log -- "$@")
+OPTS=$(getopt -a -o u:p:l:w:df --long user:,password:,debug,logbase:,wport:,system,single,log,force -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -49,6 +50,7 @@ while [ -n "$1" ] ; do case "$1" in
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -w | --wport        ) wPort="$2"    ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+    -f | --force    ) force=1       ; shift   ;;
          --system       ) mode=system   ; shift   ;;
          --single       ) mode=single   ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
@@ -68,17 +70,11 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+check_var_iUser_iPass_iHome
 
 ################################################################################################ Set Variables 2
 
-# [[ -z $mode ]] && mode=system
-# [[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password!" ; exit 1 ; }
-[[ -z $iPass ]] && { echo -e "ERROR: Please input password" ; exit 1 ; }
-id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
-[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
-[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 [[ -z $wPort ]] && wPort=6566
-
 PortCheck $wPort
 [[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
 
@@ -268,12 +264,13 @@ function configure_flexget() {
 
 
 
-
-echo_task "Configuring $AppName ..."
-configure_flexget & spinner $!
-check_status $status_lock
-
-
+if [[ -d $iHome/.config/flexget ]] && [[ $force != 1 ]] ;then
+    echo -e "Configuration for $iUser already exists, skip configuration ..."
+else
+    echo_task "Configuring $AppName ..."
+    configure_flexget & spinner $!
+    check_status $status_lock
+fi
 
 
 

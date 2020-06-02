@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.23
-script_version=r10004
+script_update=2020.06.02
+script_version=r10005
 
 ################################################################################################ Debug
 
@@ -35,10 +35,11 @@ Usage:
       -w        WebUI port for deluge-web
       -i        Daemon port for deluged
       -d        Enable debug mode
+      -f        Force recover existing configuration
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help" -- "$@")
+OPTS=$(getopt -a -o u:p:w:i:l:dhf --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,help,force" -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
@@ -50,6 +51,7 @@ while true; do
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
     -l | --lang     ) lang="$2"     ; shift 2 ;;
     -d | --debug    ) debug=1       ; shift   ;;
+    -f | --force    ) force=1       ; shift   ;;
     -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
          --log      ) show_log=1    ; shift   ;;
          --logbase  ) LogTimes="$2" ; shift 2 ;;
@@ -310,10 +312,10 @@ function deluge_get_plugins() {
 
 function configure_deluge() {
 
+if [[ $force == 1 ]] ;then 1
+fi
 # [[ -d $User_PATH/.config/deluge ]] && rm -rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge $User_PATH/.config/deluge.old
 mkdir -p $User_PATH/deluge/{download,torrent,watch}
-
-
 
 touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
 chmod -R 666 /etc/inexistence/01.Log

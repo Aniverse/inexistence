@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.05.09
-script_version=r11012
+script_update=2020.06.02
+script_version=r11013
 
 ################################################################################################ Debug
 
@@ -31,10 +31,11 @@ Usage:
       -l        Specifiy LogBase (Not log file)
       -d        Enable debug mode
       -w        WebUI port for FileBrowser
+      -f        Force recover existing configuration
       --log     Show logfile's content"
 exit 1 ; }
 
-OPTS=$(getopt -o v:l:w:u:d -al username:,password:,version:,debug,logbase:,wport:,log -- "$@")
+OPTS=$(getopt -o v:l:w:u:df -al username:,password:,version:,debug,logbase:,wport:,log,force -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 
@@ -45,6 +46,7 @@ while [ -n "$1" ] ; do case "$1" in
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -w | --wport        ) wPort="$2"    ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
+    -f | --force        ) force=1       ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
     -- ) shift ; break ;;
 esac ; done
@@ -68,6 +70,8 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+check_var_iUser_iPass_iHome
+
 [[ -z $wPort ]] && wPort=7575
 wPort2=7576
 [[ -z $lang ]] && lang=zh-cn
@@ -229,6 +233,10 @@ function install_filebrowser_ee () {
 install_base docker
 which docker > /dev/null || echo_error_exit "No Docker found"
 
-echo_task "Installing $AppName ..."
-install_filebrowser_ee & spinner $!
-check_status $AppNameLower
+if [[ -d $iHome/.config/filebrowser-ee ]] && [[ $force != 1 ]] ;then
+    echo -e "Configuration for $iUser already exists, skip configuration ..."
+else
+    echo_task "Installing $AppName ..."
+    install_filebrowser_ee & spinner $!
+    check_status $AppNameLower
+fi

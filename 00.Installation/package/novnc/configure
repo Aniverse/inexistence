@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.29
-script_version=r12011
+script_update=2020.06.02
+script_version=r12012
 
 ################################################################################################ Debug
 
@@ -35,11 +35,12 @@ Usage:
       -w        WebUI port (noVNC)
       -i        VNC port
       -d        Enable debug mode
+      -f        Force recover existing configuration
       --log     Show logfile's content
       --root    Enable root user's VNC"
 exit 1 ; }
 
-OPTS=$(getopt -a -o u:p:w:i:h:l:dh --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,root,help" -- "$@")
+OPTS=$(getopt -a -o u:p:w:i:l:dhf --long "username:,password:,home:,wport:,iport:,lang:,logbase:,debug,log,root,help,force" -- "$@")
 [ ! $? = 0 ] && show_usage
 eval set -- "$OPTS"
 while true; do
@@ -51,6 +52,7 @@ while true; do
     -i | --iport    ) iPort="$2"    ; shift 2 ;;
     -l | --lang     ) lang="$2"     ; shift 2 ;;
     -d | --debug    ) debug=1       ; shift   ;;
+    -f | --force    ) force=1       ; shift   ;;
     -h | --help     ) show_usage    ; exit 0   ;  shift   ;;
          --root     ) enable_root=1 ; shift   ;;
          --log      ) show_log=1    ; shift   ;;
@@ -72,13 +74,10 @@ set_variables_log_location
 check_var_OutputLOG
 debug_log_location
 cat_outputlog
+check_var_iUser_iPass_iHome
 
 ################################################################################################ Set Variables 2
 
-[[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
-id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
-[[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
-[[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
 wPortBase=608
 iPortBase=590
 exist_vnc=$(ls /etc/systemd/system | grep tightvnc | wc -l)
@@ -291,7 +290,11 @@ EOF
 
 
 
+if [[ -d ${iHome}/.vnc ]] && [[ $force != 1 ]] ;then
+    echo -e "Configuration for $iUser already exists, skip configuration ..."
+else
+    echo_task "Configuring $AppName ..."
+    configure_novnc & spinner $!
+    check_status $status_lock
+fi
 
-echo_task "Configuring $AppName ..."
-configure_novnc & spinner $!
-check_status $status_lock
