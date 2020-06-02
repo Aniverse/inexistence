@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.5.5
+INEXISTENCEVER=1.2.5.6
 INEXISTENCEDATE=2020.06.02
 
 SYSTEMCHECK=1
@@ -918,6 +918,6 @@ do_installation
 [[ $USESWAP == Yes ]] && swap_off
 check_install_2
 echo ; [[ $sihuo != yes ]] && clear
-END_output_url 2>&1 | tee $LogBase/end.log
+END_output_url 2>&1 | tee -a $LogBase/end.log
 # rm -f "$0" > /dev/null 2>&1
 ask_reboot
