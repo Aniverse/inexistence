@@ -4,15 +4,14 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r10001
+# script_version=r10002
 # This var will recover other script's var when source
 #
 ################################################################################################
 
 function show_inex_usage () {
-    echo -e "\ninexistence / hezi Setup
-\nUsage: hezi [OPTS]
-\nOptions:
+    echo -e "
+Options:
   -u, --username <username>       Specify username
   -p. --password <password>       Specify password
   --qb <qb_version|no>            Specify which qBittorrent version to be installed

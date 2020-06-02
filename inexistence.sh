@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.5.4
+INEXISTENCEVER=1.2.5.5
 INEXISTENCEDATE=2020.06.02
 
 SYSTEMCHECK=1
@@ -23,7 +23,7 @@ aptsources=Yes
 # 获取参数
 source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/options)
 OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
-[ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
+[ ! $? = 0 ] && show_inex_usage
 eval set -- "$OPTS"
 opts_action "$@"
 
