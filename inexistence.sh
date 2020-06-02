@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.5.1
+INEXISTENCEVER=1.2.5.2
 INEXISTENCEDATE=2020.06.02
 
 SYSTEMCHECK=1
@@ -21,67 +21,11 @@ aptsources=Yes
 # --------------------------------------------------------------------------------
 
 # 获取参数
-
-OPTS=$(getopt -o dsyu:p:b: --long "domain:,no-reboot,quick,branch:,yes,skip,skip-system-upgrade,debug,source-unchange,swap,no-swap,bbr,no-bbr,flood,no-flood,vnc,x2go,wine,mono,tools,filebrowser,no-fb,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-max,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
+source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/options)
+OPTS=$(getopt -o dsyu:p:b: --long "hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,delt:,qb:,rt:,tr:,lt:,qb-static,separate" -- "$@")
 [ ! $? = 0 ] && { echo -e "Invalid option" ; exit 1 ; }
-
 eval set -- "$OPTS"
-
-while [ -n "$1" ] ; do case "$1" in
-    -u | --user       ) iUser=$2          ; shift 2 ;;
-    -p | --password   ) iPass=$2          ; shift 2 ;;
-    -b | --branch     ) iBranch=$2        ; shift 2 ;;
-
-    --de              ) qb_version=$2     ; shift 2 ;;
-    --qb              ) qb_version=$2     ; shift 2 ;;
-    --tr              ) tr_version=$2     ; shift 2 ;;
-    --rt              ) rt_version=$2     ; shift 2 ;;
-    --lt              ) lt_version=$2     ; shift 2 ;;
-    --domain          ) rt_domain=$2      ; shift 2 ;;
-
-    -d | --debug      ) DeBUG=1           ; shift ;;
-    -s | --skip       ) SYSTEMCHECK=0     ; shift ;;
-    -y | --yes        ) ForceYes=1        ; shift ;;
-    --separate        ) separate=1        ; shift ;;
-    --quick           ) quick=1           ; shift ;;
-    --qb-static       ) qb_mode=static    ; shift ;;
-    --sihuo           ) sihuo=yes         ; shift ;;
-    --eng             ) script_lang=eng   ; shift ;;
-    --chs             ) script_lang=chs   ; shift ;;
-    --enable-ipv6     ) IPv6Opt=-i        ; shift ;;
-
-    --vnc             ) InsVNC="Yes"      ; shift ;;
-    --x2go            ) InsX2Go="Yes"     ; shift ;;
-    --wine            ) InsWine="Yes"     ; shift ;;
-    --mono            ) InsMono="Yes"     ; shift ;;
-    --tools           ) InsTools="Yes"    ; shift ;;
-    --rclone          ) InsRclone="Yes"   ; shift ;;
-    --source-unchange ) aptsources="No"   ; shift ;;
-
-    --swap            ) USESWAP="Yes"     ; shift ;;
-    --flood           ) InsFlood="Yes"    ; shift ;;
-    --filebrowser     ) InsFB="Yes"       ; shift ;;
-    --flexget         ) InsFlex="Yes"     ; shift ;;
-    --tweaks          ) UseTweaks="Yes"   ; shift ;;
-    --bbr             ) InsBBR="Yes"      ; shift ;;
-
-    --no-swap         ) USESWAP="No"      ; shift ;;
-    --no-flood        ) InsFlood="No"     ; shift ;;
-    --no-fb           ) InsFB="No"        ; shift ;;
-    --no-flexget      ) InsFlex="No"      ; shift ;;
-    --no-tweaks       ) UseTweaks="No"    ; shift ;;
-    --no-bbr          ) InsBBR="No"       ; shift ;;
-
-    --no-reboot       ) NoReboot=1        ; shift ;;
-    --mt-single       ) MAXCPUS=1         ; shift ;;
-    --mt-double       ) MAXCPUS=2         ; shift ;;
-    --mt-max          ) MAXCPUS=$(nproc)  ; shift ;;
-    --mt-half         ) MAXCPUS=$(echo "$(nproc) / 2"|bc)   ; shift ;;
-    --tr-deb          ) tr_version=2.94   ; TRdefault=deb   ; shift ;;
-    --skip-system-upgrade ) skip_system_upgrade=1           ; shift ;;
-
-    -- ) shift ; break ;;
-esac ; done
+opts_action
 
 # [ $# -gt 0 ] && { echo "No arguments allowed $1 is not a valid argument" ; exit 1 ; }
 [[ $DeBUG == 1 ]] && { iUser=aniverse ; aptsources=No ; MAXCPUS=$(nproc) ; }
@@ -953,7 +897,6 @@ ask_swap
 ask_qbittorrent
 ask_deluge
 ask_rtorrent
-[[ $rt_version != No ]] && ask_flood
 ask_transmission
 ask_flexget
 ask_filebrowser

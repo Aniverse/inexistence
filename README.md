@@ -21,7 +21,7 @@
 如果你是新手，对很多选项不甚了解，直接用这个就完事了（账号密码部分替换一下）：  
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh) \
--y --tweaks --bbr --rclone --skip-system-upgrade --flexget --no-flood --lt RC_1_1 --tr-deb --filebrowser \
+-y --tweaks --bbr --rclone --no-system-upgrade --flexget --tr-deb --filebrowser \
 --de 1.3.15 --rt 0.9.8 --qb 4.1.9 -u 这十二个字换成你的用户名 -p 这十个字换成你的密码
 ```
 如果你需要自定义安装选项：  
@@ -40,8 +40,8 @@ bash <(wget -qO- https://git.io/abcde)
 脚本支持自定义参数运行，比如我个人常用的参数是：
 ```
 bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
---mono --rclone --flexget --no-flood --vnc --skip-system-upgrade    \
---de 1.3.15 --qb 4.2.3 --lt RC_1_1 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
+--mono --rclone --flexget --vnc --no-system-upgrade    \
+--de 1.3.15 --qb 4.2.3 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
 ```
 具体参数的解释在下文中有说明  
 
@@ -74,7 +74,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 
 
 3. ***是否更换软件源***  
-**目前默认直接换源不再提问，如果不想换源，请在运行脚本的使用 `--source-unchange` 参数**  
+**目前默认直接换源不再提问，如果不想换源，请在运行脚本的使用 `--no-source-change` 参数**  
 这个选项决定是否替换 `/etc/apt/sources.list` 文件。  
 其实大多数情况下无需换源；但某些盒子默认的源可能有点问题，所以我干脆做成默认都换源了  
 
@@ -95,13 +95,13 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 
 
 6. ***qBittorrent***  
-**`--qb 4.2.3 --qb-static`**、**`--qb 3.3.11`**、**`--qb No`**  
+**`--qb 4.2.3 --qb-static`**、**`--qb 3.3.11`**、**`--qb no`**  
 static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来安装。这两种安装方法的最大特点是安装速度非常快  
 因为 static 和 deb 安装已经很快了，因此去除了从 repo 或 ppa 安装的选项  
 
 
 7. ***Deluge***  
-**`--de 1.3.15_skip_hash_check`**、**`--de 1.3.9`**、**`--de repo`**、**`--de No`**  
+**`--de 1.3.15_skip_hash_check`**、**`--de 1.3.9`**、**`--de no`**  
 默认选项为从源码安装 1.3.15  
 2.0.3 目前运行在 Python 2.7 下，且仍然有一些 PT 站不支持 2.0.3，因此不推荐使用  
 此外还会安装一些实用的 Deluge 第三方插件：  
@@ -116,7 +116,7 @@ static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来�
 
 
 8. ***rTorrent***  
-**`--rt 0.9.8`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt No`**  
+**`--rt 0.9.8`**、**`--rt 0.9.3 --enable-ipv6`**、**`--rt no`**  
 这部分是调用我修改的 [rtinst](https://github.com/Aniverse/rtinst) 来安装的  
 注意，`Ubuntu 18.04` 和 `Debian 9/10` 因为 OpenSSL 的原因，只能使用 0.9.6 及以上的版本，更低版本无法直接安装  
 - 安装 rTorrent，ruTorrent，nginx，ffmpeg，rar，h5ai 目录列表程序  
@@ -133,8 +133,8 @@ static 指静态编译版本，deb 指使用 efs 菊苣编译好的 deb 包来�
 
 
 9. **Flood**  
-**`--flood`**、**`--no-flood`**  
-选择不安装 rTorrent 的话这个选项不会出现  
+**`--flood`**  
+**是否安装的问题已被移除，只能使用命令行参数安装**  
 Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，不过功能上不如 ruTorrent  
 第一次登陆时需要填写信息，端口号是 5000，挂载点是 127.0.0.1  
 
