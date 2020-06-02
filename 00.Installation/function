@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.02
-script_version=r13105
+script_version=r13106
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -18,16 +18,6 @@ else
     source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 }
-
-################################################################################################ Get options
-
-OPTS=$(getopt -o o: -al output: -- "$@")
-eval set -- "$OPTS"
-
-while [ -n "$1" ] ; do case "$1" in
-    -o | --output ) OutputLOG="$2" ; shift 2 ;;
-    -- ) break ;;
-esac ; done
 
 ################################################################################################ Colors
 
