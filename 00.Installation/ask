@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r11031
+# script_version=r11032
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -152,7 +152,7 @@ function ask_qbittorrent() {
 
     [[ -z $qb_mode ]] && echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" && qb_mode=deb
 
-    if [[ $qb_version == No ]]; then
+    if [[ $qb_version == no ]]; then
         echo -e "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}\n"
     else
         echo -e "${bold}${baiqingse}qBittorrent ${qb_version}${normal} ${bold}$lang_will_be_installed${normal}\n"
@@ -188,7 +188,7 @@ function ask_deluge() {
     [[ $(echo $de_version | grep -oP "[0-9.]+") ]] && version_ge $de_version 2.0 && Deluge_2_later=Yes
     [[ $de_version == '1.3.15_skip_hash_check'  ]] && Deluge_1_3_15_skip_hash_check_patch=Yes
 
-    if [[ $de_version == No ]]; then
+    if [[ $de_version == no ]]; then
         echo -e "${baizise}Deluge will ${baihongse}not${baizise} be installed${normal}\n"
     else
         echo -e "${bold}${baiqingse}Deluge ${de_version}${normal} ${bold}$lang_will_be_installed${normal}\n"
@@ -254,7 +254,7 @@ function ask_rtorrent() {
     rt_versionIns=`echo $rt_version | grep -Eo [0-9].[0-9].[0-9]`
     [[ $rt_version == feature ]] && rt_versionIns=feature
 
-    if [[ $rt_version == No ]]; then
+    if [[ $rt_version == no ]]; then
         [[ $script_lang == eng ]] && echo "${baizise}rTorrent will ${baihongse}not${baizise} be installed${normal}"
         [[ $script_lang == chs ]] && echo "${baihongse}跳过${baizise} rTorrent 的安装${normal}"
         InsFlood='No rTorrent'
@@ -310,7 +310,7 @@ function ask_transmission() {
     
     done
 
-    if [[ $tr_version == No ]]; then
+    if [[ $tr_version == no ]]; then
         echo -e "${baizise}Transmission will ${baihongse}not${baizise} be installed${normal}\n"
     else
         echo -e "${bold}${baiqingse}Transmission ${tr_version}${normal} ${bold}$lang_will_be_installed${normal}\n"
@@ -557,6 +557,7 @@ function ask_bbr() {
 
 
 function do_installation() {
+    mkdir -p $LogLocation
     [[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
 
     if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
@@ -571,31 +572,27 @@ function do_installation() {
         fi
     fi
 
-    if [[ -n $qb_version ]] && [[ $qb_version != No ]]; then
+    if [[ -n $qb_version ]] && [[ $qb_version != no ]]; then
         if [[ $qb_mode == static ]]; then
             bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
         else
             bash $local_packages/package/qbittorrent/install -v $qb_version           --logbase $LogTimes
         fi
-        if [[ -z $just_upgrade ]]; then
-            bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
-        fi
+        bash $local_packages/package/qbittorrent/configure -u $iUser -p $iPass -w 2017 -i 9002 --logbase $LogTimes
     fi
 
-    if [[ -n $de_version ]] && [[ $de_version != No ]]; then
+    if [[ -n $de_version ]] && [[ $de_version != no ]]; then
         echo -ne "Installing Deluge ... "
         write_current_logfile $LogLocation/03.de1.log
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
         OutputLOG=$LogLocation/03.de1.log   status_done
-        if [[ -z $just_upgrade ]]; then
-            write_current_logfile $LogLocation/04.de2.log
-            echo -ne "Configuring Deluge ... "
-            { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
-            OutputLOG=$LogLocation/04.de2.log    status_done
-        fi
+        write_current_logfile $LogLocation/04.de2.log
+        echo -ne "Configuring Deluge ... "
+        { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
+        OutputLOG=$LogLocation/04.de2.log    status_done
     fi
 
-    if [[ -n $rt_version ]] && [[ $rt_version != No ]]; then
+    if [[ -n $rt_version ]] && [[ $rt_version != no ]]; then
         # echo -e "Installing rTorrent ... "
         lines
         install_rtorrent 2>&1 | tee $LogLocation/07.rt.log
@@ -614,14 +611,12 @@ function do_installation() {
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
         OutputLOG=$LogLocation/08.tr1.log    status_done
-        if [[ -z $just_upgrade ]]; then
-            bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes
-        fi
+        bash $local_packages/package/transmission/configure -u $iUser -p $iPass -w 9099 -i 52333 --logbase $LogTimes   $force_recover
     fi
 
     if [[ $InsFlex == Yes ]]; then
         bash $local_packages/package/flexget/install   --logbase $LogTimes
-        bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566
+        bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566   $force_recover
     fi
     if [[ $InsRclone == Yes ]]; then
         bash $local_packages/package/rclone/install --logbase $LogTimes
@@ -637,10 +632,10 @@ function do_installation() {
     fi
     if [[ $InsVNC == Yes ]]; then
         bash /etc/inexistence/00.Installation/package/novnc/install   --logbase $LogTimes
-        bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass
+        bash /etc/inexistence/00.Installation/package/novnc/configure --logbase $LogTimes -u $iUser -p $iPass   $force_recover
     fi
     if [[ $InsFB == Yes ]]; then
-        bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575  -u $iUser -p $iPass
+        bash /etc/inexistence/00.Installation/package/filebrowser     --logbase $LogTimes -w 7575  -u $iUser -p $iPass   $force_recover
     fi
     if [[ $InsX2Go == Yes ]]; then
         write_current_logfile $LogLocation/12.x2go.log

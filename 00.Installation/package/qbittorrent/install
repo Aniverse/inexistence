@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.02
-script_version=r12036
+script_version=r12037
 
 ################################################################################################ Debug
 
@@ -83,6 +83,7 @@ if [[ -n $version ]] && [[ $mode == source ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
     version_s=$version
 fi
+[[ $version == 4.2.5.12 ]] && version_s=4.2.5
 [[ -n $branch  ]] && check_remote_git_repo_branch  $git_repo  "$branch"
 [[ ! $mode =~ (source|deb|static) ]] && echo_error "${CW} Mode can only be specified as deb, static or source${normal}" && exit 1
 

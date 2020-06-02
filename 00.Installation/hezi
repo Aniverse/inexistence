@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.02
-script_version=r11012
+script_version=r11013
 
 ################################################################################################ Debug
 
@@ -44,7 +44,6 @@ export WebROOT=/var/www
 
 export MAXCPUS=$(nproc)
 export script_lang=chs
-export just_upgrade=1
 export_inexistence_info
 
 ################################################################################################
@@ -72,6 +71,8 @@ function possible_usage () {
 ACTION=$1
 
 function ask_if_install () {
+    ExtraArgs=${*:2}
+
     set_language
     check_install_2
     get_clients_version
@@ -123,7 +124,7 @@ function update_inexistence () {
 ################################################################################################
 
 case $ACTION in
-    buchong     ) ask_if_install ; do_installation ;;
+    buchong     ) ask_if_install "$@" ; do_installation ;;
     gengxin     ) update_inexistence ;;
     *           ) show_usage ;;
 esac
