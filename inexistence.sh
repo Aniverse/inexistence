@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.5.0
+INEXISTENCEVER=1.2.5.1
 INEXISTENCEDATE=2020.06.02
 
 SYSTEMCHECK=1
@@ -421,8 +421,17 @@ EOF
     echo "DefaultLimitNPROC=999998" >> /etc/systemd/system.conf
 
     # alias and locales
-    [[ $UseTweaks == Yes ]] && IntoBashrc=IntoBashrc
-    bash $local_packages/alias $iUser $interface $LogTimes $IntoBashrc
+    ln -s $local_packages/s-alias /usr/local/bin/s-alias  >> "$OutputLOG" 2>&1
+    sed -i "s/iUser/$iUser/g" $local_packages/s-alias
+    # Do not give s-alias execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
+    # And which s-alias will return nothing, while command -v s-alias returns /usr/local/bin/s-alias
+    chmod 644 /usr/local/bin/s-alias
+
+    if [[ $UseTweaks == Yes ]]; then
+        sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc
+        echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc
+    fi
+
     mkdir -p $local_script
     ln -s    $local_packages/script/*    $local_script   >> "$OutputLOG" 2>&1
     ln -s    $local_packages/hezi        $local_script   >> "$OutputLOG" 2>&1
