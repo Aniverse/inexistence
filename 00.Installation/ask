@@ -3,8 +3,9 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.13
-script_version=r11030
+# script_update=2020.06.02
+# script_version=r11031
+# This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
 usage_guide() {

@@ -5,7 +5,7 @@
 #
 # script_update=2020.06.02
 # script_version=r12012
-
+# This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
 function setcolor() {
