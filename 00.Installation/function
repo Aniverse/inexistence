@@ -4,20 +4,19 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r13107
+# script_version=r13108
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
 usage_guide() {
-s=/etc/inexistence/00.Installation/function;rm -f $s ; nano $s
+    s=/etc/inexistence/00.Installation/function;rm -f $s ; nano $s
+    wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/function -O /etc/inexistence/00.Installation/function
 
-wget -q https://github.com/Aniverse/inexistence/raw/master/00.Installation/function -O /etc/inexistence/00.Installation/function
-
-if [[ -f /etc/inexistence/00.Installation/function ]]; then
-    source /etc/inexistence/00.Installation/function
-else
-    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
-fi
+    if [[ -f /etc/inexistence/00.Installation/function ]]; then
+        source /etc/inexistence/00.Installation/function
+    else
+        source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+    fi
 }
 
 ################################################################################################ Colors
@@ -802,10 +801,10 @@ function END_output_url() {
     echo -e " ${baiqingse}${bold}      INSTALLATION COMPLETED      ${normal} \n"
     printf "%-75s\n" "-" | sed 's/\s/-/g'
 
-    [[ $qb_version    != No  ]] && output_url   $qb_installed   "qBittorrent WebUI"   qbittorrent         $qbweb
-    [[ $de_version    != No  ]] && output_url   $de_installed   "Deluge WebUI"        deluged             $deweb
-    [[ $tr_version    != No  ]] && output_url   $tr_installed   "Transmission WebUI"  transmission        $trweb
-    if [[ $rt_version != No  ]]; then
+    [[ $qb_version    != no  ]] && output_url   $qb_installed   "qBittorrent WebUI"   qbittorrent         $qbweb
+    [[ $de_version    != no  ]] && output_url   $de_installed   "Deluge WebUI"        deluged             $deweb
+    [[ $tr_version    != no  ]] && output_url   $tr_installed   "Transmission WebUI"  transmission        $trweb
+    if [[ $rt_version != no  ]]; then
                                    output_url   $rt_installed   "RuTorrent"           rtorrent            "/rutorrent"  need_password
         [[ $rt_installed == Yes  ]] &&
                                    output_url   $rt_installed   "h5ai File Indexer"   nginx               "/h5ai"       need_password

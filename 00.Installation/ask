@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.02
-# script_version=r11032
+# script_version=r11033
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -606,7 +606,7 @@ function do_installation() {
         OutputLOG=$LogLocation/07.flood.log    status_done
     fi
 
-    if [[ -n $tr_version ]] && [[ $tr_version != No ]]; then
+    if [[ -n $tr_version ]] && [[ $tr_version != no ]]; then
         write_current_logfile $LogLocation/08.tr1.log
         echo -ne "Installing Transmission ... "
         { install_transmission > $LogLocation/08.tr1.log 2>&1 ; } & spinner $!
