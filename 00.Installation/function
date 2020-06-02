@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.05.27
-script_version=r13104
+script_update=2020.06.02
+script_version=r13105
 ################################################################################################ Usage Guide
 
 usage_guide() {
@@ -838,7 +838,7 @@ function END_output_url() {
     if [[ -n $sth_failed ]]; then
         echo -e "\n ${bold}Unfortunately something went wrong during installation."
         echo -e " You can check logs by typing these commands or visit websites below:"
-        echo -e " ${yellow}cat $LogTimes/installed.log"
+        echo -e " ${yellow}cat $LogBase/installed.log"
         [[ -n $qbittorrent_failed  ]] && show_uploaded_log  $LogLocation/install.qbittorrent.txt
         [[ -n $deluged_failed      ]] && show_uploaded_log  $LogLocation/03.de1.log
         [[ -n $transmission_failed ]] && show_uploaded_log  $LogLocation/08.tr1.log

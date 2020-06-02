@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-INEXISTENCEVER=1.2.4.8
-INEXISTENCEDATE=2020.05.27
+INEXISTENCEVER=1.2.5.0
+INEXISTENCEDATE=2020.06.02
 
 SYSTEMCHECK=1
 DeBUG=0
@@ -32,14 +32,7 @@ while [ -n "$1" ] ; do case "$1" in
     -p | --password   ) iPass=$2          ; shift 2 ;;
     -b | --branch     ) iBranch=$2        ; shift 2 ;;
 
-    --de              ) if [[ $2 == ppa ]]; then
-                            de_version='Install from PPA'
-                        elif [[ $2 == repo ]]; then
-                            de_version='Install from repo'
-                        else
-                            de_version=$2
-                        fi
-                        shift 2 ;;
+    --de              ) qb_version=$2     ; shift 2 ;;
     --qb              ) qb_version=$2     ; shift 2 ;;
     --tr              ) tr_version=$2     ; shift 2 ;;
     --rt              ) rt_version=$2     ; shift 2 ;;
@@ -389,7 +382,7 @@ noVNC=${InsVNC}
 X2Go=${InsX2Go}
 #################################
 如果要截图请截完整点，包含上面所有信息
-" >> $LogTimes/installed.log
+" >> $LogBase/installed.log
 
     cat << EOF >> $LogBase/info/version.txt
 inexistence.times       $times
@@ -972,6 +965,6 @@ do_installation
 [[ $USESWAP == Yes ]] && swap_off
 check_install_2
 echo ; [[ $sihuo != yes ]] && clear
-END_output_url 2>&1 | tee $LogTimes/end.log
+END_output_url 2>&1 | tee $LogBase/end.log
 # rm -f "$0" > /dev/null 2>&1
 ask_reboot
