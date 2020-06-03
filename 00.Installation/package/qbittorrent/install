@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.02
-script_version=r12037
+script_update=2020.06.03
+script_version=r12038
 
 ################################################################################################ Debug
 
@@ -76,19 +76,22 @@ git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
 [[ -z $mode ]] && [[ -n $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && mode=deb
-[[ $mode == deb ]] && [[ -z $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && echo_error "$version is not available in deb mode" && exit 1
+[[ $mode == deb ]] && [[ -z $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && echo_error_exit "$version is not available in deb mode"
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
+[[ ! $mode =~ (source|deb|static) ]] && echo_error_exit "Mode can only be specified as deb, static or source"
+
+[[ -n $version ]] && version_s=$version
+[[ $version == 4.2.5.12 ]] && version_s=4.2.5
 if [[ -n $version ]] && [[ $mode == source ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
-    version_s=$version
+elif [[ -n $branch ]] && [[ $mode == source ]]; then
+    check_remote_git_repo_branch  $git_repo  "$branch"
+    version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
 fi
-[[ $version == 4.2.5.12 ]] && version_s=4.2.5
-[[ -n $branch  ]] && check_remote_git_repo_branch  $git_repo  "$branch"
-[[ ! $mode =~ (source|deb|static) ]] && echo_error "${CW} Mode can only be specified as deb, static or source${normal}" && exit 1
 
 [[ -z $type ]] && type=headless
-[[ ! $type =~ (headless|desktop) ]] && echo -e "${CW} Type can only be specified as headless or desktop${normal}" && exit 1
+[[ ! $type =~ (headless|desktop) ]] && echo_error_exit "Type can only be specified as headless or desktop"
 if [[ $type == desktop ]]; then
     package_name=qbittorrent
     compile_flag=''
@@ -96,10 +99,6 @@ else
     package_name=qbittorrent-nox
     compile_flag='--disable-gui'
 fi
-
-[[ -n $branch  ]] && version_s=$(wget -qO- https://raw.githubusercontent.com/qbittorrent/qBittorrent/$branch/dist/windows/options.nsi |grep -i "define PROG_VERSION" | grep -oE [0-9].[0-9.]+)
-
-
 
 ################################################################################################ dependencies
 

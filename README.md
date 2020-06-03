@@ -140,7 +140,7 @@ Flood 是 rTorrent 的另一个 WebUI，界面更为美观，加载速度快，�
 
 
 10. ***Transmission***  
-**`--tr-deb`**、**`--tr 2.83`**、**`--tr No`**  
+**`--tr-deb`**、**`--tr 2.83`**、**`--tr no`**  
 Transmission 默认选择从预先编译好的 deb 安装最新版 2.94（解决了文件打开数问题）  
 此外还会安装 [加强版的 WebUI](https://github.com/ronggang/transmission-web-control)，更方便易用  
 ***隐藏和从 repo/ppa 安装的选项均已移除***  
@@ -155,7 +155,7 @@ Flexget 是一个非常强大的自动化工具，功能非常多。大多数国
 
 
 12. ***FileBrowser Enhanced***  
-**`--filebrowser`**、**`--no-fb`**  
+**`--filebrowser`**、**`--no-filebrowser`**  
 File Browser 提供了网页文件管理器的功能, 可以用于上传、删除、预览、重命名以及编辑盒子上的文件  
 脚本安装的是 [荒野无灯的 Docker 版 FileBrowser Enhanced](https://hub.docker.com/r/80x86/filebrowser)，[功能更加强大](https://raw.githubusercontent.com/ttys3/filebrowser-enhanced/master/FBvsFBE.zh.png)  
 这个增强版还可以在网页上右键获取文件的 mediainfo、制作种子、截图、解压等等，对 PT 来说也非常实用  
