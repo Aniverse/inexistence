@@ -11,7 +11,7 @@
 * [x] 加入 filebrowser  
 * [ ] 加入 deluge/configure  
 * [ ] 加入 deluge/install，但不支持 2.0.3 的 python3 模式  
-* [ ] inexistence.sh 加入 --help，解释各参数的作用与用法  
+* [x] inexistence.sh 加入 --help，解释各参数的作用与用法  
 * [ ] 整合 DieNacht 的升级系统／换源脚本  
 * [ ] 更新 README 的图片  
 * [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
@@ -65,8 +65,57 @@
 
 
 
+## [2020.0531/0602/0603, 1/24/1 commits](https://github.com/Aniverse/inexistence/compare/eed2a6c...c4c0a57)  
 
+`the inexistence project`  
+1. **Bump version to 1.2.5**  
+2. **Feature：inexistence.sh / hezi --help**  
+3. **Feature：调整了一些 opts，de/rt/qb/tr 不安装的选项从 No 改为 no**  
+这个调整的主要目的是让 usage 中的 --no-SOMETHING 显得更加统一  
+4. BugFix: check-sys / function / ask 等经常被 source 的脚本，版本号注释掉防止错乱  
+5. **Feature：installed.log 和 end.log 移到了 $LogBase 下，且多次安装都写入到同一个文件**  
+相应的，alias 也对应做了更新  
+6. **Feature：所有配置类脚本都加入了 --force 的命令行参数，默认有配置文件的情况下就跳过配置**  
 
+`ask r11034`
+1. 去除了 `[[ -z $just_upgrade ]]` 的情形  
+2. do_installation 第一步 mkdir -p $LogLocation  
+3. 预留了 `$force_recover`  
+
+`check-sys r12019`
+1. 修复 nvme 硬盘型号可能提取到多余字符的问题  
+
+`function r13108`
+1. 去掉了 function 的 getopt（同样可能引起其他脚本 source 后出错）  
+
+`s-alias r12012`
+1. **从原先的 cat 写入改为可以直接 source 的版本**  
+2. 变量只保留 $iUser，网卡、日志位置、是否写入 bashrc 等变量移除  
+3. 好处①：是从 s-alias 复制粘贴更方便、更改更直观  
+4. 好处②：方便更新 alias，每次直接 git pull 覆盖掉，然后 sed 替换 iUser 即可  
+5. 备注：LogBase 变量取消掉是因为 s-end 和 s-opt 都是从固定的一个文件读取了  
+
+`options r10003`
+1. 这个脚本是从 inexistence 中原来 opts 处理部分中提取出来的，方便 hezi 脚本调用  
+2. 增加了 usage，且针对 hezi 和 inexistence 使用的场景，内容会有所不同  
+
+`hezi r11017`
+1. 去掉了 just_upgrade 变量  
+2. 加入 usage  
+3. **buchong：支持使用 inexistence 的 opts（实际上两个脚本公用 opts）**  
+4. **gengxin：初步的更新脚本功能**  
+alias 和脚本权限会重新设置。由于采用了软链因此 /usr/local/bin/ 下的文件就不需要动了  
+
+`deluge/configure r10005`
+1. 加入了各类 conf 的写入  
+2. 加入了插件下载的 function  
+
+`qbittorrent/install r12038`
+1. 修正 $version_s 的赋值  
+2. 统一使用 echo_error_exit  
+
+`README 1.4.1`
+1. 更新 opts  
 
 
 
