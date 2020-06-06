@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.06
-script_version=r10001
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -130,8 +130,8 @@ function build_libevent() {
 function build_transmission() {
     lines2 >> $OutputLOG
     cd $SourceLocation
-    git clone --depth=1 -b $tr_version https://github.com/transmission/transmission transmission-$tr_version >> "$OutputLOG" 2>&1 
-    cd transmission-$tr_version >> "$OutputLOG" 2>&1 || echo_error_exit "transmission source folder"
+    git clone --depth=1 -b $tr_version https://github.com/transmission/transmission transmission-$version >> "$OutputLOG" 2>&1 
+    cd transmission-$version >> "$OutputLOG" 2>&1 || echo_error_exit "Failed to cd transmission source folder"
     ./autogen.sh                >> "$OutputLOG" 2>&1 
     ./configure --prefix=/usr   >> "$OutputLOG" 2>&1 
     make -j$MAXCPUS             >> "$OutputLOG" 2>&1 
@@ -151,7 +151,7 @@ function check_status_tr() {
         touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
         restart_app
     else
-        echo_error "$tr_installed_ver is installed rather than $version"
+        echo_error "\n$tr_installed_ver is installed rather than $version"
     fi
 }
 
