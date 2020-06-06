@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.02
-# script_version=r13108
+# script_update=2020.06.06
+# script_version=r13109
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -664,6 +664,26 @@ function apt_install_separate() {
                 exit 1
             fi
         done
+    fi
+}
+
+
+function apt_install_dependencies() {
+    APT_UPGRADE_check
+    unset packages
+    packages=("$@")
+    [[ -z "$packages" ]] && echo "ERROR: No packages input" | tee -a $OutputLOG && exit 1
+    eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "${packages[@]}" >> "$OutputLOG" 2>&1
+    if [ $? != 0 ]; then
+        echo_error_exit "ERROR: Failed to install dependencies"
+        kill -s TERM $TOP_PID
+        kill -s TERM $script_pid
+    else
+        status_lock=$AppNameLower-d
+        echo "status_lock=$status_lock" > /tmp/Variables
+        rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+        touch /tmp/$status_lock.1.lock
+        touch $LOCKLocation/$AppNameLower.dependencies.lock
     fi
 }
 
