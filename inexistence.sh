@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.5.8
-script_update=2020.06.02
+script_version=1.2.5.9
+script_update=2020.06.06
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -195,8 +195,7 @@ function ask_continue() {
     [[ -n $lt_version ]] &&
     echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_version}${normal}"
     echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
-    [[ $rt_version != No ]] &&
-    echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
+
     echo "                  ${cyan}${bold}Transmission${normal}  ${bold}${yellow}${tr_version}${normal}"
     echo "                  ${cyan}${bold}FlexGet${normal}       ${bold}${yellow}${InsFlex}${normal}"
     echo "                  ${cyan}${bold}FileBrowser${normal}   ${bold}${yellow}${InsFB}${normal}"
@@ -204,6 +203,8 @@ function ask_continue() {
     echo "                  ${cyan}${bold}Threads${normal}       ${bold}${yellow}${MAXCPUS}${normal}"
     echo "                  ${cyan}${bold}SourceList${normal}    ${bold}${yellow}${aptsources}${normal}"
 
+    [[ -n $InsFlood ]] &&
+    echo "                  ${cyan}${bold}Flood${normal}         ${bold}${yellow}${InsFlood}${normal}"
     [[ -n $InsBBR ]] &&
     echo "                  ${cyan}${bold}BBR${normal}           ${bold}${yellow}${InsBBR}${normal}"
     [[ -n $InsVNC ]] &&
