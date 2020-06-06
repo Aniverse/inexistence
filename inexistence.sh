@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.5.9
+script_version=1.2.5.10
 script_update=2020.06.06
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -49,7 +49,7 @@ export local_script=/usr/local/bin/abox
 
 export LogBase=/log/inexistence
 export LogTimes=$LogBase/$times
-export SourceLocation=$LogTimes/source
+export SCLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/log
 export LOCKLocation=$LogBase/.lock
@@ -245,7 +245,7 @@ function preparation() {
     [[ $USESWAP == Yes ]] && swap_on
 
     # 临时
-    mkdir -p $LogBase/app $LogBase/info $SourceLocation $LOCKLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
+    mkdir -p $LogBase/app $LogBase/info $SCLocation $LOCKLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
     echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then

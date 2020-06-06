@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.03
-script_version=r11017
+script_update=2020.06.06
+script_version=r11018
 script_name=hezi
 
 ################################################################################################ Debug
@@ -39,7 +39,7 @@ export iBranch=master
 export times=0
 export LogBase=/log/inexistence
 export LogTimes=$LogBase/$times
-export SourceLocation=$LogTimes/source
+export SCLocation=$LogTimes/source
 export DebLocation=$LogTimes/deb
 export LogLocation=$LogTimes/log
 export LOCKLocation=$LogBase/.lock

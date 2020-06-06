@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.06
-# script_version=r13109
+# script_version=r13110
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -119,6 +119,9 @@ function echo_warning() {
 }
 function echo_error() {
     printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG"
+}
+function echo_error2() {
+    echo -e "${red}${bold}ERROR:" "$@${normal}"
 }
 function echo_error_exit() {
     printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG" ; exit 1

@@ -4,20 +4,18 @@
 # Author: Aniverse
 
 script_update=2020.06.06
-script_version=r10002
+script_version=r10003
 
 ################################################################################################ Debug
 
 usage_for_debug() {
-    export local_packages=/etc/inexistence/00.Installation
-    export s=$local_packages/package/transmission/install
-    rm -f $s ; nano $s ; bash $s
+    s=12345 ; rm -f $s ; nano $s ; bash $s
     bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/transmission/install)
 }
 
 ################################################################################################ Get options
 
-unset LogBase LogTimes SourceLocation DebLocation LogLocation LOCKLocation OutputLOG \
+unset LogBase LogTimes SCLocation DebLocation LogLocation LOCKLocation OutputLOG \
       AppName AppNameLower Need_SourceCode pm_action \
       version mode debug
 
@@ -112,8 +110,9 @@ function install_transmission_dependencies() {
 }
 
 function build_libevent() {
+    # It seems we do not need to build libevent now
     lines2 >> $OutputLOG
-    cd $SourceLocation
+    cd $SCLocation
     wget -nv -N https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
     tar xf release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
     rm -rf release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
@@ -123,14 +122,15 @@ function build_libevent() {
     ./configure       >> "$OutputLOG" 2>&1
     make -j$MAXCPUS   >> "$OutputLOG" 2>&1
     make install      >> "$OutputLOG" 2>&1
-    ldconfig    >> "$OutputLOG" 2>&1
+    ldconfig          >> "$OutputLOG" 2>&1
   # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
 }
 
 function build_transmission() {
     lines2 >> $OutputLOG
-    cd $SourceLocation
-    git clone --depth=1 -b $tr_version https://github.com/transmission/transmission transmission-$version >> "$OutputLOG" 2>&1 
+    cd $SCLocation
+    # git clone --depth=1 -b $version https://github.com/transmission/transmission transmission-$version >> "$OutputLOG" 2>&1
+    
     cd transmission-$version >> "$OutputLOG" 2>&1 || echo_error_exit "Failed to cd transmission source folder"
     ./autogen.sh                >> "$OutputLOG" 2>&1 
     ./configure --prefix=/usr   >> "$OutputLOG" 2>&1 
@@ -151,10 +151,9 @@ function check_status_tr() {
         touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
         restart_app
     else
-        echo_error "\n$tr_installed_ver is installed rather than $version"
+        echo_error2 "$tr_installed_ver is installed rather than $version"
     fi
 }
-
 
 
 case $mode in
