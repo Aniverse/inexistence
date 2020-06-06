@@ -1,0 +1,183 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2020.06.04
+script_version=r10000
+
+################################################################################################ Debug
+
+usage_for_debug() {
+    export local_packages=/etc/inexistence/00.Installation
+    export s=$local_packages/package/transmission/install
+    rm -f $s ; nano $s ; bash $s
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/transmission/install)
+}
+
+################################################################################################ Get options
+
+unset LogBase LogTimes SourceLocation DebLocation LogLocation LOCKLocation OutputLOG \
+      AppName AppNameLower Need_SourceCode pm_action \
+      version mode debug
+
+AppName=Transmission
+AppNameLower=transmission
+AppExec=/usr/bin/qbittorrent-nox
+DebName=qbittorrent-nox
+Need_SourceCode=yes
+pm_action=install
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -v        Specifiy which version to be installed
+      -m        Install mode, can only be specified as deb, static or source
+      -l        Specifiy LogBase
+      -d        Enable debug mode
+"
+exit 1 ; }
+
+OPTS=$(getopt -o v:l:m:d -al mode:,version:,debug,logbase:,log -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -v | --version      ) version="$2"  ; shift 2 ;;
+    -m | --mode         ) mode="$2"     ; shift 2 ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
+         --             ) shift         ; break   ;;
+esac ; done
+
+################################################################################################ Set Variables 1
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+
+set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
+
+################################################################################################ Set Variables 2
+
+deb_available=('2.94')
+
+git_repo="https://github.com/transmission/transmission"
+
+[[ -z $mode ]] && [[ -n $(echo "${deb_available[*]}" | grep -w "${version}") ]] && mode=deb
+[[ $mode == deb ]] && [[ -z $(echo "${deb_available[*]}" | grep -w "${version}") ]] && echo_error_exit "$version is not available in deb mode"
+[[ -z $mode ]] && [[ -n $version ]] && mode=source
+[[ ! $mode =~ (source|deb|static) ]] && echo_error_exit "Mode can only be specified as deb, static or source"
+[[ -n $version ]] && [[ $mode == source ]] && check_remote_git_repo_branch  $git_repo  "$version"
+
+################################################################################################
+
+function install_transmission_deb() {
+    lines2 >> $OutputLOG
+    list="transmission-common_2.94-1mod1_all.deb
+    transmission-cli_2.94-1mod1_amd64.deb
+    transmission-daemon_2.94-1mod1_amd64.deb
+    transmission-gtk_2.94-1mod1_amd64.deb
+    transmission-qt_2.94-1mod1_amd64.deb
+    transmission_2.94-1mod1_all.deb"
+    mkdir -p /tmp/tr_deb
+    cd /tmp/tr_deb
+    for deb in $list ; do
+        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb >> "$OutputLOG" 2>&1
+    done
+    if [[ $CODENAME != jessie ]]; then
+        apt-get -y install ./*deb  >> "$OutputLOG" 2>&1
+    else
+        dpkg -i ./*deb             >> "$OutputLOG" 2>&1
+        apt-get -fy install        >> "$OutputLOG" 2>&1
+    fi
+    cd
+    apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission >> "$OutputLOG" 2>&1
+}
+
+function install_transmission_dependencies() {
+    lines2 >> $OutputLOG
+    apt_install_check libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev \
+                      pkg-config automake autoconf cmake libtool intltool build-essential            openssl
+    apt_install_together
+    # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
+    [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev >> "$OutputLOG" 2>&1 
+}
+
+function build_libevent() {
+    lines2 >> $OutputLOG
+    cd $SourceLocation
+    wget -nv -N https://github.com/libevent/libevent/archive/release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
+    tar xf release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
+    rm -rf release-2.1.8-stable.tar.gz >> "$OutputLOG" 2>&1 
+    mv libevent-release-2.1.8-stable libevent-2.1.8 >> "$OutputLOG" 2>&1 
+    cd libevent-2.1.8 >> "$OutputLOG" 2>&1 || echo_error_exit "Failed to cd libevent-2.1.8"
+    ./autogen.sh      >> "$OutputLOG" 2>&1
+    ./configure       >> "$OutputLOG" 2>&1
+    make -j$MAXCPUS   >> "$OutputLOG" 2>&1
+    make install      >> "$OutputLOG" 2>&1
+    ldconfig    >> "$OutputLOG" 2>&1
+    # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+}
+
+function build_transmission() {
+    lines2 >> $OutputLOG
+    cd $SourceLocation
+    git clone --depth=1 -b $tr_version https://github.com/transmission/transmission transmission-$tr_version >> "$OutputLOG" 2>&1 
+    cd transmission-$tr_version >> "$OutputLOG" 2>&1 || echo_error_exit "transmission source folder"
+    ./autogen.sh                >> "$OutputLOG" 2>&1 
+    ./configure --prefix=/usr   >> "$OutputLOG" 2>&1 
+    make -j$MAXCPUS             >> "$OutputLOG" 2>&1 
+    make install                >> "$OutputLOG" 2>&1 
+}
+
+function update_transmission_webui() {
+    echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+}
+
+
+
+case $mode in
+    deb     ) echo_task "Installing $AppName ${bold}${cyan}$version${normal} from pre-built deb ..."
+              install_transmission_deb & spinner $!
+              check_status_qbt | tee -a "$OutputLOG"
+              ;;
+    static  ) # In fact this mode has not been implemented yet
+              echo_task "Installing $AppName ${bold}${cyan}$version${normal} static build ..."
+              install_transmission_static & spinner $!
+              check_status_qbt | tee -a "$OutputLOG"
+              ;;
+    source  ) echo_task "Installing $AppName build dependencies ..."
+              install_transmission_dependencies & spinner $!
+              check_status $status_lock
+                  install_base fpm
+
+              echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from source codes ..." | tee -a $OutputLOG
+              compile_qbittorrent & spinner $!
+              check_status_qbt | tee -a $OutputLOG
+              ;;
+esac
+
+echo_task "Installing $AppName ..."
+install_transmission & spinner $!
+check_status $status_lock
+
+
+
+
+
+###################### deprecated ######################
+
+function deprecated_codes() {
+    # 修复 Transmission 2.92 无法在 Ubuntu 18.04 下编译的问题（openssl 1.1.0），https://github.com/transmission/transmission/pull/24
+    [[ $tr_version == 2.92 ]] && { git config --global user.email "you@example.com" ; git config --global user.name "Your Name" ; git cherry-pick eb8f500 -m 1 ; }
+    # 修复 2.93 以前的版本可能无法过 configure 的问题，https://github.com/transmission/transmission/pull/215
+    grep m4_copy_force m4/glib-gettext.m4 -q || sed -i "s/m4_copy/m4_copy_force/g" m4/glib-gettext.m4
+}
+
