@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.06
-script_version=r10003
+script_version=r10004
 
 ################################################################################################ Debug
 
@@ -129,17 +129,18 @@ function build_libevent() {
 function build_transmission() {
     lines2 >> $OutputLOG
     cd $SCLocation
-    # git clone --depth=1 -b $version https://github.com/transmission/transmission transmission-$version >> "$OutputLOG" 2>&1
-    
-    cd transmission-$version >> "$OutputLOG" 2>&1 || echo_error_exit "Failed to cd transmission source folder"
-    ./autogen.sh                >> "$OutputLOG" 2>&1 
-    ./configure --prefix=/usr   >> "$OutputLOG" 2>&1 
-    make -j$MAXCPUS             >> "$OutputLOG" 2>&1 
-    make install                >> "$OutputLOG" 2>&1 
+  # git clone --depth=1 -b $version https://github.com/transmission/transmission transmission-$version >> "$OutputLOG" 2>&1
+    wget https://github.com/transmission/transmission-releases/raw/master/transmission-$version.tar.xz >> "$OutputLOG" 2>&1
+    tar xf transmission-$version.tar.xz  >> "$OutputLOG" 2>&1
+    cd transmission-$version    >> "$OutputLOG" 2>&1 || echo_error_exit "Failed to cd transmission source folder"
+    ./autogen.sh                >> "$OutputLOG" 2>&1
+    ./configure --prefix=/usr   >> "$OutputLOG" 2>&1
+    make -j$MAXCPUS             >> "$OutputLOG" 2>&1
+    make install                >> "$OutputLOG" 2>&1
 }
 
 function update_transmission_webui() {
-    echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
+    echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)" >> "$OutputLOG" 2>&1
 }
 
 function check_status_tr() {
@@ -149,6 +150,9 @@ function check_status_tr() {
     elif [[ $tr_installed_ver == $version ]]; then
         status_done
         touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
+        echo_task "Updating Transmission WebUI ..."
+        update_transmission_webui & spinner $!
+        status_done
         restart_app
     else
         echo_error2 "$tr_installed_ver is installed rather than $version"
