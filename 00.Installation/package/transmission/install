@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.04
-script_version=r10000
+script_update=2020.06.06
+script_version=r10001
 
 ################################################################################################ Debug
 
@@ -23,8 +23,8 @@ unset LogBase LogTimes SourceLocation DebLocation LogLocation LOCKLocation Outpu
 
 AppName=Transmission
 AppNameLower=transmission
-AppExec=/usr/bin/qbittorrent-nox
-DebName=qbittorrent-nox
+AppExec=/usr/bin/transmission-daemon
+DebName=transmission-all
 Need_SourceCode=yes
 pm_action=install
 
@@ -64,10 +64,12 @@ check_var_OutputLOG
 debug_log_location
 cat_outputlog
 
+script_pid=$$
+trap 'exit 1' TERM
+
 ################################################################################################ Set Variables 2
 
 deb_available=('2.94')
-
 git_repo="https://github.com/transmission/transmission"
 
 [[ -z $mode ]] && [[ -n $(echo "${deb_available[*]}" | grep -w "${version}") ]] && mode=deb
@@ -92,7 +94,7 @@ function install_transmission_deb() {
         wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb >> "$OutputLOG" 2>&1
     done
     if [[ $CODENAME != jessie ]]; then
-        apt-get -y install ./*deb  >> "$OutputLOG" 2>&1
+        apt-get -y --allow-unauthenticated -f install ./*deb  >> "$OutputLOG" 2>&1
     else
         dpkg -i ./*deb             >> "$OutputLOG" 2>&1
         apt-get -fy install        >> "$OutputLOG" 2>&1
@@ -103,11 +105,10 @@ function install_transmission_deb() {
 
 function install_transmission_dependencies() {
     lines2 >> $OutputLOG
-    apt_install_check libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev \
-                      pkg-config automake autoconf cmake libtool intltool build-essential            openssl
-    apt_install_together
+    apt_install_dependencies libcurl4-openssl-dev libglib2.0-dev libevent-dev libminiupnpc-dev libgtk-3-dev libappindicator3-dev \
+                             pkg-config automake autoconf cmake libtool intltool build-essential            openssl
     # https://tieba.baidu.com/p/5532509017?pn=2#117594043156l
-    [[ $CODENAME == stretch ]] && apt-get install -y libssl1.0-dev >> "$OutputLOG" 2>&1 
+    [[ $CODENAME == stretch ]] && apt_install_dependencies libssl1.0-dev
 }
 
 function build_libevent() {
@@ -123,7 +124,7 @@ function build_libevent() {
     make -j$MAXCPUS   >> "$OutputLOG" 2>&1
     make install      >> "$OutputLOG" 2>&1
     ldconfig    >> "$OutputLOG" 2>&1
-    # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
+  # ln -s /usr/local/lib/libevent-2.1.so.6 /usr/lib/libevent-2.1.so.6
 }
 
 function build_transmission() {
@@ -141,32 +142,41 @@ function update_transmission_webui() {
     echo 1 | bash -c "$(wget -qO- https://github.com/ronggang/transmission-web-control/raw/master/release/install-tr-control.sh)"
 }
 
+function check_status_tr() {
+    tr_installed_ver=$(eval $AppExec --help 2>/dev/null | head -n1 | awk '{print $2}')
+    if [[ -z $tr_installed_ver ]]; then
+        status_failed
+    elif [[ $tr_installed_ver == $version ]]; then
+        status_done
+        touch $LOCKLocation/$AppNameLower.lock # touch $LOCKLocation/$AppNameLower{,.source}.lock
+        restart_app
+    else
+        echo_error "$tr_installed_ver is installed rather than $version"
+    fi
+}
+
 
 
 case $mode in
     deb     ) echo_task "Installing $AppName ${bold}${cyan}$version${normal} from pre-built deb ..."
               install_transmission_deb & spinner $!
-              check_status_qbt | tee -a "$OutputLOG"
+              check_status_tr
               ;;
     static  ) # In fact this mode has not been implemented yet
               echo_task "Installing $AppName ${bold}${cyan}$version${normal} static build ..."
               install_transmission_static & spinner $!
-              check_status_qbt | tee -a "$OutputLOG"
+              check_status_tr
               ;;
     source  ) echo_task "Installing $AppName build dependencies ..."
               install_transmission_dependencies & spinner $!
               check_status $status_lock
-                  install_base fpm
-
-              echo -ne "Installing $AppName ${bold}${cyan}$version_s${normal} from source codes ..." | tee -a $OutputLOG
-              compile_qbittorrent & spinner $!
-              check_status_qbt | tee -a $OutputLOG
+              echo_task "Installing $AppName ${bold}${cyan}$version${normal} from source codes ..."
+              build_transmission & spinner $!
+              check_status_tr
               ;;
 esac
 
-echo_task "Installing $AppName ..."
-install_transmission & spinner $!
-check_status $status_lock
+
 
 
 
