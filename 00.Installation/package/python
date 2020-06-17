@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.04.19
-script_version=r10001
+script_update=2020.06.17
+script_version=r10002
 
 ################################################################################################ Debug
 
@@ -117,7 +117,7 @@ function install_python3 () {
         apt_install_separate
         if [[ "$CODENAME" == jessie ]]; then
             apt-get -t jessie-backports -y install libssl1.0 >> "$OutputLOG" 2>&1
-            if ! version_ge $(dpkg-query -W -f='${Version}' libssl-dev 2>1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1) 1.0.2 ; then
+            if ! version_ge $(dpkg-query -W -f='${Version}' libssl-dev 2>&1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1) 1.0.2 ; then
                 echo_error "Failed to install libssl 1.0.2l"
                 exit 1
             fi

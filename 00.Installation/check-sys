@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.02
-# script_version=r12019
+# script_update=2020.06.17
+# script_version=r12020
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -30,9 +30,9 @@ get_opsy() {
     [ -f /etc/lsb-release    ] && awk -F'[="]+' '/DESCRIPTION/{print $2}'       /etc/lsb-release    && return
 }
 
-lbit=$(getconf LONG_BIT 2>1)
-running_kernel=$(uname -r 2>1)
-arch=$(uname -m 2>1)
+lbit=$(getconf LONG_BIT 2>&1)
+running_kernel=$(uname -r 2>&1)
+arch=$(uname -m 2>&1)
 [ -z $arch ] && arch=$(echo "x$(getconf LONG_BIT)")
 
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
@@ -462,7 +462,7 @@ function pm_action(){
 
 # Virt-what
 check_virt() {
-    local virtualx=$(dmesg 2>1)
+    local virtualx=$(dmesg 2>&1)
     local arch=$(uname -p)
     local dmi=$(LANG=C dmidecode 2>&1)
 
@@ -637,11 +637,11 @@ seedbox_neighbors_check() {
     if [[ $FH_SSD == 1 ]];then
         current_disk_size=($( LANG=C df -hPl | grep $(pwd) | awk '{print $2}' ))
         current_disk_total_used=($( LANG=C df -hPl | grep $(pwd) | awk '{print $3}' ))
-        current_disk_self_used=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' )
+        current_disk_self_used=$( du -sh $HOME 2>&1 | awk -F " " '{print $1}' )
     else
         current_disk_size=($( LANG=C df -hPl | grep $current_disk | awk '{print $2}' ))
         current_disk_total_used=($( LANG=C df -hPl | grep $current_disk | awk '{print $3}' ))
-        current_disk_self_used=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' )
+        current_disk_self_used=$( du -sh $HOME 2>&1 | awk -F " " '{print $1}' )
     fi
     # current_disk_avai=($( LANG=C df -hPl | grep $current_disk | awk '{print $4}' ))
     # current_disk_perc=($( LANG=C df -hPl | grep $current_disk | awk '{print $5}' ))
@@ -649,8 +649,8 @@ seedbox_neighbors_check() {
 
 
 seedbox_check() {
-    serverfqdn=$( hostname -f 2>1 )
-    [ -z $serverfqdn ] && serverfqdn=$( hostname 2>1 )
+    serverfqdn=$( hostname -f 2>&1 )
+    [ -z $serverfqdn ] && serverfqdn=$( hostname 2>&1 )
 
     Seedbox=Unknown
     echo $serverfqdn | grep -q feral          && Seedbox=FH
@@ -789,7 +789,7 @@ function disk_check_no_root () {
 
     cat $HOME/.abench/disk.info 2>/dev/null | sed -e 's/\(.*\)_/\1:/' | sed "s/:.*//" | sort -u > $HOME/.abench/disk.info.2
     # disk_num=$( cat $HOME/.abench/disk.info 2>/dev/null | wc -l )
-    disk_num=$( lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>1 | wc -l )
+    disk_num=$( lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>&1 | wc -l )
     [[ $debug == 1 ]] && echo -e "disk_num=$disk_num"
     disk_model_num=$( cat $HOME/.abench/disk.info.2 2>/dev/null | wc -l )
     [[ $debug == 1 ]] && echo -e "\n" && cat $HOME/.abench/disk.info.2 && echo -e "\n"
@@ -877,7 +877,7 @@ deprecated_disk_check() {
     # disk_par_num=$(df -lh | grep -P "/home[0-9]+|media|home|mnt" | wc -l)
     disk_par_num=$(cat $HOME/par_list | wc -l)
     # 这个估计没毛病，Docker、独服、KVM 下都没问题的样子，别的不知道
-    # disk_par_num=$(lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>1 | wc -l)
+    # disk_par_num=$(lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>&1 | wc -l)
     
     # / 为最大分区时，数字 +1
     [[ $(df -lh | grep $(df -k | sort -rn -k4 | awk '{print $1}' | head -1) | awk '{print $NF}') == / ]] && disk_par_num=$(expr $disk_par_num + 1)
@@ -886,9 +886,9 @@ deprecated_disk_check() {
     # lsblk --exclude 1,2,11 --output NAME,SIZE,ROTA,TYPE,MOUNTPOINT,MODEL
     # lsblk -dn -e 1,2,11 -o MODEL
     
-    # disk_size=$(lsblk --nodeps --noheadings --output SIZE 2>1 | awk '{print $1}')
+    # disk_size=$(lsblk --nodeps --noheadings --output SIZE 2>&1 | awk '{print $1}')
     # disk_total_size=$( calc_disk ${disk_size[@]} )
-    # disk_used_size=$( du -sh $HOME 2>1 | awk -F " " '{print $1}' | sed "s/G//" )
+    # disk_used_size=$( du -sh $HOME 2>&1 | awk -F " " '{print $1}' | sed "s/G//" )
     
     # 2020.02.28 lsblk／fdisk -l 计算硬盘空间的好处是，一些没格式化或者没挂载的硬盘也能算出来，但是还是容易出错
     # 下边这个是各类 bench 脚本通用的，还是用这个算了，起码算错了也没什么大不了的，因为大家都错了……
@@ -899,7 +899,7 @@ deprecated_disk_check() {
     # disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem|udev|docker' | awk '{print $2}' ))
 
     # 高版本 smartctl 也可以看 NVMe 的 smart，不过需要编译，放在一键脚本里还是太麻烦了
-    # 还可以用 lsblk --nodeps --noheadings --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL 2>1
+    # 还可以用 lsblk --nodeps --noheadings --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL 2>&1
     # nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g"
     # udevadm info --name=/dev/nvme${i}n1 | grep "disk/by-id/nvme-" | head -1 | sed "s|S: disk/by-id/nvme-||" | awk -F '_' '{print $1,$2}'
     # nvme_model=$(nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g")

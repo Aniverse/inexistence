@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.06
-# script_version=r13110
+# script_update=2020.06.17
+# script_version=r13111
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -68,8 +68,8 @@ get_opsy() {
 }
 
 lbit=$(getconf LONG_BIT)
-running_kernel=$(uname -r 2>1 )
-arch=$(uname -m 2>1)
+running_kernel=$(uname -r 2>&1 )
+arch=$(uname -m 2>&1)
 [ -z $arch ] && arch=$(echo "x$(getconf LONG_BIT)")
 
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)

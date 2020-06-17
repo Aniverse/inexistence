@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.03.25
-script_version=r20015
+script_update=2020.06.17
+script_version=r20016
 
 ################################################################################################ Debug
 
@@ -70,7 +70,7 @@ cat_outputlog
 function patch_flexget() {
     # pypath=/usr/local/lib/python$(python3 -V | grep -oE "3.[0-9]")/dist-packages
     # Debian 9, /usr/local/lib/python3.7/site-packages
-    pypath=$(python3 -m site 2>1 | grep package | head -1 | cut -d \' -f2)
+    pypath=$(python3 -m site 2>&1 | grep package | head -1 | cut -d \' -f2)
     mkdir -p /tmp
     cat << EOF > /tmp/flexget-remove-passwd-check.patch
 diff -Nur flexget/webserver.py flexget-patch/webserver.py
@@ -125,7 +125,7 @@ function install_flexget3() {
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
     # if [[ -n $(which flexget) ]]; then
-    if [[ $(flexget -V 2>1 | head -1) == 3.0.31 ]]; then
+    if [[ $(flexget -V 2>&1 | head -1) == 3.0.31 ]]; then
         touch /tmp/$status_lock.1.lock
     else
         touch /tmp/$status_lock.2.lock

@@ -2,7 +2,9 @@
 # https://www.reddit.com/r/seedboxes/comments/6qhuig/deluge_is_better_at_the_initial_downloads/
 # https://github.com/wseedbox/deluge-to-rtorrent
 # Thanks to the original author: woodsdog
-# MOdified by Aniverse
+# Modified by Aniverse
+# 2020.06.17
+# r11000
 
 # 
 if [[ -z "${SKIP_SLEEP+x}" ]]; then
@@ -16,10 +18,10 @@ torrentpath=$3
 ##############################################################
 # Define these vars to the path where they are located
 ##############################################################
-export tmpdir=/log/000.de2rt.torrent
-export logfile=/log/001.de2rt.log
+export tmpdir=/log/script/de2rt.torrent
+export logfile=/log/script/de2rt.log
 # export logfile=/dev/null
-export ratio_log=/log/002.deluge.log
+export ratio_log=/log/script/de2rt.deluge-ratio.log
 export dc=/usr/bin/deluge-console
 export deluge_state_dir=/root/.config/deluge/state
 export rtfr=/usr/local/bin/rtnew
@@ -27,7 +29,7 @@ export torrent_download_dir=RTDOWNLOADPATH
 export rtxmlrpc=/usr/local/bin/rtxmlrpc
 export rtorrent_watch=/home/ANUSER/rtorrent/watch
 ##############################################################
-# cat /log/000.de2rt.log ; ll /log
+# cat /log/script/de2rt.log ; ll /log
 # rm -f /usr/local/bin/de2rt && nano /usr/local/bin/de2rt && chmod +x /usr/local/bin/de2rt
 # chmod 777 $ratio_log
 
@@ -40,7 +42,7 @@ echo -e "\n\n\n$(date "+%Y.%m.%d.%H:%M:%S")\ntorrentid=$torrentid\ntorrentname=$
 
 cp ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}
 
-$rtfr $torrent_download_dir ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>1
+$rtfr $torrent_download_dir ${deluge_state_dir}/${torrentid}.torrent ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>&1
 
 # remove the torrent from deluge
 $dc rm $torrentid
@@ -50,8 +52,8 @@ mv ${tmpdir}/${torrentid}_fast.torrent $rtorrent_watch
 # rtxmlrpc are not able to work properly under root even with runuser, so use another way instead
 echo -e "$torrentid   $ratio" >> $ratio_log
 
-# $rtxmlrpc load.start ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>1
-# su black -c 'rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}' >> $logfile 2>1
+# $rtxmlrpc load.start ${tmpdir}/${torrentid}_fast.torrent >> $logfile 2>&1
+# su black -c 'rtxmlrpc d.set_custom ${torrentid} deluge_ratio ${ratio}' >> $logfile 2>&1
 # runuser -l black -c 'rtxmlrpc d.set_custom ${torrentid} deluge_ratio 2.333'
 
 rm -rf $tmpdir
