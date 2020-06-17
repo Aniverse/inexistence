@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.02
-# script_version=r10003
+# script_update=2020.06.17
+# script_version=r10004
 # This var will recover other script's var when source
 #
 ################################################################################################
@@ -24,7 +24,7 @@ Options:
   --tr <tr_version|no>            Specify which Transmission version to be installed
   --domain <your_domain>          Configure SSL for you domain via acme.sh
   --hostname  <hostname>          Setup hostname (make no change by default)
-  --mt-<single|double|half|max>   How many threads will be used when compiling from source (default all)
+  --mt-<single|double|half|max>   How many threads will be used when compiling from source (default max)
   -b <branch>                     Specify which branch of inexistence to be installed (default master)
   -d, --debug                     Enable debug mode
   -s, --skip                      Skip system check
@@ -34,12 +34,12 @@ Options:
   --tr-deb                        Install Transmission 2.94 via deb
   -h, --help                      Display this help and exit
 
-  --APPNAME                       Install an application
+  --APPNAME                       Install an application or enable a function/feature
 
   Available APPNAME:
   vnc | x2go | wine | mono | tools | rclone | flood | flexget | filebrowser | bbr | tweaks | swap
 
-  --no-SOMETHING                  DO NOT install or do something
+  --no-SOMETHING                  Do not install something or do not do something
 
   Available SOMETHING:
   flexget | filebrowser | bbr | tweaks | swap | reboot | system-upgrade | source-change
