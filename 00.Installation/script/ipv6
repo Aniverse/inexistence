@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/aBox
 # Author: Aniverse
 #
-script_update=2020.03.28
-script_version=r31215
+script_update=2020.05.23
+script_version=r31218
 ################################################################################################
 
 usage_guide() {
@@ -128,21 +128,24 @@ BBB=$( echo $serveripv4 | awk -F '.' '{print $2}' )
 CCC=$( echo $serveripv4 | awk -F '.' '{print $3}' )
 DDD=$( echo $serveripv4 | awk -F '.' '{print $4}' )
     
-function _ipip() {
+function ip_ipapi() {
     echo -e "${bold}正在检查服务器的其他 IP 信息 ... (比较慢)${normal}"
-    ipip_result=/tmp/ipip_result
-    [[ ! -f $ipip_result ]] && wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
 
-      ipip_IP=$( cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
-     ipip_ASN=$( cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
-    ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
-    ipip_AS=$( cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
-    ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
-     ipip_Loc=$( cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-     ipip_ISP=$( cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+    mkdir -p $HOME/.abench
+    wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/json > $HOME/.abench/ipapi 2>&1
+    ccoodde=$( cat $HOME/.abench/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+    country=$( cat $HOME/.abench/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+    regionn=$( cat $HOME/.abench/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+    cityyyy=$( cat $HOME/.abench/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+    isppppp=$( cat $HOME/.abench/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    asnnnnn=$( cat $HOME/.abench/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    [[ $cityyyy == Singapore ]] && unset cityyyy
+    [[ -z $isppppp ]] && isp="No ISP detected"
+    [[ -z $asnnnnn ]] && isp="No ASN detected"
+    rm -f $HOME/.abench/ipapi 2>&1
 
  #  rm -f $ipip_result
-    ASN=$(echo $ipip_ASN | grep -oE "AS[0-9]+")
+    ASN=$(echo $asnnnnn | grep -oE "AS[0-9]+")
 
     if [[ $ASN == AS24940 ]];then
         server=Hetzner
@@ -153,7 +156,7 @@ function _ipip() {
         script_support="不需要支持"
         script_support_add="，因为 OVH 装完自带 IPv6"
     elif [[ $ASN == AS60781 ]];then
-        server=Online
+        server=LeaseWeb
         script_support="支持"
         script_support_add="，请填写 1/4 参数"
     elif [[ $ASN == AS12876 ]];then
@@ -649,25 +652,27 @@ interface=$interface
 type=$type
 "
     lines
-    echo -e "\n${yellow}cat /etc/network/interfaces${normal}\n"
-    cat /etc/network/interfaces           2>/dev/null
-    lines
-    if [[ -f /etc/netplan/01-netcfg.yaml ]]; then
+    if [[ -s etc/network/interfaces ]]; then
+        echo -e "\n${yellow}cat /etc/network/interfaces${normal}\n"
+        cat /etc/network/interfaces       2>/dev/null
+        lines
+    fi
+    if [[ -s /etc/netplan/01-netcfg.yaml ]]; then
         echo -e "\n${yellow}cat /etc/netplan/01-netcfg.yaml${normal}\n"
         cat /etc/netplan/01-netcfg.yaml   2>/dev/null
         lines
     fi
-    if [[ -f /etc/dibbler/client.conf ]]; then
+    if [[ -s /etc/dibbler/client.conf ]]; then
         echo -e "\n${yellow}cat /etc/dibbler/client.conf${normal}\n"
         cat /etc/dibbler/client.conf      2>/dev/null
         lines
     fi
-    if [[ -f /var/lib/dibbler/client-duid ]]; then
+    if [[ -s /var/lib/dibbler/client-duid ]]; then
         echo -e "\n${yellow}cat /var/lib/dibbler/client-duid${normal}\n"
         cat /var/lib/dibbler/client-duid  2>/dev/null
         lines
     fi
-    if [[ -f /etc/systemd/system/odhcp6c.service ]]; then
+    if [[ -s /etc/systemd/system/odhcp6c.service ]]; then
         echo -e "\n${yellow}cat /etc/systemd/system/odhcp6c.service${normal}\n"
         cat /etc/systemd/system/odhcp6c.service   2>/dev/null
         lines
@@ -768,7 +773,7 @@ ${underline}ipv6 -m ol3   -6 2001:cb6:2521:240:: -d 00:03:00:01:d3:3a:15:b4:43:a
 function ipv6_menu() {
     if [[ $ip_check == y ]]; then
         _ip
-        _ipip
+        ip_ipapi
         ip_check=n
     fi
     clear
@@ -777,10 +782,8 @@ ${bold}${on_magenta}             IPv6 配置脚本             ${jiacu}
 
 IPv4 地址             ${cyan}$serveripv4${jiacu}
 IPv6 地址             ${cyan}$serveripv6_show${jiacu}
-反向域名              ${cyan}$ipip_rDNS${jiacu}
-运营商                ${cyan}$ipip_ISP${jiacu}
-AS  信息              ${cyan}$ipip_ASN, $ipip_AS${jiacu}
-地理位置              ${cyan}$ipip_Loc${jiacu}
+ASN 信息              ${green}$asnnnnn, $isppppp${jiacu}
+地理位置              ${green}$country, $regionn, $cityyyy${jiacu}
 
 操作系统              ${cyan}$DISTRO $osversion $CODENAME${jiacu}
 系统支持性            ${cyan}$SysSupport${jiacu}
