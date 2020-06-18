@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.18
-script_version=r12039
+script_version=r12040
 
 ################################################################################################ Debug
 
@@ -195,9 +195,6 @@ function install_qbittorrent_deb() {
     wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/qbittorrent/qbittorrent-nox_${qb_deb}.deb  >> $OutputLOG 2>&1
     apt-get install -y /tmp/qb/qbittorrent-nox_${qb_deb}.deb           >> $OutputLOG 2>&1
     rm -rf /tmp/qb >> $OutputLOG 2>&1
-
-    # https://superuser.com/questions/1347723/arch-on-wsl-libqt5core-so-5-not-found-despite-being-installed
-    ldd /usr/bin/qbittorrent-nox | grep libQt5Core.so | grep "not found" -q && strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so
 }
 
 function install_qbittorrent_static() {
@@ -343,6 +340,10 @@ function compile_qbittorrent() {
 
 
 function check_status_qbt() {
+    # https://superuser.com/questions/1347723/arch-on-wsl-libqt5core-so-5-not-found-despite-being-installed
+    ldd /usr/bin/qbittorrent-nox | grep libQt5Core.so | grep "not found" -q         &&
+    strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so.5  >> $OutputLOG 2>&1
+
     qb_installed_ver=$(eval $package_name --version 2>&1 | awk '{print $2}' | grep -oE "[0-9.]+")
     if [[ -z $qb_installed_ver ]]; then
         echo -e " ${red}${bold}FAILED${normal}"
