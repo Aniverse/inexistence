@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.0
+script_version=1.2.6.1
 script_update=2020.06.18
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -859,8 +859,10 @@ function system_tweaks() {
     # Change default system language to English
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale
-    dpkg-reconfigure --frontend=noninteractive locales   >> "$OutputLOG" 2>&1
+    locale-gen en_US.UTF-8                               >> "$OutputLOG" 2>&1
     update-locale LANG=en_US.UTF-8                       >> "$OutputLOG" 2>&1
+    dpkg-reconfigure --frontend=noninteractive locales   >> "$OutputLOG" 2>&1
+    locale                                               >> "$OutputLOG" 2>&1
     # screen config
     if ! grep "defencoding utf8" /etc/screenrc -q ; then
         cat << EOF >> /etc/screenrc
@@ -875,11 +877,8 @@ EOF
     fi
     # 将最大的分区的保留空间设置为 1 %
     if mount | grep $MaxDisk | grep ext4 -q ; then
-        tune2fs -m 1 $MaxDisk   >> "$OutputLOG" 2>&1
+        tune2fs -m 1 $MaxDisk       >> "$OutputLOG" 2>&1
     fi
-
-    locale-gen en_US.UTF-8          >> "$OutputLOG" 2>&1
-    locale                          >> "$OutputLOG" 2>&1
     sysctl -p                       >> "$OutputLOG" 2>&1
     apt-get -y autoremove           >> "$OutputLOG" 2>&1
     touch $LOCKLocation/tweaks.lock
