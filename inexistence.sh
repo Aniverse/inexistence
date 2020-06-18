@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.5.10
-script_update=2020.06.06
+script_version=1.2.6.0
+script_update=2020.06.18
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -317,13 +317,13 @@ lt_version=${lt_version}
 MaxCPUs=${MAXCPUS}
 apt_sources=${aptsources}
 FlexGet=${InsFlex}
-Flood=${InsFlood}
 FileBrowser=${InsFB}
 Tweaks=${UseTweaks}
 
 bbr=${InsBBR}
 rclone=${InsRclone}
 Tools=${InsTools}
+Flood=${InsFlood}
 wine=${InsWine}
 mono=${InsMono}
 noVNC=${InsVNC}
