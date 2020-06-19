@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.1
-script_update=2020.06.18
+script_version=1.2.6.2
+script_update=2020.06.19
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -857,10 +857,23 @@ function system_tweaks() {
     ntpdate time.windows.com                   >> "$OutputLOG" 2>&1
     hwclock -w                                 >> "$OutputLOG" 2>&1
     # Change default system language to English
-    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    # sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    if (grep -q "en_US.UTF-8 UTF-8" /etc/locale.gen >/dev/null 2>&1); then
+        sed -i "s/#\s*en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen
+    else
+        echo "en_US.UTF-8 UTF-8" >>/etc/locale.gen
+    fi
+    if (grep -q "zh_CN.UTF-8 UTF-8" /etc/locale.gen >/dev/null 2>&1); then
+        sed -i "s/#\s*zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g" /etc/locale.gen
+    else
+        echo "zh_CN.UTF-8 UTF-8" >>/etc/locale.gen
+    fi
+    apt-get install locales -y   >> "$OutputLOG" 2>&1
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+    locale-gen                                           >> "$OutputLOG" 2>&1
     locale-gen en_US.UTF-8                               >> "$OutputLOG" 2>&1
     update-locale LANG=en_US.UTF-8                       >> "$OutputLOG" 2>&1
+  # DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales >/dev/null   2>&1
     dpkg-reconfigure --frontend=noninteractive locales   >> "$OutputLOG" 2>&1
     locale                                               >> "$OutputLOG" 2>&1
     # screen config
