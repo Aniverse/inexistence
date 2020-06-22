@@ -62,6 +62,43 @@
 
 # ChangeLog  
 
+## [2020.06.06/17-19, 7/8 commits](https://github.com/Aniverse/inexistence/compare/c4c0a57...94bedbf)  
+
+`the inexistence project`  
+1. **Bump version to 1.2.6**  
+2. **BugFix：应该是彻底修复了 2>1 的问题**  
+3. 有一些界面调整、变量名修改之类的小改动就不写出来了  
+
+`inexistence 1.2.6.2`  
+1. UI：Flood 未选择时不在确认信息处显示 flood 的选项  
+2. BugFix：尝试修复某些情况下 LC_ALL 无法设置为 en_US.UTF-8 的问题  
+没想到我在 ik 上竟然出现了没有 en_US.UTF-8 的问题，做了点处理，但没测试是否成功修复了  
+
+`function r13111`
+1. echo_error2，不保存到日志  
+2. NEW function：apt_install_dependencies  
+安装依赖专用，失败时强制退出  
+
+`qbittorrent/install r12040`
+1. BugFix：修复 Debian 10 使用 3.16.0-4 等老内核时 qbittorrent-nox 找不到 ibQt5Core.so 的问题  
+这是一个非常蛋疼的 bug……  
+2. BugFix：修复单独使用本脚本安装 qbittorrent 时 libtorrent-rasterbar-dev 没装的问题  
+（但我现在发现这个包其实不是依赖……只是编译需要）  
+
+`transmission/install r10004`
+1. 初始化  
+2. 初步支持编译 Transmission 3.00，未作详细测试  
+3. 不再编译 libevent  
+4. transmission 的源码选择从 GitHub 的专用仓库里下载 tarball  
+
+`de2rt r11000`
+1. 修复 2>1 bug 的时候顺手改了下这个脚本的默认日志文件路径到 /log/script/de2rt.log  
+
+`IPv6 r31218`
+1. 同步 aBox 的改动  
+2. 主要是修复了 IPIP 失效的问题，改用 IPAPI  
+
+
 
 
 
