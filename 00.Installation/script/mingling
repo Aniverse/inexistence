@@ -2,8 +2,8 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.4
-SCRIPTUPDATE=2020.04.19.还能抢救下
+SCRIPTVER=0.9.4.5
+SCRIPTUPDATE=2020.06.24
 
 [[ $1 == -d ]] && DeBUG=1
 
@@ -45,7 +45,7 @@ function _update_mingling() {
 # 00. 脚本的欢迎界面，还没写好
 function _logo() {
     clear ; wget --timeout=7 -qO- https://github.com/Aniverse/inexistence/raw/files/logo/mingling.logo.1
-    echo -e "${bold}$SCRIPTVER${normal}"
+    echo -e "${bold}$SCRIPTVER ($SCRIPTUPDATE)${normal}"
     if [[ $EUID != 0 ]]; then echo "${bold}你需要用 root 权限来运行本脚本${normal}" ; exit 1 ; fi
     if [[ ! "$DISTROL" =~ ("ubuntu"|"debian") ]]; then echo "${bold}${red}你运行的似乎不是 ${green}Debian/Ubuntu${jiacu} 系统，本脚本的大部分功能无法正常使用${normal}" ; fi
     if [[ ! "$inexistence" == 1 ]]; then echo "${bold}${red}你似乎没有安装 inexistence 脚本，本脚本的部分功能无法正常使用${normal}" ; fi
@@ -169,7 +169,7 @@ echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
 function _showurl() { 
     clear ; echo
     if [[ $inexistence == 1 ]]; then
-        sed "s/.*COMPLETED.*//" /log/inexistence/*/end.log
+        sed "s/.*COMPLETED.*//" /log/inexistence/end.log
     else
         echo -e "${bold}似乎你没有使用 inexistence 脚本，本功能无法使用"
     fi
