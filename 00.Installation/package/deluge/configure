@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.02
-script_version=r10005
+script_update=2020.06.26
+script_version=r10006
 
 ################################################################################################ Debug
 
@@ -82,7 +82,7 @@ check_var_iUser_iPass_iHome
 
 PortCheck $wPort $iPort
 [[ $port_used == 1 ]] && echo_error "Please change your port" && exit 1
-de_installed_ver=$(deluged --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
+[[ -n $(which deluged) ]] && de_installed_ver=$(deluged --version 2>/dev/null | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
 
 ################################################################################################
 
@@ -108,15 +108,72 @@ import time
 print hashlib.sha1(str(time.time())).hexdigest()
 EOF
 
+cat << EOF > $inexistence_files/script/backup-log-deluged
+#!/bin/bash
+cp -f \$HOME/.config/deluge/deluged.log  \$HOME/.config/deluge/deluged.log.\$(date "+%Y.%m.%d.%H.%M.%S")
+sleep 0
+EOF
+
+cat << EOF > $inexistence_files/script/backup-log-deluge-web
+#!/bin/bash
+cp -f \$HOME/.config/deluge/deluge-web.log  \$HOME/.config/deluge/deluge-web.\$(date "+%Y.%m.%d.%H.%M.%S")
+sleep 0
+EOF
+
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
 DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
 DUDID=$(python /tmp/deluge.addhost.py)
 
-
 ################################################################################################
 
 
-function deluge_core_conf() {
+
+function write_deluge_systemd() {
+    cat << EOF > /etc/systemd/system/deluged@.service
+[Unit]
+Description=Deluge Bittorrent Client Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+LimitNOFILE=infinity
+ExecStartPre=$(which sudo) -u %I -H $inexistence_files/script/backup-log-deluged
+ExecStart=/usr/bin/deluged -d -l /home/%I/.config/deluge/deluged.log -L info
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluged
+Restart=on-failure
+TimeoutStopSec=20
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    cat << EOF > /etc/systemd/system/deluge-web@.service
+[Unit]
+Description=Deluge Bittorrent Client Web Interface
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+ExecStartPre=$(which sudo) -u %I -H $inexistence_files/script/backup-log-deluge-web
+ExecStart=/usr/bin/deluge-web -l /home/%I/.config/deluge/deluge-web.log -L info
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluge-web
+TimeoutStopSec=5
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    if version_ge $dever 2.0 ; then
+        sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
+    fi
+    systemctl daemon-reload >> $OutputLOG 2>&1
+}
+
+
+function write_deluge_core_conf() {
     cat << EOF > $iHome/.config/deluge/core.conf
 {
   "file": 1, 
@@ -227,7 +284,7 @@ EOF
 }
 
 
-function deluge_web_conf() {
+function write_deluge_web_conf() {
     cat << EOF > $iHome/.config/deluge/core.conf
 {
   "file": 1,
@@ -259,7 +316,7 @@ EOF
 }
 
 
-function deluge_hostlist_conf() {
+function write_deluge_hostlist_conf() {
 cat << EOF > $iHome/.config/deluge/hostlist.conf.1.2
 {
   "file": 1,
@@ -279,20 +336,19 @@ EOF
 }
 
 
-function deluge_get_plugins() {
+function deluge_download_plugins() {
     # https://dev.deluge-torrent.org/wiki/Plugins
     # autoremoveplus with Python3 and Deluge2 support: https://github.com/springjools/deluge-autoremoveplus/releases
     # https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/YaRSS2-2.1.4-py3.6.egg
     # https://github.com/Laharah/deluge-FileBotTool/releases
     # https://github.com/nicklan/Deluge-Pieces-Plugin/downloads
-
-    mkdir -p $iHome/.config/deluge/plugins
-    if version_ge $dever 2.0 ; then
+    if [[ ! -d $inexistence_files/deluge-plugins ]]; then
+        mkdir -p $inexistence_files/deluge-plugins
+        cd $inexistence_files/deluge-plugins
         list="ltConfig-2.0.0   reannounce-0.1-py3.7"
         for plugin in $list ; do
             wget -nv -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python3/${plugin}.egg
         done
-    else
         list="AutoRemovePlus-0.6.1-py2.7   LabelPlus-0.3.2.2-py2.7   ltConfig-0.3.1-py2.7   Stats-0.3.2-py2.7   TotalTraffic-0.5-py2.7   YaRSS2-1.4.3-py2.7" #  NoFolder-0.2-py2.7   reannounce-0.1-py2.7
         for plugin in $list ; do
             wget -nv -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python2.7/${plugin}.egg
@@ -301,76 +357,80 @@ function deluge_get_plugins() {
 }
 
 
+function deluge_get_plugins() {
+    mkdir -p $iHome/.config/deluge/plugins
+    cd $iHome/.config/deluge/plugins
+    if version_ge $dever 2.0 ; then
+        list="ltConfig-2.0.0   reannounce-0.1-py3.7"
+        for plugin in $list ; do
+            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .
+        done
+    else
+        list="AutoRemovePlus-0.6.1-py2.7   LabelPlus-0.3.2.2-py2.7   ltConfig-0.3.1-py2.7   Stats-0.3.2-py2.7   TotalTraffic-0.5-py2.7   YaRSS2-1.4.3-py2.7" #  NoFolder-0.2-py2.7   reannounce-0.1-py2.7
+        for plugin in $list ; do
+            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .
+        done
+    fi
+}
 
 
 ################################################################################################
 
 
-
-
-
-
 function configure_deluge() {
 
-if [[ $force == 1 ]] ;then 1
-fi
-# [[ -d $User_PATH/.config/deluge ]] && rm -rf /home/${ANUSER}/.config/deluge.old && mv /home/${ANUSER}/.config/deluge $User_PATH/.config/deluge.old
-mkdir -p $User_PATH/deluge/{download,torrent,watch}
+    echo >> $OutputLOG
 
-touch /etc/inexistence/01.Log/deluged.log /etc/inexistence/01.Log/delugeweb.log
-chmod -R 666 /etc/inexistence/01.Log
+    backup_old_config deluge
+    mkdir -p /home/$iUser/deluge/{download,torrent,watch}  $iHome/.config/deluge   $local_script   $PortLocation
 
-# mkdir -p /home/${ANUSER}/.config  && cd /home/${ANUSER}/.config && rm -rf deluge
-# cp -f -r "${local_packages}"/template/config/deluge /home/${ANUSER}/.config
-mkdir -p $User_PATH/.config && cd $User_PATH/.config
-[[ -d $User_PATH/.config/deluge ]] && { rm -rf $User_PATH/.config/deluge.old ; mv $User_PATH/.config/deluge $User_PATH/.config/deluge.old ; }
-cp -f "${local_packages}"/template/config/deluge.config.tar.gz $User_PATH/.config/deluge.config.tar.gz
-tar zxf deluge.config.tar.gz
-chmod -R 666 $User_PATH/.config
-rm -rf deluge.config.tar.gz ; cd
+    if [[ -f $local_packages/package/deluge/ddee ]]; then
+        ln -s  $local_packages/package/deluge/ddee      $local_script/ddee       >> $OutputLOG 2>&1
+        ln -s  $local_packages/package/deluge/ddww      $local_script/ddww       >> $OutputLOG 2>&1
+    else
+        wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/deluge/ddee -O $local_script/ddee >> $OutputLOG 2>&1
+        chmod +x $local_script/ddee
+        wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/deluge/ddee -O $local_script/ddww >> $OutputLOG 2>&1
+        chmod +x $local_script/ddww
+    fi
 
+    deluge_download_plugins
+    deluge_get_plugins
+    write_deluge_systemd
+    write_deluge_core_conf
+    write_deluge_web_conf
+    write_deluge_hostlist_conf
+    echo "$iUser:$iPass:10" >> $iHome/.config/deluge/auth
+    chmod 600 $iHome/.config/deluge/auth
 
-echo "$ANUSER:$ANPASS:10" >> $User_PATH/.config/deluge/auth
-chmod 600 $User_PATH/.config/deluge/auth
-sed -i "s/delugeuser/${ANUSER}/g" $User_PATH/.config/deluge/core.conf
-sed -i "s/DWSALT/${DWSALT}/g" $User_PATH/.config/deluge/web.conf
-sed -i "s/DWP/${DWP}/g" $User_PATH/.config/deluge/web.conf
+    chmod -R 755             $iHome/deluge   $iHome/.config/deluge >> $OutputLOG 2>&1
+    chown -R $iUser.$iUser   $iHome/deluge   $iHome/.config/deluge >> $OutputLOG 2>&1
 
-cp -f "${local_packages}"/template/systemd/deluged.service /etc/systemd/system/deluged.service
-cp -f "${local_packages}"/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
-[[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
-# cp -f "${local_packages}"/template/systemd/deluged@.service /etc/systemd/system/deluged@.service
-# cp -f "${local_packages}"/template/systemd/deluge-web@.service /etc/systemd/system/deluge-web@.service
-
-systemctl daemon-reload
-systemctl enable /etc/systemd/system/deluge-web.service
-systemctl enable /etc/systemd/system/deluged.service
-systemctl start deluged
-systemctl start deluge-web
-# systemctl enable {deluged,deluge-web}@${ANUSER}
-# systemctl start {deluged,deluge-web}@${ANUSER}
-
-# Deluge update-tracker，用于 AutoDL-Irssi
-deluged_ver_2=`deluged --version | grep deluged | awk '{print $2}'`
-deluged_port=$( grep daemon_port $User_PATH/.config/deluge/core.conf | grep -oP "\d+" )
-
-cp "${local_packages}"/script/special/update-tracker.py /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py
-sed -i "s/ANUSER/$ANUSER/g" /usr/local/bin/deluge-update-tracker
-sed -i "s/ANPASS/$ANPASS/g" /usr/local/bin/deluge-update-tracker
-sed -i "s/DAEMONPORT/$deluged_port/g" /usr/local/bin/deluge-update-tracker
-chmod +x /usr/lib/python2.7/dist-packages/deluge-$deluged_ver_2-py2.7.egg/deluge/ui/console/commands/update-tracker.py /usr/local/bin/deluge-update-tracker
+    echo  $wPort >  $PortLocation/$iUser.$AppNameLower
+    systemctl enable deluge@$iUser     >> $OutputLOG 2>&1
+    systemctl start  deluge@$iUser     >> $OutputLOG 2>&1
+    systemctl enable deluge-web@$iUser >> $OutputLOG 2>&1
+    systemctl start  deluge-web@$iUser >> $OutputLOG 2>&1
+    sleep 2
+    systemctl status deluge@$iUser     >> $OutputLOG 2>&1
+    systemctl status deluge-web@$iUser >> $OutputLOG 2>&1
+    [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/deluge/download   /var/www/h5ai/$iUser/deluge >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
     echo "status_lock=$status_lock" > /tmp/Variables
-    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
-    # full program name will not be displayed, so just transmiss not deluge-daemon
-    ps --user $iUser | grep transmiss -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    ps --user $iUser | grep deluged -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
     echo >> $OutputLOG
-
 }
 
 
+################################################################################################
 
-echo_task "Configuring $AppName ..."
-configure_deluge & spinner $!
-check_status $status_lock
+
+if [[ -d $iHome/.config/flexget ]] && [[ $force != 1 ]] ;then
+    echo -e "Configuration for $iUser already exists, skip configuration ..."
+else
+    echo_task "Configuring $AppName ..."
+    configure_deluge & spinner $!
+    check_status $status_lock
+fi
