@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.02
-script_version=r10005
+script_update=2020.06.26
+script_version=r10006
 
 ################################################################################################ Debug
 
@@ -85,9 +85,7 @@ tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
 ################################################################################################
 
-function configure_transmission() {
-
-    echo >> $OutputLOG
+function write_transmission_systemd() {
     cat << EOF > /etc/systemd/system/transmission@.service
 [Unit]
 Description=Transmission BitTorrent Daemon
@@ -106,15 +104,9 @@ ExecStop=/bin/kill -9 $MAINPID
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload >> $OutputLOG 2>&1
+}
 
-    if [[ -d $iHome/.config/transmission-daemon ]]; then
-        mv $iHome/.config/transmission-daemon $iHome/.config/transmission-daemon.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")
-        rm -rf $iHome/.config/transmission-daemon
-    fi
-
-    mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script   $PortLocation
-    ln    -s  $local_packages/package/transmission/ttrr      $local_script/ttrr                   >> $OutputLOG 2>&1
-
+function write_transmission_settings() {
     cat << EOF > $iHome/.config/transmission-daemon/settings.json
 {
     "alt-speed-down": 50, 
@@ -194,6 +186,25 @@ EOF
 }
 
 EOF
+}
+
+################################################################################################
+
+function configure_transmission() {
+
+    echo >> $OutputLOG
+
+    backup_old_config transmission-daemon
+    mkdir -p  $iHome/transmission/{download,torrent,watch}   $iHome/.config/transmission-daemon   $local_script   $PortLocation
+    if [[ -f $local_packages/package/transmission/ttrr ]]; then
+        ln -s  $local_packages/package/transmission/ttrr      $local_script/ttrr       >> $OutputLOG 2>&1
+    else
+        wget -nv https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/transmission/ttrr -O $local_script/ttrr >> $OutputLOG 2>&1
+        chmod +x $local_script/ttrr
+    fi
+
+    write_transmission_settings
+    write_transmission_systemd
 
     chmod -R 755             $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
     chown -R $iUser.$iUser   $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
@@ -201,6 +212,8 @@ EOF
     echo   $wPort   >    $PortLocation/$iUser.$AppNameLower
     systemctl enable transmission@$iUser >> $OutputLOG 2>&1
     systemctl start  transmission@$iUser >> $OutputLOG 2>&1
+    sleep 2
+    systemctl status transmission@$iUser >> $OutputLOG 2>&1
     [[ -d /var/www/h5ai/$iUser ]] && ln -s   $iHome/transmission/download   /var/www/h5ai/$iUser/transmission >> $OutputLOG 2>&1
 
     status_lock=$AppName-c
@@ -209,6 +222,7 @@ EOF
     # full program name will not be displayed, so just transmiss not transmission-daemon
     ps --user $iUser | grep transmiss -q && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
     echo >> $OutputLOG
+
 }
 
 

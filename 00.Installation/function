@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.26
-# script_version=r13112
+# script_version=r13113
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -41,6 +41,7 @@ LOCKLocation=$LogBase/.lock
 PortLocation=$LogBase/port
 inexistence_url="https://github.com/Aniverse/inexistence"
 inexistence_branch=master
+inexistence_files=/etc/inexistence.files
 local_repo=/etc/inexistence
 local_packages=$local_repo/00.Installation
 local_script=/usr/local/bin/abox
@@ -539,6 +540,15 @@ function export_inexistence_info() {
         iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
     else
         iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -pbkdf2 -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
+    fi
+}
+
+
+function backup_old_config() {
+    local appname=$1
+    if [[ -d $iHome/.config/$appname ]]; then
+        mv $iHome/.config/$appname  $iHome/.config/$appname.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
+        rm -rf $iHome/.config/$appname  >> $OutputLOG 2>&1
     fi
 }
 

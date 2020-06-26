@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.06.02
-script_version=r10010
+script_update=2020.06.26
+script_version=r10011
 
 ################################################################################################ Debug
 
@@ -50,7 +50,7 @@ while [ -n "$1" ] ; do case "$1" in
     -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
     -w | --wport        ) wPort="$2"    ; shift 2 ;;
     -d | --debug        ) debug=1       ; shift   ;;
-    -f | --force    ) force=1       ; shift   ;;
+    -f | --force        ) force=1       ; shift   ;;
          --system       ) mode=system   ; shift   ;;
          --single       ) mode=single   ; shift   ;;
          --log          ) show_log=1    ; shift   ;;
@@ -234,11 +234,7 @@ function configure_flexget() {
     systemctl disable flexget@$iUser >> "$OutputLOG" 2>&1
     systemctl stop    flexget@$iUser >> "$OutputLOG" 2>&1
 
-    if [[ -d $iHome/.config/flexget ]]; then
-        mv -f  $iHome/.config/flexget $iHome/.config/flexget.old.$times >> "$OutputLOG" 2>&1
-        rm -rf $iHome/.config/flexget
-    fi
-
+    backup_old_config flexget
     mkdir -p /$iHome/.config/flexget       $PortLocation    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
     echo  $wPort >  $PortLocation/$iUser.$AppNameLower
     flexget_config_file
