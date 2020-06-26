@@ -111,5 +111,44 @@ function opts_action () {
     
         -- ) shift ; break ;;
     esac ; done
+
+    [[ -n $iUser ]] && options_validate_username
+#   [[ -n $iPass ]] && options_validate_password
 }
-    
+
+function options_validate_username() {
+    reserved_names=('adm' 'admin' 'audio' 'backup' 'bin' 'cdrom' 'crontab' 'daemon' 'dialout' 'dip' 'disk' 'fax' 'floppy' 'fuse' 'games' 'gnats' 'irc' 'kmem' 'landscape' 'libuuid' 'list' 'lp' 'mail' 'man' 'messagebus' 'mlocate' 'netdev' 'news' 'nobody' 'nogroup' 'operator' 'plugdev' 'proxy' 'root' 'sasl' 'shadow' 'src' 'ssh' 'sshd' 'staff' 'sudo' 'sync' 'sys' 'syslog' 'tape' 'tty' 'users' 'utmp' 'uucp' 'video' 'voice' 'whoopsie' 'www-data')
+    count=0
+    count=$(echo -n "$iUser" | wc -c)
+    if $(echo "${reserved_names[@]}" | grep -wq "$iUser"); then
+        echo -e "Do not use reversed user name ! 这个用户名不可用，换一个吧"
+        exit 1
+    elif [[ $count -lt 3 || $count -gt 32 ]]; then
+        echo -e "User name cannot less than 3 or more than 32 characters ! 用户名长度 3-32 位"
+        exit 1
+    elif ! [[ "$iUser" =~ ^[a-z][-a-z0-9_]*$ ]]; then
+        echo -e "Your username must start from a lower case letter and the username"
+        echo -e "must contain only lowercase letters, numbers, hyphens, and underscores."
+        echo -e "用户名必须由小写字母开头，只能用小写字母、数字、连字符、下划线"
+        exit 1
+    fi
+}
+
+# This requirement is higher than ask_password
+function options_validate_password() {
+    count=0
+    count=$(echo -n "$iPass" | wc -c)
+    strength=$(echo "$iPass" | grep -P '(?=^.{8,32}$)(?=^[^\s]*$)(?=.*\d)(?=.*[A-Z])(?=.*[a-z])')
+    if [[ $count -lt 8 ]]; then
+        echo -e "Your password cannot less than 8 characters !"
+        exit 1
+    else
+        if [[ $strength == "" ]]; then
+        echo -e "Your password must consist:"
+        echo -e "1. digital numbers"
+        echo -e "2. at least one lower case letter"
+        echo -e "3. one upper case letter"
+        exit 1
+        fi
+    fi
+}
