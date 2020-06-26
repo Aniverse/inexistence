@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.17
-# script_version=r13111
+# script_update=2020.06.26
+# script_version=r13112
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -523,20 +523,22 @@ function validate_username() {
 
 
 function export_inexistence_info() {
-    inexistence_ver=$( cat /log/inexistence/info/version.txt | grep inexistence.version  | awk '{print $NF}' | head -1)
-    inexistence_date=$(cat /log/inexistence/info/version.txt | grep inexistence.update   | awk '{print $NF}' | head -1)
-    asnnnnn=$(cat $LogBase/info/asn.txt)
-    serveripv4=$(cat $LogBase/info/serveripv4.txt)
+    inexistence_ver=$( cat /log/inexistence/info/version.txt 2>/dev/null | grep inexistence.version  | awk '{print $NF}' | head -1)
+    inexistence_date=$(cat /log/inexistence/info/version.txt 2>/dev/null | grep inexistence.update   | awk '{print $NF}' | head -1)
+    asnnnnn=$(cat $LogBase/info/asn.txt 2>/dev/null)
+    serveripv4=$(cat $LogBase/info/serveripv4.txt 2>/dev/null)
     serveripv6=$(cat $LogBase/info/serveripv6.txt 2>/dev/null)
     [[ -f /log/inexistence/.lock/tweaks.lock ]] && tweaks_enabled=1
 
-    iUser=$(cat /log/inexistence/info/installed.user.list.txt | head -1)
-    passphrase=$(cat /root/.ssh/users/${iUser})
-    passtext=$(cat /log/inexistence/users/${iUser}.info | cut -d: -f2)
+    DefaultiUser=$(cat /log/inexistence/info/installed.user.list.txt 2>/dev/null | head -1)
+    [[ -z $iUser ]] && iUser=$DefaultiUser
+    iHome=$(eval echo "~$iUser")
+    passphrase=$(cat /root/.ssh/users/${iUser} 2>/dev/null)
+    passtext=$(cat /log/inexistence/users/${iUser}.info 2>/dev/null | cut -d: -f2)
     if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
-        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -a -d -pass pass:${passphrase} -nosalt)
+        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
     else
-        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -pbkdf2 -a -d -pass pass:${passphrase} -nosalt)
+        iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -pbkdf2 -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
     fi
 }
 

@@ -3,16 +3,17 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.14
-script_version=r10000
+script_update=2020.06.26
+script_version=r10001
 ################################################################################################
 action=$1
 iUser=$2
-DefaultUser=$(cat /log/inexistence/iUser.txt 2>/dev/null | head -1)
-[[ -z $iUser  ]] && iUser=$DefaultUser
-id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
-[[ $iUser == root ]] && iHome=/root ; [[ $iUser != root ]] && iHome=/home/$iUser
-ServerIP=$(grep serveripv4 /log/inexistence/serverip 2>/dev/null | awk '{print $2}')
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+export_inexistence_info
 ################################################################################################
 app_script=ddww
 app=deluge-web
@@ -22,7 +23,7 @@ app_config=$iHome/.config/deluge/web.conf
 app_log=$iHome/.config/deluge/deluge-web.log
 app_daemon_port=$(sed -rn 's/(.*)"port": (.*),/\2/p' $app_config)
 app_version=$($app_command --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
-[[ -n $ServerIP ]] && app_web_url="Web          http://${ServerIP}:${app_webui_port}"
+[[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
 
 show_usage() {

@@ -3,16 +3,17 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.03.05
-script_version=r10002
+script_update=2020.06.26
+script_version=r10003
 ################################################################################################
 action=$1
 iUser=$2
-DefaultUser=$(cat /log/inexistence/iUser.txt 2>/dev/null | head -1)
-[[ -z $iUser  ]] && iUser=$DefaultUser
-id -u "$iUser" >/dev/null 2>&1 || { echo -e "No invalid user input" ; exit 1 ; }
-[[ $iUser == root ]] && iHome=/root ; [[ $iUser != root ]] && iHome=/home/$iUser
-ServerIP=$(grep serveripv4 /log/inexistence/serverip 2>/dev/null | awk '{print $2}')
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+export_inexistence_info
 ################################################################################################
 app_script=ffgg
 app=FlexGet
@@ -22,7 +23,7 @@ app_config=$iHome/.config/flexget/config.yml
 app_log=$iHome/.config/flexget/flexget.log
 app_webui_port=$(grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+")
 app_version=$($app_command -V 2>/dev/null | head -1 | grep -oE "[0-9.]+")
-[[ -n $ServerIP ]] && app_web_url="Web          http://${ServerIP}:${app_webui_port}"
+[[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
 
 show_usage() {
