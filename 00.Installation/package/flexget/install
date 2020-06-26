@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.17
-script_version=r20016
+script_update=2020.06.26
+script_version=r20017
 
 ################################################################################################ Debug
 
@@ -103,11 +103,10 @@ function install_flexget3() {
     pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
   # pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
   # See here: https://github.com/pypa/setuptools/issues/2017
-    pip3 install setuptools==45.3.0                   >> "$OutputLOG" 2>&1
-
+  # pip3 install setuptools==45.3.0                   >> "$OutputLOG" 2>&1
     pip3 install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
     pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
-    pip3 install --ignore-installed flexget==3.0.31   >> "$OutputLOG" 2>&1
+    pip3 install --ignore-installed flexget           >> "$OutputLOG" 2>&1
     pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
     patch_flexget
