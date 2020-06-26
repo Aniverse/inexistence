@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.26
-script_version=r10006
+script_version=r10007
 
 ################################################################################################ Debug
 
@@ -170,6 +170,25 @@ EOF
         sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
     fi
     systemctl daemon-reload >> $OutputLOG 2>&1
+}
+
+
+function write_deluge_nginx_reverse_proxy() {
+    # Currently this is only for the first non-root user
+    if [[ -d /etc/nginx/apps ]] && [[ ! -f /etc/nginx/apps/deluge.conf ]]; then
+        cat << EOF > /etc/nginx/apps/deluge.conf
+location /de {
+    return 301 https://\$host/deluge;
+}
+location /deluge {
+    proxy_pass http://127.0.0.1:$wPort/;
+    proxy_set_header X-Deluge-Base "/deluge/";
+    include /etc/nginx/conf.d/proxy;
+    add_header X-Frame-Options SAMEORIGIN;
+}
+EOF
+        nginx -s reload      >> "$OutputLOG" 2>&1
+    fi
 }
 
 
@@ -400,6 +419,7 @@ function configure_deluge() {
     write_deluge_core_conf
     write_deluge_web_conf
     write_deluge_hostlist_conf
+    write_deluge_nginx_reverse_proxy
     echo "$iUser:$iPass:10" >> $iHome/.config/deluge/auth
     chmod 600 $iHome/.config/deluge/auth
 

@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.26
-script_version=r12048
+script_version=r12049
 
 ################################################################################################ Debug
 
@@ -96,7 +96,7 @@ qbconf="$iHome/.config/qBittorrent/qBittorrent.conf"
 function write_qbittorrent_nginx_reverse_proxy () {
     # Nginx Reverse
     # Currently this is only for the first non-root user
-    if [[ -d /etc/nginx/apps ]]; then
+    if [[ -d /etc/nginx/apps ]] && [[ ! -f /etc/nginx/apps/qbittorrent.conf ]]; then
         cat << EOF > /etc/nginx/apps/qbittorrent.conf
 location /qb {
     return 301 https://\$host/qbittorrent/;

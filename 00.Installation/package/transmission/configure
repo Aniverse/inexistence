@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.26
-script_version=r10006
+script_version=r10007
 
 ################################################################################################ Debug
 
@@ -85,6 +85,7 @@ tr_installed_ver=$(transmission-daemon --help | head -n1 | awk '{print $2}')
 
 ################################################################################################
 
+
 function write_transmission_systemd() {
     cat << EOF > /etc/systemd/system/transmission@.service
 [Unit]
@@ -105,6 +106,34 @@ WantedBy=multi-user.target
 EOF
     systemctl daemon-reload >> $OutputLOG 2>&1
 }
+
+
+function write_transmission_nginx_reverse_proxy() {
+    # Currently this is only for the first non-root user
+    if [[ -d /etc/nginx/apps ]] && [[ ! -f /etc/nginx/apps/transmission.conf ]]; then
+        cat << EOF > /etc/nginx/apps/transmission.conf
+location /tr {
+  return 301 /transmission/web/;
+}
+location /transmission {
+    proxy_read_timeout 300;
+    proxy_pass_header  X-Transmission-Session-Id;
+    proxy_set_header   X-Forwarded-Host   \$host;
+    proxy_set_header   X-Forwarded-Server \$host;
+    proxy_set_header   X-Forwarded-For    \$proxy_add_x_forwarded_for;
+    proxy_pass         http://127.0.0.1:$wPort/transmission;
+}
+location /rpc {
+    proxy_pass         http://127.0.0.1:$wPort/transmission/rpc;
+}
+location /upload {
+    proxy_pass         http://127.0.0.1:$wPort/transmission/upload;
+}
+EOF
+        nginx -s reload      >> "$OutputLOG" 2>&1
+    fi
+}
+
 
 function write_transmission_settings() {
     cat << EOF > $iHome/.config/transmission-daemon/settings.json
@@ -188,6 +217,7 @@ function write_transmission_settings() {
 EOF
 }
 
+
 ################################################################################################
 
 function configure_transmission() {
@@ -205,6 +235,7 @@ function configure_transmission() {
 
     write_transmission_settings
     write_transmission_systemd
+    write_transmission_nginx_reverse_proxy
 
     chmod -R 755             $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1
     chown -R $iUser.$iUser   $iHome/transmission   $iHome/.config/transmission-daemon >> $OutputLOG 2>&1

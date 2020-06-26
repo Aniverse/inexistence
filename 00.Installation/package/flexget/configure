@@ -6,7 +6,7 @@
 # Thanks to amefs
 
 script_update=2020.06.26
-script_version=r10011
+script_version=r10012
 
 ################################################################################################ Debug
 
@@ -80,7 +80,22 @@ PortCheck $wPort
 
 ################################################################################################ Sub Functions
 
-function flexget_config_file() {
+function write_flexget_nginx_reverse_proxy() {
+    # Currently this is only for the first non-root user
+    if [[ -d /etc/nginx/apps ]] && [[ ! -f /etc/nginx/apps/flexget.conf ]]; then
+        cat << EOF > /etc/nginx/apps/flexget.conf
+location /fg {
+    return 301 https://\$host/flexget;
+}
+location /flexget {
+    proxy_pass         http://127.0.0.1:$wPort;
+}
+EOF
+        nginx -s reload      >> "$OutputLOG" 2>&1
+    fi
+}
+
+function write_flexget_config_file() {
     [[ -z $qb_port ]] && qb_port=2017
     [[ -z $de_port ]] && de_port=58846
     [[ -z $tr_port ]] && tr_port=9099
@@ -178,7 +193,7 @@ EOF
 }
 
 
-function flexget_systemd() {
+function write_flexget_systemd() {
     cat  << EOF > /etc/systemd/system/flexget@.service
 [Unit]
 Description=Flexget Daemon
@@ -237,9 +252,10 @@ function configure_flexget() {
     backup_old_config flexget
     mkdir -p /$iHome/.config/flexget       $PortLocation    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
     echo  $wPort >  $PortLocation/$iUser.$AppNameLower
-    flexget_config_file
     flexget_cmd=/usr/local/bin/flexget
-    flexget_systemd
+    write_flexget_config_file
+    write_flexget_systemd
+    write_flexget_nginx_reverse_proxy
     add_flexget_plugins
 
     chown $iUser.$iUser -R $iHome/.config/flexget/  >> "$OutputLOG" 2>&1
