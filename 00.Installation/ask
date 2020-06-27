@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.02
-# script_version=r11034
+# script_update=2020.06.27
+# script_version=r11035
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -558,6 +558,7 @@ function ask_bbr() {
 
 function do_installation() {
     mkdir -p $LogLocation
+    [[ -n $hostname ]] && echo "$hostname" > /etc/hostname
     [[ $InsBBR == Yes || $InsBBR == To\ be\ enabled ]] && { echo -ne "Configuring BBR ... \n\n\n" ; install_bbr 2>&1 | tee $LogLocation/02.bbr.log ; }
 
     if [[ -n $lt_version ]] && [[ $lt_version != system ]]; then
