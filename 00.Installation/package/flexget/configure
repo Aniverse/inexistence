@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.06.26
-script_version=r10012
+script_update=2020.06.28
+script_version=r10013
 
 ################################################################################################ Debug
 
@@ -118,7 +118,7 @@ templates:
       space: 10240
     seen:
       fields:
-        - url                                # In order to accept entries that have different urls but share the same title
+        - url
   de:
     deluge:
       path: /home/$iUser/deluge/download/
@@ -146,43 +146,42 @@ templates:
       max: 666666
       strict: no
 tasks:
-  Web-HDSky:
-    rss: https://hdsky.me/torrentrss.php
-    regexp:
-      accept:
-        - HDSWEB
+  UHDBits-movie-remux:
+    inputs:
+      - limit:
+          amount: 5
+          from:
+            rss: 
+              url: https://uhdbits.org/rss.php?action=rss&user=XXX&passkey=XXX&auth=XXX&authkey=XXX&feed=dl&freetorrent[]=1
+              all_entries: no
+    accept_all: yes
+    if:
+      - "'Remux' in title": accept
+      - "'Season' in title": reject
     template:
-      - de
       - standard
     content_size:
-      min: 7000
-      max: 500000
+      min: 3000
+      max: 28000
       strict: no
-    deluge:
-      label: WEB-DL
-      max_up_speed: 102400                   # Limit upload speed to 100 MiB/s in case of being auto-banned
-      move_completed_path: /mnt/HDSky/HDSWEB
-  ADC-AnimeBD-JPN:
-    rss: http://asiandvdclub.org/rss.xml
-    if:
-      - "'Anime' and 'AVC' in title": accept
-      - "'subs only' in title": reject
-      - "'Custom' in description": reject
+    sequence:
+      - template: de
+      - template: qb
+  CinemaGeddon:
+    rss:
+      url: http://cinemageddon.net/rss.xml
+      ascii: yes
     headers:
-      Cookie: "uid=12345; pass=abcdefg"      # RSS on ADC requires cookies for authentication
-    urlrewrite:                              # manipulate download page's URLs into proper download URLs
-      sitename:
-        regexp: 'http://asiandvdclub.org/details.php\?id=(?P<id>\d+)'
-        format: 'http://asiandvdclub.org/download.php?id=\g<id>'
+      Cookie: "__cfduid=abcd123456789; uid=12450; pass=mickeynb"
+    accept_all: yes
     template: qb
     qbittorrent:
-      label: ADC
-      maxdownspeed: 30000                    # It seems this function only works for qBittorent 4.1.0 and later
+      label: CG
+      maxdownspeed: 30000
       
 web_server:
   port: $wPort
   web_ui: yes
-  run_v2: yes
 # base_url: /flexget
 
 # schedules is disabled by default, you need to enable it or use cron to RSS
