@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13121
+# script_version=r13122
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -200,6 +200,15 @@ function loggg() {
 }
 
 
+function generate_status_lock () {
+    status_lock=$AppNameLower
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    eval $AppTest > /dev/null 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
+}
+
+
 function check_status() {
     # When install_app & spinner $!, the variable $status_lock will not be passed to the install script, so we use another file to source
     if [[ -f $tmp_dir/Variables ]]; then
@@ -223,7 +232,6 @@ function check_status() {
 
 
 function set_variables_log_location() {
-
     if [[ $shared == 1 ]]; then
         LogTimes=$HOME/.log
         LogLocation=$HOME/.log
@@ -283,15 +291,6 @@ function restart_app() {
            systemctl restart $AppNameLower@$user >> $OutputLOG 2>&1
         done
     fi
-}
-
-
-function generate_status_lock () {
-    status_lock=$AppNameLower
-    echo "status_lock=$status_lock" > /tmp/Variables
-    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    eval $AppTest > /dev/null 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
 }
 
 
@@ -938,12 +937,12 @@ function pyenv_install_python(){
     source /root/.bash_pyenv
     versions=$(/opt/pyenv/bin/pyenv versions)
     if [[ ! $versions =~ $version ]]; then
-        echo_task "Compiling Python $version ... "
+        echo_task "Compiling Python $version ..."
         _execute "/opt/pyenv/bin/pyenv install $version" & spinner $!
         status_done
         if [[ $major_version == 2 ]]; then
             _execute "/opt/pyenv/versions/${version}/bin/python2 -m pip install virtualenv"
-            echo -e "Python ${version} virtualenv installed"
+          # echo -e "Python ${version} virtualenv installed"
         fi
     else
         echo -e "Python ${version} already installed" | tee -a "$OutputLOG"
@@ -964,8 +963,7 @@ function pyenv_init_venv() {
     elif [[ ${major_version} == "3" ]]; then
         _execute "/opt/pyenv/versions/${version}/bin/python3 -m venv $path"
     fi
-    chown -R ${user}.${user} $path
-    _success "Python virtual environment setup finished"
+    [[ -n $user ]] && chown -R ${user}.${user} $path
 }
 
 
@@ -1020,7 +1018,7 @@ function cat_outputlog() {
         echo -e "${bold}${OutputLOG}${normal}"
         # lines           # Since OutputLOG has lines itself
         cat ${OutputLOG}
-        read -ep "$Tail log? " pasue
+        read -ep "Tail ${OutputLOG}? " pasue
         lines2
         tail -f ${OutputLOG}
         exit
