@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.6
+script_version=1.2.6.7
 script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -377,7 +377,7 @@ EOF
 
     if [[ $UseTweaks == Yes ]]; then
         sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc  >> "$OutputLOG" 2>&1
-        echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc   >> "$OutputLOG" 2>&1
+        echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc
     fi
 
     mkdir -p $local_script
