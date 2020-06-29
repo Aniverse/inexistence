@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.27
-# script_version=r11035
+# script_update=2020.06.29
+# script_version=r11036
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -588,9 +588,13 @@ function do_installation() {
         { install_deluge > $LogLocation/03.de1.log 2>&1 ; } & spinner $!
         OutputLOG=$LogLocation/03.de1.log   status_done
         write_current_logfile $LogLocation/04.de2.log
-        echo -ne "Configuring Deluge ... "
-        { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
-        OutputLOG=$LogLocation/04.de2.log    status_done
+        if [[ $separate == 1 ]]; then
+            bash $local_packages/package/deluge/configure -u $iUser -p $iPass -w 8112 -i 58846 --logbase $LogTimes
+        else
+            echo -ne "Configuring Deluge ... "
+            { config_deluge  > $LogLocation/04.de2.log 2>&1 ; } & spinner $!
+            OutputLOG=$LogLocation/04.de2.log    status_done
+        fi
     fi
 
     if [[ -n $rt_version ]] && [[ $rt_version != no ]]; then
