@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13122
+# script_version=r13123
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -97,7 +97,7 @@ fi
 ################################################################################################
 
 # ⚠ ✗ ✓
-function _excute() {
+function _execute() {
     echo -e "$1\n" >> "$OutputLOG" 2>&1
 	($1 >> "$OutputLOG" 2>&1)
 }
@@ -640,7 +640,7 @@ function APT_UPGRADE() {
             for l in ${locks}; do
                 rm -rf ${l}
             done
-            _excute "dpkg --configure -a"
+            _execute "dpkg --configure -a"
             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
         fi
@@ -939,7 +939,11 @@ function pyenv_install_python(){
     if [[ ! $versions =~ $version ]]; then
         echo_task "Compiling Python $version ..."
         _execute "/opt/pyenv/bin/pyenv install $version" & spinner $!
-        status_done
+        if [[ $(/opt/pyenv/versions/${version}/bin/python -V 2>&1 | grep -oE "[0-9.]+") == ${version} ]]; then
+            status_done
+        else
+            status_failed
+        fi
         if [[ $major_version == 2 ]]; then
             _execute "/opt/pyenv/versions/${version}/bin/python2 -m pip install virtualenv"
           # echo -e "Python ${version} virtualenv installed"
