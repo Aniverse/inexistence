@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.29
-script_version=r30021
+script_version=r30022
 
 ################################################################################################ Debug
 
@@ -96,8 +96,6 @@ function install_python37() {
     pip_cmd="/opt/pyenv/flexget/bin/pip"
     python_cmd="/opt/pyenv/flexget/bin/python"
     flexget_cmd="/opt/pyenv/flexget/bin/flexget"
-    rm -f /usr/local/bin/flexget                >> "$OutputLOG" 2>&1
-    ln -s $flexget_cmd  /usr/local/bin/flexget  >> "$OutputLOG" 2>&1
 }
 
 
@@ -106,14 +104,20 @@ function install_flexget3() {
 
     echo >> $OutputLOG
 
-    $pip_cmd install --upgrade setuptools                 >> "$OutputLOG" 2>&1
-    $pip_cmd install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
-    $pip_cmd install --upgrade cryptography               >> "$OutputLOG" 2>&1
-    $pip_cmd install --ignore-installed flexget           >> "$OutputLOG" 2>&1
-    $pip_cmd install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade setuptools                         >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade pyopenssl                          >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade cryptography                       >> "$OutputLOG" 2>&1
+    $pip_cmd install --ignore-installed flexget                   >> "$OutputLOG" 2>&1
+    $pip_cmd install deluge-client transmissionrpc                >> "$OutputLOG" 2>&1
+    $pip_cmd install autoremove-torrents                          >> "$OutputLOG" 2>&1
+
+    rm -f /usr/local/bin/flexget                                  >> "$OutputLOG" 2>&1
+    rm -f /usr/local/bin/autoremove-torrents                      >> "$OutputLOG" 2>&1
+    ln -s  $local_packages/package/flexget/ffgg    $local_script  >> "$OutputLOG" 2>&1
+    ln -s /opt/pyenv/flexget/bin/flexget  /usr/local/bin/flexget  >> "$OutputLOG" 2>&1
+    ln -s /opt/pyenv/flexget/bin/autoremove-torrents  /usr/local/bin/autoremove-torrents  >> "$OutputLOG" 2>&1
 
     patch_flexget
-    ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG" 2>&1
     _execute "$flexget_cmd -V" # for debug
 
     status_lock=$AppNameLower
