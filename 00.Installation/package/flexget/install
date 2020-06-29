@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.28
-script_version=r20018
+script_update=2020.06.29
+script_version=r20019
 
 ################################################################################################ Debug
 
@@ -91,6 +91,13 @@ EOF
 }
 
 
+function install_python37() {
+    pyenv_install_python 3.7.8
+    pyenv_init_venv      3.7.8   /opt/pyenv/flexget
+    python_getpip        3.7.8   /opt/pyenv/flexget
+    pip_cmd="/opt/pyenv/flexget/bin/pip"
+}
+
 
 
 
@@ -98,32 +105,18 @@ function install_flexget3() {
 
     echo >> $OutputLOG
 
-    wget -nv -O get-pip.py https://bootstrap.pypa.io/get-pip.py >> "$OutputLOG" 2>&1
-    python3 get-pip.py --force-reinstall              >> "$OutputLOG" 2>&1
-    pip3 install --upgrade pip                        >> "$OutputLOG" 2>&1
-  # pip3 install --upgrade setuptools                 >> "$OutputLOG" 2>&1
-  # See here: https://github.com/pypa/setuptools/issues/2017
-  # pip3 install setuptools==45.3.0                   >> "$OutputLOG" 2>&1
-    pip3 install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
-    pip3 install --upgrade cryptography               >> "$OutputLOG" 2>&1
-    pip3 install --ignore-installed flexget           >> "$OutputLOG" 2>&1
-    pip3 install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade setuptools                 >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade pyopenssl                  >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade cryptography               >> "$OutputLOG" 2>&1
+    $pip_cmd install --ignore-installed flexget           >> "$OutputLOG" 2>&1
+    $pip_cmd install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
     patch_flexget
     ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG"
 
-    if [[ "$CODENAME" =~ (jessie|stretch) ]]; then
-        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget
-        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget-headless
-        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4        2  >> "$OutputLOG" 2>&1        # Debian 8 jessie
-        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5        2  >> "$OutputLOG" 2>&1        # Debian 9 stretch
-        update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7  1  >> "$OutputLOG" 2>&1
-    fi
-
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    # if [[ -n $(which flexget) ]]; then
     if version_ge $(flexget -V 2>&1 | head -1) 3.1; then
         touch /tmp/$status_lock.1.lock
     else
@@ -138,8 +131,8 @@ function install_flexget3() {
 
 
 
-if [[ ! -f $LOCKLocation/python3.lock ]]; then
-    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/python) --tmp
+if [[ ! -f $LOCKLocation/pyenv.lock ]]; then
+    bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/pyenv)
 fi
 
 echo_task "Installing $AppName ..."
@@ -152,12 +145,20 @@ check_status $status_lock
 
 
 
-################################################################################################
+################################################################################################ Deprecated
 
 
+function deprecated_codes_backup_here() {
+    if [[ "$CODENAME" =~ (jessie|stretch) ]]; then
+        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget
+        sed -i "s/\/usr\/bin\/python3/\/usr\/local\/bin\/python3.7/g" /usr/local/bin/flexget-headless
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4        2  >> "$OutputLOG" 2>&1        # Debian 8 jessie
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5        2  >> "$OutputLOG" 2>&1        # Debian 9 stretch
+        update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7  1  >> "$OutputLOG" 2>&1
+    fi
+}
 
 
-# Deprecated
 function install_flexget2_user() {
     echo >> $OutputLOG
 
