@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13120
+# script_version=r13121
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -922,6 +922,77 @@ function END_output_url() {
     fi
     echo
 }
+
+
+
+################################################################################################
+################################################################################################ pyenv functions
+################################################################################################
+
+
+# https://www.python.org/downloads/
+# pyenv_install_python 2.7.18 / 3.7.8 / 3.8.3
+function pyenv_install_python(){
+    local version=$1
+    major_version=$(echo ${version}| cut -d. -f1)
+    source /root/.bash_pyenv
+    versions=$(/opt/pyenv/bin/pyenv versions)
+    if [[ ! $versions =~ $version ]]; then
+        echo_task "Compiling Python $version ... "
+        _execute "/opt/pyenv/bin/pyenv install $version" & spinner $!
+        status_done
+        if [[ $major_version == 2 ]]; then
+            _execute "/opt/pyenv/versions/${version}/bin/python2 -m pip install virtualenv"
+            echo -e "Python ${version} virtualenv installed"
+        fi
+    else
+        echo -e "Python ${version} already installed" | tee -a "$OutputLOG"
+    fi
+}
+
+
+# pyenv_init_venv   3.7.7   /home/${username}/.local/flexget3   ${username}
+function pyenv_init_venv() {
+    local version=$1
+    local path=$2
+    local user=$3
+    major_version=$(echo ${version}| cut -d. -f1)
+    mkdir -p $path
+    source /root/.bash_pyenv
+    if [[ ${major_version} == "2" ]]; then
+        _execute "/opt/pyenv/versions/${version}/bin/python2 -m virtualenv $path"
+    elif [[ ${major_version} == "3" ]]; then
+        _execute "/opt/pyenv/versions/${version}/bin/python3 -m venv $path"
+    fi
+    chown -R ${user}.${user} $path
+    _success "Python virtual environment setup finished"
+}
+
+
+# python2 <(curl -s https://bootstrap.pypa.io/get-pip.py) --force-reinstall >> "$OutputLOG" 2>&1
+# python_getpip 2
+# python_getpip 3 $iHome/.local/flexget3 $iUser
+function python_getpip() {
+    local version=$1
+    local path=$2
+    local user=$3
+    major_version=$(echo ${version}| cut -d. -f1)
+    wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py >> "$OutputLOG" 2>&1
+    if [[ -n $path ]]; then
+        if [[ -n $user ]]; then
+            sudo -u ${user} -H bash -c "${path}/bin/python /tmp/get-pip.py --force-reinstall" >> "$OutputLOG" 2>&1
+        else
+            ${path}/bin/python /tmp/get-pip.py --force-reinstall >> "$OutputLOG" 2>&1
+        fi
+    else
+        if [[ ${major_version} == "2" ]]; then
+            python2 /tmp/get-pip.py --force-reinstall >> "$OutputLOG" 2>&1
+        elif [[ ${major_version} == "3" ]]; then
+            python3 /tmp/get-pip.py --force-reinstall >> "$OutputLOG" 2>&1
+        fi
+    fi
+}
+
 
 ################################################################################################
 ################################################################################################ Debug functions
