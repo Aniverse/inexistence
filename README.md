@@ -4,9 +4,6 @@
 > Just a SEEDBOX script, no Plex, no Emby, no NZB support.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
 
-> [基本没人来的本脚本交流群，有事别问群主](https://gist.github.com/Aniverse/cc885b91fb7c5d5139c3ffce7e28b0da)  
-> 安利一下 efs 巨佬的牛逼盒子脚本，比我的脚本好多了：[QuickBox Lite](https://github.com/amefs/quickbox-lite)  
-
 ## Notes
 
 1. 本脚本只支持 x86_64 (amd64) 架构，其他架构都不支持。ARM 用户建议使用 [QuickBox ARM](https://github.com/amefs/quickbox-arm)  
@@ -35,16 +32,6 @@ bash <(wget -qO- https://git.io/abcde)
 
 ## Installation Guide
 
-![脚本参数](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.09.png)
-
-脚本支持自定义参数运行，比如我个人常用的参数是：
-```
-bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
---mono --rclone --flexget --vnc --no-system-upgrade    \
---de 1.3.15 --qb 4.2.3 --rt 0.9.8 --tr-deb -y -u 用户名 -p 密码
-```
-具体参数的解释在下文中有说明  
-
 ![引导界面](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.01.png)
 
 检查是否以 root 权限来运行脚本，检查公网 IP 地址与系统参数  
@@ -52,7 +39,7 @@ bash <(wget -qO- https://git.io/abcde) --tweaks --no-bbr --filebrowser \
 ![升级系统](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.02.1.png)
 ![升级系统](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.02.2.png)
 
-支持 `Ubuntu 16.04 / 18.04`、`Debian 8 / 9 / 10` ，`Ubuntu 14.04` 和 `Debian 7` 可以用脚本升级，其他系统不支持  
+支持 `Ubuntu 16.04 / 18.04`、`Debian 9 / 10` ，`Ubuntu 14.04` 和 `Debian 7/8` 可以用脚本升级，其他系统不支持  
 使用 ***`-s`*** 参数可以跳过对系统是否受支持的检查，不过这种情况下脚本能不能正常工作就是另一回事了  
 
 ![系统信息](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.03.png)
