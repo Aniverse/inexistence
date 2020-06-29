@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13117
+# script_version=r13118
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -588,7 +588,7 @@ function APT_UPGRADE() {
     [[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
     apt_sources_add
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
-    if [[ "$?" == 0 ]]; then
+    if [[ "$?" != 0 ]]; then
         echo "apt_update_failed=1" > /tmp/apt_status
         echo_error "Something wrong with your apt sources or network connection, exiting ..."
         kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
