@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13118
+# script_version=r13119
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -584,6 +584,7 @@ EOF
 
 # From QuickBox Lite
 function APT_UPGRADE() {
+    rm -f /tmp/apt_status
     [[ -z $OutputLOG ]] && OutputLOG=/dev/null
     [[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
     apt_sources_add
@@ -662,6 +663,7 @@ function apt_install_check_after() {
 
 
 function apt_install_together() {
+    rm -f /tmp/apt_status
     # test -z "$apt_install_list" || apt-get -y install "$apt_install_list" >> "$OutputLOG" 2>&1
     if [[ -n "$apt_install_list" ]]; then
         # apt-get -y --allow-unauthenticated -f install "$apt_install_list" >> "$OutputLOG" 2>&1
@@ -675,6 +677,7 @@ function apt_install_together() {
 
 
 function apt_install_separate() {
+    rm -f /tmp/apt_status
     if [[ -n "$apt_install_list" ]]; then
         for package in $apt_install_list; do
             DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package >> "$OutputLOG" 2>&1
@@ -690,6 +693,7 @@ function apt_install_separate() {
 
 
 function apt_install_dependencies() {
+    rm -f /tmp/apt_status
     APT_UPGRADE_check
     unset packages
     packages=("$@")

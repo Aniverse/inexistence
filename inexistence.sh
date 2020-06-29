@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.5
+script_version=1.2.6.6
 script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -924,6 +924,7 @@ if_need_lt=0
 ask_continue
 
 starttime=$(date +%s)
+rm -f /etc/00.preparation.log  /etc/01.preparation.log
 OutputLOG=/etc/00.preparation.log     preparation 2>&1 | tee -a /etc/01.preparation.log
 { lines2 ; cat /etc/01.preparation.log ; } >> /etc/00.preparation.log
 rm -f /etc/01.preparation.log
