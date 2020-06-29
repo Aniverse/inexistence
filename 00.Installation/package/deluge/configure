@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.29
-script_version=r10009
+script_version=r10010
 
 ################################################################################################ Debug
 
@@ -112,13 +112,13 @@ mkdir -p $inexistence_files/script
 
 cat << 'EOF' > $inexistence_files/script/backup-log-deluged
 #!/bin/bash
-cp -f $HOME/.config/deluge/deluged.log  $HOME/.config/deluge/deluged.log.$(date "+%Y.%m.%d.%H.%M.%S") # 2>/dev/null
+cp -f  $HOME/.config/deluge/deluged.log      $HOME/.config/deluge/logs/deluged.$(date "+%Y.%m.%d.%H.%M.%S").log      # 2>/dev/null
 sleep 0
 EOF
 
 cat << 'EOF' > $inexistence_files/script/backup-log-deluge-web
 #!/bin/bash
-cp -f $HOME/.config/deluge/deluge-web.log  $HOME/.config/deluge/deluge-web.$(date "+%Y.%m.%d.%H.%M.%S") # 2>/dev/null
+cp -f  $HOME/.config/deluge/deluge-web.log   $HOME/.config/deluge/logs/deluge-web.$(date "+%Y.%m.%d.%H.%M.%S").log   # 2>/dev/null
 sleep 0
 EOF
 
@@ -405,7 +405,7 @@ function configure_deluge() {
     echo >> $OutputLOG
 
     backup_old_config deluge
-    mkdir -p /home/$iUser/deluge/{download,torrent,watch}  $iHome/.config/deluge   $local_script   $PortLocation
+    mkdir -p /home/$iUser/deluge/{download,torrent,watch}  $iHome/.config/deluge/logs   $local_script   $PortLocation
 
     if [[ -f $local_packages/package/deluge/ddee ]]; then
         ln -s  $local_packages/package/deluge/ddee      $local_script/ddee       >> $OutputLOG 2>&1
@@ -432,8 +432,8 @@ function configure_deluge() {
 
     echo  $wPort >  $PortLocation/$iUser.deluge-web
     echo  $iPort >  $PortLocation/$iUser.deluged
-    systemctl enable deluge@$iUser     >> $OutputLOG 2>&1
-    systemctl start  deluge@$iUser     >> $OutputLOG 2>&1
+    systemctl enable deluged@$iUser    >> $OutputLOG 2>&1
+    systemctl start  deluged@$iUser    >> $OutputLOG 2>&1
     systemctl enable deluge-web@$iUser >> $OutputLOG 2>&1
     systemctl start  deluge-web@$iUser >> $OutputLOG 2>&1
     sleep 2

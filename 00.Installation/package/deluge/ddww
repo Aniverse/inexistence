@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.29
-script_version=r10002
+script_version=r10003
 ################################################################################################
 action=$1
 iUser=$2
@@ -22,7 +22,7 @@ app_command=deluge-web
 app_config=$iHome/.config/deluge/web.conf
 app_log=$iHome/.config/deluge/deluge-web.log
 app_webui_port=$(sed -rn 's/(.*)"port": (.*),/\2/p'  $app_config 2>/dev/null)
-app_version=$($app_command --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
+app_version=$($app_command --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9]+.[0-9]+")
 [[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
 
