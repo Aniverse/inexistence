@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13116
+# script_version=r13117
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -591,7 +591,7 @@ function APT_UPGRADE() {
     if [[ "$?" == 0 ]]; then
         echo "apt_update_failed=1" > /tmp/apt_status
         echo_error "Something wrong with your apt sources or network connection, exiting ..."
-        kill -s TERM $TOP_PID   ;   kill -s TERM $script_pid   ;   exit 1
+        kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
     fi
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
     ## auto solve lock
@@ -613,7 +613,7 @@ function APT_UPGRADE() {
             if ! (apt-get check >/dev/null); then
                 echo "apt_install_failed=1" > /tmp/apt_status
                 echo_error "It seems there is something error when using apt-get, exiting ..."
-                kill -s TERM $TOP_PID   ;   kill -s TERM $script_pid   ;   exit 1
+                kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
             fi
         fi
         status_done
@@ -697,9 +697,8 @@ function apt_install_dependencies() {
     eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "${packages[@]}" >> "$OutputLOG" 2>&1
     if [ $? != 0 ]; then
         echo "apt_install_failed=1" > /tmp/apt_status
-        echo_error_exit "Failed to install dependencies"
-        kill -s TERM $TOP_PID
-        kill -s TERM $script_pid
+        echo_error "Failed to install dependencies"
+        kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
     else
         status_lock=$AppNameLower-d
         echo "status_lock=$status_lock" > /tmp/Variables
