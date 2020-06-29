@@ -2,7 +2,7 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.6
+SCRIPTVER=0.9.4.7
 SCRIPTUPDATE=2020.06.29
 
 [[ $1 == -d ]] && DeBUG=1
@@ -181,9 +181,7 @@ function _showurl() {
 
 # 03. 查看系统信息
 function _stats() {
-    ipv4_check
-    ipv6_check
-    ip_ipapi
+
     echo "${bold}正在检查盒子的各项参数 ...${normal}"
     hardware_check_1
 
