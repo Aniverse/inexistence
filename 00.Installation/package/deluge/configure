@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r10007
+script_update=2020.06.29
+script_version=r10008
 
 ################################################################################################ Debug
 
@@ -304,7 +304,7 @@ EOF
 
 
 function write_deluge_web_conf() {
-    cat << EOF > $iHome/.config/deluge/core.conf
+    cat << EOF > $iHome/.config/deluge/web.conf
 {
   "file": 1,
   "format": 1
@@ -421,12 +421,13 @@ function configure_deluge() {
     write_deluge_hostlist_conf
     write_deluge_nginx_reverse_proxy
     echo "$iUser:$iPass:10" >> $iHome/.config/deluge/auth
-    chmod 600 $iHome/.config/deluge/auth
 
-    chmod -R 755             $iHome/deluge   $iHome/.config/deluge >> $OutputLOG 2>&1
-    chown -R $iUser.$iUser   $iHome/deluge   $iHome/.config/deluge >> $OutputLOG 2>&1
+    chmod -R 755             $iHome/deluge   $iHome/.config/deluge   >> $OutputLOG 2>&1
+    chown -R $iUser.$iUser   $iHome/deluge   $iHome/.config/deluge   >> $OutputLOG 2>&1
+    chmod    600             $iHome/.config/deluge/auth              >> $OutputLOG 2>&1
 
-    echo  $wPort >  $PortLocation/$iUser.$AppNameLower
+    echo  $wPort >  $PortLocation/$iUser.deluge-web
+    echo  $iPort >  $PortLocation/$iUser.deluged
     systemctl enable deluge@$iUser     >> $OutputLOG 2>&1
     systemctl start  deluge@$iUser     >> $OutputLOG 2>&1
     systemctl enable deluge-web@$iUser >> $OutputLOG 2>&1
