@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13115
+# script_version=r13116
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -589,7 +589,9 @@ function APT_UPGRADE() {
     apt_sources_add
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
     if [[ "$?" == 0 ]]; then
-        echo_error_exit "Something wrong with your apt sources or network connection, exiting ..."
+        echo "apt_update_failed=1" > /tmp/apt_status
+        echo_error "Something wrong with your apt sources or network connection, exiting ..."
+        kill -s TERM $TOP_PID   ;   kill -s TERM $script_pid   ;   exit 1
     fi
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
     ## auto solve lock
@@ -609,8 +611,9 @@ function APT_UPGRADE() {
         if ! (apt-get check >/dev/null); then
             apt-get install -f >> $OutputLOG 2>&1
             if ! (apt-get check >/dev/null); then
-                # whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
-                echo_error_exit "It seems there is something error when using apt-get, exiting ..."
+                echo "apt_install_failed=1" > /tmp/apt_status
+                echo_error "It seems there is something error when using apt-get, exiting ..."
+                kill -s TERM $TOP_PID   ;   kill -s TERM $script_pid   ;   exit 1
             fi
         fi
         status_done
