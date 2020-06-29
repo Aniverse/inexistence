@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.7
+script_version=1.2.6.8
 script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -537,53 +537,6 @@ function install_deluge() {
     fi
 
     cd
-}
-
-
-
-
-
-function config_deluge() {
-    mkdir -p /home/$iUser/deluge/{download,torrent,watch}
-    ln -s /home/$iUser/deluge/download $WebROOT/h5ai/$iUser/deluge
-    chown -R $iUser.$iUser /home/$iUser/deluge
-
-    mkdir -p /root/.config
-    [[ -d /root/.config/deluge ]] && { rm -rf /root/.config/deluge.old ; mv -f /root/.config/deluge /root/.config/deluge.old ; }
-    cp -rf /etc/inexistence/00.Installation/template/config/deluge /root/.config/deluge
-    chmod -R 755 /root/.config
-
-    cat > /tmp/deluge.userpass.py <<EOF
-#!/usr/bin/env python
-import hashlib
-import sys
-password = sys.argv[1]
-salt = sys.argv[2]
-s = hashlib.sha1()
-s.update(salt)
-s.update(password)
-print s.hexdigest()
-EOF
-    DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
-    DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
-    echo "$iUser:$iPass:10" >> /root/.config/deluge/auth
-    chmod 600 /root/.config/deluge/auth
-    sed -i "s/delugeuser/$iUser/g" /root/.config/deluge/core.conf
-    sed -i "s/DWSALT/$DWSALT/g" /root/.config/deluge/web.conf
-    sed -i "s/DWP/$DWP/g" /root/.config/deluge/web.conf
-
-    cp -f /etc/inexistence/00.Installation/template/systemd/deluged.service /etc/systemd/system/deluged.service
-    cp -f /etc/inexistence/00.Installation/template/systemd/deluge-web.service /etc/systemd/system/deluge-web.service
-    [[ $Deluge_2_later == Yes ]] && sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
-    # or perhaps Type=forking ?
-
-    systemctl daemon-reload
-    systemctl enable /etc/systemd/system/deluge-web.service
-    systemctl enable /etc/systemd/system/deluged.service
-    systemctl start deluged
-    systemctl start deluge-web
-
-    touch $LOCKLocation/deluge.lock
 }
 
 

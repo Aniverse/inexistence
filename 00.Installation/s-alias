@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.02
-# script_version=r12012
+# script_update=2020.06.29
+# script_version=r12013
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -109,16 +109,16 @@ alias qbc="systemctl status qbittorrent@iUser"
 alias qbr="systemctl restart qbittorrent@iUser"
 alias qbl="tail -300 /home/iUser/.config/qBittorrent/qbittorrent.log"
 alias qbs="nano +40  /home/iUser/.config/qBittorrent/qBittorrent.conf"
-alias dea="systemctl start deluged"
-alias deb="systemctl stop deluged"
-alias dec="systemctl status deluged"
-alias der="systemctl restart deluged"
-alias del="grep -Ev 'TotalTraffic|Successfully loaded|Saving the state|Saving the fastresume|connection made from: 127.0.0.1|non-clean fashion' /log/inexistence/app/deluged.log | tail -300"
-alias dewa="systemctl start deluge-web"
-alias dewb="systemctl stop deluge-web"
-alias dewc="systemctl status deluge-web"
-alias dewr="systemctl restart deluge-web"
-alias dewl="tail -200 /log/inexistence/app/delugeweb.log"
+alias dea="systemctl start deluged@iUser"
+alias deb="systemctl stop deluged@iUser"
+alias dec="systemctl status deluged@iUser"
+alias der="systemctl restart deluged@iUser"
+alias del="grep -Ev 'TotalTraffic|Successfully loaded|Saving the state|Saving the fastresume|connection made from: 127.0.0.1|non-clean fashion' /home/iUser/.config/deluge/deluged.log | tail -300"
+alias dewa="systemctl start deluge-web@iUser"
+alias dewb="systemctl stop deluge-web@iUser"
+alias dewc="systemctl status deluge-web@iUser"
+alias dewr="systemctl restart deluge-web@iUser"
+alias dewl="tail -200 /home/iUser/.config/deluge/deluge-web.log"
 alias tra="systemctl start transmission@iUser"
 alias trb="systemctl stop transmission@iUser"
 alias trc="systemctl status transmission@iUser"
