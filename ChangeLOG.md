@@ -9,15 +9,14 @@
 * [x] 加入 transmission/configure  
 * [x] 加入 novnc  
 * [x] 加入 filebrowser  
-* [ ] 加入 deluge/configure  
-* [ ] 加入 deluge/install，但不支持 2.0.3 的 python3 模式  
+* [x] 加入 deluge/configure  
+* [ ] 加入 deluge/install，只支持安装 1.3  
 * [x] inexistence.sh 加入 --help，解释各参数的作用与用法  
-* [ ] 整合 DieNacht 的升级系统／换源脚本  
-* [ ] 更新 README 的图片  
 * [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
-* [ ] 这波清理完以后发布 release，主要是备份和方便以后跨版本对比  
+* [ ] 清理完以后发布 release，主要是备份和方便以后跨版本对比  
 * [ ] 升级 bdinfocli 的版本  
-* [ ] 各软件的日志软链接到一个目录，方便在 h5ai／FileBrowser 中查看  
+* [ ] 各软件的日志链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
+* [ ] 各软件的配置文件链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
 
 中期  
 
@@ -27,31 +26,44 @@
 * [x] 移除 libtorrent 1.0 选项  
 * [x] 加入 qbittorrent/install  
 * [ ] 加入 flood/install  
+* [ ] 加入 flood/configure  
 * [ ] 加入 x2go/install  
-* [ ] 加入 transmission/install  
-* [ ] 新增 Transmission 3.0  
+* [x] 加入 transmission/install  
+* [ ] 支持 Transmission 3.0  
+* [ ] 新 App：Jackett  
+* [ ] 新 App：The Lounge  
 * [ ] 移除 rTorrent 0.9.6 及以下的选项  
-* [ ] deluge/install 支持 2.0.3 的 python3 模式  
+* [ ] deluge/install 支持 2.0.3 的 efs deb  
+* [ ] deluge/install 支持 2.0.3 的 building  
+* [ ] 支持 python3-libtorrent building  
+* [ ] 支持 libtorrent 1.2.x  
 * [ ] `hezi` 脚本支持 `hezi install qb 4.2.5` 这样的用法  
 * [ ] 补全 changelog，即补完我在使用 git 之前的更新记录  
+* [ ] 大幅更新 README  
+* [ ] 整合 DieNacht 的升级系统／换源脚本  
 
 远期  
 
 * [ ] 支持 Ubuntu 20.04 LTS  
-* [ ] 使用 pyenv  
+* [x] 使用 pyenv  
 * [ ] 使主脚本 inexistence.sh 有完整的中文交互界面  
 * [ ] 不使用 rtinst，自己写 rTorrent 与 ruTorrent 的安装  
 * [ ] 加入 ftp/install  
 * [ ] 加入 nginx/configure  
 * [ ] `hezi` 脚本里加入新增用户、删除用户、改用户密码的功能  
 
-设想阶段（可能砍掉）  
+设想阶段（很可能砍掉或者无限期搁置）  
 
 * [ ] 加入 rTorrent 和 Transmission 的静态编译版本  
 * [ ] 某种程度上的 Docker 版 inexistence（与非 docker 版有区别，且不经常更新）  
+* [ ] Docker：deluge 1.3.9 with libtorrent 1.0.11  
+* [ ] Docker：deluge 1.3.15 with libtorrent 1.1.14  
+* [ ] Docker：deluge 2.0.3 with libtorrent 1.1.14  
+* [ ] Docker：deluge 2.0.3 with libtorrent 1.2.x  
+* [ ] Docker：qbittorrent 3.3.11 with libtorrent 1.0.11  
+* [ ] Docker：qbittorrent 4.1.9 with libtorrent 1.1.14  
+* [ ] Docker：qbittorrent 4.2.5 with libtorrent 1.1.14  
 * [ ] 下载 efs deb 失败时的 fallback  
-
-
 
 
 
