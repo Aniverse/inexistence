@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.2
-script_update=2020.06.19
+script_version=1.2.6.3
+script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -270,12 +270,13 @@ function preparation() {
                       zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
                     # uuid socat figlet toilet lolcat
     apt_install_together & spinner $!
-    status_done
 
-    if [ ! $? = 0 ]; then
+    if [[ $apt_install_failed == 1 ]]; then
         echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
         kill -s TERM $TOP_PID
         exit 1
+    else
+        status_done
     fi
 
     # Fix interface in vnstat.conf

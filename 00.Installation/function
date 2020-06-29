@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.26
-# script_version=r13113
+# script_update=2020.06.29
+# script_version=r13114
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -663,6 +663,7 @@ function apt_install_together() {
         eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "$apt_install_list" >> "$OutputLOG" 2>&1
         if [ ! $? = 0 ]; then
             echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
+            export apt_install_failed=1
             exit 1
         fi
     fi
