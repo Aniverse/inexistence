@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.06.29
-script_version=r10008
+script_version=r10009
 
 ################################################################################################ Debug
 
@@ -108,17 +108,21 @@ import time
 print hashlib.sha1(str(time.time())).hexdigest()
 EOF
 
-cat << EOF > $inexistence_files/script/backup-log-deluged
+mkdir -p $inexistence_files/script
+
+cat << 'EOF' > $inexistence_files/script/backup-log-deluged
 #!/bin/bash
-cp -f \$HOME/.config/deluge/deluged.log  \$HOME/.config/deluge/deluged.log.\$(date "+%Y.%m.%d.%H.%M.%S")
+cp -f $HOME/.config/deluge/deluged.log  $HOME/.config/deluge/deluged.log.$(date "+%Y.%m.%d.%H.%M.%S") # 2>/dev/null
 sleep 0
 EOF
 
-cat << EOF > $inexistence_files/script/backup-log-deluge-web
+cat << 'EOF' > $inexistence_files/script/backup-log-deluge-web
 #!/bin/bash
-cp -f \$HOME/.config/deluge/deluge-web.log  \$HOME/.config/deluge/deluge-web.\$(date "+%Y.%m.%d.%H.%M.%S")
+cp -f $HOME/.config/deluge/deluge-web.log  $HOME/.config/deluge/deluge-web.$(date "+%Y.%m.%d.%H.%M.%S") # 2>/dev/null
 sleep 0
 EOF
+
+chmod +x $inexistence_files/script/backup-log-{deluged,deluge-web}
 
 DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -1)
 DWP=$(python /tmp/deluge.userpass.py ${iPass} ${DWSALT})
@@ -166,8 +170,8 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    if version_ge $dever 2.0 ; then
-        sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web.service
+    if version_ge $de_installed_ver 2.0 ; then
+        sed -i "s/deluge-web -l/deluge-web -d -l/" /etc/systemd/system/deluge-web@.service
     fi
     systemctl daemon-reload >> $OutputLOG 2>&1
 }
@@ -366,11 +370,11 @@ function deluge_download_plugins() {
         cd $inexistence_files/deluge-plugins
         list="ltConfig-2.0.0   reannounce-0.1-py3.7"
         for plugin in $list ; do
-            wget -nv -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python3/${plugin}.egg
+            wget -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python3/${plugin}.egg     >> $OutputLOG 2>&1
         done
         list="AutoRemovePlus-0.6.1-py2.7   LabelPlus-0.3.2.2-py2.7   ltConfig-0.3.1-py2.7   Stats-0.3.2-py2.7   TotalTraffic-0.5-py2.7   YaRSS2-1.4.3-py2.7" #  NoFolder-0.2-py2.7   reannounce-0.1-py2.7
         for plugin in $list ; do
-            wget -nv -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python2.7/${plugin}.egg
+            wget -O ${plugin}.egg https://github.com/Aniverse/inexistence-files/raw/master/deluge.plugins/thirdparty-python2.7/${plugin}.egg   >> $OutputLOG 2>&1
         done
     fi
 }
@@ -379,15 +383,15 @@ function deluge_download_plugins() {
 function deluge_get_plugins() {
     mkdir -p $iHome/.config/deluge/plugins
     cd $iHome/.config/deluge/plugins
-    if version_ge $dever 2.0 ; then
+    if version_ge $de_installed_ver 2.0 ; then
         list="ltConfig-2.0.0   reannounce-0.1-py3.7"
         for plugin in $list ; do
-            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .
+            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .   >> $OutputLOG 2>&1
         done
     else
-        list="AutoRemovePlus-0.6.1-py2.7   LabelPlus-0.3.2.2-py2.7   ltConfig-0.3.1-py2.7   Stats-0.3.2-py2.7   TotalTraffic-0.5-py2.7   YaRSS2-1.4.3-py2.7" #  NoFolder-0.2-py2.7   reannounce-0.1-py2.7
+        list="AutoRemovePlus-0.6.1-py2.7   LabelPlus-0.3.2.2-py2.7   ltConfig-0.3.1-py2.7   Stats-0.3.2-py2.7   TotalTraffic-0.5-py2.7   YaRSS2-1.4.3-py2.7"   #  NoFolder-0.2-py2.7   reannounce-0.1-py2.7
         for plugin in $list ; do
-            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .
+            cp -f $inexistence_files/deluge-plugins/${plugin}.egg .   >> $OutputLOG 2>&1
         done
     fi
 }
@@ -448,7 +452,7 @@ function configure_deluge() {
 ################################################################################################
 
 
-if [[ -d $iHome/.config/flexget ]] && [[ $force != 1 ]] ;then
+if [[ -d $iHome/.config/deluge ]] && [[ $force != 1 ]] ;then
     echo -e "Configuration for $iUser already exists, skip configuration ..."
 else
     echo_task "Configuring $AppName ..."

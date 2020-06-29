@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r10001
+script_update=2020.06.29
+script_version=r10002
 ################################################################################################
 action=$1
 iUser=$2
@@ -21,7 +21,7 @@ app_systemd=deluge-web
 app_command=deluge-web
 app_config=$iHome/.config/deluge/web.conf
 app_log=$iHome/.config/deluge/deluge-web.log
-app_daemon_port=$(sed -rn 's/(.*)"port": (.*),/\2/p' $app_config)
+app_webui_port=$(sed -rn 's/(.*)"port": (.*),/\2/p'  $app_config 2>/dev/null)
 app_version=$($app_command --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9].[0-9]")
 [[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
