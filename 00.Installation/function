@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13114
+# script_version=r13115
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -585,37 +585,39 @@ EOF
 # From QuickBox Lite
 function APT_UPGRADE() {
     [[ -z $OutputLOG ]] && OutputLOG=/dev/null
-	[[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
+    [[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
     apt_sources_add
-	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
-	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
-	## auto solve lock
-	if [ "$?" -eq 2 ]; then
-		echo_error "dpkg database is locked"
+    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+    if [[ "$?" == 0 ]]; then
+        echo_error_exit "Something wrong with your apt sources or network connection, exiting ..."
+    fi
+    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+    ## auto solve lock
+    if [ "$?" -eq 2 ]; then
+        echo_error "dpkg database is locked"
         echo_task "Try to fix dpkg lock ... "
-		rm -f /var/lib/dpkg/updates/0*
-		locks=$(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*)
-		if [[ ${locks} == $(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*) ]]; then
-			for l in ${locks}; do
-				rm -rf ${l}
-			done
-			_excute "dpkg --configure -a"
-			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
-			DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
-		fi
-		if ! (apt-get check >/dev/null); then
-			apt-get install -f >> $OutputLOG 2>&1
-			if ! (apt-get check >/dev/null); then
-				# whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
-                echo_error "It seems there is something error when using apt-get, exiting ..."
-				exit 1
-			fi
-		fi
+        rm -f /var/lib/dpkg/updates/0*
+        locks=$(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*)
+        if [[ ${locks} == $(find /var/lib/dpkg/lock* && find /var/cache/apt/archives/lock*) ]]; then
+            for l in ${locks}; do
+                rm -rf ${l}
+            done
+            _excute "dpkg --configure -a"
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
+        fi
+        if ! (apt-get check >/dev/null); then
+            apt-get install -f >> $OutputLOG 2>&1
+            if ! (apt-get check >/dev/null); then
+                # whiptail --title "$ERROR_TITLE_INSTALL" --msgbox "$ERROR_TEXT_INSTALL_1" --ok-button "$BUTTON_OK" 8 72
+                echo_error_exit "It seems there is something error when using apt-get, exiting ..."
+            fi
+        fi
         status_done
     else
         [[ $APT_UPGRADE_SINGLE == 1 ]] && status_done
         touch /tmp/apt.update.$(date "+%Y%m%d")
-	fi
+    fi
 }
 
 
@@ -662,9 +664,8 @@ function apt_install_together() {
         # apt-get -y --allow-unauthenticated -f install "$apt_install_list" >> "$OutputLOG" 2>&1
         eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "$apt_install_list" >> "$OutputLOG" 2>&1
         if [ ! $? = 0 ]; then
-            echo -e "ERROR: Failed to install packages" 2>&1 | tee -a "$OutputLOG"
-            export apt_install_failed=1
-            exit 1
+            echo "apt_install_failed=1" > /tmp/apt_status
+            echo_error_exit "Failed to install packages"
         fi
     fi
 }
@@ -676,6 +677,7 @@ function apt_install_separate() {
             DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $package >> "$OutputLOG" 2>&1
             # || { echo | tee -a $OutputLOG ; echo_error "Failed to install $package" ; exit 1 ; }
             if [ ! $? = 0 ]; then
+                echo "apt_install_failed=1" > /tmp/apt_status
                 echo -e "ERROR: Failed to install $package" 2>&1 | tee -a "$OutputLOG"
                 exit 1
             fi
@@ -691,7 +693,8 @@ function apt_install_dependencies() {
     [[ -z "$packages" ]] && echo "ERROR: No packages input" | tee -a $OutputLOG && exit 1
     eval DEBIAN_FRONTEND=noninteractive apt-get -y --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install "${packages[@]}" >> "$OutputLOG" 2>&1
     if [ $? != 0 ]; then
-        echo_error_exit "ERROR: Failed to install dependencies"
+        echo "apt_install_failed=1" > /tmp/apt_status
+        echo_error_exit "Failed to install dependencies"
         kill -s TERM $TOP_PID
         kill -s TERM $script_pid
     else

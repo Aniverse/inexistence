@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.4
+script_version=1.2.6.5
 script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -269,6 +269,7 @@ function preparation() {
                     # uuid socat figlet toilet lolcat
     apt_install_together & spinner $!
 
+    unset apt_install_failed ; source /tmp/apt_status >> "$OutputLOG" 2>&1
     if [[ $apt_install_failed == 1 ]]; then
         echo -e "\n${baihongse}${shanshuo}${bold} ERROR ${normal} ${red}${bold}Please check it and rerun once it is resolved${normal}\n"
         kill -s TERM $TOP_PID
