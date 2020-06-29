@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.06.29
-# script_version=r13119
+# script_version=r13120
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -556,6 +556,42 @@ function backup_old_config() {
 ################################################################################################
 ################################################################################################ APT-GET
 ################################################################################################
+
+
+function apt_sources_replace() {
+    if [[ $DISTRO == Debian ]] ; then
+        cat << EOF > /etc/apt/sources.list
+deb http://ftp.debian.org/debian/ $CODENAME main contrib non-free
+deb-src http://ftp.debian.org/debian/ $CODENAME main contrib non-free
+deb http://ftp.debian.org/debian/ $CODENAME-updates main contrib non-free
+deb-src http://ftp.debian.org/debian/ $CODENAME-updates main contrib non-free
+deb http://ftp.debian.org/debian $CODENAME-backports main contrib non-free
+deb-src http://ftp.debian.org/debian $CODENAME-backports main contrib non-free
+
+deb http://security.debian.org/ $CODENAME/updates main contrib non-free
+deb-src http://security.debian.org/ $CODENAME/updates main contrib non-free
+EOF
+    elif [[ $DISTRO == Ubuntu ]] ; then
+        cat << EOF > /etc/apt/sources.list
+###### Ubuntu Main Repos
+deb http://archive.ubuntu.com/ubuntu/ $CODENAME main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ $CODENAME main restricted universe multiverse
+
+###### Ubuntu Update Repos
+deb http://archive.ubuntu.com/ubuntu/ $CODENAME-security main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ $CODENAME-updates main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ $CODENAME-backports main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ $CODENAME-security main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ $CODENAME-updates main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu/ $CODENAME-backports main restricted universe multiverse
+
+###### Ubuntu Partner Repo
+deb http://archive.canonical.com/ubuntu $CODENAME partner
+deb-src http://archive.canonical.com/ubuntu $CODENAME partner
+EOF
+    fi
+}
+
 
 
 function apt_sources_add() {
