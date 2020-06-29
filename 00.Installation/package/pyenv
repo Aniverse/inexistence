@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# https://github.com/Aniverse/inexistence
+# Author: Aniverse
+
+script_update=2020.06.29
+script_version=r20003
+
+################################################################################################ Debug
+
+usage_for_debug() {
+
+    if [[ -f /etc/inexistence/00.Installation/package/pyenv ]]; then
+        bash /etc/inexistence/00.Installation/package/pyenv
+    else
+        bash <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/package/pyenv)
+    fi
+
+}
+
+################################################################################################
+
+unset LogRootPath LogTimes DebLocation SCLocation LOCKLocation OutputLOG
+
+AppName=pyenv
+AppNameLower=pyenv
+AppExec=pyenv
+AppTest="$AppExec -h"
+Need_SourceCode=no
+# pm_action=install
+
+function show_usage() { echo "
+$AppName $pm_action $script_version ($script_update)
+Usage:
+      -l        Specifiy LogBase (Not log file)
+      -d        Enable debug mode
+      --log     Show logfile's content"
+exit 1 ; }
+
+OPTS=$(getopt -o v:l:d -al version:,debug,logbase:,log,tmp -- "$@")
+[ ! $? = 0 ] && show_usage
+eval set -- "$OPTS"
+
+while [ -n "$1" ] ; do case "$1" in
+    -v | --version      ) version="$2"  ; shift 2 ;;
+    -l | --logbase      ) LogTimes="$2" ; shift 2 ;;
+    -d | --debug        ) debug=1       ; shift   ;;
+         --log          ) show_log=1    ; shift   ;;
+         --tmp          ) tmp=1         ; shift   ;;
+    -- ) shift ; break ;;
+esac ; done
+
+################################################################################################ Set Variables
+
+if [[ -f /etc/inexistence/00.Installation/function ]]; then
+    source /etc/inexistence/00.Installation/function
+else
+    source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
+fi
+
+set_variables_log_location
+check_var_OutputLOG
+debug_log_location
+cat_outputlog
+
+################################################################################################
+
+
+# https://github.com/liaralabs/swizzin/blob/master/sources/functions/pyenv
+# https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer
+function install_pyenv () {
+    cat << EOF > /root/.bash_pyenv
+# pyenv
+export PYENV_ROOT="/opt/pyenv"
+export PATH="/opt/pyenv/bin:\$PATH"
+eval "\$(pyenv init -)"
+eval "\$(pyenv virtualenv-init -)"
+EOF
+    source /root/.bash_pyenv >> "$OutputLOG" 2>&1
+
+    APT_UPGRADE_check
+    apt_install_check    wget curl llvm git build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+                         libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev liblzma-dev      \
+                         python-openssl libncursesw5-dev
+    apt_install_together
+
+  # PYENV_ROOT=/opt/pyenv bash <(wget -qO- https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer -o /dev/null)  >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv.git             /opt/pyenv                          >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv-update.git      /opt/pyenv/plugins/pyenv-update     >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv-doctor.git      /opt/pyenv/plugins/pyenv-doctor     >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv-installer.git   /opt/pyenv/plugins/pyenv-installer  >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv-which-ext.git   /opt/pyenv/plugins/pyenv-which-ext  >> "$OutputLOG" 2>&1
+    git clone --depth=1 https://github.com/pyenv/pyenv-virtualenv.git  /opt/pyenv/plugins/pyenv-virtualenv >> "$OutputLOG" 2>&1
+
+    generate_status_lock
+}
+
+
+################################################################################################
+
+if [[ ! -f $LOCKLocation/pyenv.lock ]]; then
+    echo_task "Installing pyenv ..."
+    install_pyenv & spinner $!
+    check_status $status_lock
+fi
+
+################################################################################################ deprecated
+
+function install_python3 () {
+    echo >> "$OutputLOG"
+    APT_UPGRADE_check
+    if [[ "$CODENAME" == "xenial" ]]; then
+        apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 F23C5A6CF475977595C89F51BA6932366A755776 >> "$OutputLOG" 2>&1
+        LC_ALL=en_US.UTF-8 add-apt-repository ppa:deadsnakes/ppa -y >> "$OutputLOG" 2>&1
+        APT_UPGRADE
+        apt_install_check     python3.6  python3.6-gdbm
+        apt_install_separate
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2 >> "$OutputLOG" 2>&1
+    elif [[ "$CODENAME" =~ (jessie|stretch) ]]; then
+        apt_install_check    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev
+        apt_install_separate
+        if [[ "$CODENAME" == jessie ]]; then
+            apt-get -t jessie-backports -y install libssl1.0 >> "$OutputLOG" 2>&1
+            if ! version_ge $(dpkg-query -W -f='${Version}' libssl-dev 2>&1 | grep -oE "[0-9].[0-9].[0-9]+" | head -1) 1.0.2 ; then
+                echo_error "Failed to install libssl 1.0.2l"
+                exit 1
+            fi
+        fi
+        wget -nv -O Python-3.7.6.tar.xz https://www.python.org/ftp/python/3.7.6/Python-3.7.6.tar.xz >> "$OutputLOG" 2>&1
+        tar -xf Python-3.7.6.tar.xz    >> "$OutputLOG" 2>&1
+        cd Python-3.7.6                >> "$OutputLOG" 2>&1
+        ./configure                    >> "$OutputLOG" 2>&1
+        make -j$(nproc)                >> "$OutputLOG" 2>&1
+        make install                   >> "$OutputLOG" 2>&1
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4        1  >> "$OutputLOG" 2>&1        # Debian 8 jessie
+        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5        1  >> "$OutputLOG" 2>&1        # Debian 9 stretch
+        update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.7  2  >> "$OutputLOG" 2>&1
+        cd ..                          >> "$OutputLOG" 2>&1
+        rm -rf {Python-3.7.6.tar.xz,Python-3.7.6}
+        if [[ ! -f /usr/local/lib/python3.7/site-packages/lsb_release.py ]]; then
+        	ln -s /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.7/site-packages/lsb_release.py >> "$OutputLOG" 2>&1
+        fi
+    else
+        apt_install_check    python3-pip python3-setuptools
+        apt_install_separate
+    fi
+
+    python3_ver=$(python3 -V | grep -oE "[0-9.]+")
+
+    status_lock=python3
+    echo "status_lock=$status_lock" > /tmp/Variables
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
+    if version_ge $python3_ver 3.6; then
+        touch /tmp/$status_lock.1.lock
+    else
+        touch /tmp/$status_lock.2.lock
+    fi
+    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/python3.lock
+    echo >> $OutputLOG
+}
