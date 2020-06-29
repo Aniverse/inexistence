@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.06.28
-script_version=r10013
+script_update=2020.06.29
+script_version=r10014
 
 ################################################################################################ Debug
 
@@ -160,13 +160,11 @@ tasks:
       - "'Season' in title": reject
     template:
       - standard
+      - de
     content_size:
       min: 3000
       max: 28000
       strict: no
-    sequence:
-      - template: de
-      - template: qb
   CinemaGeddon:
     rss:
       url: http://cinemageddon.net/rss.xml
