@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.06.29
-script_version=r20020
+script_version=r30021
 
 ################################################################################################ Debug
 
@@ -65,9 +65,6 @@ cat_outputlog
 
 
 
-
-
-
 function patch_flexget() {
     # pypath=/usr/local/lib/python$(python3 -V | grep -oE "3.[0-9]")/dist-packages
     # Debian 9, /usr/local/lib/python3.7/site-packages
@@ -96,13 +93,12 @@ function install_python37() {
     pyenv_install_python 3.7.8
     pyenv_init_venv      3.7.8   /opt/pyenv/flexget
     python_getpip        3.7.8   /opt/pyenv/flexget
-    export PATH=/opt/pyenv/flexget/bin:$PATH
-    echo 'export PATH=/opt/pyenv/flexget/bin:$PATH' > /etc/bash.bashrc
     pip_cmd="/opt/pyenv/flexget/bin/pip"
     python_cmd="/opt/pyenv/flexget/bin/python"
-    flexget_cmd="/opt/pyenv/flexget/bin/python"
+    flexget_cmd="/opt/pyenv/flexget/bin/flexget"
+    rm -f /usr/local/bin/flexget                >> "$OutputLOG" 2>&1
+    ln -s $flexget_cmd  /usr/local/bin/flexget  >> "$OutputLOG" 2>&1
 }
-
 
 
 
@@ -117,15 +113,17 @@ function install_flexget3() {
     $pip_cmd install deluge-client transmissionrpc        >> "$OutputLOG" 2>&1
 
     patch_flexget
-    ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG"
+    ln -s  $local_packages/package/flexget/ffgg  $local_script >> "$OutputLOG" 2>&1
+    _execute "$flexget_cmd -V" # for debug
 
     status_lock=$AppNameLower
     echo "status_lock=$status_lock" > /tmp/Variables
-    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock 
-    if ! version_ge $($flexget_cmd -V 2>&1 | head -1) 3.1; then
-        touch /tmp/$status_lock.2.lock
-    else
+    rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
+    flexget_ver=$($flexget_cmd -V 2>&1 | head -1)
+    if [[ -n $flexget_ver ]] && version_ge $flexget_ver 3.1.66 ; then
         touch /tmp/$status_lock.1.lock
+    else
+        touch /tmp/$status_lock.2.lock
     fi
     [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
     echo >> $OutputLOG
@@ -134,6 +132,7 @@ function install_flexget3() {
 
 
 
+################################################################################################
 
 
 if [[ ! -f $LOCKLocation/pyenv.lock ]]; then
@@ -147,9 +146,6 @@ install_flexget3 & spinner $!
 check_status $status_lock
 
 [[ $debug == 1 ]] && which flexget
-
-
-
 
 
 ################################################################################################ Deprecated
