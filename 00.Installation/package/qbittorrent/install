@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.18
-script_version=r12040
+script_update=2020.06.29
+script_version=r12041
 
 ################################################################################################ Debug
 
@@ -155,7 +155,7 @@ qt512tools_5.12.6-1basyskom1_amd64.deb"
     mkdir -p /tmp/qt_deb >> $OutputLOG 2>&1
     cd /tmp/qt_deb        >> $OutputLOG 2>&1
     for deb in $list ; do
-        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/qt5/$deb  >> $OutputLOG 2>&1  # --trust-server-name
+        wget -nv -O $deb https://github.com/amefs/quickbox-files/raw/master${CODENAME}/binary-amd64/qt5/$deb  >> $OutputLOG 2>&1  # --trust-server-name
         apt-get -y install /tmp/qt_deb/$deb  >> $OutputLOG 2>&1
     done
     if [[ ! -f /usr/bin/lrelease-qt5 ]]; then
@@ -174,7 +174,7 @@ function install_qtbase_deb() {
     if [[ "$CODENAME" =~ ("xenial"|"stretch") ]]; then
         mkdir -p /tmp/qb && cd /tmp/qb
         local deb=qt512base_5.12.6-1basyskom1_amd64.deb
-        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/qt5/$deb  >> $OutputLOG 2>&1
+        wget -nv -O $deb https://github.com/amefs/quickbox-files/raw/master${CODENAME}/binary-amd64/qt5/$deb  >> $OutputLOG 2>&1
         apt-get -y install /tmp/qb/$deb >> $OutputLOG 2>&1
         rm -rf /tmp/qb >> $OutputLOG 2>&1
     fi
@@ -188,11 +188,9 @@ function install_qbittorrent_deb() {
     else
         qb_deb="${version}-libt1.1-1build1_amd64"
     fi
-    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
+    wget -nv https://github.com/amefs/quickbox-files/raw/master/$CODENAME/binary-amd64/libtorrent-rasterbar/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
     apt-get install -y /tmp/qb/libtorrent-rasterbar9_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
-    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/libtorrent-rasterbar/libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
-    apt-get install -y /tmp/qb/libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb  >> $OutputLOG 2>&1
-    wget -nv https://github.com/Aniverse/inexistence-files/raw/master/deb/$CODENAME/qbittorrent/qbittorrent-nox_${qb_deb}.deb  >> $OutputLOG 2>&1
+    wget -nv https://github.com/amefs/quickbox-files/raw/master/$CODENAME/binary-amd64/qbittorrent/qbittorrent-nox_${qb_deb}.deb  >> $OutputLOG 2>&1
     apt-get install -y /tmp/qb/qbittorrent-nox_${qb_deb}.deb           >> $OutputLOG 2>&1
     rm -rf /tmp/qb >> $OutputLOG 2>&1
 }
