@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.3
+script_version=1.2.6.4
 script_update=2020.06.29
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -243,8 +243,6 @@ function ask_continue() {
 function preparation() {
 
     [[ $USESWAP == Yes ]] && swap_on
-
-    # 临时
     mkdir -p $LogBase/app $LogBase/info $SCLocation $LOCKLocation $LogLocation $DebLocation $WebROOT/h5ai/$iUser
     echo $iUser >> /log/inexistence/info/installed.user.list.txt
 
@@ -259,7 +257,7 @@ function preparation() {
     APT_UPGRADE_SINGLE=1   APT_UPGRADE
 
     # Install atop may causedpkg failure in some VPS, so install it separately
-    [[ ! -d /proc/vz ]] && apt-get -y install atop >> "$OutputLOG" 2>&1
+    [[ -d /proc/vz ]] && apt-get -y install atop >> "$OutputLOG" 2>&1
 
     echo -n "Installing packages ..."
     apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
@@ -280,13 +278,13 @@ function preparation() {
     fi
 
     # Fix interface in vnstat.conf
-    [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf
+    [[ -n $interface ]] && [[ $interface != eth0 ]] && sed -i "s/Interface.*/Interface $interface/" /etc/vnstat.conf >> "$OutputLOG" 2>&1
 
     # Get repository
-    [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M")
+    [[ -d /etc/inexistence ]] && mv /etc/inexistence /etc/inexistence_old_$(date "+%Y%m%d_%H%M") >> "$OutputLOG" 2>&1
     git clone --depth=1 -b $iBranch https://github.com/Aniverse/inexistence /etc/inexistence >> "$OutputLOG" 2>&1
-    chmod -R 755 /etc/inexistence
-    chmod -R 644 /etc/inexistence/00.Installation/template/systemd/*
+    chmod -R 755 /etc/inexistence >> "$OutputLOG" 2>&1
+    chmod -R 644 /etc/inexistence/00.Installation/template/systemd/* >> "$OutputLOG" 2>&1
 
     hezi_add_user $iUser $iPass >> "$OutputLOG" 2>&1
 
@@ -371,14 +369,14 @@ EOF
 
     # alias and locales
     ln -s $local_packages/s-alias /usr/local/bin/s-alias  >> "$OutputLOG" 2>&1
-    sed -i "s/iUser/$iUser/g" $local_packages/s-alias
+    sed -i "s/iUser/$iUser/g" $local_packages/s-alias     >> "$OutputLOG" 2>&1
     # Do not give s-alias execute permission so when user input s-alias it will be: -bash: /usr/local/bin/s-alias: Permission denied
     # And which s-alias will return nothing, while command -v s-alias returns /usr/local/bin/s-alias
     chmod 644 /usr/local/bin/s-alias
 
     if [[ $UseTweaks == Yes ]]; then
-        sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc
-        echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc
+        sed -i "/source \/usr\/local\/bin\/s-alias/"d /etc/bash.bashrc  >> "$OutputLOG" 2>&1
+        echo -e "\nsource /usr/local/bin/s-alias" >> /etc/bash.bashrc   >> "$OutputLOG" 2>&1
     fi
 
     mkdir -p $local_script
@@ -390,10 +388,10 @@ EOF
     ln -s /log               $WebROOT/h5ai/log           >> "$OutputLOG" 2>&1
 
     if [[ ! -f /etc/abox/app/BDinfoCli.0.7.3/BDInfo.exe ]]; then
-        mkdir -p /etc/abox/app
-        cd /etc/abox/app
-        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3 >> "$OutputLOG" 2>&1
-        mv -f BDinfoCli.0.7.3 BDinfoCli
+        mkdir -p /etc/abox/app                                                 >> "$OutputLOG" 2>&1
+        cd /etc/abox/app                                                       >> "$OutputLOG" 2>&1
+        svn co https://github.com/Aniverse/bluray/trunk/tools/BDinfoCli.0.7.3  >> "$OutputLOG" 2>&1
+        mv -f BDinfoCli.0.7.3 BDinfoCli                                        >> "$OutputLOG" 2>&1
     fi
 
     if [[ ! -f /etc/abox/app/bdinfocli.exe ]]; then
@@ -925,7 +923,9 @@ if_need_lt=0
 ask_continue
 
 starttime=$(date +%s)
-OutputLOG=/etc/00.preparation.log     preparation 2>&1 | tee /etc/00.preparation.log
+OutputLOG=/etc/00.preparation.log     preparation 2>&1 | tee -a /etc/01.preparation.log
+{ lines2 ; cat /etc/01.preparation.log ; } >> /etc/00.preparation.log
+rm -f /etc/01.preparation.log
 mv /etc/00.preparation.log  $LogLocation/00.preparation.log
 
 ######################################################################################################
