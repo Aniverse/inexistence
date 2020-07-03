@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.6.8
-script_update=2020.06.29
+script_version=1.2.6.9
+script_update=2020.07.03
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -248,10 +248,10 @@ function preparation() {
 
     if [[ $aptsources == Yes ]] && [[ $CODENAME != jessie ]]; then
         cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y%m%d.%H%M")".bak >> "$OutputLOG" 2>&1
-        wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources  >> "$OutputLOG" 2>&1
-        sed -i "s/RELEASE/$CODENAME/g" /etc/apt/sources.list >> "$OutputLOG" 2>&1
+        apt_sources_replace
         [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117 >> "$OutputLOG" 2>&1
     fi
+    apt_sources_add
 
     # wget -nv https://mediaarea.net/repo/deb/repo-mediaarea_1.0-6_all.deb && dpkg -i repo-mediaarea_1.0-6_all.deb && rm -rf repo-mediaarea_1.0-6_all.deb
     APT_UPGRADE_SINGLE=1   APT_UPGRADE

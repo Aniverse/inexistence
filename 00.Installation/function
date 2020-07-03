@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.29
-# script_version=r13123
+# script_update=2020.07.03
+# script_version=r13124
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -629,6 +629,12 @@ function APT_UPGRADE() {
         echo_error "Something wrong with your apt sources or network connection, exiting ..."
         kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
     fi
+    # if git is not found on apt source list, then we assume this source list is incorrect
+    apt policy git 2>&1 | grep -iq Candidate || {
+        echo "apt_update_failed=1" > /tmp/apt_status
+        echo_error "Something wrong with your apt sources or network connection, exiting ..."
+        kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
+    }
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade >> $OutputLOG 2>&1
     ## auto solve lock
     if [ "$?" -eq 2 ]; then
@@ -762,27 +768,28 @@ function PortCheck() {
         fi
     done
 }
+
 PortGenerator1() { portGen1=$(shuf -i 10001-32001 -n1) ; } ; portGenerator2() { portGen2=$(shuf -i 10001-32001 -n1) ; }
 PortCheck1()     { while ss -ln | grep ':'$portGen1'' | grep -q LISTEN ; do PortGenerator1 ; done ; }
 PortCheck2()     { while ss -ln | grep ':'$portGen2'' | grep -q LISTEN ; do PortGenerator2 ; done ; }
 
 function check_remote_git_repo_branch() {
-    [[ -z $(which git) ]] && { apt-get install -y git > /dev/null 2>&1 ; }
-    [[ -z $(which git) ]] && { echo -e "${CW} No git_found ${normal}"       ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     local git_repo=$1
     local git_branch=$2
+    [[ -z $(which git) ]] && { apt-get install -y git > /dev/null 2>&1 ; }
+    [[ -z $(which git) ]] && { echo -e "${CW} No git_found ${normal}"       ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     [[ -z $git_repo   ]] && { echo -e "${CW} No git_repo input ${normal}"   ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     [[ -z $git_branch ]] && { echo -e "${CW} No git_branch input ${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
     git ls-remote --tags  $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
     git ls-remote --heads $git_repo | awk '{print $NF}' >> /tmp/.lt.git.tag
-    grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch!${normal}" ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
+    grep $git_branch /tmp/.lt.git.tag -q || { echo -e "${CW} No such branch/version on git!${normal}" | tee -a ${OutputLOG} ; rm -f /tmp/.lt.git.tag ; exit 1 ; }
     rm -f /tmp/.lt.git.tag
 }
 
 
 ################################################################################################
-################################################################################################
+################################################################################################ output-url-related functions
 ################################################################################################
 
 
@@ -921,7 +928,6 @@ function END_output_url() {
     fi
     echo
 }
-
 
 
 ################################################################################################
