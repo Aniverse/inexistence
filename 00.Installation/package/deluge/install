@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.29
-script_version=r10005
+script_update=2020.06.30
+script_version=r10006
 
 ################################################################################################ Debug
 
@@ -70,68 +70,69 @@ trap 'exit 1' TERM
 
 ################################################################################################
 
-[[ -z $mode ]] && [[ -n $version ]] && mode=source
-[[ -z $mode ]] && [[ -n $branch  ]] && mode=source
+DE_deb_available=('2.0.3')
+git_repo="https://github.com/deluge-torrent/deluge"
+py_lt_ver=$(python -c "import libtorrent ; print libtorrent.version" 2>&1 | grep -oE [0-9.]+)
+# lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+ )
 
-# Check if input branch exists
-[[ -n $branch ]] && [[ -z $( wget -qO- "https://github.com/deluge-torrent/deluge" | grep data-name | cut -d '"' -f2 | grep -P "$branch\b" ) ]] &&
-{ echo -e "\n${CW} No such branch!\n" ; exit 1 ; }
+if  [[ -n $version ]] && [[ $mode == source ]]; then
+    check_remote_git_repo_branch  $git_repo  "deluge-$version"
+    source_type=tarball
+elif [[ -n $branch ]]; then
+    check_remote_git_repo_branch  $git_repo  "$branch"
+    mode=source
+    source_type=git
+elif [[ $mode == deb ]]; then
+    if [[ $version != 2.0.3 ]]; then
+        echo_warning "version changes to 2.0.3 since only this version is available"
+        version=2.0.3
+    elif [[ ! $CODENAME ~= (xenial|bionic|stretch) ]]; then
+        echo_error_exit "deb mode is not available in $CODENAME"
+    fi
+fi
 
-
-[[ -n $version ]] && source_type=tarball
-[[ -n $branch  ]] && source_type=git     && version=$branch
-
-# Check if ssl issue should be fix
-version_ge $version 1.3.11 || DESSL=Yes
-
-# Check if libtorrent below 1.1.2 is supported
-version_ge $version  2.0 && export lt8_support=No || lt8_support=Yes
-[[ $branch == develop ]] && export lt8_support=No || lt8_support=Yes
-lt_ver=$( pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+ )
-[[ -n $lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_newer=Yes || lt_ver_newer=No
-[[ $lt8_support == No ]] && [[ $lt_ver_newer == No ]] && echo -e "\n${CW} libtorrent-rasterbar 1.1.3 and above is required when installing deluge 2.0 and above${normal}\n" && exit 1
-
-# Random Number
-# [[ $mode =~ (source|alt) ]] && RN=$(shuf -i 1-999 -n1)
+# need to check the version of python-libtorrent
 
 ################################################################################################
 
 
 
-
-
-# Need to add support for Ubuntu 20.04
-
+# python-libtorrent / python3-libtorrent will be installed from source or deb
+# https://dev.deluge-torrent.org/wiki/Installing/Source
+# https://deluge.readthedocs.io/en/latest/devguide/tutorials/01-setup.html
+# https://github.com/deluge-torrent/deluge/blob/develop/DEPENDS.md
 function install_deluge_dependencies() {
     lines2 >> $OutputLOG
-    if [[]]; then
-    if [[ $CODENAME != focal ]]; then
-        apt_install_dependencies python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database
-                                 python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako python-pip
-    else
-        apt_install_dependencies
+    if [[ $deluge_major_version == 1 ]]; then
+        apt_install_dependencies python   python-openssl   python-setuptools   python-twisted   python-xdg   python-chardet  \
+                                 python-mako      python-pygame    python-glade2     python-notify                           \
+                                 intltool librsvg2-common xdg-utils geoip-database
+    elif [[ $deluge_major_version == 2 ]]; then
+        apt_install_dependencies python3  python3-openssl  python3-setuptools  python3-twisted  python3-xdg  python3-chardet \
+                                 python3-mako     python3-pygame                                                             \
+                                 intltool librsvg2-common xdg-utils geoip-database                                           \
+                                 python3-setproctitle python3-rencode  python3-pil  python3-zope.interface
+      # offical guides:          python3-geoip python3-dbus  python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-appindicator3 libnotify4
     fi
-
-    
-    /usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl >> $OutputLOG 2>&1
 }
 
 
 
 
 
-# Fetch source files
+
+
 function fetch_source_codes() {
     cd $SCLocation
     if [[ $source_type == tarball ]]; then
         if version_ge $version 2.0 ; then
-            wget http://download.deluge-torrent.org/source/2.0/deluge-$version.tar.xz  >> $OutputLOG 2>&1
+            wget http://download.deluge-torrent.org/source/2.0/deluge-$version.tar.xz -O deluge-$version.tar.xz >> $OutputLOG 2>&1
         else
-            wget http://download.deluge-torrent.org/source/deluge-$version.tar.gz  >> $OutputLOG 2>&1
+            wget http://download.deluge-torrent.org/source/deluge-$version.tar.gz     -O deluge-$version.tar.gz >> $OutputLOG 2>&1
         fi
         tar xf deluge-$version.tar*                   >> $OutputLOG 2>&1
         rm -f deluge-$version.tar*                    >> $OutputLOG 2>&1
-        cd deluge-$version                            >> $OutputLOG 2>&1
+        cd deluge-$version >> $OutputLOG 2>&1  || echo_error_exit "Failed to cd deluge source folder"
     elif [[ $source_type == git ]]; then
         git clone --depth=1 -b $branch https://github.com/deluge-torrent/deluge deluge-$version  >> $OutputLOG 2>&1
         cd deluge-$version >> $OutputLOG 2>&1  || echo_error_exit "Failed to cd deluge source folder"
@@ -144,23 +145,24 @@ function fetch_source_codes() {
 
 
 
-# Install from source code
 function install_deluge_source() {
     fetch_source_codes
     python setup.py build >> $OutputLOG 2>&1
-    python setup.py install --install-layout=deb --record /etc/inexistence/01.Log/install_deluge_$version.txt >> $OutputLOG 2>&1 && touch /tmp/de.1.lock || touch /tmp/de.2.lock
+    python setup.py install --install-layout=deb --record $LogLocation/deluge.filelist.txt >> $OutputLOG 2>&1
+    cd
     rm -rf deluge-$version
 }
 
 
-需要检查 python-libtorrent 版本
+
 
 
 
 
 function install_deluge_v2_deb() {
-    # [[ $CODENAME ~= (xenial|bionic|stretch) ]]
+    
     lines2 >> $OutputLOG
+    pip3 install --upgrade twisted[tls]
     list="deluge-common_2.0.3-1build1_all.deb
     deluge-console_2.0.3-1build1_all.deb
     deluge-gtk_2.0.3-1build1_all.deb
@@ -179,22 +181,19 @@ function install_deluge_v2_deb() {
 
 
 function check_status_de() {
-    de_installed_ver=$(eval $AppExec --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9]+.[0-9]+")
-    if [[ -z $de_installed_ver ]]; then
+    app_installed_ver=$(eval $AppExec --version | grep deluge | awk '{print $2}' | grep -oE "[0-9].[0-9]+.[0-9]+")
+    if [[ -z $app_installed_ver ]]; then
         status_failed
-    elif [[ $de_installed_ver == $version ]]; then
+    elif [[ $app_installed_ver == $version ]]; then
         status_done
         touch $LOCKLocation/$AppNameLower.lock
         status_done
         restart_app
     else
-        echo_error2 "$de_installed_ver is installed rather than $version"
+        echo_error2 "$app_installed_ver is installed rather than $version"
     fi
 }
 
-
-
-install_deluge2_deb
 
 
 
@@ -202,20 +201,23 @@ install_deluge2_deb
 
 
 case $mode in
-    source  ) [[ ! -f $LOCKLocation/deluge.dependencies.lock ]] && {
-              echo_task "Installing deluge build dependencies ..."
-              install_deluge_dependencies & spinner $!
-              check_status ded ; }
+    source  ) if [[ ! -f $LOCKLocation/deluge.dependencies.lock ]]; then
+                  echo_task "Installing deluge build dependencies ..."
+                  install_deluge_dependencies & spinner $!
+                  check_status
+              fi
 
               echo_task "Installing deluge ${bold}${cyan}$version${normal} from source codes ..."
               install_deluge_source & spinner $!
+              check_status_de
               ;;
     deb     ) echo_task "Installing deluge ${bold}${cyan}$version${normal} from pre-built deb ..."
               install_deluge_v2_deb & spinner $!
+              check_status_de
               ;;
 esac
 
-check_status_de
+
 
 
 
@@ -234,10 +236,20 @@ function deprecated_codes() {
         rm -rf $DeTmpPath
     fi
 
+[[ $CODENAME != focal ]] /usr/local/bin/pip install --upgrade twisted pillow rencode pyopenssl >> $OutputLOG 2>&1
+
 # Check if input version is available
 DeSource="http://download.deluge-torrent.org/source"
 AvailableVersion=$(  wget -qO- $DeSource | grep -o "deluge-[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\.tar.gz" | sort -uV | grep -o "[0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}"  )
 [[ -n $version ]] && [[ -z $( echo $AvailableVersion | grep $version ) ]] && { echo -e "\n${CW} The version you input is not available!\n" ; exit 1 ; }
+
+# Check if ssl issue should be fix
+version_ge $version 1.3.11 || DESSL=Yes
+
+# Check if libtorrent below 1.1.12 is supported
+version_ge $version 2.0  && export lt8_support=No || lt8_support=Yes
+[[ -n $py_lt_ver ]] && version_ge $lt_ver 1.1.3 && lt_ver_newer=Yes || lt_ver_newer=No
+[[ $lt8_support == No ]] && [[ $lt_ver_newer == No ]] && echo -e "\n${CW} libtorrent-rasterbar 1.1.3 and above is required when installing deluge 2.0 and above${normal}\n" && exit 1
 
 case $mode in
     apt     ) echo -ne "Installing deluge ${bold}${cyan}$version${normal} from repository ..."       | tee -a $OutputLOG ; install_deluge_apt & spinner $!
@@ -287,7 +299,6 @@ function install_deluge_alt() {
     rm -rf $DeTmpPath
 }
 
-    
 # Fix older deluged ssl issue
 function deluge_old_version_ssl_fix() {
     sed -i "s/SSL.SSLv3_METHOD/SSL.SSLv23_METHOD/g" deluge/core/rpcserver.py
