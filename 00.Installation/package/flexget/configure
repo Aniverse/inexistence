@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.06.29
-script_version=r10014
+script_update=2020.07.04
+script_version=r10015
 
 ################################################################################################ Debug
 
@@ -218,19 +218,25 @@ EOF
 }
 
 
+function get_flexget_plugins() {
+    if [[ ! -d $inexistence_files/flexget-plugins ]]; then
+        mkdir -p $inexistence_files/flexget-plugins
+        cd       $inexistence_files/flexget-plugins
+        # https://github.com/Juszoe/flexget-nexusphp
+        wget https://github.com/Juszoe/flexget-nexusphp/releases/latest/download/nexusphp.py -O nexusphp.py   >> "$OutputLOG" 2>&1
+        # https://github.com/IvonWei/flexget_qbittorrent_mod
+        wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
+        unzip dist.zip -d tmp                      >> "$OutputLOG" 2>&1
+        cp -rf  tmp/* .                            >> "$OutputLOG" 2>&1
+        rm -rf tmp dist.zip                        >> "$OutputLOG" 2>&1
+    fi
+}
+
+
 function add_flexget_plugins() {
     mkdir -p $iHome/.config/flexget/plugins
-    cd $iHome/.config/flexget/plugins
-
-    # https://github.com/IvonWei/flexget_qbittorrent_mod
-    wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
-    unzip dist.zip -d tmp                 >> "$OutputLOG" 2>&1
-    cp -f  tmp/*.py .                     >> "$OutputLOG" 2>&1
-    cp -f  tmp/auto_sign_in.yml .         >> "$OutputLOG" 2>&1
-    rm -rf tmp dist.zip                   >> "$OutputLOG" 2>&1
-
-    # https://github.com/Juszoe/flexget-nexusphp
-    wget https://github.com/Juszoe/flexget-nexusphp/releases/latest/download/nexusphp.py -O nexusphp.py   >> "$OutputLOG" 2>&1
+    cd       $iHome/.config/flexget/plugins
+    cp -f $inexistence_files/flexget-plugins/* .   >> $OutputLOG 2>&1
 }
 
 
@@ -247,12 +253,13 @@ function configure_flexget() {
     systemctl stop    flexget@$iUser >> "$OutputLOG" 2>&1
 
     backup_old_config flexget
-    mkdir -p /$iHome/.config/flexget       $PortLocation    # /home/$iUser/{transmission,qbittorrent,deluge}/{download,watch}
+    mkdir -p /$iHome/.config/flexget       $PortLocation    # $iHome/{transmission,qbittorrent,deluge}/{download,watch}
     echo  $wPort >  $PortLocation/$iUser.$AppNameLower
     flexget_cmd=/usr/local/bin/flexget
     write_flexget_config_file
     write_flexget_systemd
     write_flexget_nginx_reverse_proxy
+    get_flexget_plugins
     add_flexget_plugins
 
     chown $iUser.$iUser -R $iHome/.config/flexget/  >> "$OutputLOG" 2>&1
