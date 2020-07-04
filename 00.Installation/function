@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.03
-# script_version=r13124
+# script_update=2020.07.04
+# script_version=r13125
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -384,7 +384,7 @@ function hezi_add_user() {
     local passphrase
     passphrase=$(openssl rand -hex 64)
     mkdir -p /log/inexistence/users
-    if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
+    if [[ "$CODENAME" =~ (jessie|xenial|stretch) ]]; then
         echo "${iUser}:$(echo "${iPass}" | openssl enc -aes-128-ecb -a -e -pass pass:"${passphrase}" -nosalt)"         > /log/inexistence/users/${iUser}.info
     else
         echo "${iUser}:$(echo "${iPass}" | openssl enc -aes-128-ecb -pbkdf2 -a -e -pass pass:"${passphrase}" -nosalt)" > /log/inexistence/users/${iUser}.info
@@ -535,7 +535,7 @@ function export_inexistence_info() {
     iHome=$(eval echo "~$iUser")
     passphrase=$(cat /root/.ssh/users/${iUser} 2>/dev/null)
     passtext=$(cat /log/inexistence/users/${iUser}.info 2>/dev/null | cut -d: -f2)
-    if [[ "$CODENAME" =~ (jessie|xenial) ]]; then
+    if [[ "$CODENAME" =~ (jessie|xenial|stretch) ]]; then
         iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
     else
         iPass=$(echo ${passtext} | openssl enc -aes-128-ecb -pbkdf2 -a -d -pass pass:${passphrase} -nosalt 2>/dev/null)
@@ -546,7 +546,7 @@ function export_inexistence_info() {
 function backup_old_config() {
     local appname=$1
     if [[ -d $iHome/.config/$appname ]]; then
-        mv $iHome/.config/$appname  $iHome/.config/$appname.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
+        mv     $iHome/.config/$appname  $iHome/.config/$appname.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
         rm -rf $iHome/.config/$appname  >> $OutputLOG 2>&1
     fi
 }
@@ -1043,10 +1043,10 @@ function cat_outputlog() {
 
 function get_clients_port() {
     # [[ -z $iHome ]] && { echo -e "ERROR: Please specify user" ; exit 1 ; }
-    de_port=$(sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf 2>/dev/null)
-    de_port_w=$(sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf 2>/dev/null)
-    qb_port_w=$(sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null)
-    qb_port_i=$(sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null)
+    de_port=$(sed -rn 's/(.*)"daemon_port": (.*),/\2/p' $iHome/.config/deluge/core.conf 2>/dev/null | grep -oE "[0-9]+")
+    dw_port=$(sed -rn 's/(.*)"port": (.*),/\2/p' $iHome/.config/deluge/web.conf 2>/dev/null | grep -oE "[0-9]+")
+    qb_port=$(sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null | grep -oE "[0-9]+")
+    qb_port_i=$(sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null | grep -oE "[0-9]+")
     tr_port=$(grep rpc-port $iHome/.config/transmission-daemon/settings.json 2>/dev/null | grep -oE "[0-9]+")
     fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config/yml 2>/dev/null | grep -i port | grep -oE "[0-9]+")
 }
