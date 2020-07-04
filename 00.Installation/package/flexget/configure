@@ -6,7 +6,7 @@
 # Thanks to amefs
 
 script_update=2020.07.04
-script_version=r10015
+script_version=r10016
 
 ################################################################################################ Debug
 
@@ -88,7 +88,7 @@ location /fg {
     return 301 https://\$host/flexget;
 }
 location /flexget {
-    proxy_pass         http://127.0.0.1:$wPort;
+    proxy_pass         http://127.0.0.1:$wPort/flexget/;
 }
 EOF
         nginx -s reload      >> "$OutputLOG" 2>&1
@@ -96,6 +96,7 @@ EOF
 }
 
 function write_flexget_config_file() {
+    get_clients_port
     [[ -z $qb_port ]] && qb_port=2017
     [[ -z $de_port ]] && de_port=58846
     [[ -z $tr_port ]] && tr_port=9099
@@ -114,28 +115,28 @@ function write_flexget_config_file() {
 templates:
   standard:
     free_space:
-      path: /home/$iUser
+      path: $iHome
       space: 10240
     seen:
       fields:
         - url
   de:
     deluge:
-      path: /home/$iUser/deluge/download/
+      path: $iHome/deluge/download/
       host: localhost
       port: $de_port
       username: $iUser
       password: $iPass
   qb:
     qbittorrent:
-      path: /home/$iUser/qbittorrent/download/
+      path: $iHome/qbittorrent/download/
       host: localhost
       port: $qb_port
       username: $iUser
       password: $iPass
   tr:
     transmission:
-      path: /home/$iUser/transmission/download/
+      path: $iHome/transmission/download/
       host: localhost
       port: $tr_port
       username: $iUser
