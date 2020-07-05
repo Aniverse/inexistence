@@ -2,16 +2,17 @@
 
 近期  
 
+* [x] inexistence.sh 启用 --help，解释各参数的作用与用法  
 * [x] IPv6 脚本更新  
-* [x] 加入 flexget/install  
-* [x] 加入 flexget/configure  
-* [x] 加入 vnstat/install  
-* [x] 加入 transmission/configure  
-* [x] 加入 novnc  
-* [x] 加入 filebrowser  
-* [x] 加入 deluge/configure  
-* [ ] 加入 deluge/install，只支持安装 1.3  
-* [x] inexistence.sh 加入 --help，解释各参数的作用与用法  
+* [x] 启用 flexget/install  
+* [x] 启用 flexget/configure  
+* [x] 启用 vnstat/install  
+* [x] 启用 transmission/configure  
+* [x] 启用 novnc  
+* [x] 启用 filebrowser  
+* [x] 启用 deluge/configure  
+* [ ] 启用 deluge/install，只支持安装 1.3  
+* [ ] deluge/install 支持 2.0.3 的 efs deb  
 * [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
 * [ ] 清理完以后发布 release，主要是备份和方便以后跨版本对比  
 * [ ] 升级 bdinfocli 的版本  
@@ -24,16 +25,17 @@
 * [x] 移除脚本里的换源、tools、bbr、wine 问题  
 * [x] 移除脚本里的 install from ppa. repo  
 * [x] 移除 libtorrent 1.0 选项  
-* [x] 加入 qbittorrent/install  
-* [ ] 加入 flood/install  
-* [ ] 加入 flood/configure  
-* [ ] 加入 x2go/install  
-* [x] 加入 transmission/install  
+* [x] 启用 qbittorrent/install  
+* [ ] 启用 flood/install  
+* [ ] 启用 flood/configure  
+* [ ] 启用 x2go/install  
+* [ ] 启用 art/configure  
+* [x] 启用 transmission/install  
 * [ ] 支持 Transmission 3.0  
+* [x] 新 App：autoremove-torrents  
 * [ ] 新 App：Jackett  
 * [ ] 新 App：The Lounge  
 * [ ] 移除 rTorrent 0.9.6 及以下的选项  
-* [ ] deluge/install 支持 2.0.3 的 efs deb  
 * [ ] deluge/install 支持 2.0.3 的 building  
 * [ ] 支持 python3-libtorrent building  
 * [ ] 支持 libtorrent 1.2.x  
@@ -48,8 +50,8 @@
 * [x] 使用 pyenv  
 * [ ] 使主脚本 inexistence.sh 有完整的中文交互界面  
 * [ ] 不使用 rtinst，自己写 rTorrent 与 ruTorrent 的安装  
-* [ ] 加入 ftp/install  
-* [ ] 加入 nginx/configure  
+* [ ] 启用 ftp/install  
+* [ ] 启用 nginx/configure  
 * [ ] `hezi` 脚本里加入新增用户、删除用户、改用户密码的功能  
 
 设想阶段（很可能砍掉或者无限期搁置）  
@@ -73,6 +75,172 @@
 
 
 # ChangeLog  
+
+
+## [2020.07.03-04, 2+4 commits](https://github.com/Aniverse/inexistence/compare/d2f95a4...fde8a08)  
+
+`inexistence 1.2.6.9`  
+1. Feature：使用 apt_sources_replace 代替原先的 wget 下载替换 apt 源列表  
+2. Feature：使用 apt_sources_add  
+
+`function r13125`  
+1. BugFix：Debian 9 下加密密码的方式不使用 pbkdf2  
+2. LittleFix：get_clients_port 里端口变量名的修改  
+3. LittleFix：check_remote_git_repo_branch 的 No such branch! 保存到日志  
+4. Feature：APT_UPGRADE 里，为了防止 apt source 实际是空着的情况，使用 `apt policy git` 检查是否有信息  
+
+`Deluge/install r10006`  
+1. 完成度大约 70%  
+
+`FlexFet/configure r10016`  
+1. Feature：更新 nginx 反代配置  
+2. Feature：使用 get_clients_port 获取端口  
+3. **Feature：下载第三方插件到 $inexistence_files 内，配置时从这个目录复制插件即可**  
+4. **BugFix：修复 flexget_qbittorrent_mod 之前文件没复制完整的问题**  
+
+`FlexFet/install r30024`  
+1. BugFix：修复 flexget_qbittorrent_mod 依赖没装的问题  
+
+
+
+
+
+## [2020.06.29-30, 30+2 commits](https://github.com/Aniverse/inexistence/compare/95bbd7a...d2f95a4)  
+
+`the inexistence project`  
+1. **NewFeature：启用配置 Deluge 的子脚本，使 Deluge 切换到用户态**  
+2. **NewFeature：引入 pyenv**  
+使用 pyenv 来配置 FlexGet 后，不至于影响原先系统的 Python 环境  
+3. 更新了 apt.sources 文件的模板（其实用不到了）  
+原先 debian 用的是德国的源，现在换到了官方源  
+
+`inexistence 1.2.6.8`  
+1. BugFix：修复 OpenVZ 下 atop 安装的判断  
+2. Preparation：全部输出都重定向到日志文件，并完善这部分日志的保存  
+3. BugFix：进一步完善 apt update 和 安装软件包失败时退出脚本的逻辑  
+4. FeatureDropped：删除 config_deluge  
+
+`function r13123`  
+1. Typo：_excute → _execute  
+2. NEW function：apt_sources_replace  
+3. APT_UPGRADE：引入 /tmp/apt_status 作为判断状态的文件，update 失败时强制退出整个脚本  
+4. Feature：apt 相关功能的执行结果非 0 的场合都会写入 /tmp/apt_status  
+5. **NEW funtions：pyenv_install_python／pyenv_init_venv／python_getpip**  
+6. BugFix：修复 tail log 的 read 提示  
+
+`pyenv r20003`  
+1. 原先的 python 脚本改成了 pyenv，具体配置功能在 function 里  
+
+`s-alias r12013`  
+1. 因为 deluge 切换到了用户态，故更新 alias  
+
+`mingling 0.9.4.7`  
+1. 因为 deluge 切换到了用户态，故更新控制菜单  
+
+`Deluge/install r10005`  
+1. Codes：更新到现在的风格，删除了大量不用和过时的内容……  
+2. Feature：源码来自 git 时，取消 `-dev` 版本号标识  
+3. **NewFeature：安装 efs 的 deluge 2.0.3 deb 的模式**  
+4. Feature：完善 check_status_de  
+5. FeatureDropped：不再支持从 apt/ppa 安装的模式  
+6. FeatureDropped：不再支持安装低于 Deluge 1.3.11 的版本（不处理 SSL 问题）  
+
+`Deluge/configure r10010`  
+1. Feature：备份的日志文件移动到 $HOME/.config/deluge/logs  
+2. BugFix：修复日志备份脚本权限不足、路径不存在的问题  
+3. BugFix：修复各类手滑失误  
+4. Feature：daemon 端口也写入文件  
+
+`ddee/ddww r10002/10003`
+1. BugFix：修复 Deluge 版本号提取不完整的问题  
+
+`FlexFet/install r30023`  
+1. **ScriptVersion：v3**  
+2. **NewFeature：引入 pyenv 安装 Python 3.7.8**  
+3. **NewFeature：顺便安装 AutoRemove-Torrents**  
+4. FeatureDropped：不再从 apt/ppa/源码安装 python3  
+5. BugFix：进一步修复 FlexGet 是否安装成功的判断  
+6. Feature：软链 art 和 FlexGet 到 `/usr/local/bin` 方便使用  
+
+`FlexFet/configure r10013`  
+1. ConfigTemplate：更新模板，sequence 里 template 写两个输出实测只会输出到第一个  
+
+`libtorrent-rasterbar r11065`  
+1. Feature：切换到从 efs 的 GitHub repo 下载 deb 文件  
+2. BugFix：修复可能存在的、在 Debian10 下安装 deb 时提示依赖不满足的情况  
+
+`qBittorrent/install r12041`  
+1. Feature：切换到从 efs 的 GitHub repo 下载 deb 文件  
+
+`README 1.4.2`
+1. 删除 efs 脚本以及 qq 群的介绍  
+2. 去掉了 Installation Guide 开头部分脚本参数的说明  
+3. 支持系统里去掉了 Debian 8  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [2020.06.24/26/27/28, 11 commits](https://github.com/Aniverse/inexistence/compare/94bedbf...95bbd7a)  
+
+`the inexistence project`  
+1. **BugFix：ddee/ddww/ttrr/qqbb/ffgg 等脚本使用 export_inexistence_info 导入信息**  
+
+`function r13113`  
+1. NEW Variable：$inexistence_files  
+2. NEW function：backup_old_config  
+3. BugFix：隐藏 export_inexistence_info 的错误输出  
+
+`ask r11035`  
+1. BugFix：之前有 --hostname 的选项但实际不起作用，现在修复了  
+
+`options r10005`  
+1. **NewFeature：检测输入的账号、密码的有效性**  
+2. UI：Usage 里加入中文介绍的链接  
+
+`mingling 0.9.4.5`  
+1. BugFix：修复 showurl 文件路径不对的问题  
+2. UI：显示脚本更新日期  
+
+`Deluge/configure r10007`  
+1. **NewFeature：每次启动 daemon、webui 前备份之前的日志(systemd StartPre 脚本)**  
+2. **NewFeature：下载第三方插件到 $inexistence_files 内，配置时从这个目录复制插件即可**  
+3. Feature：写入 nginx 反代配置  
+4. Feature：其他基本功能完善  
+
+`qBittorrent/configure r12049`  
+1. Feature：使用 backup_old_config function  
+2. Debug：写入 systemctl status 信息到日志  
+
+`Transmission/configure r10007`  
+1. Feature：使用 backup_old_config function  
+2. Feature：写入 nginx 反代配置  
+3. Debug：写入 systemctl status 信息到日志  
+
+`FlexFet/install r20018`  
+1. Feature：FlexGet 版本不再锁定到 3.0.31，而是安装最新版  
+2. BugFix：修复 FlexGet 是否安装成功的判断  
+
+`FlexFet/configure r10013`  
+1. Feature：更新配置文件模板，示范站点换成了 CinemaGeddon 和 UHDBits  
+2. Feature：写入 nginx 反代配置  
+3. Feature：使用 backup_old_config function  
+
+
+
+
 
 ## [2020.06.06/17-19, 7/8 commits](https://github.com/Aniverse/inexistence/compare/c4c0a57...94bedbf)  
 
