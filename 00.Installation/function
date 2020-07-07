@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.07
-# script_version=r14127
+# script_version=r14128
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -792,13 +792,22 @@ function deb-get-var-gh() {
 }
 
 function deb-get-wget() {
-    wget -t3 -T20 -O ${DEB} https://${DOMAIN}/${SUBFOLDER}${CODENAME}/binary-${ARCH}/${PACKAGE}/${DEB}${SUFFIX} >> $OutputLOG 2>&1
+    if [[ $PACKAGE == "packages.lst" ]]; then
+        if [[ $DOMAIN == "deb.ezapi.net" ]]; then
+            wget -t3 -T20 -O /tmp/${PACKAGE} https://deb.ezapi.net/packages.lst >> $OutputLOG 2>&1
+        else
+            wget -t3 -T20 -O /tmp/${PACKAGE} https://${DOMAIN}/${SUBFOLDER}${PACKAGE} >> $OutputLOG 2>&1
+        fi
+    else
+        wget -t3 -T20 -O ${DEB} https://${DOMAIN}/${SUBFOLDER}${CODENAME}/binary-${ARCH}/${PACKAGE}/${DEB}${SUFFIX} >> $OutputLOG 2>&1
+    fi
 }
 
 function deb-get-fallback() {
-    echo -e "${red}Failed to download deb files from $DOMAIN${normal}\n" >> $OutputLOG
+    echo -e "${red}Failed to download files from $DOMAIN${normal}\n" >> $OutputLOG
 }
 
+# deb-get  packages.lst
 # deb-get  deluge  deluge_2.0.3-1build1_all.deb
 function deb-get() {
     local ARCH="amd64" ; local PACKAGE=$1 ; local DEB=$2
@@ -810,8 +819,8 @@ function deb-get() {
             if [ $? -ne 0 ]; then
                 deb-get-fallback ; deb-get-var-sf ; deb-get-wget
                 if [ $? -ne 0 ]; then
-                    echo_error_exit "Failed to download $DEB"
-                    rm -f ${DEB} # remove the empty deb file when failing
+                    echo_error_exit "deb-get failed to download files"
+                    rm -f ${DEB} ${PACKAGE} # remove the empty file when failing
                 fi
             fi
         fi
