@@ -808,9 +808,9 @@ function deb-get-fallback() {
 }
 
 # deb-get  packages.lst
-# deb-get  deluge  deluge_2.0.3-1build1_all.deb
+# deb-get  deluge  deluge_2.0.3-1build1_all.deb   install
 function deb-get() {
-    local ARCH="amd64" ; local PACKAGE=$1 ; local DEB=$2
+    local ARCH="amd64" ; local PACKAGE=$1 ; local DEB=$2 ; local ACTION=$3
     deb-get-var-gh ; deb-get-wget
     if [ $? -ne 0 ]; then
         deb-get-fallback ; deb-get-var-cf ; deb-get-wget
@@ -824,6 +824,15 @@ function deb-get() {
                 fi
             fi
         fi
+    fi
+    if [[ -f ${DEB} ]] && [[ $ACTION == install ]]; then
+        if [[ $CODENAME == jessie ]]; then
+            dpkg    -i  ${DEB}   >> "$OutputLOG" 2>&1
+            apt-get -fy install  >> "$OutputLOG" 2>&1
+        else
+            apt-get -y --allow-unauthenticated -f install ${DEB}  >> "$OutputLOG" 2>&1
+        fi
+        rm -f ${DEB}
     fi
 }
 
