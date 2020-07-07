@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.04
-# script_version=r13125
+# script_update=2020.07.07
+# script_version=r13126
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -630,7 +630,7 @@ function APT_UPGRADE() {
         kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
     fi
     # if git is not found on apt source list, then we assume this source list is incorrect
-    apt policy git 2>&1 | grep -iq Candidate || {
+    apt policy git 2>&1 | grep -q http || {
         echo "apt_update_failed=1" > /tmp/apt_status
         echo_error "Something wrong with your apt sources or network connection, exiting ..."
         kill -s TERM $TOP_PID >> /dev/null 2>&1  ;   kill -s TERM $script_pid >> /dev/null 2>&1   ;   exit 1
@@ -960,7 +960,7 @@ function pyenv_install_python(){
 }
 
 
-# pyenv_init_venv   3.7.7   /home/${username}/.local/flexget3   ${username}
+# pyenv_init_venv      3.7.8   /opt/venv/flexget   $iUser
 function pyenv_init_venv() {
     local version=$1
     local path=$2
