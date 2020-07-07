@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.07
-# script_version=r13126
+# script_version=r14127
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -129,6 +129,9 @@ function echo_error_exit() {
 }
 function echo_info() {
     printf " ${cyan}${bold}Info: %s${normal}\n" "$@" | tee -a "$OutputLOG"
+}
+function echo_log_only() {
+    printf "${cyan}DEBUG: %s${normal}\n" "$@" >> $OutputLOG
 }
 
 # These codes are from teddysun bbr.sh
@@ -750,6 +753,68 @@ function apt_install_dependencies() {
         rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
         touch /tmp/$status_lock.1.lock
         touch $LOCKLocation/$AppNameLower.dependencies.lock
+    fi
+}
+
+
+################################################################################################
+################################################################################################ download efs' deb
+################################################################################################
+
+
+# https://deb.ezapi.net/buster/binary-amd64/deluge/deluged_1.3.15-1build1_all.deb
+function deb-get-var-cf() {
+    DOMAIN="deb.ezapi.net"
+    SUBFOLDER=""
+    SUFFIX=""
+}
+
+# https://sourceforge.net/projects/seedbox-software-for-linux/files/buster/binary-amd64/deluge/deluged_1.3.15-1build1_all.deb/download
+function deb-get-var-sf() {
+    DOMAIN="sourceforge.net"
+    SUBFOLDER="projects/seedbox-software-for-linux/files/"
+    SUFFIX="/download"
+}
+
+# https://osdn.dl.osdn.net/storage/g/s/se/seedbox-software-for-linux/buster/binary-amd64/deluge/deluged_1.3.15-1build1_all.deb
+function deb-get-var-osdn() {
+    DOMAIN="osdn.dl.osdn.net"
+    SUBFOLDER="storage/g/s/se/seedbox-software-for-linux/"
+    SUFFIX=""
+}
+
+# https://github.com/amefs/quickbox-files/raw/master/buster/binary-amd64/deluge/deluged_1.3.15-1build1_all.deb
+# https://raw.githubusercontent.com/amefs/quickbox-files/master/buster/binary-amd64/deluge/deluged_1.3.15-1build1_all.deb
+function deb-get-var-gh() {
+    DOMAIN="github.com"
+    SUBFOLDER="amefs/quickbox-files/raw/master/"
+    SUFFIX=""
+}
+
+function deb-get-wget() {
+    wget -t3 -T20 -O ${DEB} https://${DOMAIN}/${SUBFOLDER}${CODENAME}/binary-${ARCH}/${PACKAGE}/${DEB}${SUFFIX} >> $OutputLOG 2>&1
+}
+
+function deb-get-fallback() {
+    echo -e "${red}Failed to download deb files from $DOMAIN${normal}\n" >> $OutputLOG
+}
+
+# deb-get  deluge  deluge_2.0.3-1build1_all.deb
+function deb-get() {
+    local ARCH="amd64" ; local PACKAGE=$1 ; local DEB=$2
+    deb-get-var-gh ; deb-get-wget
+    if [ $? -ne 0 ]; then
+        deb-get-fallback ; deb-get-var-cf ; deb-get-wget
+        if [ $? -ne 0 ]; then
+            deb-get-fallback ; deb-get-var-osdn ; deb-get-wget
+            if [ $? -ne 0 ]; then
+                deb-get-fallback ; deb-get-var-sf ; deb-get-wget
+                if [ $? -ne 0 ]; then
+                    echo_error_exit "Failed to download $DEB"
+                    rm -f ${DEB} # remove the empty deb file when failing
+                fi
+            fi
+        fi
     fi
 }
 
