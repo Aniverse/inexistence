@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.29
-script_version=r11065
+script_update=2020.07.07
+script_version=r11066
 
 ################################################################################################ Debug
 
@@ -258,28 +258,19 @@ function install_lt9_deb2() {
     echo "status_lock=$status_lock" > /tmp/Variables
     rm -f /tmp/$status_lock.1.lock /tmp/$status_lock.2.lock
 
+    [[ $CODENAME == buster ]] && apt-get install -y --allow-downgrades libgeoip-dev=1.6.12-1 libgeoip1=1.6.12-1 >> $OutputLOG 2>&1
     list="libtorrent-rasterbar9_1.1.14-1build1_amd64.deb
-libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
-python-libtorrent_1.1.14-1build1_amd64.deb
-python3-libtorrent_1.1.14-1build1_amd64.deb"
+          libtorrent-rasterbar-dev_1.1.14-1build1_amd64.deb
+          python-libtorrent_1.1.14-1build1_amd64.deb
+          python3-libtorrent_1.1.14-1build1_amd64.deb"
     mkdir -p /tmp/lt_deb
     cd /tmp/lt_deb
     for deb in $list ; do
-        wget -nv -O $deb https://github.com/amefs/quickbox-files/raw/master/${CODENAME}/binary-amd64/libtorrent-rasterbar/$deb >> $OutputLOG 2>&1
+        deb-get libtorrent-rasterbar $deb install
     done
-    if [[ $CODENAME != jessie ]]; then
-        [[ $CODENAME == buster ]] && apt-get install -y --allow-downgrades libgeoip-dev=1.6.12-1 libgeoip1=1.6.12-1 >> $OutputLOG 2>&1
-        apt-get -fuy install ./*deb >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-    else
-        dpkg -i ./*deb      >> $OutputLOG 2>&1
-        apt-get -fy install >> $OutputLOG 2>&1 && touch /tmp/$status_lock.1.lock || touch /tmp/$status_lock.2.lock
-    fi
-    cd
-    rm -rf /tmp/lt_deb
+    cd ; rm -rf /tmp/lt_deb
 
     echo >> $OutputLOG
-    # [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.lock
-    [[ -f /tmp/$status_lock.1.lock ]] && touch $LOCKLocation/$AppNameLower.deb.lock
 }
 
 
@@ -290,7 +281,7 @@ function purge_old_libtorrent() {
     if [[ -f $LOCKLocation/$AppNameLower.lock ]]; then
         echo_task "Uninstalling pre-installed libtorrent-rasterbar ..."
         echo >> $OutputLOG
-        dpkg_list="libtorrent-rasterbar libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10libtorrent-rasterbar-dev python-libtorrent"
+        dpkg_list="libtorrent-rasterbar libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10 libtorrent-rasterbar-dev python-libtorrent python3-libtorrent"
         for package in dpkg_list; do
             apt-get purge -y $package  >> $OutputLOG 2>&1
             dpkg -r $package           >> $OutputLOG 2>&1

@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.06
-script_version=r10004
+script_update=2020.07.07
+script_version=r10005
 
 ################################################################################################ Debug
 
@@ -81,22 +81,16 @@ git_repo="https://github.com/transmission/transmission"
 function install_transmission_deb() {
     lines2 >> $OutputLOG
     list="transmission-common_2.94-1mod1_all.deb
-    transmission-cli_2.94-1mod1_amd64.deb
-    transmission-daemon_2.94-1mod1_amd64.deb
-    transmission-gtk_2.94-1mod1_amd64.deb
-    transmission-qt_2.94-1mod1_amd64.deb
-    transmission_2.94-1mod1_all.deb"
+          transmission-cli_2.94-1mod1_amd64.deb
+          transmission-daemon_2.94-1mod1_amd64.deb
+          transmission-gtk_2.94-1mod1_amd64.deb
+          transmission-qt_2.94-1mod1_amd64.deb
+          transmission_2.94-1mod1_all.deb"
     mkdir -p /tmp/tr_deb
     cd /tmp/tr_deb
     for deb in $list ; do
-        wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb >> "$OutputLOG" 2>&1
+        deb-get transmission $deb install
     done
-    if [[ $CODENAME != jessie ]]; then
-        apt-get -y --allow-unauthenticated -f install ./*deb  >> "$OutputLOG" 2>&1
-    else
-        dpkg -i ./*deb             >> "$OutputLOG" 2>&1
-        apt-get -fy install        >> "$OutputLOG" 2>&1
-    fi
     cd
     apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission >> "$OutputLOG" 2>&1
 }
