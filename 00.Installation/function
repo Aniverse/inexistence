@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14130
+# script_version=r14131
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -623,7 +623,7 @@ EOF
 # From QuickBox Lite
 function APT_UPGRADE() {
     rm -f /tmp/apt_status
-    [[ -z $OutputLOG ]] && OutputLOG=/dev/null
+    set_log_when_there_is_none
     [[ $APT_UPGRADE_SINGLE == 1 ]] && echo_task "Checking and performing updates to system ... "
     apt_sources_add
     DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update  >> $OutputLOG 2>&1
@@ -810,6 +810,7 @@ function deb-get-fallback() {
 # deb-get  packages.lst
 # deb-get  deluge  deluge_2.0.3-1build1_all.deb   install
 function deb-get() {
+    set_log_when_there_is_none
     local ARCH="amd64" ; local PACKAGE=$1 ; local DEB=$2 ; local ACTION=$3
     deb-get-var-gh ; deb-get-wget
     if [ $? -ne 0 ]; then
@@ -1104,7 +1105,6 @@ function debug_log_location() {
     fi
 }
 
-
 function cat_outputlog() {
     if [[ $show_log == 1 ]]; then
         lines
@@ -1116,6 +1116,14 @@ function cat_outputlog() {
         tail -f ${OutputLOG}
         exit
     fi
+}
+
+function set_log_when_there_is_none() {
+    [[ -z $OutputLOG ]] && OutputLOG=$HOME/.123.log && echo > $HOME/.123.log
+}
+
+function lloogg() {
+    [[ $OutputLOG == "$HOME/.123.log" ]] && cat "$HOME/.123.log" && echo -e "\n${bold}${yellow}tail -200 $HOME/.123.log${normal}\n"
 }
 
 
