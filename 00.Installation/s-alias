@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r12016
+# script_version=r12017
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -229,7 +229,7 @@ function s-info() {
     source /etc/inexistence/00.Installation/function
     source /etc/inexistence/00.Installation/check-sys
     export_inexistence_info
-    echo -e "
+    echo "
 IPv4                $serveripv4
 IPv6                $serveripv6
 Interface           $interface
@@ -238,7 +238,7 @@ OS                  $displayOS
 Kernel              $running_kernel
 Virtual             $virtual
 
-Master User         $iUser
+Master User         ${DefaultiUser}${normal}
 Password            $iPass
 User's config       $iHome/.config
 
@@ -273,4 +273,6 @@ deprecated_function_alias() {
     sed -i -n -e :a -e '1,100!{P;N;D;};N;ba' /etc/bash.bashrc
     sed "/#\!\/bin\/bash/"d /usr/local/bin/s-alias >> /etc/bash.bashrc
     while grep -q "Inexistence Mod" /etc/bash.bashrc ; do sed -i '$d' /etc/bash.bashrc ; done
+
+    s=/etc/inexistence/00.Installation/s-alias;rm -f $s ; nano $s
 }
