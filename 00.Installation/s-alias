@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r12014
+# script_version=r12015
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -101,7 +101,6 @@ export repo="https://github.com/Aniverse/inexistence"
 export local_repo_base=/etc/inexistence
 export local_packages=/etc/inexistence/00.Installation
 export local_script=/usr/local/bin/abox
-export eth=$wangka
 
 alias qba="systemctl start qbittorrent@iUser"
 alias qbb="systemctl stop qbittorrent@iUser"
@@ -114,11 +113,11 @@ alias deb="systemctl stop deluged@iUser"
 alias dec="systemctl status deluged@iUser"
 alias der="systemctl restart deluged@iUser"
 alias del="grep -Ev 'TotalTraffic|Successfully loaded|Saving the state|Saving the fastresume|connection made from: 127.0.0.1|non-clean fashion' /home/iUser/.config/deluge/deluged.log | tail -300"
-alias dewa="systemctl start deluge-web@iUser"
-alias dewb="systemctl stop deluge-web@iUser"
-alias dewc="systemctl status deluge-web@iUser"
-alias dewr="systemctl restart deluge-web@iUser"
-alias dewl="tail -200 /home/iUser/.config/deluge/deluge-web.log"
+alias dwa="systemctl start deluge-web@iUser"
+alias dwb="systemctl stop deluge-web@iUser"
+alias dwc="systemctl status deluge-web@iUser"
+alias dwr="systemctl restart deluge-web@iUser"
+alias dwl="tail -200 /home/iUser/.config/deluge/deluge-web.log"
 alias tra="systemctl start transmission@iUser"
 alias trb="systemctl stop transmission@iUser"
 alias trc="systemctl status transmission@iUser"
@@ -214,6 +213,31 @@ alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*Passwo
 alias s-opt="echo && cat /log/inexistence/installed.log && echo"
 alias s-end="echo && cat /log/inexistence/end.log"
 function s-log() { local logfile=$(cat /tmp/current.logfile) ; echo $logfile ; lines ; tail -f $logfile ; }
+
+function s-info() {
+    source /etc/inexistence/00.Installation/function
+    source /etc/inexistence/00.Installation/check-sys
+    export_inexistence_info
+    echo -e "
+IPv4                $serveripv4
+IPv6                $serveripv6
+Interface           $interface
+
+OS                  $displayOS
+Kernel              $running_kernel
+Virtual             $virtual
+
+Master User         $DefaultiUser
+Password            $iPass
+User's config       $iHome/.config
+
+LogBase             $LogBase
+local_repo          $local_repo
+local_script        $local_script
+local_packages      $local_packages
+inexistence_files   $inexistence_files
+"
+}
 
 ################## Personal Alias END ##################
 
