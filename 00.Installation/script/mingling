@@ -2,8 +2,8 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.7
-SCRIPTUPDATE=2020.06.29
+SCRIPTVER=0.9.4.8
+SCRIPTUPDATE=2020.07.15
 
 [[ $1 == -d ]] && DeBUG=1
 
@@ -112,30 +112,30 @@ esac ; }
 
 # 01. 查看 SSH 命令
 function _usage() {
-clear ; echo
-                                                                if [[ $inexistence == 1 ]] && [[ $tweaks_enabled == 1 ]]; then
+    clear ; echo
+    if [[ $inexistence == 1 ]] && [[ $tweaks_enabled == 1 ]]; then
 echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
 echo -e " ${bold}"
-echo -e " ${green}qb a${jiacu} = 运行 qBittorrent-nox ${green}dea${jiacu} = 运行 Deluged  ${green}dewa${jiacu} = 运行 Deluge WebUI  ${green}rta${jiacu} = 运行 rTorrent"
-echo -e " ${green}qb b${jiacu} = 关闭 qBittorrent-nox ${green}deb${jiacu} = 关闭 Deluged  ${green}dewb${jiacu} = 关闭 Deluge WebUI  ${green}rtb${jiacu} = 关闭 rTorrent"
-echo -e " ${green}qb c${jiacu} = 检查 qBittorrent-nox ${green}dec${jiacu} = 检查 Deluged  ${green}dewc${jiacu} = 检查 Deluge WebUI  ${green}rtc${jiacu} = 检查 rTorrent"
-echo -e " ${green}qb r${jiacu} = 重启 qBittorrent-nox ${green}der${jiacu} = 重启 Deluged  ${green}dewr${jiacu} = 重启 Deluge WebUI  ${green}rtr${jiacu} = 重启 rTorrent"
+echo -e " ${green}qba${jiacu} = 运行 qbittorrent-nox  ${green}dea${jiacu} = 运行 Deluged  ${green}dwa${jiacu} = 运行 Deluge WebUI   ${green}rta${jiacu} = 运行 rTorrent"
+echo -e " ${green}qbb${jiacu} = 关闭 qbittorrent-nox  ${green}deb${jiacu} = 关闭 Deluged  ${green}dwb${jiacu} = 关闭 Deluge WebUI   ${green}rtb${jiacu} = 关闭 rTorrent"
+echo -e " ${green}qbc${jiacu} = 检查 qbittorrent-nox  ${green}dec${jiacu} = 检查 Deluged  ${green}dwc${jiacu} = 检查 Deluge WebUI   ${green}rtc${jiacu} = 检查 rTorrent"
+echo -e " ${green}qbr${jiacu} = 重启 qbittorrent-nox  ${green}der${jiacu} = 重启 Deluged  ${green}dwr${jiacu} = 重启 Deluge WebUI   ${green}rtr${jiacu} = 重启 rTorrent"
 echo
-echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 Flexget Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
-echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 Flexget Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
-echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 Flexget Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
-echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 Flexget Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
+echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 FlexGet Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
+echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 FlexGet Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
+echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 FlexGet Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
+echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 FlexGet Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
 echo
-echo -e " ${green}cdqb${jiacu}  = 切换目录到  qBittorrent 的下载目录   ${green}sssa / lssa${jiacu} = 开启锐速   ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
-echo -e " ${green}cdde${jiacu}  = 切换目录到    Deluge    的下载目录   ${green}sssb / lssb${jiacu} = 关闭锐速   ${green}  fgs  ${jiacu} = 修改 Flexget 设置"
-echo -e " ${green}cdrt${jiacu}  = 切换目录到   rTorrent   的下载目录   ${green}sssc / lssc${jiacu} = 检查锐速   ${green}shanchu${jiacu}  = rm -rf，删除     "
-echo -e " ${green}cdtr${jiacu}  = 切换目录到 Transmission 的下载目录   ${green}sssr / lssr${jiacu} = 重启锐速   ${green}quanxian${jiacu} = 递归赋予 777 权限"
+echo -e " ${green}cdqb${jiacu} = 切换目录到  qBittorrent 的下载目录  ${green}sssa / lssa${jiacu} = 开启锐速  ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
+echo -e " ${green}cdde${jiacu} = 切换目录到    Deluge    的下载目录  ${green}sssb / lssb${jiacu} = 关闭锐速  ${green}  fgs  ${jiacu} = 编辑 Flexget 设置"
+echo -e " ${green}cdrt${jiacu} = 切换目录到   rTorrent   的下载目录  ${green}sssc / lssc${jiacu} = 检查锐速  ${green} jieya ${jiacu}  = 解压文件"
+echo -e " ${green}cdtr${jiacu} = 切换目录到 Transmission 的下载目录  ${green}sssr / lssr${jiacu} = 重启锐速  ${green} scrgd ${jiacu} = 新建/进入 screen"
 echo
-echo -e " ${green}swapon${jiacu}  = 开启 2GB Swap                         ${green}yongle${jiacu} = 后接一个目录，查看该目录用了多少硬盘空间"
-echo -e " ${green}swapoff${jiacu} = 关闭 swap                             ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能，按 Ctrl+C 退出"
-echo -e " ${green}s-end${jiacu} = 显示脚本安装完后输出的信息              ${green}ios${jiacu} = 查看硬盘 IO 状况，按 Ctrl+C 退出"
-echo -e " ${green}vnss ${jiacu} = 显示盒子最近一个月的流量统计            ${green}vns${jiacu} = 查看当前网速情况，按 Ctrl+C 退出"
-echo -e " ${green}sshr ${jiacu} = 开启 SSH root 登陆                      ${green}vms${jiacu} = 查看当前内存、CPU、IO 状况"
+echo -e " ${green}swapon${jiacu}  = 开启 Swap (2GB)                    ${green}yongle${jiacu} = 查看某个目录用了多少硬盘空间"
+echo -e " ${green}swapoff${jiacu} = 关闭 swap                          ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能"
+echo -e " ${green}s-end${jiacu}   = 显示脚本安装完后输出的信息         ${green}ios${jiacu}   = 查看硬盘 IO 状况，按 Ctrl+C 退出"
+echo -e " ${green}vnss ${jiacu}   = 显示盒子最近一个月的流量统计       ${green}vns${jiacu}   = 查看当前网速情况，按 Ctrl+C 退出"
+echo -e " ${green}sshr ${jiacu}   = 开启 SSH root 登陆                 ${green}vms${jiacu}   = 查看当前内存、CPU、IO 状况"
 echo
 echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
 echo
@@ -156,10 +156,12 @@ echo -e "           ${yellow}jietu  ${underline}\"/home/shiro/Frantz 2016 720p B
 echo -e " ${blue}     ${jiacu}     也可以只输入文件夹，脚本会选择其中最大的文件进行截图，并自动计算及使用 DAR 后的分辨率"
 echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
 echo -e " ${normal}"
-                                                                                            else
-echo -e "${bold}似乎你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
-echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
-echo -e "${green}http://man.linuxde.net/alias${normal}" ; fi ; }
+    else
+        echo -e "${bold}似乎你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
+        echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
+        echo -e "${green}http://man.linuxde.net/alias${normal}"
+    fi
+}
 
 
 
@@ -365,7 +367,7 @@ function _show_scripts_menu() {
     echo -e " ${bold}"
     echo -e "  ${green}(01) ${jiacu}安装 inexistence"
     echo -e "  ${green}(02) ${jiacu}运行 AccTCP（锐速、bbr、bbrplus、魔改 bbr）"
-    echo -e "  ${green}(03) ${jiacu}配置 IPv6 （Online.net / Scaleway 和 Ikoula 独服）"
+    echo -e "  ${green}(03) ${jiacu}配置 IPv6 （Online.net / Scaleway／Ikoula／LeaseWeb 独服）"
     echo -e "  ${green}(04) ${jiacu}运行 ABench"
     echo -e "  ${green}(05) ${jiacu}运行 ZBench"
     echo -e "  ${green}(06) ${jiacu}使用 iperf 测试网速"
