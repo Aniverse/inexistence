@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14134
+# script_version=r14135
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -96,10 +96,11 @@ fi
 ################################################################################################ Basic functions
 ################################################################################################
 
-# ⚠ ✗ ✓
+# ⚠ ➜ ✗ ✓
 function _execute() {
-    echo -e "$1\n" >> "$OutputLOG" 2>&1
-	($1 >> "$OutputLOG" 2>&1)
+    { echo -e "${yellow}${bold}$1${normal}" ; lines ; } >> "$OutputLOG" 2>&1
+	($1   >> "$OutputLOG" 2>&1)
+    lines >> "$OutputLOG"
 }
 function echo_task() {
     printf "%s" "$@" | tee -a "$OutputLOG" # echo -ne "$1" | tee -a "$OutputLOG"
@@ -134,20 +135,16 @@ function echo_log_only() {
     printf "${cyan}DEBUG: %s${normal}\n" "$@" >> $OutputLOG
 }
 
-# These codes are from teddysun bbr.sh
+# These codes are from teddysun
 function version_ge(){ test "$(echo "$@" | tr " " "\n" | sort -rV | head -1)" == "$1" ; }
 function version_gt(){ test "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1"; }
-
-# These codes are from teddysun bench.sh
-function lines()  { printf "%-100s\n" "-" | sed 's/\s/-/g' ; }
+function lines ()  { printf "%-100s\n" "-" | sed 's/\s/-/g' ; }
 function lines2() { echo ; printf "%-100s\n" "-" | sed 's/\s/-/g' ; echo ; }
 
-# These codes are from rtinst
-# (Check if a web site is reachable)
+# These codes are from rtinst, check if a web site is reachable
 function check_url() {
     if [[ `wget -S --spider $1 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then return 0 ; else return 1 ; fi
 }
-
 
 # These codes are from QuickBox
 function spinner() {
