@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.06
-script_version=r11018
+script_update=2020.07.15
+script_version=r11019
 script_name=hezi
 
 ################################################################################################ Debug
@@ -61,9 +61,9 @@ hezi gengxin = 盒子更新 —————— 更新脚本到最新版（尚未
 function possible_usage () {
     hezi anzhuang rclone wine mono --de 1.3.15 --qb 4.2.5 --rt 0.9.8   # 批量安装软件
     hezi anzhuang deluge 1.3.15        # 安装 Deluge 1.3.15，同时会为所有 inexistence 脚本创建的用户创建配置文件和开机自启等
-    hezi xiezai deluge                 # 卸载 Deluge，也会清楚所有配置文件
+    hezi xiezai deluge                 # 卸载 Deluge，也会清除所有配置文件
     hezi adduser someone               # 同时也会配置已安装的软件
-    hezi deluser someone               # 清空 home 目录，删除所有配置
+    hezi deluser someone               # 清空 home 目录，删除所有配置，关闭所有相关进程
     hezi mima someone 12345678         # 把用户 someone 的所有密码（SSH/软件 webui 密码/RPC 密码）修改成 12345678
     hezi rizhi                         # 出现日志菜单，让用户选择查看哪个软件的日志
     hezi                               # 直接输入 hezi，出现菜单，让用户选择做什么（可以考虑用 whiptail）
@@ -77,7 +77,7 @@ function ask_if_install () {
     script_cmd="hezi buchong"
     arg=("$@")
     ExtraArgs=("${arg[@]:1}")
-    OPTS=$(getopt -o dsyu:p:b:h --long "help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,qb:,rt:,tr:,lt:,qb-static,separate" -- "${ExtraArgs[@]}")
+    OPTS=$(getopt -o dsyu:p:b:h --long "qb-source,help,hostname:,domain:,no-reboot,quick,branch:,yes,skip,no-system-upgrade,debug,no-source-change,swap,no-swap,bbr,no-bbr,flood,vnc,x2go,wine,mono,tools,filebrowser,no-filebrowser,flexget,no-flexget,rclone,enable-ipv6,tweaks,no-tweaks,mt-single,mt-double,mt-all,mt-half,tr-deb,eng,chs,sihuo,user:,password:,webpass:,de:,qb:,rt:,tr:,lt:,qb-static,separate" -- "${ExtraArgs[@]}")
     [ ! $? = 0 ] && show_inex_usage
     eval set -- "$OPTS"
     opts_action "${ExtraArgs[@]}"
