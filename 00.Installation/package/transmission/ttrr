@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r10001
+script_update=2020.07.15
+script_version=r10002
 ################################################################################################
 action=$1
 iUser=$2
@@ -20,14 +20,13 @@ app=transmission
 app_systemd=transmission
 app_command=transmission-daemon
 app_config=$iHome/.config/transmission-daemon/settings.json
-app_log=$iHome/.config/transmission-daemon/tr.log
+app_log=$iHome/.config/transmission-daemon/transmission.log
 app_webui_port=$(grep "rpc-port" $app_config | grep -oE "[0-9]+")
 app_version=$($app_command --help 2>&1 | head -n1 | awk '{print $2}')
 [[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
 
 show_usage() {
-
 echo -e "Usage: $app_script [action] [username]
 
 Actions:

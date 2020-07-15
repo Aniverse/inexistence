@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r10007
+script_update=2020.07.15
+script_version=r10008
 
 ################################################################################################ Debug
 
@@ -96,7 +96,7 @@ After=network.target
 User=%I
 Type=simple
 LimitNOFILE=infinity
-ExecStart=/usr/bin/transmission-daemon -f --log-error -e /home/%i/.config/transmission-daemon/tr.log
+ExecStart=/usr/bin/transmission-daemon -f --log-error -e /home/%i/.config/transmission-daemon/transmission.log
 # -g /home/%i/.config/transmission-daemon
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -9 $MAINPID
