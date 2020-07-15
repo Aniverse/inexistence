@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r11039
+# script_version=r11040
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -684,113 +684,4 @@ function version_check_latest_and_repo() {
     
     TR_latest_ver=$(wget -qO- https://github.com/transmission/transmission/releases | grep releases/tag | grep -Eo "[23]\.[0-9.]+" | head -1)
     [[ -z $TR_latest_ver ]] && TR_latest_ver=2.94
-}
-
-function _ask_distro_upgrade_1() {
-
-    [[ $CODENAME == trusty ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-    [[ $CODENAME == trusty ]] && { UPGRADE_DISTRO_1="Ubuntu 16.04" ; UPGRADE_DISTRO_2="Ubuntu 18.04" ; UPGRADE_CODENAME_1=xenial ; UPGRADE_CODENAME_2=bionic  ; }
-    echo
-    echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
-    echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
-    echo -e "${green}03)${normal} Do NOT upgrade system and exit script"
-    echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}01${normal}): " ; read -e responce
-
-    case $responce in
-        01 | 1 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-        02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-        03 | 3     ) distro_up=No                                                                                               ;;
-        *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-    esac
-
-    if [[ $distro_up == Yes ]]; then
-        echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-        _distro_upgrade | tee /etc/00.distro_upgrade.log
-    else
-        echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-    fi
-
-    echo
-}
-
-function _ask_distro_upgrade_2() {
-
-    [[ $CODENAME == wheezy ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which is not supported by this script"
-    [[ $CODENAME == wheezy ]] && { UPGRADE_DISTRO_1="Debian 8"     ; UPGRADE_DISTRO_2="Debian 9"     ; UPGRADE_DISTRO_3="Debian 10"     ; UPGRADE_CODENAME_1=jessie ; UPGRADE_CODENAME_2=stretch ; UPGRADE_CODENAME_3=buster ; }
-    echo
-    echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
-    echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal} (Default)"
-    echo -e "${green}03)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_3${normal}"
-    echo -e "${green}04)${normal} Do NOT upgrade system and exit script"
-    echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
-
-    case $responce in
-        01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-        02 | 2 | "") distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-        03 | 3     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_3  && UPGRADE_DISTRO=$UPGRADE_DISTRO_3 && UPGRDAE3=Yes ;;
-        04 | 4     ) distro_up=No                                                                                               ;;
-        *          ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-    esac
-
-    if [[ $distro_up == Yes ]]; then
-        echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-        _distro_upgrade | tee /etc/00.distro_upgrade.log
-    else
-        echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-    fi
-
-    echo
-}
-
-function _ask_distro_upgrade_3() {
-
-    [[ $CODENAME == stretch || $CODENAME == xenial ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
-    [[ $CODENAME == stretch ]] && { UPGRADE_DISTRO_1="Debian 10"     ; UPGRADE_CODENAME_1=buster ; }
-    [[ $CODENAME == xenial  ]] && { UPGRADE_DISTRO_1="Ubuntu 18.04" ; UPGRADE_CODENAME_1=bionic  ; }
-    echo
-    echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal}"
-    echo -e "${green}02)${normal} Do NOT upgrade system"
-    echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}02${normal}): " ; read -e responce
-
-    case $responce in
-        01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-        02 | 2 | "") distro_up=No                                                                                               ;;
-        *          ) distro_up=No                                                                                               ;;
-    esac
-
-    if [[ $distro_up == Yes ]]; then
-        echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-        _distro_upgrade | tee /etc/00.distro_upgrade.log
-    else
-        echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-    fi
-
-    echo
-}
-
-function _ask_distro_upgrade_4() {
-
-    [[ $CODENAME == jessie ]] && echo -e "\nYou are now running ${cyan}${bold}$DISTRO $osversion${normal}, which can be upgraded"
-    [[ $CODENAME == jessie ]] && { UPGRADE_DISTRO_1="Debian 9" ; UPGRADE_DISTRO_2="Debian 10" ; UPGRADE_CODENAME_1=stretch ; UPGRADE_CODENAME_2=buster  ; }
-    echo
-    echo -e "${green}01)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_1${normal} (Default)"
-    echo -e "${green}02)${normal} Upgrade to ${cyan}$UPGRADE_DISTRO_2${normal}"
-    echo -e "${green}03)${normal} Do NOT upgrade system "
-    echo -ne "${bold}${yellow}Would you like to upgrade your system?${normal} (Default ${cyan}03${normal}): " ; read -e responce
-
-    case $responce in
-        01 | 1     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_1  && UPGRADE_DISTRO=$UPGRADE_DISTRO_1                 ;;
-        02 | 2     ) distro_up=Yes && UPGRADE_CODENAME=$UPGRADE_CODENAME_2  && UPGRADE_DISTRO=$UPGRADE_DISTRO_2 && UPGRDAE2=Yes ;;
-        03 | 3 | "") distro_up=No                                                                                               ;;
-        *          ) distro_up=No                                                                                               ;;
-    esac
-
-    if [[ $distro_up == Yes ]]; then
-        echo -e "\n${bold}${baiqingse}Your system will be upgraded to ${baizise}${UPGRADE_DISTRO}${baiqingse} after reboot${normal}"
-        _distro_upgrade | tee /etc/00.distro_upgrade.log
-    else
-        echo -e "\n${baizise}Your system will ${baihongse}not${baizise} be upgraded${normal}"
-    fi
-
-    echo
 }

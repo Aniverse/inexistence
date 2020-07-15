@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.1
+script_version=1.2.7.2
 script_update=2020.07.15
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -66,7 +66,7 @@ trap 'exit 1' TERM
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-    if [[ $SysSupport =~ (1|4) ]]; then
+    if [[ $SysSupport == 1 ]]; then
         echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
     else
         echo -e "\n${bold}${red}Too young too simple! Only Debian 9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
@@ -96,22 +96,8 @@ function _intro() {
 
     # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
     SysSupport=0
-    [[ $CODENAME =~  (bionic|buster)  ]] && SysSupport=1
-    [[ $CODENAME =~  (xenial|stretch) ]] && SysSupport=4
-    [[ $CODENAME ==  trusty  ]] && SysSupport=2
-    [[ $CODENAME ==  wheezy  ]] && SysSupport=3
-    [[ $CODENAME ==  jessie ]] && SysSupport=5
+    [[ $CODENAME =~  (xenial|bionic|buster|stretch)  ]] && SysSupport=1
     [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
-
-    # 允许跳过系统升级选项的问题
-    [[ $skip_system_upgrade != 1 ]] && {
-        # 如果系统是 Debian 7 或 Ubuntu 14.04，询问是否升级
-        [[ $SysSupport == 2 ]] && _ask_distro_upgrade_1
-        [[ $SysSupport == 3 ]] && _ask_distro_upgrade_2
-        # 如果系统是 Debian 8/9 或 Ubuntu 16.04，提供升级选项
-        [[ $SysSupport == 4 ]] && _ask_distro_upgrade_3
-        [[ $SysSupport == 5 ]] && _ask_distro_upgrade_4
-    }
 
     # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
     [[ $CODENAME =~ (stretch|bionic|buster) ]] && rtorrent_dev=1
@@ -404,71 +390,12 @@ EOF
 }
 
 
-function _distro_upgrade_upgrade() {
-    echo -e "\n\n\n${baihongse}executing upgrade${normal}\n\n\n"
-    apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy upgrade
-
-    echo -e "\n\n\n${baihongse}executing dist-upgrade${normal}\n\n\n"
-    apt-get --force-yes -o Dpkg::Options::="--force-confnew" --force-yes -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade
-}
-
-
-function _distro_upgrade() {
-    DEBIAN_FRONTEND=noninteractive
-    APT_LISTCHANGES_FRONTEND=none
-    starttime=$(date +%s)
-
-    # apt-get -f install
-    echo -e "\n${baihongse}executing apt-listchanges remove${normal}\n"
-    apt-get remove apt-listchanges --assume-yes --force-yes
-    echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
-    echo -e "${baihongse}executing apt sources change${normal}\n"
-    sed -i "s/$CODENAME/$UPGRADE_CODENAME/g" /etc/apt/sources.list
-    echo -e "${baihongse}executing autoremove${normal}\n"
-    apt-get -fuy --force-yes autoremove
-    echo -e "${baihongse}executing clean${normal}\n"
-    apt-get --force-yes clean
-
-    echo -e "${baihongse}executing update${normal}\n"
-    cp /etc/apt/sources.list /etc/apt/sources.list."$(date "+%Y.%m.%d.%H.%M.%S")".bak
-    wget --no-check-certificate -O /etc/apt/sources.list https://github.com/Aniverse/inexistence/raw/$default_branch/00.Installation/template/$DISTROL.apt.sources
-    [[ $DISTROL == debian ]] && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5C808C2B65558117
-
-    if [[ $UPGRDAE3 == Yes ]]; then
-        sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
-        apt-get -y update
-        _distro_upgrade_upgrade
-        sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
-        apt-get -y update
-        _distro_upgrade_upgrade
-        sed -i "s/${UPGRADE_CODENAME_2}/${UPGRADE_CODENAME_3}/g" /etc/apt/sources.list
-        apt-get -y update
-    elif [[ $UPGRDAE2 == Yes ]]; then
-        sed -i "s/RELEASE/${UPGRADE_CODENAME_1}/g" /etc/apt/sources.list
-        apt-get -y update
-        _distro_upgrade_upgrade
-        sed -i "s/${UPGRADE_CODENAME_1}/${UPGRADE_CODENAME_2}/g" /etc/apt/sources.list
-        apt-get -y update
-    else
-        sed -i "s/RELEASE/${UPGRADE_CODENAME}/g" /etc/apt/sources.list
-        apt-get -y update
-    fi
-
-    _distro_upgrade_upgrade
-
-    echo -e "\n\n\n" ; _time upgradation
-
-    [[ $DeBUG != 1 ]] && echo -e "\n\n ${shanshuo}${baihongse}Reboot system now. You need to rerun this script after reboot${normal}\n\n\n\n\n"
-    sleep 5  ;  eboot -f  ;  init 6  ;  sleep 5  ;  kill -s TERM $TOP_PID ; exit
-}
-
-
 
 
 
 function install_deluge() {
 
-    if [[ $separate == 10086 ]] ; then
+    if [[ $separate == 1 ]] ; then
         bash $local_packages/package/deluge/install -v $de_version
     else
         apt-get install -y python python-pip python-setuptools
@@ -535,8 +462,6 @@ function install_deluge() {
         fi
         [[ $Deluge_ssl_fix_patch == Yes ]] && mv -f /usr/bin/deluged2 /usr/bin/deluged # 让老版本 Deluged 保留，其他用新版本
     fi
-
-    cd
 }
 
 
