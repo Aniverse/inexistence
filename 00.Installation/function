@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14129
+# script_version=r14130
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -830,7 +830,7 @@ function deb-get() {
             dpkg    -i  ${DEB}   >> "$OutputLOG" 2>&1
             apt-get -fy install  >> "$OutputLOG" 2>&1
         else
-            apt-get -y --allow-unauthenticated -f install ${DEB}  >> "$OutputLOG" 2>&1
+            apt-get -y --allow-unauthenticated -f install ./${DEB}  >> "$OutputLOG" 2>&1
         fi
         rm -f ${DEB}
     fi
