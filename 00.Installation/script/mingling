@@ -2,13 +2,13 @@
 # Author: Aniverse
 # https://github.com/Aniverse/inexistence
 
-SCRIPTVER=0.9.4.8
+SCRIPTVER=0.9.5.0
 SCRIPTUPDATE=2020.07.15
 
 [[ $1 == -d ]] && DeBUG=1
 
 usage_guide() {
-s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
+    s=/usr/local/bin/mingling;rm -f $s;nano $s;chmod 755 $s
 }
 
 # ---------------------------------------------------------------------
@@ -57,54 +57,52 @@ function _logo() {
 
 # 00. 导航菜单
 function _main_menu() {
+    echo -e "\n${yellow}${bold}你想做些什么？ (默认选择退出)\n"
 
-  echo -e "\n${yellow}${bold}你想做些什么？ (默认选择退出)\n"
+    if [[ $inexistence == 1 ]]; then
+        echo -e "${green}(01) ${jiacu}查看 SSH 命令"
+        echo -e "${green}(02) ${jiacu}查看客户端网址"
+    fi
+    echo -e "${green}(03) ${jiacu}查看系统信息"
+    echo -e "${green}(04) ${jiacu}查看客户端版本"
+  # echo -e "${green}(05) ${jiacu}查看客户端是否都在运行"
+    echo -e "${green}(06) ${jiacu}进入客户端操作菜单"
+    echo -e "${green}(07) ${jiacu}运行其他脚本"
+  # echo -e "${green}(08) ${jiacu}查看本脚本的说明"
+  # echo -e "${green}(09) ${jiacu}更新脚本"
+    echo -e "${green}(10) ${jiacu}退出脚本"
+    echo -e "${normal}"
+    read -e response
 
-  if [[ $inexistence == 1 ]]; then
-      echo -e "${green}(01) ${jiacu}查看 SSH 命令"
-      echo -e "${green}(02) ${jiacu}查看客户端网址"
-  fi
-
-  echo -e "${green}(03) ${jiacu}查看系统信息"
-  echo -e "${green}(04) ${jiacu}查看客户端版本"
-# echo -e "${green}(05) ${jiacu}查看客户端是否都在运行"
-  echo -e "${green}(06) ${jiacu}进入客户端操作菜单"
-  echo -e "${green}(07) ${jiacu}运行其他脚本"
-# echo -e "${green}(08) ${jiacu}查看本脚本的说明"
-# echo -e "${green}(09) ${jiacu}更新脚本"
-  echo -e "${green}(10) ${jiacu}退出脚本"
-  echo -e "${normal}"
-
-read -e response
-
-case $response in
-    1 | 01) # 查看 SSH 命令
-            _usage
-            _main_menu ;;
-    2 | 02) # 查看客户端网址
-            _showurl
-            _main_menu ;;
-    3 | 03) # 查看系统信息
-            _stats
-            _main_menu ;;
-    4 | 04) # 查看客户端版本
-            _client_version_check
-            _show_client_version
-            _main_menu ;;
-    6 | 06) # 进入客户端操作菜单
-            _show_client_menu
-            _client_menu_response ;;
-    7 | 07) #脚本菜单
-            _show_scripts_menu
-            _scripts_menu_response ;;
-    8 | 08) #脚本说明文档
-            _doc
-            _main_menu ;;
-    9 | 09) #更新脚本
-            _update_mingling ;;
-    10 | "") clear; exit 0 ;;
-    *) clear; exit 0 ;;
-esac ; }
+    case $response in
+        1 | 01) # 查看 SSH 命令
+                _usage
+                _main_menu ;;
+        2 | 02) # 查看客户端网址
+                _showurl
+                _main_menu ;;
+        3 | 03) # 查看系统信息
+                _stats
+                _main_menu ;;
+        4 | 04) # 查看客户端版本
+                _client_version_check
+                _show_client_version
+                _main_menu ;;
+        6 | 06) # 进入客户端操作菜单
+                _show_client_menu
+                _client_menu_response ;;
+        7 | 07) #脚本菜单
+                _show_scripts_menu
+                _scripts_menu_response ;;
+        8 | 08) #脚本说明文档
+                _doc
+                _main_menu ;;
+        9 | 09) #更新脚本
+                _update_mingling ;;
+        10 | "") clear; exit 0 ;;
+        *) clear; exit 0 ;;
+    esac
+}
 
 
 
@@ -114,48 +112,48 @@ esac ; }
 function _usage() {
     clear ; echo
     if [[ $inexistence == 1 ]] && [[ $tweaks_enabled == 1 ]]; then
-echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
-echo -e " ${bold}"
-echo -e " ${green}qba${jiacu} = 运行 qbittorrent-nox  ${green}dea${jiacu} = 运行 Deluged  ${green}dwa${jiacu} = 运行 Deluge WebUI   ${green}rta${jiacu} = 运行 rTorrent"
-echo -e " ${green}qbb${jiacu} = 关闭 qbittorrent-nox  ${green}deb${jiacu} = 关闭 Deluged  ${green}dwb${jiacu} = 关闭 Deluge WebUI   ${green}rtb${jiacu} = 关闭 rTorrent"
-echo -e " ${green}qbc${jiacu} = 检查 qbittorrent-nox  ${green}dec${jiacu} = 检查 Deluged  ${green}dwc${jiacu} = 检查 Deluge WebUI   ${green}rtc${jiacu} = 检查 rTorrent"
-echo -e " ${green}qbr${jiacu} = 重启 qbittorrent-nox  ${green}der${jiacu} = 重启 Deluged  ${green}dwr${jiacu} = 重启 Deluge WebUI   ${green}rtr${jiacu} = 重启 rTorrent"
-echo
-echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 FlexGet Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
-echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 FlexGet Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
-echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 FlexGet Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
-echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 FlexGet Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
-echo
-echo -e " ${green}cdqb${jiacu} = 切换目录到  qBittorrent 的下载目录  ${green}sssa / lssa${jiacu} = 开启锐速  ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
-echo -e " ${green}cdde${jiacu} = 切换目录到    Deluge    的下载目录  ${green}sssb / lssb${jiacu} = 关闭锐速  ${green}  fgs  ${jiacu} = 编辑 Flexget 设置"
-echo -e " ${green}cdrt${jiacu} = 切换目录到   rTorrent   的下载目录  ${green}sssc / lssc${jiacu} = 检查锐速  ${green} jieya ${jiacu}  = 解压文件"
-echo -e " ${green}cdtr${jiacu} = 切换目录到 Transmission 的下载目录  ${green}sssr / lssr${jiacu} = 重启锐速  ${green} scrgd ${jiacu} = 新建/进入 screen"
-echo
-echo -e " ${green}swapon${jiacu}  = 开启 Swap (2GB)                    ${green}yongle${jiacu} = 查看某个目录用了多少硬盘空间"
-echo -e " ${green}swapoff${jiacu} = 关闭 swap                          ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能"
-echo -e " ${green}s-end${jiacu}   = 显示脚本安装完后输出的信息         ${green}ios${jiacu}   = 查看硬盘 IO 状况，按 Ctrl+C 退出"
-echo -e " ${green}vnss ${jiacu}   = 显示盒子最近一个月的流量统计       ${green}vns${jiacu}   = 查看当前网速情况，按 Ctrl+C 退出"
-echo -e " ${green}sshr ${jiacu}   = 开启 SSH root 登陆                 ${green}vms${jiacu}   = 查看当前内存、CPU、IO 状况"
-echo
-echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
-echo
-echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
-echo -e "           ${yellow}guazai ${underline}\"/root/Pitch.Perfect.3.2017.BluRay.1080p.AVC.DTS-HD.MA7.1-CHDBits.iso\"${reset_underline}"
-echo
-echo -e " ${blue}bluray${jiacu}    转发原盘时可用的脚本，能完成挂载 BDISO、扫描 BDinfo、截图、制作种子等一系列操作"
-echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
-echo
-echo -e " ${blue}bdinfo${jiacu}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
-echo -e "           ${yellow}bdinfo ${underline}\"/mnt/Looper.2012.1080p.POL.Blu-ray.AVC.DTS-HD.MA.5.1-DVDSEED\"${reset_underline}"
-echo
-echo -e " ${blue}zuozhong${jiacu}  单独用于制作种子的脚本，需要填写文件路径"
-echo -e "           ${yellow}zuozhong ${underline}\"/media/md9/kuro/private/deluge/Cessez.Le.Feu.2016.FRENCH.COMPLETE.BLURAY\"${reset_underline}"
-echo
-echo -e " ${blue}jietu${jiacu}     用于截图和生成 mediainfo 的脚本，需要输入文件路径，可以自定义分辨率"
-echo -e "           ${yellow}jietu  ${underline}\"/home/shiro/Frantz 2016 720p BluRay DD 5.1 x264-GrupoHDS.mkv\"${reset_underline}  ${underline}1280x720${reset_underline}"
-echo -e " ${blue}     ${jiacu}     也可以只输入文件夹，脚本会选择其中最大的文件进行截图，并自动计算及使用 DAR 后的分辨率"
-echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
-echo -e " ${normal}"
+        echo -e " ${bailvse}${bold}                                         01. 一些常用命令                                          ${normal}"
+        echo -e " ${bold}"
+        echo -e " ${green}qba${jiacu} = 运行 qbittorrent-nox  ${green}dea${jiacu} = 运行 Deluged  ${green}dwa${jiacu} = 运行 Deluge WebUI   ${green}rta${jiacu} = 运行 rTorrent"
+        echo -e " ${green}qbb${jiacu} = 关闭 qbittorrent-nox  ${green}deb${jiacu} = 关闭 Deluged  ${green}dwb${jiacu} = 关闭 Deluge WebUI   ${green}rtb${jiacu} = 关闭 rTorrent"
+        echo -e " ${green}qbc${jiacu} = 检查 qbittorrent-nox  ${green}dec${jiacu} = 检查 Deluged  ${green}dwc${jiacu} = 检查 Deluge WebUI   ${green}rtc${jiacu} = 检查 rTorrent"
+        echo -e " ${green}qbr${jiacu} = 重启 qbittorrent-nox  ${green}der${jiacu} = 重启 Deluged  ${green}dwr${jiacu} = 重启 Deluge WebUI   ${green}rtr${jiacu} = 重启 rTorrent"
+        echo
+        echo -e " ${green}tra${jiacu} = 运行 Transmission Daemon      ${green}fga${jiacu} = 运行 FlexGet Daemon      ${green}irssia${jiacu} = 运行 AutoDL-Irssi"
+        echo -e " ${green}trb${jiacu} = 关闭 Transmission Daemon      ${green}fgb${jiacu} = 关闭 FlexGet Daemon      ${green}irssib${jiacu} = 关闭 AutoDL-Irssi"
+        echo -e " ${green}trc${jiacu} = 检查 Transmission Daemon      ${green}fgc${jiacu} = 检查 FlexGet Daemon      ${green}irssic${jiacu} = 检查 AutoDL-Irssi"
+        echo -e " ${green}trr${jiacu} = 重启 Transmission Daemon      ${green}fgr${jiacu} = 重启 FlexGet Daemon      ${green}irssir${jiacu} = 重启 AutoDL-Irssi"
+        echo
+        echo -e " ${green}cdqb${jiacu} = 切换目录到  qBittorrent 的下载目录  ${green}sssa / lssa${jiacu} = 开启锐速  ${green}  fgl  ${jiacu} = 查看 Flexget 日志"
+        echo -e " ${green}cdde${jiacu} = 切换目录到    Deluge    的下载目录  ${green}sssb / lssb${jiacu} = 关闭锐速  ${green}  fgs  ${jiacu} = 编辑 Flexget 设置"
+        echo -e " ${green}cdrt${jiacu} = 切换目录到   rTorrent   的下载目录  ${green}sssc / lssc${jiacu} = 检查锐速  ${green} jieya ${jiacu}  = 解压文件"
+        echo -e " ${green}cdtr${jiacu} = 切换目录到 Transmission 的下载目录  ${green}sssr / lssr${jiacu} = 重启锐速  ${green} scrgd ${jiacu} = 新建/进入 screen"
+        echo
+        echo -e " ${green}swapon${jiacu}  = 开启 Swap (2GB)                    ${green}yongle${jiacu} = 查看某个目录用了多少硬盘空间"
+        echo -e " ${green}swapoff${jiacu} = 关闭 swap                          ${green}iotest${jiacu} = 用 dd 命令测试硬盘 IO 性能"
+        echo -e " ${green}s-end${jiacu}   = 显示脚本安装完后输出的信息         ${green}ios${jiacu}   = 查看硬盘 IO 状况，按 Ctrl+C 退出"
+        echo -e " ${green}vnss ${jiacu}   = 显示盒子最近一个月的流量统计       ${green}vns${jiacu}   = 查看当前网速情况，按 Ctrl+C 退出"
+        echo -e " ${green}sshr ${jiacu}   = 开启 SSH root 登陆                 ${green}vms${jiacu}   = 查看当前内存、CPU、IO 状况"
+        echo
+        echo -e " ${blue}jiegua${jiacu}    解除挂载当前所有已挂载的 ISO 文件"
+        echo
+        echo -e " ${blue}guazai${jiacu}    用于挂载 ISO 文件的脚本，可以输入 ISO 文件的路径，也可以输入文件夹自动挂载里面的 ISO"
+        echo -e "           ${yellow}guazai ${underline}\"/root/Pitch.Perfect.3.2017.BluRay.1080p.AVC.DTS-HD.MA7.1-CHDBits.iso\"${reset_underline}"
+        echo
+        echo -e " ${blue}bluray${jiacu}    转发原盘时可用的脚本，能完成挂载 BDISO、扫描 BDinfo、截图、制作种子等一系列操作"
+        echo -e "           ${cyan}${underline}https://github.com/Aniverse/bluray#guide${reset_underline}"
+        echo
+        echo -e " ${blue}bdinfo${jiacu}    单独用于给 BDMV 扫 BDinfo 的脚本，可以直接在 SSH 上输出 BDinfo Quick Summary"
+        echo -e "           ${yellow}bdinfo ${underline}\"/mnt/Looper.2012.1080p.POL.Blu-ray.AVC.DTS-HD.MA.5.1-DVDSEED\"${reset_underline}"
+        echo
+        echo -e " ${blue}zuozhong${jiacu}  单独用于制作种子的脚本，需要填写文件路径"
+        echo -e "           ${yellow}zuozhong ${underline}\"/media/md9/kuro/private/deluge/Cessez.Le.Feu.2016.FRENCH.COMPLETE.BLURAY\"${reset_underline}"
+        echo
+        echo -e " ${blue}jietu${jiacu}     用于截图和生成 mediainfo 的脚本，需要输入文件路径，可以自定义分辨率"
+        echo -e "           ${yellow}jietu  ${underline}\"/home/shiro/Frantz 2016 720p BluRay DD 5.1 x264-GrupoHDS.mkv\"${reset_underline}  ${underline}1280x720${reset_underline}"
+        echo -e " ${blue}     ${jiacu}     也可以只输入文件夹，脚本会选择其中最大的文件进行截图，并自动计算及使用 DAR 后的分辨率"
+        echo -e "           ${yellow}jietu  ${underline}\"/home/aniverse/deluge/downloads/Star.Trek.Enterprise.S04.720p.BluRay.x264-Green\"${reset_underline}"
+        echo -e " ${normal}"
     else
         echo -e "${bold}似乎你没有启用 inexistence 脚本中的系统设置，本功能无法使用"
         echo -e "不过我还是安利下 alias，用起来比较方便。可以参考下文："
@@ -227,20 +225,21 @@ function _stats() {
 # 04. 查看安装的客户端的版本
 
 # 2020.04.19 下次参照 script_end 的方式重写这部分
-function _client_version_check() { clear
-if [[ ! $qbtnox_ver ]]; then
-    echo -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
-    if [[ ! $qb_installed == No        ]]; then qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"` ; else qbtnox_ver=好像没安装 ; fi
-    if [[ ! $de_installed == No        ]]; then delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'` ; deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` ; else delugelt_ver=好像没安装 ; deluged_ver=好像没安装 ; fi
-    if [[ ! $tr_installed == No        ]]; then trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; else trd_ver=好像没安装 ; fi
-    if [[ ! $rt_installed == No        ]]; then rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'` ; else rtorrent_ver=好像没安装 ; fi
-    if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
-    if [[ ! $rclone_installed == No    ]]; then rclone_ver=`rclone --version | head -n1 | awk '{print $2}' | sed "s/v//"` >/dev/null 2>&1 ; else rclone_ver=好像没安装 ; fi
-    if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
-    if [[ ! $ffmpeg_installed == No    ]]; then ffmpeg_ver=`ffmpeg 2>&1 | head -n1 | awk '{print $3}'` ; else ffmpeg_ver=好像没安装 ; fi
-    if [[ ! $mediainfo_installed == No ]]; then mp_ver=`mediainfo --version | grep Lib | cut -c17-` ; else mp_ver=好像没安装 ; fi
-    echo -e "${guangbiao}"
-fi
+function _client_version_check() {
+    clear
+    if [[ ! $qbtnox_ver ]]; then
+        echo -e "${wuguangbiao}${cyan}${bold}正在检查相关客户端的版本 ...${normal}"
+        if [[ ! $qb_installed == No        ]]; then qbtnox_ver=`qbittorrent-nox --version | awk '{print $2}' | sed "s/v//"` ; else qbtnox_ver=好像没安装 ; fi
+        if [[ ! $de_installed == No        ]]; then delugelt_ver=`deluged --version | grep libtorrent | awk '{print $2}'` ; deluged_ver=`deluged --version | grep deluged | awk '{print $2}'` ; else delugelt_ver=好像没安装 ; deluged_ver=好像没安装 ; fi
+        if [[ ! $tr_installed == No        ]]; then trd_ver=`transmission-daemon --help | head -n1 | awk '{print $2}'` ; else trd_ver=好像没安装 ; fi
+        if [[ ! $rt_installed == No        ]]; then rtorrent_ver=`rtorrent -h | head -n1 | sed -ne 's/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\)[^0-9]*/\1/p'` ; else rtorrent_ver=好像没安装 ; fi
+        if [[ ! $flex_installed == No      ]]; then flexget_ver=`flexget -V | head -n1` ; else flexget_ver=好像没安装 ; fi
+        if [[ ! $rclone_installed == No    ]]; then rclone_ver=`rclone --version | head -n1 | awk '{print $2}' | sed "s/v//"` >/dev/null 2>&1 ; else rclone_ver=好像没安装 ; fi
+        if [[ ! $irssi_installed == No     ]]; then irssi_ver=`irssi --version | awk '{print $2}'` ; else irssi_ver=好像没安装 ; fi
+        if [[ ! $ffmpeg_installed == No    ]]; then ffmpeg_ver=`ffmpeg 2>&1 | head -n1 | awk '{print $3}'` ; else ffmpeg_ver=好像没安装 ; fi
+        if [[ ! $mediainfo_installed == No ]]; then mp_ver=`mediainfo --version | grep Lib | cut -c17-` ; else mp_ver=好像没安装 ; fi
+        echo -e "${guangbiao}"
+    fi
 }
 
 # 显示版本
@@ -287,74 +286,81 @@ function if_running_check() {
 
 
 # 06-1-1. 客户端操作菜单
-function _show_client_menu() { _show_client_menu_0
-echo -e "" ; _systemd_check
-echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}" ; }
+function _show_client_menu() {
+    _show_client_menu_0
+    echo -e "" ; _systemd_check
+    echo -ne "${bold}${yellow}你想做什么？(默认返回主菜单) ${normal}"
+}
 
 # 06-1-2. 客户端操作菜单——零
-function _show_client_menu_0() { clear ; echo
-echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} \n${bold}"
-if_running_check
-echo -e "  ${green}(01) ${jiacu}运行 qBittorrent          ${green}(13) ${jiacu}运行 rTorrent             ${green} ${jiacu}"
-echo -e "  ${green}(02) ${jiacu}关闭 qBittorrent          ${green}(14) ${jiacu}关闭 rTorrent             ${green} ${jiacu}"
-echo -e "  ${green}(03) ${jiacu}重启 qBittorrent          ${green}(15) ${jiacu}重启 rTorrent             ${green} ${jiacu}"
-echo -e "  ${green}(04) ${jiacu}运行 Transmission         ${green}(16) ${jiacu}运行 Deluge               ${green} ${jiacu}"
-echo -e "  ${green}(05) ${jiacu}关闭 Transmission         ${green}(17) ${jiacu}关闭 Deluge               ${green} ${jiacu}"
-echo -e "  ${green}(06) ${jiacu}重启 Transmission         ${green}(18) ${jiacu}重启 Deluge               ${green} ${jiacu}"
-echo -e "  ${green}(07) ${jiacu}运行 Flexget daemon       ${green}(19) ${jiacu}screen rTorrent           ${green} ${jiacu}"
-echo -e "  ${green}(08) ${jiacu}关闭 Flexget daemon       ${green}(20) ${jiacu}screen AutoDL-Irssi       ${green} ${jiacu}"
-echo -e "  ${green}(09) ${jiacu}重启 Flexget daemon       ${green}(21) ${jiacu}查看 Flexget 日志         ${green} ${jiacu}"
-echo -e "  ${green}(10) ${jiacu}运行 AutoDL-Irssi         ${green}(22) ${jiacu}编辑 Flexget 配置         ${green} ${jiacu}"
-echo -e "  ${green}(11) ${jiacu}关闭 AutoDL-Irssi         ${green}(23) ${jiacu}重启 seedbox              ${green} ${jiacu}"
-echo -e "  ${green}(12) ${jiacu}重启 AutoDL-Irssi         ${green}(24) ${jiacu}返回 main menu            ${green} ${jiacu}"
-echo ; }
+function _show_client_menu_0() {
+    clear ; echo
+    echo -e " ${red}${on_white}${bold}                                        06. 客户端操作菜单                                         ${normal} ${bold}"
+    if_running_check
+    echo -e "
+  ${green}(01) ${jiacu}运行 qBittorrent          ${green}(13) ${jiacu}运行 rTorrent             ${green} ${jiacu}
+  ${green}(02) ${jiacu}关闭 qBittorrent          ${green}(14) ${jiacu}关闭 rTorrent             ${green} ${jiacu}
+  ${green}(03) ${jiacu}重启 qBittorrent          ${green}(15) ${jiacu}重启 rTorrent             ${green} ${jiacu}
+  ${green}(04) ${jiacu}运行 Transmission         ${green}(16) ${jiacu}运行 Deluge               ${green} ${jiacu}
+  ${green}(05) ${jiacu}关闭 Transmission         ${green}(17) ${jiacu}关闭 Deluge               ${green} ${jiacu}
+  ${green}(06) ${jiacu}重启 Transmission         ${green}(18) ${jiacu}重启 Deluge               ${green} ${jiacu}
+  ${green}(07) ${jiacu}运行 Flexget daemon       ${green}(19) ${jiacu}screen rTorrent           ${green} ${jiacu}
+  ${green}(08) ${jiacu}关闭 Flexget daemon       ${green}(20) ${jiacu}screen AutoDL-Irssi       ${green} ${jiacu}
+  ${green}(09) ${jiacu}重启 Flexget daemon       ${green}(21) ${jiacu}查看 Flexget 日志         ${green} ${jiacu}
+  ${green}(10) ${jiacu}运行 AutoDL-Irssi         ${green}(22) ${jiacu}编辑 Flexget 配置         ${green} ${jiacu}
+  ${green}(11) ${jiacu}关闭 AutoDL-Irssi         ${green}(23) ${jiacu}重启 seedbox              ${green} ${jiacu}
+  ${green}(12) ${jiacu}重启 AutoDL-Irssi         ${green}(24) ${jiacu}返回 main menu            ${green} ${jiacu}
+"
+}
 
 # 06-2. 客户端选项回应
 function _client_menu_response() {
-wenzi1="现在大概已在运行了 ......" ; wenzi2="现在大概已经关掉了 ......" ; wenzi3="应该大概重启了一次 ......"
-read response
-case $response in
-    01 | 1) echo -e "" ; systemctl start   qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    02 | 2) echo -e "" ; systemctl stop    qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    03 | 3) echo -e "" ; systemctl restart qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
-    04 | 4) echo -e "" ; systemctl start   transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    05 | 5) echo -e "" ; systemctl stop    transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    06 | 6) echo -e "" ; systemctl restart transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-    07 | 7) echo -e "" ; systemctl start   flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    08 | 8) echo -e "" ; systemctl stop    flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-    09 | 9) echo -e "" ; systemctl restart flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        10) echo -e "" ; su $iUser -c 'rt -i start'             > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        11) echo -e "" ; su $iUser -c 'rt -i -k stop'           > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        12) echo -e "" ; su $iUser -c 'rt -i -k restart'        > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
-        13) echo -e "" ; su $iUser -c 'rt start'                > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        14) echo -e "" ; su $iUser -c 'rt -k stop'              > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        15) echo -e "" ; su $iUser -c 'rt -k restart'           > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
-        16) echo -e "" ; systemctl start   deluged@$iUser > /dev/null 2>&1 ; systemctl start   deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        17) echo -e "" ; systemctl stop    deluged@$iUser > /dev/null 2>&1 ; systemctl stop    deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        18) echo -e "" ; systemctl restart deluged@$iUser > /dev/null 2>&1 ; systemctl restart deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
-        19) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r rtorrent' ;;
-        20) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'    ;;
-        21) echo -e "" ; echo ; tail -n100 /home/@$iUser/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
-        22) echo -e "" ; nano /root/.config/flexget/config.yml ; _xunwen1 ; _client_menu_response ;;
-        23) echo -ne "\n${bold}${cyan}你确定要重启盒子？${normal} [${cyan}Y${jiacu}/n]:${normal} "; read rbt
-            case $rbt in [yY] | [yY][Ee][Ss] | "" ) rbt=Yes ;; [nN] | [nN][Oo]) rbt=No ;; *) rbt=Yes ;; esac
-            if [[ $rbt == Yes ]]; then echo -e "\n${bold}正在重启 ...${normal}\n" ; reboot
-            else echo -e "\n${bold}已取消重启 ...${normal}\n" ; _xunwen1 ; _client_menu_response ; fi ;;
-    24| "") echo -e "" ; _main_menu ;;
-         *) echo -e "" ; _main_menu ;;
-esac ; }
+    wenzi1="现在大概已在运行了 ......" ; wenzi2="现在大概已经关掉了 ......" ; wenzi3="应该大概重启了一次 ......"
+    read response
+    case $response in
+        01 | 1) echo -e "" ; systemctl start   qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi1}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+        02 | 2) echo -e "" ; systemctl stop    qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi2}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+        03 | 3) echo -e "" ; systemctl restart qbittorrent@$iUser   > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}qBittorrent ${wenzi3}${normal}\n"    ; _xunwen1 ; _client_menu_response ;;
+        04 | 4) echo -e "" ; systemctl start   transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        05 | 5) echo -e "" ; systemctl stop    transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        06 | 6) echo -e "" ; systemctl restart transmission@$iUser  > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Transmission ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+        07 | 7) echo -e "" ; systemctl start   flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+        08 | 8) echo -e "" ; systemctl stop    flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+        09 | 9) echo -e "" ; systemctl restart flexget@$iUser       > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}FlexGet daemon ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+            10) echo -e "" ; su $iUser -c 'rt -i start'             > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi1}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+            11) echo -e "" ; su $iUser -c 'rt -i -k stop'           > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi2}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+            12) echo -e "" ; su $iUser -c 'rt -i -k restart'        > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}AutoDL-Irssi ${wenzi3}${normal}\n"   ; _xunwen1 ; _client_menu_response ;;
+            13) echo -e "" ; su $iUser -c 'rt start'                > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi1}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+            14) echo -e "" ; su $iUser -c 'rt -k stop'              > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi2}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+            15) echo -e "" ; su $iUser -c 'rt -k restart'           > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}rTorrent ${wenzi3}${normal}\n"       ; _xunwen1 ; _client_menu_response ;;
+            16) echo -e "" ; systemctl start   deluged@$iUser > /dev/null 2>&1 ; systemctl start   deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi1}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+            17) echo -e "" ; systemctl stop    deluged@$iUser > /dev/null 2>&1 ; systemctl stop    deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi2}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+            18) echo -e "" ; systemctl restart deluged@$iUser > /dev/null 2>&1 ; systemctl restart deluge-web@$iUser > /dev/null 2>&1 ; _show_client_menu_0 ; echo -e "${cyan}${bold}Deluge ${wenzi3}${normal}\n" ; _xunwen1 ; _client_menu_response ;;
+            19) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r rtorrent' ;;
+            20) echo -e "" ; chmod -R 777 /dev/pts && su $iUser -c 'screen -r irssi'    ;;
+            21) echo -e "" ; echo ; tail -n100 /home/$iUser/.config/flexget/flexget.log ; echo ; _xunwen1 ; _client_menu_response ;;
+            22) echo -e "" ; nano /home/$iUser/.config/flexget/config.yml ; _xunwen1 ; _client_menu_response ;;
+            23) echo -ne "\n${bold}${cyan}你确定要重启盒子？${normal} [${cyan}Y${jiacu}/n]:${normal} "; read rbt
+                case $rbt in [yY] | [yY][Ee][Ss] | "" ) rbt=Yes ;; [nN] | [nN][Oo]) rbt=No ;; *) rbt=Yes ;; esac
+                if [[ $rbt == Yes ]]; then echo -e "\n${bold}正在重启 ...${normal}\n" ; reboot
+                else echo -e "\n${bold}已取消重启 ...${normal}\n" ; _xunwen1 ; _client_menu_response ; fi ;;
+            24| "") echo -e "" ; _main_menu ;;
+             *) echo -e "" ; _main_menu ;;
+    esac
+}
 
 # 06-3. 客户端选项询问
 function _xunwen1() { echo -ne "${yellow}${bold}你还想做什么吗？(默认返回主菜单) ${normal}" ; }
 
 # 06-4. 检查相关脚本是否存在
 function _systemd_check() {
-if [[ ! -f /etc/systemd/system/qbittorrent@.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/transmission@.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/flexget@.service      ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /etc/systemd/system/deluged.service ]] || [[ ! -f /etc/systemd/system/deluge-web.service ]]; then echo -e "  ${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ ! -f /usr/local/bin/rt ]]; then echo -e "${red}${bold}未检测到 rTorrent 与 Irssi 的脚本，本菜单中 rt 与 irssi  的相关操作无法使用${normal}" ; Unusable=1 ; fi
-if [[ $Unusable == 1 ]]; then echo -e "${red}${bold}虽然某些功能无法使用，但是选项还在，你仍可以输入相关选项\n输入后本脚本会告诉你客户端已经关了或者开起来了，而实际上什么也没有发生 ←_←${normal}\n" ; fi ; }
+    if [[ ! -f /etc/systemd/system/qbittorrent@.service  ]]; then echo -e "  ${red}${bold}未检测到  qBittorent  的 systemd ，本菜单中  qBittorent  的相关操作无法使用${normal}" ; Unusable=1 ; fi
+    if [[ ! -f /etc/systemd/system/transmission@.service ]]; then echo -e "  ${red}${bold}未检测到 Transmission 的 systemd ，本菜单中 Transmission 的相关操作无法使用${normal}" ; Unusable=1 ; fi
+    if [[ ! -f /etc/systemd/system/flexget@.service      ]]; then echo -e "  ${red}${bold}未检测到   Flexget    的 systemd ，本菜单中    Flexget   的相关操作无法使用${normal}" ; Unusable=1 ; fi
+    if [[ ! -f /etc/systemd/system/deluged@.service ]] || [[ ! -f /etc/systemd/system/deluge-web@.service ]]; then echo -e "  ${red}${bold}未检测到    Deluge    的 systemd ，本菜单中    Deluge    的相关操作无法使用${normal}" ; Unusable=1 ; fi
+    if [[ ! -f /usr/local/bin/rt ]]; then echo -e "${red}${bold}未检测到 rTorrent 与 Irssi 的脚本，本菜单中 rt 与 irssi  的相关操作无法使用${normal}" ; Unusable=1 ; fi
+    if [[ $Unusable == 1 ]]; then echo -e "${red}${bold}  虽然某些功能无法使用，但是选项还在，你仍可以输入相关选项\n  输入后本脚本会告诉你客户端已经关了或者开起来了，而实际上什么也没有发生 ←_←${normal}\n" ; fi
+}
 
 
 
@@ -379,42 +385,48 @@ function _show_scripts_menu() {
 
 # 07-2. 脚本菜单回应
 function _scripts_menu_response() {
-read response
-case $response in
-    01 |  1) # 安装 inexistence
-             bash <(wget -qO- https://git.io/abcde) ;;
-    02 |  2) # 运行 AccTCP
-             bash <(wget -qO- https://git.io/AccTCP) ;;
-    03 |  3) # 配置 IPv6
-             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6) ;;
-    04 |  4) # 运行 ABench
-             bash <(wget -qO- https://git.io/ceshi) ;;
-    05 |  5) # 运行 ZBench
-             bash -c "$( wget -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
-    06 |  6) # 使用 iperf 测试网速
-             bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/iperfff) ;;
-    10 | "") # 返回主菜单
-             echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
-          *) # 返回主菜单
-             echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
-esac ; }
+    read response
+    case $response in
+        01 |  1) # 安装 inexistence
+                 bash <(wget -qO- https://git.io/abcde) ;;
+        02 |  2) # 运行 AccTCP
+                 bash <(wget -qO- https://git.io/AccTCP) ;;
+        03 |  3) # 配置 IPv6
+                 bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/ipv6) ;;
+        04 |  4) # 运行 ABench
+                 bash <(wget -qO- https://git.io/ceshi) ;;
+        05 |  5) # 运行 ZBench
+                 bash -c "$( wget -qO- https://raw.githubusercontent.com/FunctionClub/ZBench/master/ZBench-CN.sh )" ;;
+        06 |  6) # 使用 iperf 测试网速
+                 bash <(wget -qO- https://github.com/Aniverse/aBox/raw/master/scripts/iperfff) ;;
+        10 | "") # 返回主菜单
+                 echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
+              *) # 返回主菜单
+                 echo ; _main_menu ; _xunwen1; _scripts_menu_response ;;
+    esac
+}
 
 
 
 
 # 08. 说明文档
-function _doc() { clear ; echo
-echo -e " ${black}${on_white}${bold}                                       08. 某辣鸡的脚本说明                                         ${normal} "
-echo -e " ${bold}"
-echo -e " 2020.02.28 这个 mingling 脚本我基本弃坑了的，有什么问题也很正常……\n"
-echo -e " 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确"
-echo -e " 很多代码是各处抄来的，具体抄了哪些此处就不写上了。感谢那些写脚本的大佬"
+function _doc() {
+    clear ; echo
+    cat << EOF
+ ${black}${on_white}${bold}                                       08. 某辣鸡的脚本说明                                         ${normal}
+ ${bold}
+ 2020.02.28 这个 mingling 脚本我基本弃坑了的，有什么问题也很正常……
 
-echo -e " 如果你的 SSH 窗口宽度值较小，可能排版会比较糟糕，建议拉大一点看看"
-echo -e " "
-echo -e " 如果客户端操作菜单中，提示你未检测到 systemd 但你已经安装了对应的客户端，你可以选择手动配置 systemd "
-echo -e " 如果你发现客户端在运行但你就是打不开 WebUI，重启了也没用 ——— 别问我，我也不知道 ......"
-echo -e "${normal}" ; }
+ 作者水平菜鸡，不保证本脚本的所有功能都能正常使用，不保证检测的信息一定正确
+ 很多代码是各处抄来的，具体抄了哪些此处就不写上了。感谢那些写脚本的大佬
+
+ 如果你的 SSH 窗口宽度值较小，可能排版会比较糟糕，建议拉大一点看看
+
+ 如果客户端操作菜单中，提示你未检测到 systemd 但你已经安装了对应的客户端，你可以选择手动配置 systemd
+ 如果你发现客户端在运行但你就是打不开 WebUI，重启了也没用 ——— 别问我，我也不知道 ......
+${normal}
+EOF
+}
 
 
 
