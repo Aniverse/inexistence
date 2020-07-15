@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.2
+script_version=1.2.7.3
 script_update=2020.07.15
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -66,7 +66,7 @@ trap 'exit 1' TERM
 
 ### 检查系统是否被支持 ###
 function _oscheck() {
-    if [[ $SysSupport == 1 ]]; then
+    if   [[ $SysSupport =~ (1|2) ]]; then
         echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
     else
         echo -e "\n${bold}${red}Too young too simple! Only Debian 9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
@@ -96,7 +96,9 @@ function _intro() {
 
     # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
     SysSupport=0
-    [[ $CODENAME =~  (xenial|bionic|buster|stretch)  ]] && SysSupport=1
+    [[ $CODENAME =~ (bionic|buster)  ]] && SysSupport=1
+    [[ $CODENAME =~ (xenial|stretch) ]] && SysSupport=2
+    [[ $CODENAME =~ (jessie|wheezy|trusty) ]] && SysSupport=3
     [[ $DeBUG == 1 ]] && echo "${bold}DISTRO=$DISTRO, CODENAME=$CODENAME, osversion=$osversion, SysSupport=$SysSupport${normal}"
 
     # rTorrent 是否只能安装 feature-bind branch 的 0.9.6 或者 0.9.7 及以上
@@ -145,14 +147,12 @@ function _intro() {
     [[ -n "$rt_domain" ]] && [[ $(host "$rt_domain" 2>&1 | grep -oE "[0-9.]+\.[0-9.]+") != "$serveripv4" ]] &&
     echo -e "\n${yellow}${bold}It seems your domain $rt_domain does NOT resolve to your IPv4 address $serveripv4${normal}"
 
-    if [[ $CODENAME == jessie ]]; then
-        echo -e "\n${bold}${red}警告：除非万不得已，不然不要使用 Debian 8 运行本脚本！${normal}"
+    if   [[ $CODENAME == jessie ]]; then
+        echo -e "\n${bold}${red}警告：尽量不要使用 Debian 8 运行本脚本！${normal}"
     elif [[ $CODENAME == focal ]]; then
         echo -e "\n${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
-    elif [[ $CODENAME == stretch ]]; then
-        sleep 0.1 # echo -e "\n${bold}${red}建议升级到 Debian 10 再使用本脚本${normal}"
-    elif [[ $CODENAME == xenial ]]; then
-        sleep 0.1 # echo -e "\n${bold}${red}建议升级到 Ubuntu 18.04 再使用本脚本${normal}"
+    elif [[ $SysSupport =~ (2|3) ]]; then
+        echo -e "\n${bold}你可以使用这个脚本来升级系统：${blue}https://github.com/DieNacht/debian-ubuntu-upgrade${normal}"
     fi
 
     [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
