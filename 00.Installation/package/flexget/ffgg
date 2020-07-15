@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2020.07.15
-script_version=r10004
+script_version=r10005
 ################################################################################################
 action=$1
 iUser=$2
@@ -23,7 +23,7 @@ app_command=flexget
 app_config=$iHome/.config/flexget/config.yml
 app_log=$iHome/.config/flexget/flexget.log
 app_webui_port=$(grep "web_server" -A7 $app_config | grep -i port | grep -oE "[0-9]+")
-app_version=$($app_command -V 2>/dev/null | head -1 | grep -oE "[0-9.]+")
+# app_version=$($app_command -V 2>/dev/null | head -1 | grep -oE "[0-9.]+") # check version is too slow, so only check it when needed
 [[ -n $serveripv4 ]] && app_web_url="Web          http://${serveripv4}:${app_webui_port}"
 ################################################################################################
 
@@ -43,9 +43,10 @@ y            Disable ${app}'s auto-start after reboot
 
 $app_script         $script_version ($script_update)
 User         $iUser
-Version      $app $app_version
+Version      $app $($app_command -V 2>/dev/null | head -1 | grep -oE "[0-9.]+")
 Config       $app_config
 Logfile      $app_log
+Plugin       $iHome/.config/flexget/plugins
 WebUI Port   $app_webui_port
 $app_web_url
 "
