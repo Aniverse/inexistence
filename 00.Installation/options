@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.27
-# script_version=r10005
+# script_update=2020.07.15
+# script_version=r10006
 # This var will recover other script's var when source
 #
 ################################################################################################
@@ -27,10 +27,11 @@ Options:
   --mt-<single|double|half|max>   How many threads will be used when compiling from source (default max)
   -b <branch>                     Specify which branch of inexistence to be installed (default master)
   -d, --debug                     Enable debug mode
-  -s, --skip                      Skip system check
+  -s, --skip                      Skip system check, allow you to install this script on unsupported distro
   -y, --yes                       Force yes to all questions
-  --enable-ipv6                   Enable IPv6 for rTorrent
+  --enable-ipv6                   Enable IPv6 supoort for rTorrent
   --qb-static                     Install qBittorrent static builds instead of via deb or compile
+  --qb-source                     Install qBittorrent by building from source
   --tr-deb                        Install Transmission 2.94 via deb
   -h, --help                      Display this help and exit
 
@@ -77,6 +78,7 @@ function opts_action () {
         --separate        ) separate=1        ; shift ;;
         --quick           ) quick=1           ; shift ;;
         --qb-static       ) qb_mode=static    ; shift ;;
+        --qb-source       ) qb_mode=source    ; shift ;;
         --sihuo           ) sihuo=yes         ; shift ;;
         --eng             ) script_lang=eng   ; shift ;;
         --chs             ) script_lang=chs   ; shift ;;
