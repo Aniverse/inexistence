@@ -16,11 +16,12 @@
 * [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
 * [ ] 清理完以后发布 release，主要是备份和方便以后跨版本对比  
 * [ ] 升级 bdinfocli 的版本  
-* [ ] 各软件的日志链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
-* [ ] 各软件的配置文件链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
+* [x] 各软件的日志链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
+* [x] 各软件的配置文件链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
 
 中期  
 
+* [x] 编写 deb-get，从 efs 的软件仓库中下载 deb，并设有 fallback  
 * [x] 放弃 Debian 8 支持  
 * [x] 移除脚本里的换源、tools、bbr、wine 问题  
 * [x] 移除脚本里的 install from ppa. repo  
@@ -42,7 +43,7 @@
 * [ ] `hezi` 脚本支持 `hezi install qb 4.2.5` 这样的用法  
 * [ ] 补全 changelog，即补完我在使用 git 之前的更新记录  
 * [ ] 大幅更新 README  
-* [ ] 整合 DieNacht 的升级系统／换源脚本  
+* [x] 移除升级系统的功能，要升级系统请用 [DieNacht 的脚本](https://github.com/DieNacht/debian-ubuntu-upgrade)  
 
 远期  
 
@@ -58,14 +59,13 @@
 
 * [ ] 加入 rTorrent 和 Transmission 的静态编译版本  
 * [ ] 某种程度上的 Docker 版 inexistence（与非 docker 版有区别，且不经常更新）  
-* [ ] Docker：deluge 1.3.9 with libtorrent 1.0.11  
+* [ ] Docker：deluge 1.3.9  with libtorrent 1.0.11  
 * [ ] Docker：deluge 1.3.15 with libtorrent 1.1.14  
-* [ ] Docker：deluge 2.0.3 with libtorrent 1.1.14  
-* [ ] Docker：deluge 2.0.3 with libtorrent 1.2.x  
+* [ ] Docker：deluge 2.0.3  with libtorrent 1.1.14  
+* [ ] Docker：deluge 2.0.3  with libtorrent 1.2.x  
 * [ ] Docker：qbittorrent 3.3.11 with libtorrent 1.0.11  
-* [ ] Docker：qbittorrent 4.1.9 with libtorrent 1.1.14  
-* [ ] Docker：qbittorrent 4.2.5 with libtorrent 1.1.14  
-* [ ] 下载 efs deb 失败时的 fallback  
+* [ ] Docker：qbittorrent 4.1.9  with libtorrent 1.1.14  
+* [ ] Docker：qbittorrent 4.2.5  with libtorrent 1.1.14  
 
 
 
@@ -84,7 +84,7 @@
 2. Feature：使用 apt_sources_add  
 
 `function r13125`  
-1. BugFix：Debian 9 下加密密码的方式不使用 pbkdf2  
+1. BugFix：Debian 9 下加密密码的方式不再使用 pbkdf2  
 2. LittleFix：get_clients_port 里端口变量名的修改  
 3. LittleFix：check_remote_git_repo_branch 的 No such branch! 保存到日志  
 4. Feature：APT_UPGRADE 里，为了防止 apt source 实际是空着的情况，使用 `apt policy git` 检查是否有信息  
