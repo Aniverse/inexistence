@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r12015
+# script_version=r12016
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -212,7 +212,18 @@ alias sshr="sed -i '/.*AllowGroups.*/d' /etc/ssh/sshd_config ; sed -i '/.*Passwo
 
 alias s-opt="echo && cat /log/inexistence/installed.log && echo"
 alias s-end="echo && cat /log/inexistence/end.log"
-function s-log() { local logfile=$(cat /tmp/current.logfile) ; echo $logfile ; lines ; tail -f $logfile ; }
+
+function s-log() {
+    local logfile=$(cat /tmp/current.logfile 2>&1)
+    if   [[ ! -f $logfile ]]; then
+        echo -e "$logfile does not exist"
+    elif [[ ! -f /tmp/current.logfile ]]; then
+        echo -e "/tmp/current.logfile does not exist"
+    elif [[ -f $logfile ]]; then
+        echo $logfile ; lines
+        tail -f $logfile
+    fi
+}
 
 function s-info() {
     source /etc/inexistence/00.Installation/function
@@ -227,7 +238,7 @@ OS                  $displayOS
 Kernel              $running_kernel
 Virtual             $virtual
 
-Master User         $DefaultiUser
+Master User         $iUser
 Password            $iPass
 User's config       $iHome/.config
 
