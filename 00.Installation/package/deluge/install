@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.30
-script_version=r10006
+script_update=2020.07.15
+script_version=r10007
 
 ################################################################################################ Debug
 
@@ -86,7 +86,7 @@ elif [[ $mode == deb ]]; then
     if [[ $version != 2.0.3 ]]; then
         echo_warning "version changes to 2.0.3 since only this version is available"
         version=2.0.3
-    elif [[ ! $CODENAME ~= (xenial|bionic|stretch) ]]; then
+    elif [[ ! $CODENAME =~ (xenial|bionic|stretch) ]]; then
         echo_error_exit "deb mode is not available in $CODENAME"
     fi
 fi

@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.07
-# script_version=r14128
+# script_update=2020.07.15
+# script_version=r14129
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -122,7 +122,7 @@ function echo_error() {
     printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG"
 }
 function echo_error2() {
-    echo -e "${red}${bold}ERROR:" "$@${normal}"
+    echo -e "${red}${bold}ERROR:" "$*${normal}"
 }
 function echo_error_exit() {
     printf " ${red}${bold}ERROR: %s${normal}\n" "$@" | tee -a "$OutputLOG" ; exit 1

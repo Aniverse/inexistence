@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.17
-# script_version=r12020
+# script_update=2020.07.15
+# script_version=r12021
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -94,6 +94,7 @@ fi
 
 calc_disk() {
     local total_size=0 ; local array=$@
+    #shellcheck disable=SC2068
     for size in ${array[@]} ; do
         [ "${size}" == "0" ] && size_t=0 || size_t=`echo ${size:0:${#size}-1}`
         [ "`echo ${size:(-1)}`" == "K" ] && size=0
@@ -119,8 +120,8 @@ hardware_check_1() {
 
     disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
-    disk_total_size=$( calc_disk ${disk_size1[@]} )
-    disk_used_size=$( calc_disk ${disk_size2[@]} )
+    disk_total_size=$( calc_disk "${disk_size1[@]}" )
+    disk_used_size=$( calc_disk "${disk_size2[@]}" )
 
     # If SSD
     cat /sys/block/sd*/queue/rotational 2>/dev/null | grep -q 0 && SSD=yes
@@ -572,9 +573,10 @@ ipv4_check() {
     # serveripv4=$( ip route get 8.8.8.8 | awk '{print $3}' )
     # isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
     serveripv4=$( ip route get 1 2>&1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' )
-    isInternalIpAddress "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
-    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
-    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -t1 -T7 -qO- ipecho.net/plain )
+    isInternalIpAddress "$serveripv4" && serveripv4=$( wget --no-check-certificate -4 -t1 -T6 -qO- v4.ipv6-test.com/api/myip.php )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -4 -t1 -T6 -qO- ip.sb)
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -4 -t1 -T6 -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//' )
+    isValidIpAddress    "$serveripv4" || serveripv4=$( wget --no-check-certificate -4 -t1 -T7 -qO- ipecho.net/plain )
     isValidIpAddress "$serveripv4" || { echo "${bold}${red}${shanshuo}ERROR ${jiacu}${underline}Failed to detect your public IPv4 address, use internal address instead${normal}" ; serveripv4=$( ip route get 8.8.8.8 2>&1 | awk '{print $3}' ) ; }
     serveripv4_show=$(redact_ip "$serveripv4") ; [[ $full_ip == 1 ]] && serveripv4_show=$serveripv4
 }
