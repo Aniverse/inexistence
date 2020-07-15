@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.3
+script_version=1.2.7.4
 script_update=2020.07.15
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -124,7 +124,7 @@ function _intro() {
 
     wget --no-check-certificate -t1 -T5 -qO- https://raw.githubusercontent.com/Aniverse/inexistence/files/logo/inexistence.logo.1
 
-    echo "${bold}---------- [System Information] ----------${normal}"
+    echo "${bold}  ---------- [System Information] ----------${normal}"
     echo
     
     echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
@@ -143,24 +143,24 @@ function _intro() {
     echo -e  "  ASN & ISP : ${cyan}$asnnnnn, $isppppp${normal}"
     echo -ne "  Location  : ${cyan}";[[ -n $cityyyy ]] && echo -ne "$cityyyy, ";[[ -n $regionn ]] && echo -ne "$regionn, ";[[ -n $country ]] && echo -ne "$country";echo -e "${normal}"
 
-    [[ $SYSTEMCHECK != 1 ]] && echo -e "\n${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
+    [[ $SYSTEMCHECK != 1 ]] && echo -e "\n  ${bold}${red}System Checking Skipped. $lang_note_that this script may not work on unsupported system${normal}"
     [[ -n "$rt_domain" ]] && [[ $(host "$rt_domain" 2>&1 | grep -oE "[0-9.]+\.[0-9.]+") != "$serveripv4" ]] &&
-    echo -e "\n${yellow}${bold}It seems your domain $rt_domain does NOT resolve to your IPv4 address $serveripv4${normal}"
+    echo -e "\n  ${yellow}${bold}It seems your domain $rt_domain does NOT resolve to your IPv4 address $serveripv4${normal}"
 
     if   [[ $CODENAME == jessie ]]; then
-        echo -e "\n${bold}${red}警告：尽量不要使用 Debian 8 运行本脚本！${normal}"
+        echo -e "\n  ${bold}${red}警告：尽量不要使用 Debian 8 运行本脚本！${normal}"
     elif [[ $CODENAME == focal ]]; then
-        echo -e "\n${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
+        echo -e "\n  ${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
     elif [[ $SysSupport =~ (2|3) ]]; then
-        echo -e "\n${bold}你可以使用这个脚本来升级系统：${blue}https://github.com/DieNacht/debian-ubuntu-upgrade${normal}"
+        echo -e "\n  ${bold}你可以使用这个脚本来升级系统到更高版本\n  ${blue}https://github.com/DieNacht/debian-ubuntu-upgrade${normal}"
     fi
 
-    [[ $times != 1 ]] && echo -e "\n${bold}It seems this is the $times times you run this script${normal}"
+    [[ $times != 1 ]] && echo -e "\n  ${bold}It seems this is the $times times you run this script${normal}"
     
-    [[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
+    [[ ${virtual} != "No Virtualization Detected" ]] && [[ ${virtual} != "KVM" ]] && echo -e "\n  ${bold}${red}这个脚本基本上没有在非 KVM 的 VPS 测试过，不保证 OpenVZ、HyperV、Xen、Lxc 等架构下一切正常${normal}"
 
-    echo -e "\n${bold}For more information about this script,\nplease refer README on GitHub (Chinese only)"
-    echo -e "Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
+    echo -e "\n  ${bold}For more information about this script,\n  please refer README on GitHub (Chinese only)"
+    echo -e "  Press ${on_red}Ctrl+C${normal} ${bold}to exit${jiacu}, or press ${bailvse}ENTER${normal} ${bold}to continue" ; [[ $ForceYes != 1 ]] && read input
 }
 
 
@@ -215,7 +215,7 @@ function ask_continue() {
     [[ $ForceYes != 1 ]] && read input
     [[ $script_lang == eng ]] &&
     echo -e "${bold}${magenta}The selected softwares $lang_will_be_installed, this may take between${normal}" &&
-    echo -e "${bold}${magenta}1 - 100 minutes depending on your systems specs and your selections${normal}\n"
+    echo -e "${bold}${magenta}1 - 60 minutes depending on your systems specs and your selections${normal}\n"
     [[ $script_lang == chs ]] &&
     echo -e "${bold}${magenta}开始安装所需的软件，由于所选选项的区别以及盒子硬件性能的差异，安装所需时间也会有所不同${normal}\n"
 }
