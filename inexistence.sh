@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.0
+script_version=1.2.7.1
 script_update=2020.07.15
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -575,7 +575,6 @@ function install_rtorrent() {
 
 function install_flood() {
     # https://github.com/nodesource/distributions/blob/master/README.md
-    # curl -sL https://deb.nodesource.com/setup_11.x | bash -
     curl -sL https://deb.nodesource.com/setup_10.x | bash -
     apt-get install -y nodejs build-essential # python3-dev
     npm install -g node-gyp
@@ -589,7 +588,19 @@ function install_flood() {
     rm -rf $LOCKLocation/flood.fail.lock
     # [[ `grep "npm ERR!" /tmp/flood.log` ]] && touch $LOCKLocation/flood.fail.lock
 
-    cp -f /etc/inexistence/00.Installation/template/systemd/flood.service /etc/systemd/system/flood.service
+    cat << EOF > /etc/systemd/system/flood.service
+[Unit]
+Description=Flood rTorrent Web UI
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/srv/flood
+ExecStart=/usr/bin/npm start
+
+[Install]
+WantedBy=multi-user.target
+EOF
     systemctl start  flood
     systemctl enable flood
 
