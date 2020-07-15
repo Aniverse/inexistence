@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.06.29
-# script_version=r11037
+# script_update=2020.07.15
+# script_version=r11038
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -45,12 +45,6 @@ function set_language() {
 }
 
 ################################################################################################
-
-lt_deb_available=('1.1.14')
-qb_deb_available=('4.1.9' '4.2.3')
-de_deb_available=('2.0.3')
-rt_deb_available=('0.9.4' '0.9.6' '0.9.7' '0.9.8')
-tr_deb_available=('2.9.4')
 
 ### 输入自己想要的软件版本 ###
 # ${blue}(use it at your own risk)${normal}
@@ -125,32 +119,23 @@ function ask_apt_sources() {
 function ask_qbittorrent() {
     while [[ -z $qb_version ]]; do
         echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 ${normal}(static)${normal}"
-        echo -e "${green}02)${normal} qBittorrent ${cyan}4.2.3 ${normal}(static)${normal}"
-        echo -e "${green}03)${normal} qBittorrent ${cyan}4.2.5 ${normal}(static) (with libtorrent ${cyan}1.2.6${normal})"
-        [[ $CODENAME != jessie ]] &&
-        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}" &&
-        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.3 ${normal}(deb)${normal}" &&
-        echo -e "${green}21)${normal} qBittorrent ${cyan}4.2.5 ${normal}(compile)${normal}"
+        echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}"
+        echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.5 ${normal}(deb)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
     
         [[ -n $qb_installed_ver ]] &&
         echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qb_installed_ver}${normal}"
-        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}02${normal}): " version
+        read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}12${normal}): " version
         case $version in
-            01 | 1) qb_version=4.1.9    ; qb_mode=static ;;
-            02 | 2) qb_version=4.2.3    ; qb_mode=static ;;
-            03 | 3) qb_version=4.2.5.12 ; qb_mode=static ;;
+            01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
-            12) qb_version=4.2.3    ;;
-            21) qb_version=4.2.5    ;;
-            30) _input_version && qb_version="${input_version_num}"  ;;
+            12) qb_version=4.2.5    ;;
+            30) _input_version && qb_version="${input_version_num}" ;;
             99) qb_version=no ;;
-            * | "") qb_version=4.2.3 ; qb_mode=static ;;
+            * | "") qb_version=4.2.5 ;;
         esac
     done
-
-    [[ -z $qb_mode ]] && echo "${qb_deb_available[*]}" | grep -wq "${qb_version}" && qb_mode=deb
 
     if [[ $qb_version == no ]]; then
         echo -e "${baizise}qBittorrent will ${baihongse}not${baizise} be installed${normal}\n"
@@ -574,8 +559,10 @@ function do_installation() {
     fi
 
     if [[ -n $qb_version ]] && [[ $qb_version != no ]]; then
-        if [[ $qb_mode == static ]]; then
+        if   [[ $qb_mode == static ]]; then
             bash $local_packages/package/qbittorrent/install -v $qb_version -m static --logbase $LogTimes
+        elif [[ $qb_mode == source ]]; then
+            bash $local_packages/package/qbittorrent/install -v $qb_version -m source --logbase $LogTimes
         else
             bash $local_packages/package/qbittorrent/install -v $qb_version           --logbase $LogTimes
         fi
