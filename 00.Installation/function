@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14131
+# script_version=r14132
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -551,6 +551,52 @@ function backup_old_config() {
     if [[ -d $iHome/.config/$appname ]]; then
         mv     $iHome/.config/$appname  $iHome/.config/$appname.old.backup.$(date "+%Y.%m.%d.%H.%M.%S")  >> $OutputLOG 2>&1
         rm -rf $iHome/.config/$appname  >> $OutputLOG 2>&1
+    fi
+}
+
+
+function create_log_link() {
+    mkdir -p $iHome/inexistence/log
+    list="$iHome/.config/deluge/deluged.log
+          $iHome/.config/deluge/deluge-web.log
+          $iHome/.config/qBittorrent/qbittorrent.log
+          $iHome/.config/transmission-daemon/transmission.log
+          $iHome/.config/flexget/flexget.log
+          $iHome/.config/autoremove-torrents/autoremove-torrents.log
+         "
+    for log in $list ; do
+        if [[ -f $log ]]; then
+            ln $log $iHome/inexistence/log/$(basename $log) >> $OutputLOG 2>&1
+        fi
+    done
+}
+
+function config_link_rename() {
+    local config=$1
+    local app=$(dirname $config | awk -F'/' '{print $NF}')
+    [[ $app =~ (qBittorrent|rclone) ]] && app=""
+    [[ $app == transmission-daemon  ]] && app="transmission"
+    [[ -n $app ]] && app="$(echo "${app}.")"
+    echo "${app}$(basename $config)"
+}
+
+function create_config_link() {
+    mkdir -p $iHome/inexistence/config
+    list="$iHome/.config/deluge/core.conf
+          $iHome/.config/deluge/web.conf
+          $iHome/.config/qBittorrent/qBittorrent.conf
+          $iHome/.config/transmission-daemon/settings.json
+          $iHome/.config/flexget/config.yml
+          $iHome/.config/autoremove-torrents/config.yml
+          $iHome/.config/rclone/rclone.conf
+         "
+    for config in $list ; do
+        if [[ -f $config ]]; then
+              ln $config $iHome/inexistence/config/$(config_link_rename $config) >> $OutputLOG 2>&1
+        fi
+    done
+    if [[ -f $iHome/.rtorrent.rc ]]; then
+          ln $iHome/.rtorrent.rc  $iHome/inexistence/config/rtorrent.rc >> $OutputLOG 2>&1
     fi
 }
 

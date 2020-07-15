@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r11038
+# script_version=r11039
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -644,6 +644,9 @@ function do_installation() {
         OutputLOG=$LogLocation/98.tweaks    system_tweaks  & spinner $!
         OutputLOG=$LogLocation/98.tweaks    status_done
     fi
+
+    create_log_link
+    create_config_link
 }
 
 
