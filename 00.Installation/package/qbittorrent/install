@@ -4,7 +4,7 @@
 # Author: Aniverse
 
 script_update=2020.07.15
-script_version=r12043
+script_version=r12044
 
 ################################################################################################ Debug
 
@@ -29,15 +29,15 @@ DebName=qbittorrent-nox
 Need_SourceCode=yes
 pm_action=install
 
-function show_usage() { echo " Invalid option $1
+function show_usage() { echo "
 Usage:
       -m        Install mode, can only be specified as deb, static or source
-      -t        Install type, can only be specified as desktop or headless
       -v        Specifiy which version of qBittorrent to be installed
       -b        Specifiy which branch of qBittorrent to be installed
       --debug   Enable debug mode
                 Note that installing specific version may cause the installation failure
 "
+#       -t        Install type, can only be specified as desktop or headless
 exit 1 ; }
 
 OPTS=$(getopt -o m:v:b:l:t:d --long debug,mode:,type:,version:,branch:,logbase:,log -- "$@")
@@ -70,13 +70,14 @@ cat_outputlog
 
 ################################################################################################ Set Variables 2
 
-qb_deb_available=('4.1.9' '4.2.3')
+deb-get packages.lst
+qb_deb_version_list=$(cat /tmp/packages.lst | grep -w qbittorrent-nox | grep ${CODENAME} | grep amd64 | awk '{ print $5}')
 
 git_repo="https://github.com/qbittorrent/qBittorrent"
 lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 2>&1 | awk '{print $NF}' | grep -oE [0-9.]+)
 
-[[ -z $mode ]] && [[ -n $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && mode=deb
-[[ $mode == deb ]] && [[ -z $(echo "${qb_deb_available[*]}" | grep -w "${version}") ]] && echo_error_exit "$version is not available in deb mode"
+[[ -z $mode ]] && [[ -n $(echo "${qb_deb_version_list[*]}" | grep -w "${version}") ]] && mode=deb
+[[ $mode == deb ]] && [[ -z $(echo "${qb_deb_version_list[*]}" | grep -w "${version}") ]] && echo_error_exit "$version is not available in deb mode"
 [[ -z $mode ]] && [[ -n $version ]] && mode=source
 [[ -z $mode ]] && [[ -n $branch  ]] && mode=source
 [[ ! $mode =~ (source|deb|static) ]] && echo_error_exit "Mode can only be specified as deb, static or source"
