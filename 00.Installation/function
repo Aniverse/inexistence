@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14133
+# script_version=r14134
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -166,8 +166,8 @@ function spinner() {
 
 
 function check_var_iUser_iPass_iHome() {
+    [[ -n $iUser ]] && id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
     [[ -z $iUser || -z $iPass ]] && { echo -e "ERROR: Please specify username and password" ; exit 1 ; }
-    id -u $iUser >/dev/null 2>&1 || { echo -e "ERROR: User $iUser doesn't exist" ; exit 1 ; }
     # [[ -z $iHome ]] && [[ $iUser == root ]] && iHome=/root
     # [[ -z $iHome ]] && [[ $iUser != root ]] && iHome=/home/$iUser
     # iHome=$(grep $iUser /etc/passwd | awk -F':' '{print $(NF-1)}')
