@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r14132
+# script_version=r14133
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -577,7 +577,10 @@ function config_link_rename() {
     [[ $app =~ (qBittorrent|rclone) ]] && app=""
     [[ $app == transmission-daemon  ]] && app="transmission"
     [[ -n $app ]] && app="$(echo "${app}.")"
-    echo "${app}$(basename $config)"
+    target=$(echo "${app}$(basename $config)")
+    echo "$config" | grep -q rtorrent && target=rtorrent.rc
+    echo "$config" | grep -q autodl   && target=autodl.cfg
+    echo "$target"
 }
 
 function create_config_link() {
@@ -589,15 +592,14 @@ function create_config_link() {
           $iHome/.config/flexget/config.yml
           $iHome/.config/autoremove-torrents/config.yml
           $iHome/.config/rclone/rclone.conf
+          $iHome/.rtorrent.rc
+          $iHome/.autodl/autodl.cfg
          "
     for config in $list ; do
         if [[ -f $config ]]; then
               ln $config $iHome/inexistence/config/$(config_link_rename $config) >> $OutputLOG 2>&1
         fi
     done
-    if [[ -f $iHome/.rtorrent.rc ]]; then
-          ln $iHome/.rtorrent.rc  $iHome/inexistence/config/rtorrent.rc >> $OutputLOG 2>&1
-    fi
 }
 
 
