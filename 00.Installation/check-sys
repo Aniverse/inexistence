@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r12021
+# script_version=r12022
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -79,17 +79,16 @@ fi
 cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
 
 # Check interface
-[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+
+# LotServer
+[ -n "$(grep 'eth0:' /proc/net/dev)" ] && wangka1=eth0 || wangka1=`cat /proc/net/dev |awk -F: 'function trim(str){sub(/^[ \t]*/,"",str); sub(/[ \t]*$/,"",str); return str } NR>2 {print trim($1)}'  |grep -Ev '^lo|^sit|^stf|^gif|^dummy|^vmnet|^vir|^gre|^ipip|^ppp|^bond|^tun|^tap|^ip6gre|^ip6tnl|^teql|^venet|^veth|^he-ipv6|^docker' |awk 'NR==1 {print $0}'`
+# swizzin
 wangka2=$(ip link show 2>&1 | grep -i broadcast | grep -m1 UP  | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
-if [[ -n $wangka2 ]]; then
-    if [[ $wangka1 == $wangka2 ]];then
-        interface=$wangka1
-    else
-        interface=$wangka2
-    fi
-else
-    interface=$wangka1
-fi
+# mine
+wangka3=$(ip addr 2>&1 | grep -B2 $(ip route get 1 2>&1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p') | grep -i broadcast | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
+interface=$wangka1
+[[ -n $wangka2 ]] && interface=$wangka2
+[[ -n $wangka3 ]] && interface=$wangka3
 
 
 calc_disk() {
