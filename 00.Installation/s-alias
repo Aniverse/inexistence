@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.15
-# script_version=r12017
+# script_version=r12018
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -214,13 +214,13 @@ alias s-opt="echo && cat /log/inexistence/installed.log && echo"
 alias s-end="echo && cat /log/inexistence/end.log"
 
 function s-log() {
-    local logfile=$(cat /tmp/current.logfile 2>&1)
-    if   [[ ! -f $logfile ]]; then
-        echo -e "$logfile does not exist"
-    elif [[ ! -f /tmp/current.logfile ]]; then
+    local logfile=$(cat /tmp/current.logfile 2>/dev/null)
+    if   [[ ! -f /tmp/current.logfile ]] ; then
         echo -e "/tmp/current.logfile does not exist"
-    elif [[ -f $logfile ]]; then
-        echo $logfile ; lines
+    elif [[ ! -f $logfile ]]; then
+        echo -e "$logfile does not exist"
+    elif [[   -f $logfile ]]; then
+        echo -e "\n${yellow}$logfile${normal}" ; lines
         tail -f $logfile
     fi
 }
@@ -238,7 +238,7 @@ OS                  $displayOS
 Kernel              $running_kernel
 Virtual             $virtual
 
-Master User         ${DefaultiUser}${normal}
+Master User         $(cat /log/inexistence/info/installed.user.list.txt 2>/dev/null | head -1)
 Password            $iPass
 User's config       $iHome/.config
 
