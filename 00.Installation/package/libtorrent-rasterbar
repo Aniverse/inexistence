@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.07.07
-script_version=r11066
+script_update=2020.07.15
+script_version=r11067
 
 ################################################################################################ Debug
 
@@ -269,6 +269,7 @@ function install_lt9_deb2() {
         deb-get libtorrent-rasterbar $deb install
     done
     cd ; rm -rf /tmp/lt_deb
+    touch /tmp/$status_lock.1.lock
 
     echo >> $OutputLOG
 }
