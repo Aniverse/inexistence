@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r10005
+script_update=2020.07.15
+script_version=r10006
 ################################################################################################
 action=$1
 iUser=$2
@@ -14,6 +14,7 @@ else
     source <(wget -qO- https://github.com/Aniverse/inexistence/raw/master/00.Installation/function)
 fi
 export_inexistence_info
+check_var_iUser_iPass_iHome
 ################################################################################################
 app_script=qqbb
 app=qBittorrent
@@ -45,6 +46,7 @@ User         $iUser
 Version      $app $app_version
 Config       $app_config
 Logfile      $app_log
+Torrents     $iHome/.local/share/data/qBittorrent/BT_backup
 WebUI Port   $app_webui_port
 $app_web_url
 "
@@ -60,7 +62,8 @@ case $action in
     r ) systemctl restart $app_systemd@$iUser ;;
     x ) systemctl enable  $app_systemd@$iUser ;;
     y ) systemctl disable $app_systemd@$iUser ;;
-    l ) tail -300 $app_log    ;;
-    s ) nano +40  $app_config ;;
-    * ) echo -e "ERROR: Unknown action" ; show_usage ;;
+    h ) show_usage                            ;;
+    l ) tail -300 $app_log                    ;;
+    s ) nano +40  $app_config                 ;;
+    * ) echo -e "ERROR: Unknown action $action" ; show_usage ;;
 esac
