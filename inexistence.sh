@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.4
-script_update=2020.07.15
+script_version=1.2.7.5
+script_update=2020.07.17
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -68,9 +68,11 @@ trap 'exit 1' TERM
 function _oscheck() {
     if   [[ $SysSupport =~ (1|2) ]]; then
         echo -e "\n${green}${bold}Excited! Your operating system is supported by this script. Let's make some big news ... ${normal}"
+    elif [[ $SysSupport == "3" ]]; then
+        echo -e "\n${bold}你可以使用这个脚本来升级系统，以使用本脚本\n${blue}https://github.com/DieNacht/debian-ubuntu-upgrade${normal}"
     else
-        echo -e "\n${bold}${red}Too young too simple! Only Debian 9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}
-        ${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
+        echo -e "\n${bold}${red}Too young too simple! Only Debian 9/10 and Ubuntu 16.04/18.04 is supported by this script${normal}"
+        echo -e "${bold}If you want to run this script on unsupported distro, please use -s option\nExiting...${normal}\n"
         exit 1
     fi
 }
@@ -151,8 +153,6 @@ function _intro() {
         echo -e "\n  ${bold}${red}警告：尽量不要使用 Debian 8 运行本脚本！${normal}"
     elif [[ $CODENAME == focal ]]; then
         echo -e "\n  ${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
-    elif [[ $SysSupport =~ (2|3) ]]; then
-        echo -e "\n  ${bold}你可以使用这个脚本来升级系统到更高版本\n  ${blue}https://github.com/DieNacht/debian-ubuntu-upgrade${normal}"
     fi
 
     [[ $times != 1 ]] && echo -e "\n  ${bold}It seems this is the $times times you run this script${normal}"
