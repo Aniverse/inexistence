@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.18
-# script_version=r14137
+# script_version=r14138
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -1023,7 +1023,7 @@ function END_output_url() {
 
     [[ $qb_version    != no  ]] && output_url   $qb_installed   "qBittorrent WebUI"   qbittorrent         $qbweb
     [[ $de_version    != no  ]] && output_url   $de_installed   "Deluge WebUI"        deluged             $deweb
-    [[ $tr_version    != no  ]] && output_url   $tr_installed   "Transmission WebUI"  transmission        $trweb
+    [[ $tr_version    != no  ]] && output_url   $tr_installed   "Transmission WebUI"  transmission        $trweb        need_password
     if [[ $rt_version != no  ]]; then
                                    output_url   $rt_installed   "RuTorrent"           rtorrent            "/rutorrent"  need_password
         [[ $rt_installed == Yes  ]] &&

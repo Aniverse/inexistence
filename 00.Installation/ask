@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.15
-# script_version=r11040
+# script_update=2020.07.18
+# script_version=r11041
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -645,6 +645,7 @@ function do_installation() {
         OutputLOG=$LogLocation/98.tweaks    status_done
     fi
 
+    export_inexistence_info
     create_log_link
     create_config_link
 }
