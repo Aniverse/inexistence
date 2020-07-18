@@ -562,8 +562,8 @@ function create_log_link() {
           $iHome/.config/autoremove-torrents/autoremove-torrents.log
          "
     for log in $list ; do
-        if [[ -f $log ]]; then
-            ln $log $iHome/inexistence/log/$(basename $log) >> $OutputLOG 2>&1
+        if [[ -f $log ]] && ! [[ -f $iHome/inexistence/log/$(basename $log) ]]; then
+            ln $log $iHome/inexistence/log/$(basename $log) 2>&1 | tee -a $OutputLOG
         fi
     done
 }
@@ -593,8 +593,8 @@ function create_config_link() {
           $iHome/.autodl/autodl.cfg
          "
     for config in $list ; do
-        if [[ -f $config ]]; then
-              ln $config $iHome/inexistence/config/$(config_link_rename $config) >> $OutputLOG 2>&1
+        if [[ -f $config ]] && ! [[ -f $iHome/inexistence/config/$(config_link_rename $config) ]]; then
+            ln $config $iHome/inexistence/config/$(config_link_rename $config) 2>&1 | tee -a $OutputLOG
         fi
     done
 }
