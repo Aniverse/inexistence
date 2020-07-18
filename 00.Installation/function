@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.15
-# script_version=r14135
+# script_update=2020.07.18
+# script_version=r14137
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -553,17 +553,19 @@ function backup_old_config() {
 
 
 function create_log_link() {
+    set_log_when_there_is_none
     mkdir -p $iHome/inexistence/log
-    list="$iHome/.config/deluge/deluged.log
-          $iHome/.config/deluge/deluge-web.log
-          $iHome/.config/qBittorrent/qbittorrent.log
-          $iHome/.config/transmission-daemon/transmission.log
-          $iHome/.config/flexget/flexget.log
-          $iHome/.config/autoremove-torrents/autoremove-torrents.log
+    cd       $iHome/inexistence/log
+    list="../../.config/deluge/deluged.log
+          ../../.config/deluge/deluge-web.log
+          ../../.config/qBittorrent/qbittorrent.log
+          ../../.config/transmission-daemon/transmission.log
+          ../../.config/flexget/flexget.log
+          ../../.config/autoremove-torrents/autoremove-torrents.log
          "
     for log in $list ; do
         if [[ -f $log ]] && ! [[ -f $iHome/inexistence/log/$(basename $log) ]]; then
-            ln $log $iHome/inexistence/log/$(basename $log) 2>&1 | tee -a $OutputLOG
+           ln -s $log $(basename $log) >> $OutputLOG 2>&1
         fi
     done
 }
@@ -581,20 +583,22 @@ function config_link_rename() {
 }
 
 function create_config_link() {
+    set_log_when_there_is_none
     mkdir -p $iHome/inexistence/config
-    list="$iHome/.config/deluge/core.conf
-          $iHome/.config/deluge/web.conf
-          $iHome/.config/qBittorrent/qBittorrent.conf
-          $iHome/.config/transmission-daemon/settings.json
-          $iHome/.config/flexget/config.yml
-          $iHome/.config/autoremove-torrents/config.yml
-          $iHome/.config/rclone/rclone.conf
-          $iHome/.rtorrent.rc
-          $iHome/.autodl/autodl.cfg
+    cd       $iHome/inexistence/config
+    list="../../.config/deluge/core.conf
+          ../../.config/deluge/web.conf
+          ../../.config/qBittorrent/qBittorrent.conf
+          ../../.config/transmission-daemon/settings.json
+          ../../.config/flexget/config.yml
+          ../../.config/autoremove-torrents/config.yml
+          ../../.config/rclone/rclone.conf
+          ../../.rtorrent.rc
+          ../../.autodl/autodl.cfg
          "
     for config in $list ; do
         if [[ -f $config ]] && ! [[ -f $iHome/inexistence/config/$(config_link_rename $config) ]]; then
-            ln $config $iHome/inexistence/config/$(config_link_rename $config) 2>&1 | tee -a $OutputLOG
+           ln -s $config $(config_link_rename $config) >> $OutputLOG 2>&1
         fi
     done
 }
@@ -1184,7 +1188,7 @@ function get_clients_port() {
     qb_port=$(sed -rn 's|WebUI\\Port=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null | grep -oE "[0-9]+")
     qb_port_i=$(sed -rn 's|Connection\\PortRangeMin=||p' $iHome/.config/qBittorrent/qBittorrent.conf 2>/dev/null | grep -oE "[0-9]+")
     tr_port=$(grep rpc-port $iHome/.config/transmission-daemon/settings.json 2>/dev/null | grep -oE "[0-9]+")
-    fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config/yml 2>/dev/null | grep -i port | grep -oE "[0-9]+")
+    fg_port=$(grep "web_server" -A7 $iHome/.config/flexget/config.yml 2>/dev/null | grep -i port | grep -oE "[0-9]+")
 }
 
 function get_clients_version() {
