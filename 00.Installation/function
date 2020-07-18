@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.07.18
-# script_version=r14138
+# script_version=r14139
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -1052,8 +1052,8 @@ function END_output_url() {
         [[ -n $qbittorrent_failed  ]] && show_uploaded_log  $LogLocation/install.qbittorrent.txt
         [[ -n $deluged_failed      ]] && show_uploaded_log  $LogLocation/03.de1.log
         [[ -n $transmission_failed ]] && show_uploaded_log  $LogLocation/08.tr1.log
-        [[ -n $RTFAILED            ]] && echo -e " cat $LogLocation/07.rt.log\n cat $LogLocation/07.rtinst.script.log"
-        [[ -n $FDFAILED            ]] && show_uploaded_log  $LogLocation/07.flood.log
+        [[ -n $rtorrent_failed     ]] && echo -e " $({ cat $LogLocation/07.rt.log 2>&1 ; lines2 ; cat $LogLocation/07.rtinst.script.log 2>&1 ; } | curl -s -F 'sprunge=<-' http://sprunge.us)"
+        [[ -n $npm_failed          ]] && show_uploaded_log  $LogLocation/07.flood.log
         [[ -n $flexget_failed      ]] && show_uploaded_log  $LogLocation/install.flexget.txt
         [[ -n $xfce_failed         ]] && show_uploaded_log  $LogLocation/install.novnc.txt
         [[ -n $filebrowser_failed  ]] && show_uploaded_log  $LogLocation/install.filebrowser.txt
