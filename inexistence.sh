@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.5
-script_update=2020.07.17
+script_version=1.2.7.6
+script_update=2020.07.19
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -88,11 +88,11 @@ trap cancel SIGINT
 # --------------------- 系统检查 --------------------- #
 function _intro() {
     [[ $DeBUG != 1 ]] && clear
-    
+
     # 检查是否以 root 权限运行脚本
     if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
     else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
-    
+
     # 检查是否为 x86_64 架构
     [[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
 
@@ -128,7 +128,7 @@ function _intro() {
 
     echo "${bold}  ---------- [System Information] ----------${normal}"
     echo
-    
+
     echo -e  "  CPU       : ${cyan}$CPUNum$cname${normal}"
     echo -e  "  Cores     : ${cyan}${freq} MHz, ${cpucores} Core(s), ${cputhreads} Thread(s)${normal}"
     echo -e  "  Mem       : ${cyan}$tram MB ($uram MB Used)${normal}"
@@ -178,7 +178,7 @@ function ask_continue() {
     echo
     echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
     echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
-    [[ -n $lt_version ]] &&
+    [[ $lt_version != RC_1_1 ]] &&
     echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_version}${normal}"
     echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
 
@@ -825,6 +825,5 @@ do_installation
 [[ $USESWAP == Yes ]] && swap_off
 check_install_2
 echo ; [[ $sihuo != yes ]] && clear
-END_output_url 2>&1 | tee -a $LogBase/end.log
-# rm -f "$0" > /dev/null 2>&1
+END_output_url 2>&1 | sed 's/[ \t]*$//g' | tee -a $LogBase/end.log
 ask_reboot
