@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.18
-# script_version=r14139
+# script_update=2020.07.19
+# script_version=r14140
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -1168,7 +1168,7 @@ function cat_outputlog() {
 }
 
 function set_log_when_there_is_none() {
-    [[ -z $OutputLOG ]] && OutputLOG=$HOME/.123.log && echo > $HOME/.123.log
+    [[ -z $OutputLOG ]] && OutputLOG=$HOME/.123.log
 }
 
 function lloogg() {
