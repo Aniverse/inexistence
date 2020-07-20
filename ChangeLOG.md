@@ -13,7 +13,7 @@
 * [x] 启用 deluge/configure  
 * [ ] 启用 deluge/install，只支持安装 1.3  
 * [ ] deluge/install 支持 2.0.3 的 efs deb  
-* [ ] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
+* [x] 清理项目中的不再使用的大文件，缩减项目体积（主要是 deluge plugins）  
 * [ ] 清理完以后发布 release，主要是备份和方便以后跨版本对比  
 * [ ] 升级 bdinfocli 的版本  
 * [x] 各软件的日志链接到一个目录内，方便在 h5ai／FileBrowser 中查看  
@@ -31,7 +31,7 @@
 * [ ] 启用 flood/configure  
 * [ ] 启用 x2go/install  
 * [ ] 启用 art/configure  
-* [x] 启用 transmission/install  
+* [ ] 启用 transmission/install  
 * [ ] 支持 Transmission 3.0  
 * [x] 新 App：autoremove-torrents  
 * [ ] 新 App：Jackett  
@@ -75,6 +75,107 @@
 
 
 # ChangeLog  
+
+## [2020.07.18-20, 9 commits](https://github.com/Aniverse/inexistence/compare/ee983e3...3addefb)  
+
+`the inexistence project`  
+1. **Codes：彻底删除了项目中的 deluge 插件（commits 历史中也删除了），降低了整个项目的体积**  
+
+`inexistence 1.2.7.7`  
+1. UI：系统可以升级时，加入 DieNacht 的升级系统脚本的提示信息  
+2. UI：只有当 `lt_version` 存在且不为 RC_1_1 的时候才显示所选择的版本信息  
+3. UI：`END_output_url` 输出时去掉结尾多余的空格  
+
+`function r14140`  
+1. **BugFix：配置文件和日志的链接从硬链改成了相对路径的软链**  
+2. BugFix：修复 END_output_url 中 transmission 链接不包含密码的问题  
+3. BugFix：修复 END_output_url 中 rtorrent 和 flood 的失败没有正确输出日志  
+4. UI：rtorrent 失败时的两个日志合并上传到 sprunge.us  
+5. set_log_when_there_is_none：不再 echo > $HOME/.123.log 的内容  
+
+`s-alias r12019`
+1. s-info：支持显示 CPU、内存、硬盘信息，增加网络配置和软件源配置文件的路径显示  
+
+`ask r11041`  
+1. BugFix：`create_log_link` 之前先 `export_inexistence_info`  
+
+`xiansu r20003`  
+1. BugFix：改进网卡的判断方式  
+2. Feature：默认限速速度改为 50Mbps  
+
+
+
+
+
+## [2020.07.07/15, 4+30 commits](https://github.com/Aniverse/inexistence/compare/5d302b6...3ff4800)  
+
+`the inexistence project`  
+1. **Codes：删除系统升级相关的代码**  
+2. **NewFeature：将各软件的日志和配置文件链接到一个目录内，方便查看**  
+3. **NewFeature：使用 deb-get 下载 QuickBox-Lite 的 deb，支持 GitHub、SF、OSDN、CF**  
+4. NewOpts：`--qb-source`  
+5. ClientScript：`export_inexistence_info` 后做 `check_var_iUser_iPass_iHome` 的检查  
+6. ClientScript：`ddee`、`ttrr`、`qqbb` 加入种子文件保存路径提示，`ffgg` 显示第三方插件存放路径  
+7. Delete：删除 `python` 脚本，因为已经有 `pyenv` 了  
+8. **Delete：删除 `bejietu`、`de2rt`、`deratio2rt`、`password`、`rcloned`、`rtnew`、`rtskip`**  
+因为留着也没啥用  
+9. **Delete：删除各类配置文件模板、apt 源模板、systemd 文件、deluge 第三方插件**  
+因为这些文件在各自软件的配置脚本里都已经包含了，而第三方 deluge 插件会从别处下载  
+
+`inexistence 1.2.7.4`  
+1. **Bump version to 1.2.7**  
+2. **Codes：删除系统升级相关的代码**  
+3. UI：对齐部分之前没对齐的文字  
+4. Codes：因为删除了 flood 的 systemd 文件，所以这部分内容在脚本里写入  
+
+`mingling 0.9.5.1`  
+1. CodeStyle：完善缩进  
+2. SSH_Usage：更新命令，删除不常用命令，`dew` 改为 `dw`  
+3. BugFix：修复 deluged@.service 文件是否存在的判断  
+
+`ask r11040`  
+1. Selection：删除 qb 4.2.3 选项以及静态编译的选项，4.2.5 改为 deb  
+2. Codes：删除各软件的 deb 可用列表变量  
+3. Feature：`do_installation` 的 `qbittorrent/install` 增加模式 source  
+4. Feature：`create_log_link`、`create_config_link`  
+5. **Codes：删除系统升级相关的代码**  
+
+`check-sys r12023`  
+1. Feature：更好的网卡判断方式  
+2. BugFix：修复检测到内网 IP 以后的 IP 判断逻辑  
+3. `#shellcheck disable=SC2068`  
+
+`function r14135`  
+1. `_execute`：更好的输出格式  
+2. NEW function：`echo_log_only`  
+3. `check_var_iUser_iPass_iHome`：将用户是否存在的检查移到第一步  
+4. **NEW function：`create_log_link`、`config_link_rename`、`create_config_link`**  
+5. **NEW function：`deb-get`**  
+6. NEW function：`set_log_when_there_is_none`、`lloogg`  
+这两个函数方便在单独 source function 时 debug  
+
+`s-alias r12018`
+1. 去掉 `$eth`  
+2. `dew` 改为 `dw`  
+3. 改进 `s-log` 逻辑  
+4. **加入 `s-info`**  
+s-info 可以引入变量和函数，显示 IP 信息、用户名、密码、常用路径（方便 debug 时复制粘贴）  
+
+`flexget/configure r10017`  
+1. BugFix：修复 `flexget_qbittorrent_mod` 插件没装好的问题  
+
+`ffgg r10005`  
+1. Feature：只有在显示帮助信息的时候才去检查 FlexGet 版本，由此加快脚本平时的运行速度  
+
+`transmission`
+1. 日志文件重命名为 `transmission.log`  
+
+
+
+
+
+
+
 
 
 ## [2020.07.03-04, 2+4 commits](https://github.com/Aniverse/inexistence/compare/d2f95a4...fde8a08)  

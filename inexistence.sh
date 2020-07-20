@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.6
-script_update=2020.07.19
+script_version=1.2.7.7
+script_update=2020.07.20
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -178,7 +178,7 @@ function ask_continue() {
     echo
     echo "                  ${cyan}${bold}qBittorrent${normal}   ${bold}${yellow}${qb_version}${normal}"
     echo "                  ${cyan}${bold}Deluge${normal}        ${bold}${yellow}${de_version}${normal}"
-    [[ $lt_version != RC_1_1 ]] &&
+    [[ -n $lt_version ]] && [[ $lt_version != RC_1_1 ]] &&
     echo "                  ${cyan}${bold}libtorrent${normal}    ${bold}${yellow}${lt_version}${normal}"
     echo "                  ${cyan}${bold}rTorrent${normal}      ${bold}${yellow}${rt_version}${normal}"
 
