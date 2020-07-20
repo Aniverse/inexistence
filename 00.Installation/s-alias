@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.15
-# script_version=r12018
+# script_update=2020.07.20
+# script_version=r12019
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -225,18 +225,27 @@ function s-log() {
     fi
 }
 
+
+
 function s-info() {
+    local more=$1
     source /etc/inexistence/00.Installation/function
     source /etc/inexistence/00.Installation/check-sys
     export_inexistence_info
-    echo "
-IPv4                $serveripv4
-IPv6                $serveripv6
-Interface           $interface
-
+    rm -f /tmp/.cpu.tmp
+    [[ $more == hw ]] && hardware_check_1 &&
+    echo -n "
+CPU                 $CPUNum$cname (${cpucores}C${cputhreads}T)
+RAM                 $tram MB ($uram MB Used)
+Disk                $disk_total_size GB ($disk_used_size GB Used)" > /tmp/.cpu.tmp
+    echo "$(cat /tmp/.cpu.tmp 2>/dev/null)
 OS                  $displayOS
 Kernel              $running_kernel
 Virtual             $virtual
+
+IPv4                $serveripv4
+IPv6                $serveripv6
+Interface           $interface
 
 Master User         $(cat /log/inexistence/info/installed.user.list.txt 2>/dev/null | head -1)
 Password            $iPass
@@ -247,12 +256,16 @@ local_repo          $local_repo
 local_script        $local_script
 local_packages      $local_packages
 inexistence_files   $inexistence_files
+
+network files       /etc/network/interfaces
+                    /etc/netplan/01-netcfg.yaml
+apt sources         /etc/apt/sources.list
 "
 }
 
 ################## Personal Alias END ##################
 
-setcolor
+# setcolor
 
 # Custom History Format
 HISTFILESIZE=4000
@@ -261,7 +274,7 @@ export HISTTIMEFORMAT="${yellow}[%F]${cyan}[%T]${normal} "
 
 # Disable mail check/warning
 shopt -u mailwarn
-unset MAILCHECK
+unset    MAILCHECK
 
 if [[ $1 == 1 ]];then
     echo -e "\n${green}Customed alias is enabled${normal}\n"
