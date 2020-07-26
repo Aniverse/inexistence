@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.20
-# script_version=r12019
+# script_update=2020.07.26
+# script_version=r12020
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -74,6 +74,26 @@ function jieya() {
     else
         echo "'$1' is not a valid file!"
     fi
+}
+
+function chaip() {
+    local ipv4=$1
+    echo $ipv4 | grep -qE '^[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?$' || { echo "Error: Not valid IPv4" ; exit 1 ; }
+    mkdir -p $HOME/.abench
+    wget --no-check-certificate -t1 -T6 -qO- https://ipapi.co/$ipv4/json > $HOME/.abench/ipapi 2>&1
+    ccoodde=$( cat $HOME/.abench/ipapi | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+    country=$( cat $HOME/.abench/ipapi | grep \"country_name\" | awk -F '"' '{print $4}' ) 2>/dev/null
+    regionn=$( cat $HOME/.abench/ipapi | grep \"region\"       | awk -F '"' '{print $4}' ) 2>/dev/null
+    cityyyy=$( cat $HOME/.abench/ipapi | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+    isppppp=$( cat $HOME/.abench/ipapi | grep \"org\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    asnnnnn=$( cat $HOME/.abench/ipapi | grep \"asn\"          | awk -F '"' '{print $4}' ) 2>/dev/null
+    [[ $cityyyy == Singapore ]] && unset cityyyy
+    [[ -z $isppppp ]] && isp="No ISP detected"
+    [[ -z $asnnnnn ]] && isp="No ASN detected"
+    rm -f $HOME/.abench/ipapi 2>&1
+    echo -e "$ipv4"
+    echo -e "$asnnnnn, $isppppp"
+    echo -e "$country, $regionn, $cityyyy"
 }
 
 # Creates an archive (*.tar.gz) from given directory.
