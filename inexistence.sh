@@ -10,7 +10,7 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.8
+script_version=1.2.7.9
 script_update=2020.08.05
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
@@ -548,15 +548,8 @@ function install_transmission() {
         mkdir -p /tmp/tr_deb
         cd /tmp/tr_deb
         for deb in $list ; do
-            wget -nv -O $deb https://github.com/Aniverse/inexistence-files/raw/master/deb/${CODENAME}/transmission/$deb
-          # apt-get -y install /tmp/tr_deb/$deb
+            deb-get transmission $deb install
         done
-        if [[ $CODENAME != jessie ]]; then
-            apt-get -y install ./*deb
-        else
-            dpkg -i ./*deb
-            apt-get -fy install
-        fi
         cd
         apt-mark hold transmission-common transmission-cli transmission-daemon transmission-gtk transmission-qt transmission
     else
