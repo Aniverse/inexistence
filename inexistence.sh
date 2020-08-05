@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.7
-script_update=2020.07.20
+script_version=1.2.7.8
+script_update=2020.08.05
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -247,12 +247,12 @@ function preparation() {
 
     echo -n "Installing packages ..."
     apt_install_check screen git sudo zsh nano wget curl cron lrzsz locales aptitude ca-certificates apt-transport-https virt-what lsb-release     \
-                      htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools nvme-cli                            \
-                      ethtool net-tools speedtest-cli mtr iperf iperf3               gawk jq bc ntpdate rsync tmux file tree time parted fuse perl \
+                      atop htop iotop dstat sysstat ifstat vnstat vnstati nload psmisc dirmngr hdparm smartmontools                                \
+                      ethtool net-tools mtr iperf iperf3                             gawk jq bc ntpdate rsync tmux file tree time parted fuse perl \
                       dos2unix subversion nethogs fontconfig ntp patch locate        lsof pciutils gnupg whiptail                                  \
-                      libgd-dev libelf-dev libssl-dev zlib1g-dev                     debian-archive-keyring software-properties-common             \
-                      zip unzip p7zip-full mediainfo mktorrent fail2ban lftp         bwm-ng wondershaper
+                      debian-archive-keyring software-properties-common zip unzip p7zip-full mediainfo mktorrent fail2ban lftp
                     # uuid socat figlet toilet lolcat
+                    # speedtest-cli nvme-cli libgd-dev libelf-dev libssl-dev zlib1g-dev bwm-ng wondershaper
     apt_install_together & spinner $!
 
     unset apt_install_failed ; source /tmp/apt_status >> "$OutputLOG" 2>&1

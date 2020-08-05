@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.29
-script_version=r10010
+script_update=2020.08.02
+script_version=r10011
 
 ################################################################################################ Debug
 
@@ -384,7 +384,7 @@ function deluge_get_plugins() {
     mkdir -p $iHome/.config/deluge/plugins
     cd $iHome/.config/deluge/plugins
     if version_ge $de_installed_ver 2.0 ; then
-        list="ltConfig-2.0.0   reannounce-0.1-py3.7"
+        list="ltConfig-2.0.0"
         for plugin in $list ; do
             cp -f $inexistence_files/deluge-plugins/${plugin}.egg .   >> $OutputLOG 2>&1
         done
