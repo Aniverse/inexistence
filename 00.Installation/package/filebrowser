@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.06.02
-script_version=r11013
+script_update=2020.08.09
+script_version=r11014
 
 ################################################################################################ Debug
 
@@ -82,7 +82,9 @@ PortCheck $wPort
 
 function get_filebrowser_origin () {
     mkdir -p /tmp/fb && cd /tmp/fb
-    wget -nv https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
+    # wget -nv https://github.com/filebrowser/filebrowser/releases/download/v2.0.16/linux-amd64-filebrowser.tar.gz  >> "$OutputLOG" 2>&1
+    latest=$(wget -qO- https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep browser_download_url | grep linux-amd64 | cut -d '"' -f 4)
+    wget $latest -O linux-amd64-filebrowser.tar.gz     >> "$OutputLOG" 2>&1
     tar zxf linux-amd64-filebrowser.tar.gz             >> "$OutputLOG" 2>&1
     mv /tmp/fb/filebrowser /usr/local/bin/filebrowser  >> "$OutputLOG" 2>&1
     cd && rm -rf /tmp/fb/filebrowser
@@ -100,6 +102,7 @@ function create_filebrowser_conf () {
     /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config init                                     >> "$OutputLOG" 2>&1
     /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db config set --locale  $lang                      >> "$OutputLOG" 2>&1
     /usr/local/bin/filebrowser -d $uhome/.config/filebrowser-ee/database.db users add $iUser $iPass --perm.admin            >> "$OutputLOG" 2>&1
+    chown ${user}.${user} -R ${uhome}/.config/filebrowser-ee/
 }
 
 function create_filebrowser_systemd () {
