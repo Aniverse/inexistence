@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.26
-# script_version=r12020
+# script_update=2020.08.09
+# script_version=r12021
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -245,7 +245,11 @@ function s-log() {
     fi
 }
 
-
+function s-debug() {
+    source /etc/inexistence/00.Installation/function
+    source /etc/inexistence/00.Installation/check-sys
+    set_log_when_there_is_none
+}
 
 function s-info() {
     local more=$1
@@ -290,7 +294,8 @@ apt sources         /etc/apt/sources.list
 # Custom History Format
 HISTFILESIZE=4000
 HISTSIZE=4000
-export HISTTIMEFORMAT="${yellow}[%F]${cyan}[%T]${normal} "
+# export HISTTIMEFORMAT="${yellow}[%F]${cyan}[%T]${normal} "
+export HISTTIMEFORMAT="$(tput setaf 3)[%F]$(tput setaf 6)[%T]$(tput sgr0) "
 
 # Disable mail check/warning
 shopt -u mailwarn
