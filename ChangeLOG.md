@@ -36,7 +36,6 @@
 * [x] 新 App：autoremove-torrents  
 * [ ] 新 App：Jackett  
 * [ ] 新 App：The Lounge  
-* [ ] 移除 rTorrent 0.9.6 及以下的选项  
 * [ ] deluge/install 支持 2.0.3 的 building  
 * [ ] 支持 python3-libtorrent building  
 * [ ] 支持 libtorrent 1.2.x  
@@ -55,18 +54,6 @@
 * [ ] 启用 nginx/configure  
 * [ ] `hezi` 脚本里加入新增用户、删除用户、改用户密码的功能  
 
-设想阶段（很可能砍掉或者无限期搁置）  
-
-* [ ] 加入 rTorrent 和 Transmission 的静态编译版本  
-* [ ] 某种程度上的 Docker 版 inexistence（与非 docker 版有区别，且不经常更新）  
-* [ ] Docker：deluge 1.3.9  with libtorrent 1.0.11  
-* [ ] Docker：deluge 1.3.15 with libtorrent 1.1.14  
-* [ ] Docker：deluge 2.0.3  with libtorrent 1.1.14  
-* [ ] Docker：deluge 2.0.3  with libtorrent 1.2.x  
-* [ ] Docker：qbittorrent 3.3.11 with libtorrent 1.0.11  
-* [ ] Docker：qbittorrent 4.1.9  with libtorrent 1.1.14  
-* [ ] Docker：qbittorrent 4.2.5  with libtorrent 1.1.14  
-
 
 
 
@@ -76,10 +63,51 @@
 
 # ChangeLog  
 
-## [2020.07.18-20, 9 commits](https://github.com/Aniverse/inexistence/compare/ee983e3...3addefb)  
+
+
+
+
+## [2020.07.26/08.05/08.09/08.17, 6 commits](https://github.com/Aniverse/inexistence/compare/620e4d3...bd189a8)  
 
 `the inexistence project`  
-1. **Codes：彻底删除了项目中的 deluge 插件（commits 历史中也删除了），降低了整个项目的体积**  
+1. Refactor：[BitTorrentClientCollection](https://github.com/Aniverse/BitTorrentClientCollection) 文件重新上传  
+- 清空历史提交记录  
+- 移除 deluge.plugins、firmware、miscellaneous，这些都放到了 [inexistence-files](https://github.com/Aniverse/inexistence-files) 内  
+- 移除 tcp.cc，直接从 qss 的 repo 里下载  
+- 新增 4.20-5.7 的 liquorix 内核（sid／buster 版）  
+2. Refactor：[inexistence-files](https://github.com/Aniverse/inexistence-files) 文件重新上传  
+- 清空历史提交记录  
+- 移除 deb 文件，那些文件可以从 [quickbox-files](https://github.com/amefs/quickbox-files) 下载  
+- 加入 ioping、fio、iperf3、smartctl 的静态编译版本  
+- 加入一些 patch 文件，如 de 跳校验、老版 rt 支持 ipv6、qbt.webui.table 等  
+- 更新 README  
+3. Refactor：XanMod 内核的下载移动到 [XanMod-DL](https://github.com/Aniverse/XanMod-DL)  
+- 目前有 4.9-5.7 的 XanMod 内核可供下载  
+
+`inexistence 1.2.7.9`  
+1. Feature：移除 speedtest-cli 的安装（避免与官方版本冲突）  
+2. BugFix：Transmission 的安装使用 deb-get  
+
+`deluge/configure r10011`  
+1. Feature：移除 reannounce-0.1-py3.7.egg  
+
+`filebrowser r11014`  
+1. Feature：使用最新版 filebrowser release  
+
+`s-alias r12022`  
+1. Feature：jieya 支持解压 tar.xz 文件了，并可以选择删除源文件  
+2. NewFunction：chaip，使用 ipapi 查 ip  
+3. NewFunction：s-debug  
+4. BugFix：修复注释了 setcolor 后，HISTTIMEFORMAT 无法显示高亮色彩的问题  
+
+
+
+
+
+## [2020.07.18-20, 10 commits](https://github.com/Aniverse/inexistence/compare/ee983e3...620e4d3)  
+
+`the inexistence project`  
+1. **Codes：彻底删除了项目中的 deluge 插件（commits 历史中也删除了），减少了整个项目的体积**  
 
 `inexistence 1.2.7.7`  
 1. UI：系统可以升级时，加入 DieNacht 的升级系统脚本的提示信息  
@@ -112,8 +140,10 @@
 `the inexistence project`  
 1. **Codes：删除系统升级相关的代码**  
 2. **NewFeature：将各软件的日志和配置文件链接到一个目录内，方便查看**  
-3. **NewFeature：使用 deb-get 下载 QuickBox-Lite 的 deb，支持 GitHub、SF、OSDN、CF**  
+3. **NewFeature：使用 deb-get 下载 QuickBox-Lite 的 deb**  
+默认从 GitHub 下载，失败的话则依次从 CF、OSDN、SourceForge 下载，全都失败的话再提示  
 4. NewOpts：`--qb-source`  
+这个选项强制让 qb 从源码编译安装  
 5. ClientScript：`export_inexistence_info` 后做 `check_var_iUser_iPass_iHome` 的检查  
 6. ClientScript：`ddee`、`ttrr`、`qqbb` 加入种子文件保存路径提示，`ffgg` 显示第三方插件存放路径  
 7. Delete：删除 `python` 脚本，因为已经有 `pyenv` 了  
@@ -154,25 +184,25 @@
 6. NEW function：`set_log_when_there_is_none`、`lloogg`  
 这两个函数方便在单独 source function 时 debug  
 
-`s-alias r12018`
+`s-alias r12018`  
 1. 去掉 `$eth`  
 2. `dew` 改为 `dw`  
 3. 改进 `s-log` 逻辑  
 4. **加入 `s-info`**  
 s-info 可以引入变量和函数，显示 IP 信息、用户名、密码、常用路径（方便 debug 时复制粘贴）  
 
-`flexget/configure r10017`  
+`qBittorrent/install r12045`  
+1. **Feature：使用 `deb-get` 获取可用 deb 版本号，对于支持 deb 的版本，默认使用 deb 安装**  
+目前有 4.1.7-4.2.5 的 deb 可供选择  
+
+`FlexGet/configure r10017`  
 1. BugFix：修复 `flexget_qbittorrent_mod` 插件没装好的问题  
 
 `ffgg r10005`  
 1. Feature：只有在显示帮助信息的时候才去检查 FlexGet 版本，由此加快脚本平时的运行速度  
 
-`transmission`
+`ABOUT transmission`  
 1. 日志文件重命名为 `transmission.log`  
-
-
-
-
 
 
 
