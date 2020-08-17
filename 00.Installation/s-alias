@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.08.09
-# script_version=r12021
+# script_update=2020.08.16
+# script_version=r12022
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -56,21 +56,26 @@ xargs -0 egrep --color=always -sn ${case} "$1" 2>&- | more
 }
 
 function jieya() {
-    if [ -f $1 ] ; then
+    file=$1
+    delete=$2
+    if [ -f $file ] ; then
         case $1 in
-            *.tar.bz2)   tar xvjf $1     ;;
-            *.tar.gz)    tar xvzf $1     ;;
-            *.bz2)       bunzip2 $1      ;;
-            *.rar)       unrar x $1      ;;
-            *.gz)        gunzip $1       ;;
-            *.tar)       tar xvf $1      ;;
-            *.tbz2)      tar xvjf $1     ;;
-            *.tgz)       tar xvzf $1     ;;
-            *.zip)       unzip $1        ;;
-            *.Z)         uncompress $1   ;;
-            *.7z)        7z x $1         ;;
-            *)           echo "'$1' cannot be extracted via >jieya<" ;;
+            *.tar.bz2)   tar xvjf $1        ;;
+            *.tar.gz)    tar xvzf $1        ;;
+            *.tar.xz)    xz -d    $1         ;
+                         tar xvf ${file%.*} ;;
+            *.bz2)       bunzip2  $1        ;;
+            *.rar)       unrar x  $1        ;;
+            *.gz)        gunzip   $1        ;;
+            *.tar)       tar xvf  $1        ;;
+            *.tbz2)      tar xvjf $1        ;;
+            *.tgz)       tar xvzf $1        ;;
+            *.zip)       unzip $1           ;;
+            *.Z)         uncompress $1      ;;
+            *.7z)        7z x $1            ;;
+            *)           echo "'$1' cannot be extracted via jieya" ;;
         esac
+        [[ $delete == d ]] && rm -f $file ${file%.*}
     else
         echo "'$1' is not a valid file!"
     fi
@@ -103,7 +108,7 @@ function make-tar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
 function make-zip() { zip -r "${1%%/}.zip" "$1" ; }
 
 if (! export | grep -q sbin); then
-     export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+    export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 fi
 
 newpass() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
