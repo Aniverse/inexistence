@@ -5,15 +5,15 @@
 #
 #################################################################################
 
-script_update=2020.01.25
-script_version=r20005
+script_update=2020.08.19
+script_version=r21006
 
 #################################################################################
 
 usage_guide() {
-s=/usr/bin/deluge-update-tracker
-s=/root/deluge-update-tracker
-rm -f $s ; nano $s ; chmod 755 $s
+    s=/usr/bin/local/deluge-update-tracker
+    s=s=$HOME/.config/deluge/script/deluge-update-tracker ; mkdir -p $HOME/.config/deluge/script
+    rm -f $s ; nano $s ; chmod 755 $s
 # enable execute plugin, reboot deluged, use /root/deluge-update-tracker as path (/usr/bin/deluge-update-tracker or deluge-update-tracker is not executeable emmmm)
 }
 
@@ -34,65 +34,75 @@ local=127.0.0.1
 log=/log/script/deluge-update-tracker.log
 [[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch $log ; }
 
+if [[ $EUID == 0 ]]; then
+    source /etc/inexistence/00.Installation/function
+    export_inexistence_info
+    chown $iUser: $log
+else
+    iHome="$HOME"
+fi
+
 # ddport=58846
-ddport=$(grep '"daemon_port": [0-9]*' $HOME/.config/deluge/core.conf | grep -oE "[0-9]+")
+ddport=$(grep '"daemon_port": [0-9]*' $iHome/.config/deluge/core.conf | grep -oE "[0-9]+")
 [[ -z $ddport ]] && { echo "ERROR: No daemon port detected!" >> $log ; exit 1 ; }
 [[ -z $(which deluge-console) ]] && { echo "ERROR: No deluge-console detected!" >> $log ; exit 1 ; }
 
-#################################################################################
+find /usr/lib/python*/dist-packages/deluge*/deluge/ui/console/commands -type f -printf "%f\n" | 
+sort -d | grep update-tracker -q &&
+update_tracker=1
 
-function clean_history(){ echo -n > $log ; }
-function tail_log(){      tail -300 $log ; }
-
-#################################################################################
-
-OPTS=$(getopt -n "$0" -o cl --long "log,clean" -- "$@")
-#[ ! $? = 0 ] && show_usage
-eval set -- "$OPTS"
-
-while [ -n "$1" ] ; do case "$1" in
-    -l | --log   ) tail_log        ; NoAction=y ; shift ;;
-    -c | --clean ) clean_history   ; NoAction=y ; shift ;;
-    -- ) shift ; break ;;
-esac ; done
+connect_detail="connect $local:$ddport $iUser $iPass"
+connect_detail="connect $local:$ddport"
 
 #################################################################################
-[[ $NoAction != y ]] && { x=1
 
-
-
-
-
-while [ $x -le 65 ]; do
-    sleep 2
-    echo -e "$(date "+%Y.%m.%d %H:%M:%S") [$x]\t$torrentname" >> $log
-    line=$(deluge-console "connect $local:$ddport; info" $1 2>&1 | grep "Tracker status")
-    echo "$line" >> $log
-    case "$line" in
-		*Unregistered*|*unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*|*Error*|*timed*out)
-            deluge-console "connect $local:$ddport; pause '$torrentid'"
-            sleep 2
-            deluge-console "connect $local:$ddport; resume '$torrentid'"
-            ;;
-        *)
-            echo -e "${green}[Good] $torrentname${normal}\n" >> $log
-            break ;;
-    esac
-    x=$(( $x + 1 ))
-done
-
-
-
-
-
+function update_tracker(){
+    if [[ $update_tracker == 1 ]]; then
+        deluge-console "$connect_detail; update-tracker '$torrentid'"
+    else
+        deluge-console "$connect_detail; pause          '$torrentid'"
+        sleep 2
+        deluge-console "$connect_detail; resume         '$torrentid'"
+    fi
 }
-#################################################################################
-#################################################################################
-#################################################################################
-#################################################################################
-#################################################################################
+
+function main(){
+    x=1
+    while [ $x -le 65 ]; do
+        sleep 2
+        echo -e "$(date "+%Y.%m.%d %H:%M:%S") [$x]\t$torrentname" >> $log
+        line=$(deluge-console "connect $local:$ddport; info" $1 2>&1 | grep "Tracker status")
+        echo "$line" >> $log
+        case "$line" in
+     	    *Unregistered*|*unregistered*|*Sent*|*End*of*file*|*Bad*Gateway*|*Error*|*error*|*timed*out|*502*|*种子不存在于本服务器上*)
+                update_tracker ;;
+            *)
+                echo -e "${green}[Good] $torrentname${normal}\n" >> $log ;
+                break ;;
+        esac
+        x=$(( $x + 1 ))
+    done
+}
 
 
+if   [[ -z $torrentid ]]; then
+    sleep 0
+elif [[ $torrentid == "-l" ]]; then
+    printf "%-70s\n" "-" | sed 's/\s/-/g'
+    tail -300 $log
+    printf "%-70s\n" "-" | sed 's/\s/-/g'
+elif [[ $torrentid == "-c" ]]; then
+    echo -n > $log
+    echo "Log clean"
+else
+    main
+fi
+
+#################################################################################
+#################################################################################
+#################################################################################
+#################################################################################
+#################################################################################
 
 unused_codes_ignore_these() {
 # echo "[Info]    TorrentID: $torrentid" >> $log
