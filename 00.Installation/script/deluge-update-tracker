@@ -6,15 +6,15 @@
 #################################################################################
 
 script_update=2020.08.19
-script_version=r21006
+script_version=r22007
 
 #################################################################################
 
 usage_guide() {
     s=/usr/bin/local/deluge-update-tracker
-    s=s=$HOME/.config/deluge/script/deluge-update-tracker ; mkdir -p $HOME/.config/deluge/script
+    s=$iHome/.config/deluge/script/deluge-update-tracker ; mkdir -p $iHome/.config/deluge/script
     rm -f $s ; nano $s ; chmod 755 $s
-# enable execute plugin, reboot deluged, use /root/deluge-update-tracker as path (/usr/bin/deluge-update-tracker or deluge-update-tracker is not executeable emmmm)
+    # enable execute plugin, reboot deluged, use /root/deluge-update-tracker as path (/usr/bin/deluge-update-tracker or deluge-update-tracker is not executeable emmmm)
 }
 
 #################################################################################
@@ -30,6 +30,10 @@ blue='\033[0;34m'    ; magenta='\033[0;35m' ; cyan='\033[0;36m'    ; white='\033
 
 #################################################################################
 
+find /usr/lib/python*/dist-packages/deluge*/deluge/ui/console/commands -type f -printf "%f\n" | 
+sort -d | grep update-tracker -q &&
+update_tracker=1
+
 local=127.0.0.1
 log=/log/script/deluge-update-tracker.log
 [[ ! -f $log ]] && { mkdir -p $(dirname $log) ; touch $log ; }
@@ -38,6 +42,12 @@ if [[ $EUID == 0 ]]; then
     source /etc/inexistence/00.Installation/function
     export_inexistence_info
     chown $iUser: $log
+    if [[ $update_tracker != 1 ]]; then
+        deluge_cmd_path=$(dirname $(find /usr/lib/python*/dist-packages/deluge*/deluge/ui/console/commands -type f | head -1))
+        cd $deluge_cmd_path
+        wget https://github.com/Aniverse/inexistence-files/raw/master/miscellaneous/update-tracker.py -O update-tracker.py
+        chmod 644 update-tracker.py
+    fi
 else
     iHome="$HOME"
 fi
@@ -46,10 +56,6 @@ fi
 ddport=$(grep '"daemon_port": [0-9]*' $iHome/.config/deluge/core.conf | grep -oE "[0-9]+")
 [[ -z $ddport ]] && { echo "ERROR: No daemon port detected!" >> $log ; exit 1 ; }
 [[ -z $(which deluge-console) ]] && { echo "ERROR: No deluge-console detected!" >> $log ; exit 1 ; }
-
-find /usr/lib/python*/dist-packages/deluge*/deluge/ui/console/commands -type f -printf "%f\n" | 
-sort -d | grep update-tracker -q &&
-update_tracker=1
 
 connect_detail="connect $local:$ddport $iUser $iPass"
 connect_detail="connect $local:$ddport"
