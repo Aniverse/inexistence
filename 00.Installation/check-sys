@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.15
-# script_version=r12023
+# script_update=2020.08.29
+# script_version=r12024
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -43,7 +43,7 @@ DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
 [[ ! $DISTRO =~ (Ubuntu|Debian) ]] && DISTRO=$(get_opsy)
 
 check_pm() {
-    if  type dnf      >/dev/null 2>&1; then  # Fedora, CentOS 8
+    if   type dnf     >/dev/null 2>&1; then  # Fedora, CentOS 8
         pm=dnf
     elif type yum     >/dev/null 2>&1; then  # CentOS
         pm=yum
@@ -672,44 +672,50 @@ seedbox_check() {
 ################################################################################################ Disk check
 ################################################################################################
 
+function grep_power_on_hours () {
+    while read line ; do echo "$line" | grep Power_On_Hours | awk '{if (index($10, "h") > 0) {print substr($10, 1, index($10, "h") -1)} else print $10}' ; done
+}
 
+function grep_disk_model () {
+    while read line ; do echo "$line" | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}' ; done
+}
 
 # Origin code from https://github.com/dave-pl/hwcheck
 function disk_check_smart () {
     case "$raidcard" in
         NoRaid      )   disk=$(fdisk -l 2>/dev/null| grep -i dev |egrep -v "(/dev/[brm])"| awk '/:/ {print $2}'| cut -f 1 -d ":") ; d=0
                         for i in $disk; do
-                            if [[ $( smartctl -a $i | grep Power_On_Hours | awk '{print $NF}') ]]; then
+                            if [[ $( smartctl -a $i | grep_power_on_hours) ]]; then
                                 num="disk-$(expr $d + 1)"
-                                power_on_hours=$(smartctl -a $i | grep Power_On_Hours | awk '{print $NF}')
+                                power_on_hours=$(smartctl -a $i | grep_power_on_hours)
                                 model=$(smartctl -a $i | grep "Device Model"| grep -vi qemu | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
                         done
                         ;;
         MegaRAID    )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a -d megaraid,$i /dev/sg0 | grep Power_On_Hours ) ]]; then
+                            if [[ $( smartctl -a -d megaraid,$i /dev/sg0 | grep_power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a -d megaraid,$i /dev/sg0 | grep Power_On_Hours | awk '{print $NF}')
-                                model=$(smartctl -a -d megaraid,$i /dev/sg0 | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                power_on_hours=$(smartctl -a -d megaraid,$i /dev/sg0 | grep_power_on_hours)
+                                model=$(smartctl -a -d megaraid,$i /dev/sg0 | grep_disk_model)
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
                          done
                         ;;
         HP-RAID     )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a -d cciss,$i /dev/sg0 | grep Power_On_Hours ) ]]; then
+                            if [[ $( smartctl -a -d cciss,$i /dev/sg0 | grep_power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a -d cciss,$i /dev/sg0 | grep Power_On_Hours | awk '{print $NF}')
-                                model=$(smartctl -a -d cciss,$i /dev/sg0 | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                power_on_hours=$(smartctl -a -d cciss,$i /dev/sg0 | grep_power_on_hours)
+                                model=$(smartctl -a -d cciss,$i /dev/sg0 | grep_disk_model)
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
                         done
                         ;;
         SCSI        )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a /dev/sg$i | grep Power_On_Hours ) ]]; then
+                            if [[ $( smartctl -a /dev/sg$i | grep_power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a /dev/sg$i | grep Power_On_Hours | awk '{print $NF}')
-                                model=$(smartctl -a /dev/sg$i | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
+                                power_on_hours=$(smartctl -a /dev/sg$i | grep_power_on_hours)
+                                model=$(smartctl -a /dev/sg$i | grep_disk_model)
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
                       done
@@ -724,9 +730,9 @@ function disk_check_smart () {
                         done
                         ;;
         Adaptec     )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a /dev/sg$i | grep Power_On_Hours ) ]]; then
+                            if [[ $( smartctl -a /dev/sg$i | grep_power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a /dev/sg$i | grep Power_On_Hours | awk '{print $NF}')
+                                power_on_hours=$(smartctl -a /dev/sg$i | grep_power_on_hours)
                                 model=$(smartctl -a /dev/sg$i | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
                                 echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
                             fi
