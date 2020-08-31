@@ -132,6 +132,7 @@ hardware_check_1() {
     disk_size2=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $3}' ))
     disk_total_size=$( calc_disk "${disk_size1[@]}" )
     disk_used_size=$( calc_disk "${disk_size2[@]}" )
+    TOTAL_DISK=$(df -t simfs -t ext2 -t ext3 -t ext4 -t btrfs -t xfs -t vfat -t ntfs -t swap --total -h | grep total | awk '{ print $2 }')
 
     # If SSD
     cat /sys/block/sd*/queue/rotational 2>/dev/null | grep -q 0 && SSD=yes
@@ -620,6 +621,17 @@ ip_ipapi() {
     rm -f $HOME/.abench/ipapi 2>&1
 }
 
+# bench.sh
+ip_ipinfo() {
+    local org="$(wget -q -T10 -O- ipinfo.io/org)"
+    local city="$(wget -q -T10 -O- ipinfo.io/city)"
+    local country="$(wget -q -T10 -O- ipinfo.io/country)"
+    local region="$(wget -q -T10 -O- ipinfo.io/region)"
+    [[ -n "$org" ]] && echo " Organization          : $(echo "$org")"
+    [[ -n "$city" && -n "$country" ]] && echo " Location              : $(echo "$city / $country")"
+    [[ -n "$region" ]] && echo " Region                : $(echo "$region")"
+}
+
 
 
 
@@ -716,33 +728,18 @@ dd_benchmark()   {
 ################################################################################################
 ################################################################################################ Network test
 ################################################################################################
-
+# https://install.speedtest.net/ooklaserver/ooklaserver.sh
 
 
 
 # These codes are from bench.sh
 ################################################################################################
 
-_64bit(){
-    if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 # https://www.speedtest.net/apps/cli
 install_speedtest_cli_offical() {
     if  ! has_cmd speedtest ; then
-        _64bit && sys_bit=x86_64 || sys_bit=i386
-        # ARM is not supported in this way
-        url1="https://dl.bintray.com/ookla/download/ookla-speedtest-1.0.0-${sys_bit}-linux.tgz"
-        url2="https://dl.lamp.sh/files/ookla-speedtest-1.0.0-${sys_bit}-linux.tgz"
-        wget --no-check-certificate -q -T10 -O speedtest.tgz ${url1}
-        if  [ $? -ne 0 ]; then
-            wget --no-check-certificate -q -T10 -O speedtest.tgz ${url2}
-            [ $? -ne 0 ] && echo -e "Error: Failed to download speedtest cli.\n" && exit 1
-        fi
+        wget --no-check-certificate -T10 -qO speedtest.tgz https://cdn.jsdelivr.net/gh/oooldking/script@1.1.7/speedtest_cli/ookla-speedtest-1.0.0-$(uname -m)-linux.tgz
+        [ $? -ne 0 ] && echo -e "Error: Failed to download speedtest cli.\n" && exit 1
         if [[ $EUID == 0 ]]; then
             speedtest_cmd=/usr/local/bin/speedtest
         else
@@ -986,41 +983,6 @@ check_release() {
     fi
 }
 
-# This function doesn't work anymore
-ip_ipip() {
-    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
-    ipip_result=$HOME/ipip_result
-    wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
-    ipip_IP=$(   cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
-    ipip_ASN=$(  cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
-    ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
-    ipip_AS=$(   cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
-    ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
-    ipip_Loc=$(  cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-    ipip_ISP=$(  cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
-    rm -f $ipip_result
-    # echo -e  "  反向域名              ${green}$ipip_rDNS${jiacu}"
-    # echo -e  "  运营商                ${green}$ipip_ISP${jiacu}"
-    # echo -e  "  AS  信息              ${green}$asnnnnn, $isppppp${jiacu}"
-    # echo -e  "  地理位置              ${green}$ipip_Loc${jiacu}"
-}
-
-# Lack detail info
-ip_mix() {
-    echo -e "${bold}正在检查服务器的地理位置（可能不准） ...${normal}"
-    result=$( wget -t1 -T10 -qO- http://freeapi.ipip.net/$serveripv4 )
-    country=$( echo $result | awk -F '"' '{print $2}' )
-    region=$( echo $result | awk -F '"' '{print $4}' )
-    city=$( echo $result | awk -F '"' '{print $6}' )
-    citydisplay=$( echo "$city, ")
-    #isp=$( echo $result | awk -F '"' '{print $10}' )
-    echo -e "${bold}正在检查服务器的 ISP ...${normal}"
-    isp=$( wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/json | grep \"org\" | awk -F '"' '{print $4}' )
-    echo -e "${bold}正在检查服务器的 ASN ...${normal}"
-    asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
-}
-
-
 deprecated_disk_check() {
     # 其实这个判定对于独服可能不太对
     # disk_par_num=$(df -lh | grep -P "/home[0-9]+|media|home|mnt" | wc -l)
@@ -1063,4 +1025,141 @@ deprecated_interface_check() {
     wangka1=$(ip link show 2>&1 | grep -i broadcast | grep -m1 UP   | cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
     wangka2=$(ip link show 2>&1 | grep -i broadcast | grep -e MASTER| cut -d: -f 2 | cut -d@ -f 1 | sed 's/ //g')
     interface=${wangka1[0]} ; [[ -n $wangka2 ]] && interface=$wangka2
+}
+
+################################################################################################
+################################################################################################ deprecated - check ip info
+################################################################################################
+
+# This function doesn't work anymore
+ip_ipip() {
+    echo -e "${bold}正在检查服务器的其他 IP 信息 ... (可能要很久)${normal}"
+    ipip_result=$HOME/ipip_result
+    wget --no-check-certificate -qO- https://www.ipip.net/ip.html > $ipip_result 2>&1
+    ipip_IP=$(   cat $ipip_result | grep -A3 IP     | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -1 )
+    ipip_ASN=$(  cat $ipip_result | grep -C7 ASN    | grep -oE "AS[0-9]+" | head -1 )
+    ipip_CIDR=$( cat $ipip_result | grep -C15 CIDR | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+" | head -1 )
+    ipip_AS=$(   cat $ipip_result | grep -A1 $ipip_CIDR | grep -v $ipip_CIDR | grep -o "$ipip_ASN.*</a" | cut -d '>' -f2 | cut -d '<' -f1 )
+    ipip_rDNS=$( cat $ipip_result | grep -oE "rDNS: [a-zA-Z0-9.-]+" | sed "s/rDNS: //" )
+    ipip_Loc=$(  cat $ipip_result | grep -A10 "https://tools.ipip.net/traceroute.php?ip=" | grep 720px | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+    ipip_ISP=$(  cat $ipip_result | grep "display: inline-block;text-align: center;width: 720px;float: left;line-height: 46px" | sed -n '2p' | grep -oE ">.*<" | sed "s/>//" | sed "s/<//" )
+    rm -f $ipip_result
+    # echo -e  "  反向域名              ${green}$ipip_rDNS${jiacu}"
+    # echo -e  "  运营商                ${green}$ipip_ISP${jiacu}"
+    # echo -e  "  AS  信息              ${green}$asnnnnn, $isppppp${jiacu}"
+    # echo -e  "  地理位置              ${green}$ipip_Loc${jiacu}"
+}
+
+# Lack detail info
+ip_mix() {
+    echo -e "${bold}正在检查服务器的地理位置（可能不准） ...${normal}"
+    result=$( wget -t1 -T10 -qO- http://freeapi.ipip.net/$serveripv4 )
+    country=$( echo $result | awk -F '"' '{print $2}' )
+    region=$( echo $result | awk -F '"' '{print $4}' )
+    city=$( echo $result | awk -F '"' '{print $6}' )
+    citydisplay=$( echo "$city, ")
+    #isp=$( echo $result | awk -F '"' '{print $10}' )
+    echo -e "${bold}正在检查服务器的 ISP ...${normal}"
+    isp=$( wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/json | grep \"org\" | awk -F '"' '{print $4}' )
+    echo -e "${bold}正在检查服务器的 ASN ...${normal}"
+    asn=$(wget --no-check-certificate -t1 -T10 -qO- https://ipapi.co/asn/)
+}
+
+superbench_ip_info1() {
+    # use jq tool
+    result=$(curl -s 'http://ip-api.com/json')
+    country=$(echo $result | jq '.country' | sed 's/\"//g')
+    city=$(echo $result | jq '.city' | sed 's/\"//g')
+    isp=$(echo $result | jq '.isp' | sed 's/\"//g')
+    as_tmp=$(echo $result | jq '.as' | sed 's/\"//g')
+    asn=$(echo $as_tmp | awk -F ' ' '{print $1}')
+    org=$(echo $result | jq '.org' | sed 's/\"//g')
+    countryCode=$(echo $result | jq '.countryCode' | sed 's/\"//g')
+    region=$(echo $result | jq '.regionName' | sed 's/\"//g')
+    if [ -z "$city" ]; then
+        city=${region}
+    fi
+
+    echo -e " ASN & ISP            : ${cyan}$asn, $isp${normal}"
+    echo -e " Organization         : ${yellow}$org${normal}"
+    echo -e " Location             : ${cyan}$city, ${yellow}$country / $countryCode${normal}"
+    echo -e " Region               : ${cyan}$region${normal}"
+}
+
+superbench_ip_info2() {
+    # no jq
+    country=$(curl -s https://ipapi.co/country_name/)
+    city=$(curl -s https://ipapi.co/city/)
+    asn=$(curl -s https://ipapi.co/asn/)
+    org=$(curl -s https://ipapi.co/org/)
+    countryCode=$(curl -s https://ipapi.co/country/)
+    region=$(curl -s https://ipapi.co/region/)
+
+    echo -e " ASN & ISP            : ${cyan}$asn${normal}"
+    echo -e " Organization         : ${cyan}$org${normal}"
+    echo -e " Location             : ${cyan}$city, ${GREEN}$country / $countryCode${normal}"
+    echo -e " Region               : ${cyan}$region${normal}"
+}
+
+superbench_init(){
+    if  [ ! -e './speedtest-cli/speedtest' ]; then
+        echo " Installing Speedtest-cli ..."
+        wget --no-check-certificate -qO speedtest.tgz https://cdn.jsdelivr.net/gh/oooldking/script@1.1.7/speedtest_cli/ookla-speedtest-1.0.0-$(uname -m)-linux.tgz > /dev/null 2>&1
+    fi
+    mkdir -p speedtest-cli && tar zxvf speedtest.tgz -C ./speedtest-cli/ > /dev/null 2>&1 && chmod a+rx ./speedtest-cli/speedtest
+    if  [ ! -e 'tools.py' ]; then
+        echo " Installing tools.py ..."
+        wget --no-check-certificate https://cdn.jsdelivr.net/gh/oooldking/script@1.1.7/tools.py > /dev/null 2>&1
+    fi
+    chmod a+rx tools.py
+    if  [ ! -e 'fast_com.py' ]; then
+        echo " Installing Fast.com-cli ..."
+        wget --no-check-certificate https://cdn.jsdelivr.net/gh/sanderjo/fast.com@master/fast_com.py > /dev/null 2>&1
+        wget --no-check-certificate https://cdn.jsdelivr.net/gh/sanderjo/fast.com@master/fast_com_example_usage.py > /dev/null 2>&1
+    fi
+    chmod a+rx fast_com.py
+    chmod a+rx fast_com_example_usage.py
+}
+
+superbench_ip_info4(){
+    ip_date=$(curl -4 -s http://api.ip.la/en?json)
+    echo $ip_date > ip_json.json
+    isp=$(python tools.py geoip isp)
+    as_tmp=$(python tools.py geoip as)
+    asn=$(echo $as_tmp | awk -F ' ' '{print $1}')
+    org=$(python tools.py geoip org)
+    if [ -n "$ip_date" ]; then
+        echo $ip_date
+        echo "hala"
+        country=$(python tools.py ipip country_name)
+        city=$(python tools.py ipip city)
+        countryCode=$(python tools.py ipip country_code)
+        region=$(python tools.py ipip province)
+    else
+        country=$(python tools.py geoip country)
+        city=$(python tools.py geoip city)
+        countryCode=$(python tools.py geoip countryCode)
+        region=$(python tools.py geoip regionName)  
+    fi
+    if [ -z "$city" ]; then
+        city=${region}
+    fi
+
+    echo -e " ASN & ISP            : ${cyan}$asn, $isp${normal}"
+    echo -e " Organization         : ${yellow}$org${normal}"
+    echo -e " Location             : ${cyan}$city, ${yellow}$country / $countryCode${normal}"
+    echo -e " Region               : ${cyan}$region${normal}"
+
+    rm -rf tools.py
+    rm -rf ip_json.json
+}
+
+ip_ipapi_2() {
+    mkdir -p $HOME/.abench
+    wget -t1 -T6 -qO- -4 'http://ip-api.com/json' | sed "s|,|\n|g" > $HOME/.abench/ip-api 2>&1
+    country=$( cat $HOME/.abench/ip-api | grep \"country\"      | awk -F '"' '{print $4}' ) 2>/dev/null
+    regionn=$( cat $HOME/.abench/ip-api | grep \"regionName\"   | awk -F '"' '{print $4}' ) 2>/dev/null
+    cityyyy=$( cat $HOME/.abench/ip-api | grep \"city\"         | awk -F '"' '{print $4}' ) 2>/dev/null
+    asnnnnn=$( cat $HOME/.abench/ip-api | grep \"as\"           | awk -F '"' '{print $4}' ) 2>/dev/null
+    [[ $cityyyy == Singapore ]] && unset cityyyy
 }
