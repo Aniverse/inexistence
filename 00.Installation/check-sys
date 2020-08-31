@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.08.31
-# script_version=r12025
+# script_version=r12026
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -30,10 +30,27 @@ get_opsy() {
     [ -f /etc/lsb-release    ] && awk -F'[="]+' '/DESCRIPTION/{print $2}'       /etc/lsb-release    && return
 }
 
-lbit=$(getconf LONG_BIT 2>&1)
+has_cmd() {
+    local cmd="$1"
+    if  eval type type > /dev/null 2>&1; then
+        eval type "$cmd" > /dev/null 2>&1
+    elif command > /dev/null 2>&1; then
+         command -v "$cmd" > /dev/null 2>&1
+    else
+        which "$cmd" > /dev/null 2>&1
+    fi
+    local rt=$?
+    return ${rt}
+}
+
 running_kernel=$(uname -r 2>&1)
 arch=$(uname -m 2>&1)
-[ -z $arch ] && arch=$(echo "x$(getconf LONG_BIT)")
+if  has_cmd "getconf" ; then
+    lbit=$( getconf LONG_BIT )
+else
+    echo ${arch} | grep -q "64" && lbit="64" || lbit="32"
+fi
+[[ -z $arch ]] && arch=$(echo "x$(getconf LONG_BIT)")
 
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
@@ -133,8 +150,14 @@ hardware_check_1() {
     processes=`ps aux | wc -l`
     uptime1=$( awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60} {printf("%d days %d hour %d min\n",a,b,c)}' /proc/uptime )
     uptime2=`uptime | grep -ohe 'up .*' | sed 's/,/\ hours/g' | awk '{ printf $2" "$3 }'`
-    load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
+    if has_cmd "w"; then
+        load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
+    elif has_cmd "uptime"; then
+        load=$( uptime | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
+    fi
 }
+
+
 
 
 check_tcp_acc() {
@@ -457,7 +480,7 @@ function pm_action(){
 # Virt-what
 check_virt() {
     local virtualx=$(dmesg 2>&1)
-    local arch=$(uname -p)
+    local uname_p=$(uname -p 2>&1)
     local dmi=$(LANG=C dmidecode 2>&1)
 
     if  [ $(which dmidecode) ]; then
@@ -526,7 +549,7 @@ check_virt() {
         virtual="No Virtualization Detected"
     fi
 
-    if [ "$arch" = "ia64" ]; then
+    if [ "$uname_p" = "ia64" ]; then
         if [ -d "/sys/bus/xen" -a ! -d "/sys/bus/xen-backend" ]; then
            virtual="Xen-HVM"
         fi
@@ -672,6 +695,7 @@ seedbox_check() {
 ################################################################################################
 
 
+
 # https://github.com/n-st/nench
 Bps_to_MiBps()   { awk '{ printf "%.2f MiB/s\n", $0 / 1024 / 1024 } END { if (NR == 0) { print "error" } }' ; }
 Bps_to_MBps()    { awk '{ printf "%.0f MB/s\n", $0 / 1000 / 1000  } END { if (NR == 0) { print "error" } }' ; }
@@ -688,6 +712,82 @@ dd_benchmark()   {
 }
 
 
+
+################################################################################################
+################################################################################################ Network test
+################################################################################################
+
+
+
+
+# These codes are from bench.sh
+################################################################################################
+
+_64bit(){
+    if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# https://www.speedtest.net/apps/cli
+install_speedtest_cli_offical() {
+    if  ! has_cmd speedtest ; then
+        _64bit && sys_bit=x86_64 || sys_bit=i386
+        # ARM is not supported in this way
+        url1="https://dl.bintray.com/ookla/download/ookla-speedtest-1.0.0-${sys_bit}-linux.tgz"
+        url2="https://dl.lamp.sh/files/ookla-speedtest-1.0.0-${sys_bit}-linux.tgz"
+        wget --no-check-certificate -q -T10 -O speedtest.tgz ${url1}
+        if  [ $? -ne 0 ]; then
+            wget --no-check-certificate -q -T10 -O speedtest.tgz ${url2}
+            [ $? -ne 0 ] && echo -e "Error: Failed to download speedtest cli.\n" && exit 1
+        fi
+        if [[ $EUID == 0 ]]; then
+            speedtest_cmd=/usr/local/bin/speedtest
+        else
+            speedtest_cmd=$HOME/.abench/bin/speedtest
+            mkdir -p $HOME/.abench/bin $HOME/.abench/speedtest
+            echo $PATH | grep -q $HOME/.abench/bin || export PATH=$HOME/.abench/bin:$PATH
+        fi
+        mkdir -p speedtest-cli && tar zxf speedtest.tgz -C ./speedtest-cli && chmod +x ./speedtest-cli/speedtest
+        cp -f ./speedtest-cli/speedtest $speedtest_cmd
+        rm -f speedtest.tgz ./speedtest-cli
+    fi
+}
+
+speedtest_offical_cli_teddysun() {
+    mkdir -p $HOME/.abench/speedtest
+    local nodeName="$2"
+    [ -z "$1" ] && speedtest --progress=no --accept-license --accept-gdpr > $HOME/.abench/speedtest/speedtest.log 2>&1 || \
+    speedtest --progress=no --server-id=$1 --accept-license --accept-gdpr > $HOME/.abench/speedtest/speedtest.log 2>&1
+    if [ $? -eq 0 ]; then
+        local dl_speed=$(awk '/Download/{print $3" "$4}' $HOME/.abench/speedtest/speedtest.log)
+        local up_speed=$(awk '/Upload/{print   $3" "$4}' $HOME/.abench/speedtest/speedtest.log)
+        local  latency=$(awk '/Latency/{prin t $2" "$3}' $HOME/.abench/speedtest/speedtest.log)
+        if [[ -n "${dl_speed}" && -n "${up_speed}" && -n "${latency}" ]]; then
+            printf "\033[0;33m%-18s\033[0;32m%-18s\033[0;31m%-20s\033[0;36m%-12s\033[0m\n" " ${nodeName}" "${up_speed}" "${dl_speed}" "${latency}"
+        fi
+    fi
+}
+
+speedtest_teddysun() {
+    printf "%-18s%-18s%-20s%-12s\n" " Node Name" "Upload Speed" "Download Speed" "Latency"
+    speedtest_offical_cli_teddysun ''      'Speedtest.net'
+    speedtest_offical_cli_teddysun '5145'  'Beijing    CU'
+    speedtest_offical_cli_teddysun '3633'  'Shanghai   CT'
+    speedtest_offical_cli_teddysun '24447' 'Shanghai   CU'
+    speedtest_offical_cli_teddysun '27594' 'Guangzhou  CT'
+    speedtest_offical_cli_teddysun '26678' 'Guangzhou  CU'
+    speedtest_offical_cli_teddysun '16192' 'Shenzhen   CU'
+    speedtest_offical_cli_teddysun '4515'  'Shenzhen   CM'
+    speedtest_offical_cli_teddysun '32155' 'Hongkong   CN'
+    speedtest_offical_cli_teddysun '13623' 'Singapore  SG'
+    speedtest_offical_cli_teddysun '15047' 'Tokyo      JP'
+}
+
+# install_speedtest_cli_offical && speedtest_teddysun && rm -fr speedtest-cli
+################################################################################################
 
 ################################################################################################
 ################################################################################################ Disk check
@@ -861,6 +961,8 @@ function disk_check_no_root () {
 ################################################################################################
 ################################################################################################ deprecated
 ################################################################################################
+
+
 
 check_release() {
     if [ -f /etc/redhat-release ]; then
