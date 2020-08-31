@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.07.19
-# script_version=r14140
+# script_update=2020.08.31
+# script_version=r14141
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -99,7 +99,7 @@ fi
 # ⚠ ➜ ✗ ✓
 function _execute() {
     { echo -e "${yellow}${bold}$1${normal}" ; lines ; } >> "$OutputLOG" 2>&1
-	($1   >> "$OutputLOG" 2>&1)
+    ($1   >> "$OutputLOG" 2>&1)
     lines >> "$OutputLOG"
 }
 function echo_task() {
@@ -111,10 +111,10 @@ function echo_doing() {
     echo | tee -a "$OutputLOG"
 }
 function status_done() {
-	echo -e " ${green}${bold}DONE${normal}" | tee -a "$OutputLOG"
+    echo -e " ${green}${bold}DONE${normal}" | tee -a "$OutputLOG"
 }
 function status_failed() {
-	echo -e " ${red}${bold}FAILED${normal}" | tee -a "$OutputLOG"
+    echo -e " ${red}${bold}FAILED${normal}" | tee -a "$OutputLOG"
 }
 function echo_warning() {
     printf " ${yellow}${bold}WARNING: %s${normal}\n" "$@" | tee -a "$OutputLOG"
@@ -504,7 +504,7 @@ function ask_password() {
 function validate_username() {
     iUser="$1" ; local min=1 ; local max=32
     # This list is not meant to be exhaustive. It's only the list from here: https://docs.microsoft.com/azure/virtual-machines/linux/usernames
-    local reserved_names=('adm' 'admin' 'audio' 'backup' 'bin' 'cdrom' 'crontab' 'daemon' 'dialout' 'dip' 'disk' 'fax' 'floppy' 'fuse' 'games' 'gnats' 'irc' 'kmem' 'landscape' 'libuuid' 'list' 'lp' 'mail' 'man' 'messagebus' 'mlocate' 'netdev' 'news' 'nobody' 'nogroup' 'operator' 'plugdev' 'proxy' 'root' 'sasl' 'shadow' 'src' 'ssh' 'sshd' 'staff' 'sudo' 'sync' 'sys' 'syslog' 'tape' 'tty' 'users' 'utmp' 'uucp' 'video' 'voice' 'whoopsie' 'www-data')
+    local reserved_names=('adm' 'admin' 'audio' 'backup' 'bin' 'cdrom' 'crontab' 'daemon' 'dialout' 'dip' 'disk' 'fax' 'floppy' 'fuse' 'games' 'gnats' 'irc' 'kmem' 'landscape' 'libuuid' 'list' 'lp' 'mail' 'man' 'messagebus' 'mlocate' 'netdev' 'news' 'nobody' 'nogroup' 'none' 'null' 'operator' 'plugdev' 'proxy' 'root' 'sasl' 'shadow' 'src' 'ssh' 'sshd' 'staff' 'sudo' 'sync' 'sys' 'syslog' 'tape' 'tty' 'users' 'utmp' 'uucp' 'video' 'voice' 'whoopsie' 'www-data')
     if [ -z "$iUser" ]; then
         username_valid=empty
     elif [ ${#iUser} -lt $min ] || [ ${#username} -gt $max ]; then
