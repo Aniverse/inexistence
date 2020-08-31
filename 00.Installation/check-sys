@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.08.29
-# script_version=r12024
+# script_update=2020.08.31
+# script_version=r12025
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -667,10 +667,56 @@ seedbox_check() {
 }
 
 
+################################################################################################
+################################################################################################ IO Test
+################################################################################################
+
+
+# https://github.com/n-st/nench
+Bps_to_MiBps()   { awk '{ printf "%.2f MiB/s\n", $0 / 1024 / 1024 } END { if (NR == 0) { print "error" } }' ; }
+Bps_to_MBps()    { awk '{ printf "%.0f MB/s\n", $0 / 1000 / 1000  } END { if (NR == 0) { print "error" } }' ; }
+Bps_to_MBps_1f() { awk '{ printf "%.1f MB/s\n", $0 / 1000 / 1000  } END { if (NR == 0) { print "error" } }' ; }
+dd_benchmark()   {
+    LC_ALL=C dd if=/dev/zero of=test_$$ bs=64k count=16k conv=fdatasync 2>&1 | awk -F, '
+        { io=$NF ; }
+        END { if (io ~ /TB\/s/) {printf("%.0f\n", 1000*1000*1000*1000*io)}
+        else if (io ~ /GB\/s/) {printf("%.0f\n", 1000*1000*1000*io)}
+        else if (io ~ /MB\/s/) {printf("%.0f\n", 1000*1000*io)}
+        else if (io ~ /KB\/s/) {printf("%.0f\n", 1000*io)}
+        else { printf("%.0f", 1*io)} ; }'
+    rm -f test_$$
+}
+
+
 
 ################################################################################################
 ################################################################################################ Disk check
 ################################################################################################
+
+
+
+function get_app_static () {
+    local app=$1
+    if [[ ! $app =~ (smartctl|ioping|iperf3|fio) ]]; then
+        echo -e "ERROR: Only smartctl / ioping / iperf3 / fio is supported"
+    fi
+    arch=$(uname -m 2>&1)
+    if [[ $arch == x86_64 ]]; then
+        if [[ ! $(which $app) ]]; then
+            if [[ $EUID == 0 ]]; then
+                app_cmd=/usr/local/bin/$app
+            else
+                app_cmd=$HOME/.abench/bin/$app
+                mkdir -p $HOME/.abench/bin
+                echo $PATH | grep -q $HOME/.abench/bin || export PATH=$HOME/.abench/bin:$PATH
+            fi
+            wget https://github.com/Aniverse/inexistence-files/raw/master/binary/amd64/$app -qO $app_cmd
+            chmod 755 $app_cmd
+        fi
+    else
+        echo -e "ERROR: Only amd64 architecture is supported when using static builds"
+    fi
+}
 
 function grep_power_on_hours () {
     while read line ; do echo "$line" | grep Power_On_Hours | awk '{if (index($10, "h") > 0) {print substr($10, 1, index($10, "h") -1)} else print $10}' ; done
