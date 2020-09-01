@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.09.01
-# script_version=r12027
+# script_version=r12028
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -826,6 +826,10 @@ function grep_disk_model () {
     while read line ; do echo "$line" | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}' ; done
 }
 
+function write_disk_info () {
+    echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+}
+
 # Origin code from https://github.com/dave-pl/hwcheck
 function disk_check_smart () {
     case "$raidcard" in
@@ -835,7 +839,7 @@ function disk_check_smart () {
                                 num="disk-$(expr $d + 1)"
                                 power_on_hours=$(smartctl -a $i | grep_power_on_hours)
                                 model=$(smartctl -a $i | grep "Device Model"| grep -vi qemu | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                                write_disk_info
                             fi
                         done
                         ;;
@@ -844,7 +848,7 @@ function disk_check_smart () {
                                 num="disk-$(expr $i + 1)"
                                 power_on_hours=$(smartctl -a -d megaraid,$i /dev/sg0 | grep_power_on_hours)
                                 model=$(smartctl -a -d megaraid,$i /dev/sg0 | grep_disk_model)
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                                write_disk_info
                             fi
                          done
                         ;;
@@ -853,34 +857,30 @@ function disk_check_smart () {
                                 num="disk-$(expr $i + 1)"
                                 power_on_hours=$(smartctl -a -d cciss,$i /dev/sg0 | grep_power_on_hours)
                                 model=$(smartctl -a -d cciss,$i /dev/sg0 | grep_disk_model)
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                                write_disk_info
                             fi
                         done
                         ;;
-        SCSI        )   for i in `seq 0 99` ; do
+        SCSI|Adaptec)   for i in `seq 0 99` ; do
                             if [[ $( smartctl -a /dev/sg$i | grep_power_on_hours ) ]]; then
                                 num="disk-$(expr $i + 1)"
                                 power_on_hours=$(smartctl -a /dev/sg$i | grep_power_on_hours)
                                 model=$(smartctl -a /dev/sg$i | grep_disk_model)
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                                write_disk_info
                             fi
                       done
                         ;;
         NVMe        )   for i in `seq 0 99` ; do
-                            if [[ $( nvme smart-log /dev/nvme$i 2>&1 | grep power_on_hours ) ]]; then
+                            if [[ $( smartctl -a /dev/nvme$i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||" ) ]]; then
                                 num="disk-$(expr $i + 1)"
-                                power_on_hours=$(nvme smart-log /dev/nvme$i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
-                                model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | awk -F':' '{print $2,$3,$4}' | sed 's/^ //')
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
-                            fi
-                        done
-                        ;;
-        Adaptec     )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a /dev/sg$i | grep_power_on_hours ) ]]; then
-                                num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a /dev/sg$i | grep_power_on_hours)
-                                model=$(smartctl -a /dev/sg$i | grep "Device Model" | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
-                                echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
+                                power_on_hours=$(smartctl -a /dev/nvme$i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||")
+                                model=$(smartctl -a /dev/nvme$i | grep -i Model | sed "s/Model.*://" | awk '{print $1,$2,$3,$4}')
+                                write_disk_info
+                        #   if [[ $( nvme smart-log /dev/nvme$i 2>&1 | grep power_on_hours ) ]]; then
+                        #       num="disk-$(expr $i + 1)"
+                        #       power_on_hours=$(nvme smart-log /dev/nvme$i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
+                        #       model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | awk -F':' '{print $2,$3,$4}' | sed 's/^ //')
+                        #       write_disk_info
                             fi
                         done
                         ;;
