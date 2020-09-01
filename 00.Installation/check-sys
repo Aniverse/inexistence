@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2020.09.01
-# script_version=r12028
+# script_version=r12029
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -807,9 +807,11 @@ function get_app_static () {
             echo $PATH | grep -q $HOME/.abench/bin || export PATH=$HOME/.abench/bin:$PATH
         fi
         if   [[ $app == smartctl ]] && [[ ! -x $app_cmd ]]; then
+            echo -e "Installing $app static builds to $app_cmd ..."
             wget https://github.com/Aniverse/inexistence-files/raw/master/binary/amd64/$app -qO $app_cmd
             chmod 755 $app_cmd
         elif [[ $app != smartctl ]] && [[ -z $(which $app) ]]; then
+            echo -e "Installing $app static builds to $app_cmd ..."
             wget https://github.com/Aniverse/inexistence-files/raw/master/binary/amd64/$app -qO $app_cmd
             chmod 755 $app_cmd
         fi
