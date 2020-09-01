@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.08.31
-# script_version=r12026
+# script_update=2020.09.01
+# script_version=r12027
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -799,14 +799,17 @@ function get_app_static () {
     fi
     arch=$(uname -m 2>&1)
     if [[ $arch == x86_64 ]]; then
-        if [[ ! $(which $app) ]]; then
-            if [[ $EUID == 0 ]]; then
-                app_cmd=/usr/local/bin/$app
-            else
-                app_cmd=$HOME/.abench/bin/$app
-                mkdir -p $HOME/.abench/bin
-                echo $PATH | grep -q $HOME/.abench/bin || export PATH=$HOME/.abench/bin:$PATH
-            fi
+        if [[ $EUID == 0 ]]; then
+            app_cmd=/usr/local/bin/$app
+        else
+            app_cmd=$HOME/.abench/bin/$app
+            mkdir -p $HOME/.abench/bin
+            echo $PATH | grep -q $HOME/.abench/bin || export PATH=$HOME/.abench/bin:$PATH
+        fi
+        if   [[ $app == smartctl ]] && [[ ! -x $app_cmd ]]; then
+            wget https://github.com/Aniverse/inexistence-files/raw/master/binary/amd64/$app -qO $app_cmd
+            chmod 755 $app_cmd
+        elif [[ $app != smartctl ]] && [[ -z $(which $app) ]]; then
             wget https://github.com/Aniverse/inexistence-files/raw/master/binary/amd64/$app -qO $app_cmd
             chmod 755 $app_cmd
         fi
@@ -1027,6 +1030,22 @@ deprecated_interface_check() {
     interface=${wangka1[0]} ; [[ -n $wangka2 ]] && interface=$wangka2
 }
 
+# lsblk --nodeps --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL | awk '{if ($3 == 0) {$3=" SSD"} if ($3 == 1) {$3=" HDD"} ; printf("%-5s%7s%5s   %-10s%-15s\n", $1, $2, $3, $4, $5)}' | sed "s|ROTA|TYPE|"
+disk_check_dn_ver() {
+    disknumber=1
+    diskname=$(lsblk -p | grep disk | sed -n "$disknumber"p | awk '{print $1}')
+    echo -n '' > /tmp/diskinfo
+    while [[ $diskname != "" ]]; do
+        echo $diskname >> /tmp/diskinfo
+        ((disknumber = disknumber + 1))
+        diskname=$(lsblk -p | grep disk | sed -n "$disknumber"p | awk '{print $1}')
+    done
+    ((disknumber = disknumber - 1))
+    echo "一共 $disknumber 块硬盘"
+    cat /tmp/diskinfo
+    rm -f /tmp/diskinfo
+}
+
 ################################################################################################
 ################################################################################################ deprecated - check ip info
 ################################################################################################
@@ -1076,7 +1095,7 @@ superbench_ip_info1() {
     org=$(echo $result | jq '.org' | sed 's/\"//g')
     countryCode=$(echo $result | jq '.countryCode' | sed 's/\"//g')
     region=$(echo $result | jq '.regionName' | sed 's/\"//g')
-    if [ -z "$city" ]; then
+    if [ -n "$city" ]; then
         city=${region}
     fi
 
