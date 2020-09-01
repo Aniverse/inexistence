@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.08.16
-# script_version=r12022
+# script_update=2020.09.01
+# script_version=r12023
 # This var will recover other script's var when source
 ################## Inexistence Mod Start ##################
 
@@ -22,9 +22,12 @@ heibaise=${black}${on_white}   ; heihuangse=${on_yellow}${black}
 }
 
 function gggclone(){ git clone --depth=1 $1 && cd $(echo ${1##*/}) ;}
-io_test() { (LANG=C dd if=/dev/zero of=test_$$ bs=64k count=16k conv=fdatasync && rm -f test_$$ ) 2>&1 | awk -F, '{io=$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*$//' ; }
-iotest() { io1=$( io_test ) ; echo -e "\n${bold}硬盘 I/O (第一次测试) : ${yellow}$io1${normal}"
-io2=$( io_test ) ; echo -e "${bold}硬盘 I/O (第二次测试) : ${yellow}$io2${normal}" ; io3=$( io_test ) ; echo -e "${bold}硬盘 I/O (第三次测试) : ${yellow}$io3${normal}\n" ; }
+function io_test() { (LANG=C dd if=/dev/zero of=test_$$ bs=64k count=16k conv=fdatasync && rm -f test_$$ ) 2>&1 | awk -F, '{io=$NF} END { print io}' | sed 's/^[ \t]*//;s/[ \t]*$//' ; }
+function iotest() { echo
+    io1=$( io_test ) ; echo -e "${bold}硬盘 I/O (第一次测试) : ${yellow}$io1${normal}"
+    io2=$( io_test ) ; echo -e "${bold}硬盘 I/O (第二次测试) : ${yellow}$io2${normal}"
+    io3=$( io_test ) ; echo -e "${bold}硬盘 I/O (第三次测试) : ${yellow}$io3${normal}\n"
+}
 
 # Find a file with a pattern in name:
 function ff() { find . -type f -iname '*'"$*"'*' -ls ; }
@@ -106,6 +109,27 @@ function make-tar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
 
 # Create a ZIP archive of a file or folder.
 function make-zip() { zip -r "${1%%/}.zip" "$1" ; }
+
+function dabao() {
+    local target=$1
+    if [[ -d "$target" ]];then
+        folder_size=$(du -sB MiB $target | awk '{print $1}' | grep -oE "[0-9]+")
+        echo -e "\033[0;33m目标文件夹大小 $folder_size MiB\033[0m"
+        [[ $folder_size -ge 200 ]] && read -p "确定打包么？"
+        mkdir -p $HOME/tars
+        target_full_path=$(cd $target;pwd)
+        dirpath=$(dirname $target_full_path)
+        target=$(basename $target_full_path)
+        output=$target
+        echo $target | grep -qE "^." && output=$(echo $target | sed "s/\.//")
+        tarfile=$HOME/tars/$output.tar.gz
+        [[ -e $tarfile ]] && echo -ne "\033[0;31m同名压缩包已存在" && rm -f $tarfile && echo -e "，删除之\033[0m"
+        tar zcf $tarfile -C $dirpath $target && echo -ne "\033[0;32m打包后体积 " && du -sB KiB $tarfile | awk '{print $1}'
+        echo -e "\033[0;34msz $tarfile\033[0m\n"
+    else
+        echo "\033[0;31m不是文件夹\033[0m"
+    fi
+}
 
 if (! export | grep -q sbin); then
     export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
