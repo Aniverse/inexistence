@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.09.01
-# script_version=r12029
+# script_update=2020.09.08
+# script_version=r12030
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -618,10 +618,22 @@ ip_ipapi() {
     [[ $cityyyy == Singapore ]] && unset cityyyy
     [[ -z $isppppp ]] && isp="No ISP detected"
     [[ -z $asnnnnn ]] && isp="No ASN detected"
-    rm -f $HOME/.abench/ipapi 2>&1
+}
+
+ip_ipinfo_aniverse() {
+    mkdir -p $HOME/.abench
+    wget -t1 -T6 -qO- ipinfo.io > $HOME/.abench/ipinfo 2>&1
+    asnnnnn="$(cat $HOME/.abench/ipinfo | grep \"org\"      | awk -F '"' '{print $4}')"
+    cityyyy="$(cat $HOME/.abench/ipinfo | grep \"city\"     | awk -F '"' '{print $4}')"
+    country="$(cat $HOME/.abench/ipinfo | grep \"country\"  | awk -F '"' '{print $4}')"
+    regionn="$(cat $HOME/.abench/ipinfo | grep \"region\"   | awk -F '"' '{print $4}')"
+    [[ $cityyyy == Singapore ]] && unset cityyyy
+    [[ -z $asnnnnn ]] && isp="No ASN detected"
 }
 
 # bench.sh
+# wget -q -T10 -O- ipinfo.io
+# wget -q -T10 -O- ipinfo.io/5.9.5.5/org
 ip_ipinfo() {
     local org="$(wget -q -T10 -O- ipinfo.io/org)"
     local city="$(wget -q -T10 -O- ipinfo.io/city)"
@@ -994,28 +1006,27 @@ deprecated_disk_check() {
     disk_par_num=$(cat $HOME/par_list | wc -l)
     # 这个估计没毛病，Docker、独服、KVM 下都没问题的样子，别的不知道
     # disk_par_num=$(lsblk --nodeps --noheadings --output NAME,SIZE,ROTA --exclude 1,2,11 2>&1 | wc -l)
-    
+
     # / 为最大分区时，数字 +1
     [[ $(df -lh | grep $(df -k | sort -rn -k4 | awk '{print $1}' | head -1) | awk '{print $NF}') == / ]] && disk_par_num=$(expr $disk_par_num + 1)
-    
-    # lsblk --nodeps --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL | awk '{if ($3 == 0) {$3="SSD"} if ($3 == 1) {$3="HDD"} ; printf("%-5s%7s%5s   %-10s%-15s\n", $1, $2, $3, $4, $5)}' 2>&1
+
     # lsblk --exclude 1,2,11 --output NAME,SIZE,ROTA,TYPE,MOUNTPOINT,MODEL
-    # lsblk -dn -e 1,2,11 -o MODEL
-    
+    # lsblk -dno MODEL 2>&1 | sort | uniq -c | sort -nr              | awk '{printf("共 %-2s 块 %s %s %s %s\n", $1, $2, $3, $4, $5)}'
+    # lsblk -dno MODEL 2>&1 | sort -u
+    # lsblk --nodeps --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL | awk '{if ($3 == 0) {$3=" SSD"} if ($3 == 1) {$3=" HDD"} ; printf("%-5s%7s%5s   %s %s %s %s\n", $1, $2, $3, $4, $5, $6, $7)}' | sed "s|ROTA|TYPE|" | awk 'NR==1 {print $0};NR!=1 {print $0 | "sort -n -k2"}'
+
     # disk_size=$(lsblk --nodeps --noheadings --output SIZE 2>&1 | awk '{print $1}')
     # disk_total_size=$( calc_disk ${disk_size[@]} )
     # disk_used_size=$( du -sh $HOME 2>&1 | awk -F " " '{print $1}' | sed "s/G//" )
-    
+
     # 2020.02.28 lsblk／fdisk -l 计算硬盘空间的好处是，一些没格式化或者没挂载的硬盘也能算出来，但是还是容易出错
     # 下边这个是各类 bench 脚本通用的，还是用这个算了，起码算错了也没什么大不了的，因为大家都错了……
-    
+
     # superbench
     # disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|overlay|shm|udev|devtmpfs|by-uuid|chroot|Filesystem' | awk '{print $2}' ))
     # bench.sh
     # disk_size1=($( LANG=C df -hPl | grep -wvE '\-|none|tmpfs|devtmpfs|by-uuid|chroot|Filesystem|udev|docker' | awk '{print $2}' ))
 
-    # 高版本 smartctl 也可以看 NVMe 的 smart，不过需要编译，放在一键脚本里还是太麻烦了
-    # 还可以用 lsblk --nodeps --noheadings --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL 2>&1
     # nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g"
     # udevadm info --name=/dev/nvme${i}n1 | grep "disk/by-id/nvme-" | head -1 | sed "s|S: disk/by-id/nvme-||" | awk -F '_' '{print $1,$2}'
     # nvme_model=$(nvme list | grep /dev/nvme$i | sed "s/\b \b/_/g" | awk '{print $3}' | sed "s/_/ /g")
@@ -1032,7 +1043,6 @@ deprecated_interface_check() {
     interface=${wangka1[0]} ; [[ -n $wangka2 ]] && interface=$wangka2
 }
 
-# lsblk --nodeps --exclude 1,2,11 --output NAME,SIZE,ROTA,MODEL | awk '{if ($3 == 0) {$3=" SSD"} if ($3 == 1) {$3=" HDD"} ; printf("%-5s%7s%5s   %-10s%-15s\n", $1, $2, $3, $4, $5)}' | sed "s|ROTA|TYPE|"
 disk_check_dn_ver() {
     disknumber=1
     diskname=$(lsblk -p | grep disk | sed -n "$disknumber"p | awk '{print $1}')
