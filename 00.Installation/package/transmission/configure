@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.07.15
-script_version=r10008
+script_update=2020.09.07
+script_version=r10009
 
 ################################################################################################ Debug
 
@@ -171,7 +171,7 @@ function write_transmission_settings() {
     "peer-port-random-on-start": true, 
     "peer-socket-tos": "default", 
     "pex-enabled": false, 
-    "pidfile": "/var/run/transmission-daemon.pid", 
+    "pidfile": "/$iHome/.config/transmission-daemon/transmission-daemon.pid", 
     "port-forwarding-enabled": true, 
     "preallocation": 1, 
     "prefetch-enabled": 1, 
