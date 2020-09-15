@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.09.08
-# script_version=r12030
+# script_update=2020.09.15
+# script_version=r12031
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -50,7 +50,7 @@ if  has_cmd "getconf" ; then
 else
     echo ${arch} | grep -q "64" && lbit="64" || lbit="32"
 fi
-[[ -z $arch ]] && arch=$(echo "x$(getconf LONG_BIT)")
+[[ -z $arch ]] && arch=$(echo "x${lbit}")
 
 DISTRO=$(awk -F'[= "]' '/PRETTY_NAME/{print $3}' /etc/os-release)
 DISTROL=$(echo $DISTRO | tr 'A-Z' 'a-z')
@@ -844,13 +844,15 @@ function write_disk_info () {
     echo "$num text $power_on_hours $model" >> $HOME/.abench/disk.info
 }
 
+# smartctl -d test /dev/sg0
 # Origin code from https://github.com/dave-pl/hwcheck
 function disk_check_smart () {
     case "$raidcard" in
         NoRaid      )   disk=$(fdisk -l 2>/dev/null| grep -i dev |egrep -v "(/dev/[brm])"| awk '/:/ {print $2}'| cut -f 1 -d ":") ; d=0
                         for i in $disk; do
                             if [[ $( smartctl -a $i | grep_power_on_hours) ]]; then
-                                num="disk-$(expr $d + 1)"
+                                d=$(expr $d + 1)
+                                num="disk-$d"
                                 power_on_hours=$(smartctl -a $i | grep_power_on_hours)
                                 model=$(smartctl -a $i | grep "Device Model"| grep -vi qemu | sed "s/Device Model[:]\?//" | awk '{print $1,$2,$3,$4}')
                                 write_disk_info
@@ -875,25 +877,29 @@ function disk_check_smart () {
                             fi
                         done
                         ;;
-        SCSI|Adaptec)   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a /dev/sg$i | grep_power_on_hours ) ]]; then
-                                num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a /dev/sg$i | grep_power_on_hours)
-                                model=$(smartctl -a /dev/sg$i | grep_disk_model)
+        SCSI|Adaptec)   disk=$(find /dev -name sg*) ; d=0 # 其实 NoRAID 也可以用这个办法
+                        for i in $disk ; do
+                            if [[ $( smartctl -a $i | grep_power_on_hours ) ]]; then
+                                d=$(expr $d + 1)
+                                num="disk-$d"
+                                power_on_hours=$(smartctl -a $i | grep_power_on_hours)
+                                model=$(smartctl -a $i | grep_disk_model)
                                 write_disk_info
                             fi
-                      done
+                        done
                         ;;
-        NVMe        )   for i in `seq 0 99` ; do
-                            if [[ $( smartctl -a /dev/nvme$i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||" ) ]]; then
-                                num="disk-$(expr $i + 1)"
-                                power_on_hours=$(smartctl -a /dev/nvme$i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||")
-                                model=$(smartctl -a /dev/nvme$i | grep -i Model | sed "s/Model.*://" | awk '{print $1,$2,$3,$4}')
+        NVMe        )   disk=$(find /dev -name nvme*n1) ; d=0
+                        for i in $disk ; do
+                            if [[ $( smartctl -a $i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||" ) ]]; then
+                                d=$(expr $d + 1)
+                                num="disk-$d"
+                                power_on_hours=$(smartctl -a $i 2>&1 | grep -i "Power.On.Hours" | awk '{print $NF}' | sed "s|,||")
+                                model=$(smartctl -a $i | grep -i Model | sed "s/Model.*://" | awk '{print $1,$2,$3,$4}')
                                 write_disk_info
-                        #   if [[ $( nvme smart-log /dev/nvme$i 2>&1 | grep power_on_hours ) ]]; then
+                        #   if [[ $( nvme smart-log $i 2>&1 | grep power_on_hours ) ]]; then
                         #       num="disk-$(expr $i + 1)"
-                        #       power_on_hours=$(nvme smart-log /dev/nvme$i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
-                        #       model=$(nvme id-ctrl /dev/nvme$i | grep -w mn | awk -F':' '{print $2,$3,$4}' | sed 's/^ //')
+                        #       power_on_hours=$(nvme smart-log $i | grep power_on_hours | grep -oE "[0-9,]+" | sed "s/,//")
+                        #       model=$(nvme id-ctrl $i | grep -w mn | awk -F':' '{print $2,$3,$4}' | sed 's/^ //')
                         #       write_disk_info
                             fi
                         done
