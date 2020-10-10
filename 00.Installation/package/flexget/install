@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.07.04
-script_version=r30024
+script_update=2020.10.10
+script_version=r30025
 
 ################################################################################################ Debug
 
@@ -114,7 +114,7 @@ function install_flexget3() {
     $pip_cmd install autoremove-torrents                          >> "$OutputLOG" 2>&1
     # For third-party plugin flexget_qbittorrent_mod
     # https://github.com/IvonWei/flexget_qbittorrent_mod/wiki
-    $pip_cmd install python-telegram-bot brotli baidu-aip pillow  >> "$OutputLOG" 2>&1
+    $pip_cmd install brotli baidu-aip pillow                      >> "$OutputLOG" 2>&1 # python-telegram-bot
     $pip_cmd install selenium                                     >> "$OutputLOG" 2>&1
 
     rm -f /usr/local/bin/flexget                                  >> "$OutputLOG" 2>&1
