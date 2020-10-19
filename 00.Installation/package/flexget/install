@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.10.10
-script_version=r30025
+script_update=2020.10.20
+script_version=r30026
 
 ################################################################################################ Debug
 
@@ -104,10 +104,10 @@ function install_flexget3() {
 
     echo >> $OutputLOG
 
-    $pip_cmd install --upgrade setuptools                         >> "$OutputLOG" 2>&1
+    $pip_cmd install --upgrade setuptools                         >> "$OutputLOG" 2>&1 # 45.3.0
     $pip_cmd install --upgrade pyopenssl                          >> "$OutputLOG" 2>&1
     $pip_cmd install --upgrade cryptography                       >> "$OutputLOG" 2>&1
-    $pip_cmd install --ignore-installed flexget                   >> "$OutputLOG" 2>&1
+    $pip_cmd install --ignore-installed flexget==3.1.77           >> "$OutputLOG" 2>&1 # 3.0.31
     # For establishing connection with Deluge and Transmission client
     $pip_cmd install deluge-client transmissionrpc                >> "$OutputLOG" 2>&1
     # https://github.com/jerrymakesjelly/autoremove-torrents
