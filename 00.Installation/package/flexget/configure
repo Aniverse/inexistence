@@ -238,6 +238,7 @@ function add_flexget_plugins() {
     mkdir -p $iHome/.config/flexget/plugins
     cd       $iHome/.config/flexget/plugins
     cp -rf   $inexistence_files/flexget-plugins/* .   >> $OutputLOG 2>&1
+    rm wechat_work.py
 }
 
 
