@@ -226,10 +226,10 @@ function get_flexget_plugins() {
         # https://github.com/Juszoe/flexget-nexusphp
         wget https://github.com/Juszoe/flexget-nexusphp/releases/latest/download/nexusphp.py   -O nexusphp.py >> "$OutputLOG" 2>&1
         # https://github.com/IvonWei/flexget_qbittorrent_mod
-        wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
-        unzip dist.zip -d tmp                      >> "$OutputLOG" 2>&1
-        cp -rf tmp/* .                             >> "$OutputLOG" 2>&1
-        rm -rf tmp dist.zip                        >> "$OutputLOG" 2>&1
+        # wget https://github.com/IvonWei/flexget_qbittorrent_mod/releases/latest/download/dist.zip -O dist.zip >> "$OutputLOG" 2>&1
+        # unzip dist.zip -d tmp                      >> "$OutputLOG" 2>&1
+        # cp -rf tmp/* .                             >> "$OutputLOG" 2>&1
+        # rm -rf tmp dist.zip                        >> "$OutputLOG" 2>&1
     fi
 }
 
