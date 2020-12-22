@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.12.22
-# script_version=r12043
+# script_update=2020.12.23
+# script_version=r12044
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -551,6 +551,7 @@ function install_deluge() {
             hash -d pip2
             pip2 install --upgrade setuptools
             pip2 install --upgrade twisted[tls] twisted pillow rencode pyopenssl
+            pip2 install --upgrade setproctitle
         fi
         cd $SourceLocation
 
