@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.09.13
-# script_version=r12042
+# script_update=2020.12.22
+# script_version=r12043
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -960,6 +960,7 @@ function do_installation() {
     export_inexistence_info
     create_log_link
     create_config_link
+    chown $iUser:$iUser -R $iHome/inexistence
 }
 
 
