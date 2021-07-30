@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.12.23
-# script_version=r12044
+# script_update=2021.07.30
+# script_version=r12045
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -121,9 +121,11 @@ function ask_qbittorrent() {
         echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 ${normal}(static)${normal}"
         echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}"
         echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.5 ${normal}(deb)${normal}"
+        echo -e "${green}21)${normal} qBittorrent ${cyan}4.3.6 ${normal} with libtorrent 1.2.14 (static)${normal}"
+        echo -e "${green}22)${normal} qBittorrent ${cyan}4.3.6 ${normal} with libtorrent 2.0.4  (static)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
-    
+
         [[ -n $qb_installed_ver ]] &&
         echo -e "${bailanse}${bold} ATTENTION ${normal} ${blue}${bold}$lang_yizhuang ${underline}qBittorrent ${qb_installed_ver}${normal}"
         read -ep "${bold}${yellow}$which_version_do_you_want${normal} (Default ${cyan}12${normal}): " version
@@ -131,6 +133,8 @@ function ask_qbittorrent() {
             01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
             12) qb_version=4.2.5    ;;
+            21) qb_version=4.3.6.11 ; qb_mode=static ;;
+            22) qb_version=4.3.6.12 ; qb_mode=static ;;
             30) _input_version && qb_version="${input_version_num}" ;;
             99) qb_version=no ;;
             * | "") qb_version=4.2.5 ;;
@@ -915,7 +919,7 @@ function do_installation() {
 
     if [[ $InsFlex == Yes ]]; then
         bash $local_packages/package/flexget/install   --logbase $LogTimes
-        bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 6566   $force_recover
+        bash $local_packages/package/flexget/configure --logbase $LogTimes -u $iUser -p $iPass -w 9566 $force_recover
     fi
     if [[ $InsRclone == Yes ]]; then
         bash $local_packages/package/rclone/install --logbase $LogTimes

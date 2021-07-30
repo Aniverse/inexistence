@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2020.07.15
-script_version=r12044
+script_update=2021.07.30
+script_version=r12045
 
 ################################################################################################ Debug
 
@@ -35,7 +35,8 @@ Usage:
       -v        Specifiy which version of qBittorrent to be installed
       -b        Specifiy which branch of qBittorrent to be installed
       --debug   Enable debug mode
-                Note that installing specific version may cause the installation failure
+
+                Note that installing specific version may cause installation failure
 "
 #       -t        Install type, can only be specified as desktop or headless
 exit 1 ; }
@@ -83,7 +84,13 @@ lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 
 [[ ! $mode =~ (source|deb|static) ]] && echo_error_exit "Mode can only be specified as deb, static or source"
 
 [[ -n $version ]] && version_s=$version
-[[ $version == 4.2.5.12 ]] && version_s=4.2.5
+if [[ $version == 4.2.5.12 ]]; then
+    version_s=4.2.5
+elif [[ $version == 4.3.6.11 ]]; then
+    version_s=4.2.6
+elif [[ $version == 4.3.6.12 ]]; then
+    version_s=4.2.6
+fi
 if [[ -n $version ]] && [[ $mode == source ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
 elif [[ -n $branch ]] && [[ $mode == source ]]; then
@@ -203,6 +210,11 @@ function install_qbittorrent_static() {
     fi
     # https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download
     qb_static_url="https://github.com/Aniverse/qbittorrent-nox-static/releases/download/4.2.4/qbittorrent-nox.${qb_static}"
+    if   [[ $version == 4.2.6.11 ]]; then
+        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.6_v1.2.14/x86_64-qbittorrent-nox"
+    elif [[ $version == 4.2.6.12 ]]; then
+        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.6_v2.0.4/x86_64-qbittorrent-nox"
+    fi
     wget "$qb_static_url" -O $AppExec >> $OutputLOG 2>&1
     chmod +x $AppExec >> $OutputLOG 2>&1
 }
