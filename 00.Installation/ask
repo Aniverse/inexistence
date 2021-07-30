@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2021.07.30
-# script_version=r12046
+# script_version=r12047
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -770,6 +770,7 @@ function install_tools() {
         mkdir -p /log/inexistence/ffmpeg && cd /log/inexistence/ffmpeg && rm -rf *
         wget -t2 -T5 -nv -N https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
         tar xf ffmpeg-release-amd64-static.tar.xz
+        rm -f ffmpeg-release-amd64-static.tar.xz
         cd ffmpeg*
         cp -f {ffmpeg,ffprobe,qt-faststart} /usr/bin
         cd && rm -rf /log/inexistence/ffmpeg
