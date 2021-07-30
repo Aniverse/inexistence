@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2020.08.31
-# script_version=r14142
+# script_update=2021.07.30
+# script_version=r14143
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -989,7 +989,7 @@ function if_reverse() {
         qbweb=":2017"
         deweb=":8112"
         trweb=":9099"
-        fgweb=":6566"
+        fgweb=":9566"
         fbweb=":7575"
         fdweb=":3000"
         vncweb=":6082/vnc.html"

@@ -5,8 +5,8 @@
 #
 # Thanks to amefs
 
-script_update=2020.11.18
-script_version=r10019
+script_update=2021.07.30
+script_version=r10020
 
 ################################################################################################ Debug
 
@@ -74,7 +74,7 @@ check_var_iUser_iPass_iHome
 
 ################################################################################################ Set Variables 2
 
-[[ -z $wPort ]] && wPort=6566
+[[ -z $wPort ]] && wPort=9566
 PortCheck $wPort
 [[ $port_used == 1 ]] && echo_failed "Please change your port" && exit 1
 
