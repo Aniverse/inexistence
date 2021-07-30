@@ -10,8 +10,8 @@ usage() {
 }
 
 # --------------------------------------------------------------------------------
-script_version=1.2.7.10
-script_update=2020.09.13
+script_version=1.2.7.11
+script_update=2021.7.30
 script_name=inexistence
 script_cmd="bash <(wget -qO- git.io/abcde)"
 
@@ -93,8 +93,10 @@ function _intro() {
     if [[ $DeBUG != 1 ]]; then if [[ $EUID != 0 ]]; then echo -e "\n${title}${bold}Naive! I think this young man will not be able to run this script without root privileges.${normal}\n" ; exit 1
     else echo -e "\n${green}${bold}Excited! You're running this script as root. Let's make some big news ... ${normal}" ; fi ; fi
 
+    # 2021.07.30：由于某些未知原因可能获取不到架构，所以额外再使用一次 uname 来检测，同时在报错时加入检测到的结果用于 debug（不过大多数报错的变量是空的）
+    arch=$(uname -m 2>&1)
     # 检查是否为 x86_64 架构
-    [[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported${normal}" ; exit 1 ; }
+    [[ $arch != x86_64 ]] && { echo -e "${title}${bold}Too simple! Only x86_64 is supported (Error: $arch)${normal}" ; exit 1 ; }
 
     # 检查系统版本；不是 Ubuntu 或 Debian 的就不管了，反正不支持……
     SysSupport=0
@@ -152,7 +154,7 @@ function _intro() {
     if   [[ $CODENAME == jessie ]]; then
         echo -e "\n  ${bold}${red}警告：尽量不要使用 Debian 8 运行本脚本！${normal}"
     elif [[ $CODENAME == focal ]]; then
-        echo -e "\n  ${bold}${red}警告：本脚本尚不支持 Ubuntu 20.04 LTS！${normal}"
+        echo -e "\n  ${bold}${red}警告：本脚本不支持 Ubuntu 20.04 LTS！${normal}"
     fi
 
     [[ $times != 1 ]] && echo -e "\n  ${bold}It seems this is the $times times you run this script${normal}"
