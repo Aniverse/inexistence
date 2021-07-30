@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-script_update=2020.06.26
-script_version=r12049
+script_update=2021.07.30
+script_version=r12050
 
 ################################################################################################ Debug
 
@@ -215,7 +215,7 @@ WebUI\CSRFProtection=false
 WebUI\HostHeaderValidation=true
 WebUI\LocalHostAuth=false
 WebUI\Port=$wPort
-WebUI\RootFolder=/opt/qBittorrent/WebUI/miniers.qb-web
+WebUI\RootFolder=/opt/qBittorrent/WebUI/CzBiX.qb-web
 
 EOF
     if [[ -z $(command -v qbpass) ]]; then

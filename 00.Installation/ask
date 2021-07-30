@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 # script_update=2021.07.30
-# script_version=r12045
+# script_version=r12046
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -133,8 +133,8 @@ function ask_qbittorrent() {
             01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
             12) qb_version=4.2.5    ;;
-            21) qb_version=4.3.6.11 ; qb_mode=static ;;
-            22) qb_version=4.3.6.12 ; qb_mode=static ;;
+            21) qb_version=4.3.6.lt1 ; qb_mode=static ;;
+            22) qb_version=4.3.6.lt2 ; qb_mode=static ;;
             30) _input_version && qb_version="${input_version_num}" ;;
             99) qb_version=no ;;
             * | "") qb_version=4.2.5 ;;
