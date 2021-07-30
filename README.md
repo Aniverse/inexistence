@@ -6,9 +6,9 @@
 
 ## 2021.07.30 说明
 
-目前本人基本上不再维护这个脚本（偶尔会修复一些严重影响使用的 bug），推荐使用以下更为优秀的脚本：  
-- [QuickBox Lite](https://cn.wiki.ptbox.dev/getting-started/)  
-- [swizzin](hhttps://swizzin.ltd/)  
+目前本人基本上不再维护这个脚本（偶尔会修复一些严重影响使用的 bug），推荐使用更为优秀的脚本作为代替，如：  
+- **[QuickBox-Lite](https://cn.wiki.ptbox.dev/getting-started/)**  
+- **[swizzin](https://swizzin.ltd/)**  
 
 ## Notes
 
