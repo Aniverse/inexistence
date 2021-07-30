@@ -1,8 +1,14 @@
 # Inexistence
 
-> This is a seedbox script focus on Chinese users, I would prefer [QuickBox Lite](https://github.com/amefs/quickbox-lite), [QuickBox](https://quickbox.io/), [swizzin](https://swizzin.ltd), [PGBlitz](https://pgblitz.com), [rtinst](https://github.com/arakasi72/rtinst) for non-Chinese users.  
+> This is a seedbox script focus on Chinese users, I would prefer [QuickBox Lite](https://github.com/amefs/quickbox-lite), [swizzin](https://swizzin.ltd) for non-Chinese users.  
 > Just a SEEDBOX script, no Plex, no Emby, no NZB support.  
 > And note that this README is outdated, I'm too lazy to keep it update.  
+
+## 2021.07.30 说明
+
+目前本人基本上不再维护这个脚本（偶尔会修复一些严重影响使用的 bug），推荐使用以下更为优秀的脚本：  
+- [QuickBox Lite](https://cn.wiki.ptbox.dev/getting-started/)  
+- [swizzin](hhttps://swizzin.ltd/)  
 
 ## Notes
 
@@ -49,7 +55,7 @@ bash <(wget -qO- https://git.io/abcde)
 ![安装时的选项](https://github.com/Aniverse/pics/raw/master/inexistence/inexistence.04.png)
 
 1. ***是否升级系统***  
-低于 `Ubuntu 18.04`、`Debian 10` 的 LTS 系统可以选择用脚本升级系统（Ubuntu 20.04 暂不支持）  
+低于 `Ubuntu 18.04`、`Debian 10` 的 LTS 系统可以选择用脚本升级系统（不支持 Ubuntu 20.04）  
 一般来说整个升级过程应该是无交互的，应该不会碰到什么问你 Yes or No 的问题  
 升级完后会直接执行重启命令，重启完后你需要再次运行脚本来完成软件的安装  
 
