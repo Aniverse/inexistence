@@ -4,7 +4,7 @@
 # Author: Aniverse
 #
 script_update=2021.07.30
-script_version=r12050
+script_version=r12051
 
 ################################################################################################ Debug
 
@@ -269,7 +269,9 @@ function configure_qbittorrent() {
         curl -i --data 'json={"scan_dirs":{"'"${iHome}/qbittorrent/watch"'":1}}'   http://localhost:${wPort}/command/setPreferences    >> $OutputLOG 2>&1
     fi
     sed -i "s|WebUI\\\LocalHostAuth.*|WebUI\\\LocalHostAuth=true|" $qbconf >> $OutputLOG 2>&1  # Turn on LocalHostAuth after setup watch folder
-    grep ScanDirsV2 $qbconf -q || echo_error "Failed to set monitored folder"
+    if [[ ! -f ${iHome}/.config/qBittorrent/watched_folders.json ]]; then
+        grep ScanDirsV2 $qbconf -q || echo_error "Failed to set monitored folder"
+    fi
 
     echo  $wPort >  $PortLocation/$iUser.$AppNameLower
     systemctl restart qbittorrent@$iUser >> $OutputLOG 2>&1
