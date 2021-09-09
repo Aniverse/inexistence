@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 #
-# script_update=2021.07.30
-# script_version=r12047
+# script_update=2021.09.10
+# script_version=r12048
 # This var will recover other script's var when source
 ################################################################################################ Usage Guide
 
@@ -121,8 +121,8 @@ function ask_qbittorrent() {
         echo -e "${green}01)${normal} qBittorrent ${cyan}4.1.9 ${normal}(static)${normal}"
         echo -e "${green}11)${normal} qBittorrent ${cyan}4.1.9 ${normal}(deb)${normal}"
         echo -e "${green}12)${normal} qBittorrent ${cyan}4.2.5 ${normal}(deb)${normal}"
-        echo -e "${green}21)${normal} qBittorrent ${cyan}4.3.6 ${normal} with libtorrent 1.2.14 (static)${normal}"
-        echo -e "${green}22)${normal} qBittorrent ${cyan}4.3.6 ${normal} with libtorrent 2.0.4  (static)${normal}"
+        echo -e "${green}21)${normal} qBittorrent ${cyan}4.3.8 ${normal} with libtorrent 1.2.14 (static)${normal}"
+        echo -e "${green}22)${normal} qBittorrent ${cyan}4.3.8 ${normal} with libtorrent 2.0.4  (static)${normal}"
         echo -e  "${blue}30)${normal} $language_select_another_version"
         echo -e   "${red}99)${normal} $lang_do_not_install qBittorrent"
 
@@ -133,8 +133,8 @@ function ask_qbittorrent() {
             01 | 1) qb_version=4.1.9 ; qb_mode=static ;;
             11) qb_version=4.1.9    ;;
             12) qb_version=4.2.5    ;;
-            21) qb_version=4.3.6.lt1 ; qb_mode=static ;;
-            22) qb_version=4.3.6.lt2 ; qb_mode=static ;;
+            21) qb_version=4.3.8.lt1 ; qb_mode=static ;;
+            22) qb_version=4.3.8.lt2 ; qb_mode=static ;;
             30) _input_version && qb_version="${input_version_num}" ;;
             99) qb_version=no ;;
             * | "") qb_version=4.2.5 ;;

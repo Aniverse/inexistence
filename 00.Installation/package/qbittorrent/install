@@ -3,8 +3,8 @@
 # https://github.com/Aniverse/inexistence
 # Author: Aniverse
 
-script_update=2021.07.30
-script_version=r12046
+script_update=2021.09.10
+script_version=r12047
 
 ################################################################################################ Debug
 
@@ -86,10 +86,10 @@ lt_version=$(pkg-config --exists --print-errors "libtorrent-rasterbar >= 3.0.0" 
 [[ -n $version ]] && version_s=$version
 if [[ $version == 4.2.5.12 ]]; then
     version_s=4.2.5
-elif [[ $version == 4.3.6.lt1 ]]; then
-    version_s=4.3.6
-elif [[ $version == 4.3.6.lt2 ]]; then
-    version_s=4.3.6
+elif [[ $version == 4.3.8.lt1 ]]; then
+    version_s=4.3.8
+elif [[ $version == 4.3.8.lt2 ]]; then
+    version_s=4.3.8
 fi
 if [[ -n $version ]] && [[ $mode == source ]]; then
     check_remote_git_repo_branch  $git_repo  "release-$version"
@@ -210,10 +210,10 @@ function install_qbittorrent_static() {
     fi
     # https://sourceforge.net/projects/inexistence/files/qbittorrent/qbittorrent-nox.${qb_static}/download
     qb_static_url="https://github.com/Aniverse/qbittorrent-nox-static/releases/download/4.2.4/qbittorrent-nox.${qb_static}"
-    if   [[ $version == 4.3.6.lt1 ]]; then
-        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.6_v1.2.14/x86_64-qbittorrent-nox"
-    elif [[ $version == 4.3.6.lt2 ]]; then
-        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.6_v2.0.4/x86_64-qbittorrent-nox"
+    if   [[ $version == 4.3.8.lt1 ]]; then
+        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.8_v1.2.14/x86_64-qbittorrent-nox"
+    elif [[ $version == 4.3.8.lt2 ]]; then
+        qb_static_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.8_v2.0.4/x86_64-qbittorrent-nox"
     fi
     wget "$qb_static_url" -O $AppExec >> $OutputLOG 2>&1
     chmod +x $AppExec >> $OutputLOG 2>&1
