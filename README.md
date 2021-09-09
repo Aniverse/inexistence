@@ -419,6 +419,7 @@ jietu "/home/aniverse/deluge/download/Your Name (2016) PAL DVD9"
 ## Some references
 
 Special thanks to [efs](https://github.com/amefs) and [DieNacht](https://github.com/DieNacht).  
+Latest qBittorrent static builds are downloaded from [userdocs/qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static/releases).  
 
 https://github.com/arakasi72/rtinst  
 https://github.com/QuickBox/QB  
@@ -449,5 +450,4 @@ https://github.com/IvonWei/flexget_qbittorrent_mod
 https://github.com/Juszoe/flexget-nexusphp  
 https://github.com/CzBiX/qb-web  
 https://github.com/miniers/qb-web  
-https://github.com/userdocs/qbittorrent-nox-static  
 https://github.com/KozakaiAya/libqbpasswd  
