@@ -31,10 +31,6 @@ bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/
 ```
 bash <(wget --no-check-certificate -qO- https://github.com/Aniverse/inexistence/raw/master/inexistence.sh)
 ```
-短命令（就是命令长度短一些，其他方面和上边那个没任何区别）  
-```
-bash <(wget -qO- https://git.io/abcde)
-```
 
 ## Installation Guide
 
